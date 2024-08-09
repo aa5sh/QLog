@@ -66,6 +66,7 @@ public:
     static Data* instance();
 
     static DxccStatus dxccStatus(int dxcc, const QString &band, const QString &mode);
+    static DxccStatus stationStatus(const QString &callsign, const QString &band, const QString &mode);
     static DxccStatus dxccFutureStatus(const DxccStatus &oldStatus,
                                        const qint32 oldDxcc,
                                        const QString &oldBand,

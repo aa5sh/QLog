@@ -213,6 +213,86 @@ DxccStatus Data::dxccStatus(int dxcc, const QString &band, const QString &mode) 
     }
 }
 
+DxccStatus Data::stationStatus(const QString &callsign, const QString &band, const QString &mode) {
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << callsign << " " << band << " " << mode;
+
+    QString filter;
+    QSettings settings;
+    const QVariant &start = settings.value("dxcc/start");
+
+    if ( start.toDate().isValid() )
+    {
+        filter = QString("AND start_time >= '%1'").arg(start.toDate().toString("yyyy-MM-dd"));
+    }
+
+    QString sql_mode(":mode ");
+
+    if ( mode != BandPlan::MODE_GROUP_STRING_CW
+         && mode != BandPlan::MODE_GROUP_STRING_PHONE
+         && mode != BandPlan::MODE_GROUP_STRING_DIGITAL )
+    {
+        sql_mode = "(SELECT modes.dxcc FROM modes WHERE modes.name = :mode LIMIT 1) ";
+    }
+
+    QSqlQuery query;
+
+    if ( ! query.prepare("WITH all_dxcc_qsos AS (SELECT DISTINCT contacts.mode, contacts.band, contacts.qsl_rcvd, contacts.lotw_qsl_rcvd FROM contacts WHERE callsign = :callsign " + filter + ") "
+                         "  SELECT (SELECT 1 FROM all_dxcc_qsos LIMIT 1) as entity,"
+                         "         (SELECT 1 FROM all_dxcc_qsos WHERE band = :band LIMIT 1) as band, "
+                         "         (SELECT 1 FROM all_dxcc_qsos INNER JOIN modes ON (modes.name = all_dxcc_qsos.mode) WHERE modes.dxcc = " + sql_mode + " LIMIT 1) as mode, "
+                         "         (SELECT 1 FROM all_dxcc_qsos INNER JOIN modes ON (modes.name = all_dxcc_qsos.mode) WHERE modes.dxcc = " + sql_mode + " AND all_dxcc_qsos.band = :band LIMIT 1) as slot, "
+                         "         (SELECT 1 FROM all_dxcc_qsos INNER JOIN modes ON (modes.name = all_dxcc_qsos.mode) WHERE modes.dxcc = " + sql_mode + " AND all_dxcc_qsos.band = :band AND (all_dxcc_qsos.qsl_rcvd = 'Y' OR all_dxcc_qsos.lotw_qsl_rcvd = 'Y') LIMIT 1) as confirmed"
+                         )
+       )
+    {
+        qWarning() << "Cannot prepare Select statement";
+        return DxccStatus::UnknownStatus;
+    }
+
+    query.bindValue(":callsign", callsign);
+    query.bindValue(":band", band);
+    query.bindValue(":mode", mode);
+
+    if ( ! query.exec() )
+    {
+        qWarning() << "Cannot execute Select statement" << query.lastError();
+        return DxccStatus::UnknownStatus;
+    }
+
+    if (query.next()) {
+        if (query.value(0).isNull()) {
+            return DxccStatus::NewEntity;
+        }
+        if (query.value(1).isNull()) {
+            if (query.value(2).isNull()) {
+                return DxccStatus::NewBandMode;
+            }
+            else {
+                return DxccStatus::NewBand;
+            }
+        }
+        if (query.value(2).isNull()) {
+            return DxccStatus::NewMode;
+        }
+        if (query.value(3).isNull()) {
+            return DxccStatus::NewSlot;
+        }
+        if ( query.value(4).isNull()) {
+            return DxccStatus::Worked;
+        }
+        else {
+            return DxccStatus::Confirmed;
+        }
+    }
+    else {
+        return DxccStatus::UnknownStatus;
+    }
+}
+
+
+
 #define RETURNCODE(a) \
     qCDebug(runtime) << "new DXCC Status: " << (a); \
     return ((a))
