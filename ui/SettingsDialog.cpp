@@ -293,6 +293,8 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->cwKeyModeSelect->setCurrentIndex(ui->cwKeyModeSelect->findData(CWKey::IAMBIC_B));
 
     ui->dxccStartDate->setDisplayFormat(locale.formatDateShortWithYYYY());
+
+    ui->qLogDatabasePath->setText(Data::dbFilename());
     /* disable WSJTX Multicast by default */
     joinMulticastChanged(false);
 
