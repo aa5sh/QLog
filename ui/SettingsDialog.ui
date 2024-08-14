@@ -27,7 +27,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -3541,39 +3541,13 @@
           <attribute name="title">
            <string>qLog Database</string>
           </attribute>
-          <widget class="QLabel" name="label">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>221</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Override Default Database Location</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkBox">
-           <property name="geometry">
-            <rect>
-             <x>250</x>
-             <y>10</y>
-             <width>431</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
           <widget class="QLabel" name="label_6">
            <property name="geometry">
             <rect>
              <x>10</x>
              <y>40</y>
-             <width>211</width>
-             <height>16</height>
+             <width>131</width>
+             <height>21</height>
             </rect>
            </property>
            <property name="text">
@@ -3583,11 +3557,46 @@
           <widget class="QLineEdit" name="qLogDatabasePath">
            <property name="geometry">
             <rect>
-             <x>250</x>
+             <x>130</x>
              <y>40</y>
              <width>441</width>
              <height>21</height>
             </rect>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="databasePathBrowseButton">
+           <property name="geometry">
+            <rect>
+             <x>580</x>
+             <y>35</y>
+             <width>75</width>
+             <height>32</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Browse</string>
+           </property>
+           <property name="icon">
+            <iconset theme="folder-open"/>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>70</y>
+             <width>641</width>
+             <height>111</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:700; color:#ff2600;&quot;&gt;Important&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700; color:#000000;&quot;&gt;Please note by changing the location of the database you run the risk of losing data.  Please do so at your own risk!  This will not allow for more than one instance of the application to operate with the same database.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </widget>

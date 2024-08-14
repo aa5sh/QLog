@@ -2242,6 +2242,11 @@ void SettingsDialog::readSettings() {
     /***********/
     ui->qrzApiKeyEdit->setText(QRZ::getLogbookAPIKey());
 
+    /***********/
+    /* qlog db */
+    /***********/
+    ui->qLogDatabasePath->setText(settings.value("qlog/dbpath").toString());
+
     /***************/
     /* ON4KST Chat */
     /***************/
@@ -2349,6 +2354,11 @@ void SettingsDialog::writeSettings() {
     /* QRZ.COM */
     /***********/
     QRZ::saveLogbookAPI(ui->qrzApiKeyEdit->text());
+
+    /***********/
+    /* DB Path */
+    /***********/
+    settings.setValue("qlog/dbpath", ui->qLogDatabasePath->text());
 
     /***************/
     /* ON4KST Chat */
@@ -2629,3 +2639,22 @@ SettingsDialog::~SettingsDialog() {
     iotaCompleter->deleteLater();
     delete ui;
 }
+
+void SettingsDialog::on_databasePathBrowseButton_clicked()
+{
+    FCT_IDENTIFICATION;
+
+    const QString &lastPath = ( ui->qLogDatabasePath->text().isEmpty() ) ? QDir::rootPath()
+                                                                   : ui->qLogDatabasePath->text();
+
+    QString filepath= QFileDialog::getExistingDirectory(this,
+                                                    tr("Select Directory"),
+                                                    lastPath);
+    if ( !filepath.isEmpty() )
+    {
+        ui->qLogDatabasePath->setText(filepath);
+    }
+}
+
+
+

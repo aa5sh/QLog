@@ -115,6 +115,10 @@ public slots:
     void hrdlogSettingChanged();
     void clublogSettingChanged();
 
+private slots:
+    void on_databasePathBrowseButton_clicked();
+
+
 private:
     void readSettings();
     void writeSettings();

@@ -143,8 +143,12 @@ static void setupTranslator(QApplication* app,
 
 static void createDataDirectory() {
     FCT_IDENTIFICATION;
+    QSettings settings;
 
-    QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+    QString filePath = settings.value("qlog/dbpath", QStandardPaths::AppLocalDataLocation).toString();
+
+    //QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+    QDir dataDir(filePath);
     qCDebug(runtime) << dataDir.path();
 
     if (!dataDir.exists()) {
@@ -519,6 +523,22 @@ int main(int argc, char* argv[])
     createDataDirectory();
 
     splash.showMessage(QObject::tr("Opening Database"), Qt::AlignBottom|Qt::AlignCenter );
+
+    FCT_IDENTIFICATION;
+    QSettings settings;
+
+    QString filePath = settings.value("qlog/dbpath", QStandardPaths::AppLocalDataLocation).toString();
+
+    //QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+    QDir dir(filePath);
+    if (QFile::exists(dir.filePath("qlog.db-shm")) or QFile::exists(dir.filePath("qlog.db-wal"))) {
+        qDebug() << "SQLite Database Lock Files found!";
+        QMessageBox::StandardButton reply;
+        QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
+                              QMessageBox::tr("QLog Database Is Already Open!"));
+            return 1;
+
+    }
 
     if (!openDatabase()) {
         QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),

@@ -509,8 +509,12 @@ int Data::getCQZMax()
 QString Data::dbFilename()
 {
     FCT_IDENTIFICATION;
+    QSettings settings;
 
-    QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+    QString filePath = settings.value("qlog/dbpath", QStandardPaths::AppLocalDataLocation).toString();
+
+    //QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+    QDir dir(filePath);
     return dir.filePath("qlog.db");
 }
 
