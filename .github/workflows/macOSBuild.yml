@@ -68,6 +68,7 @@ jobs:
          install_name_tool -change `brew --prefix`/opt/icu4c/lib/libicui18n.74.dylib @executable_path/../Frameworks/libicui18n.74.dylib qlog.app/Contents/MacOS/qlog
          otool -L qlog.app/Contents/MacOS/qlog
          macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
+         macdeployqt qlog.app
      - name: Codesign app bundle
          # Extract the secrets we defined earlier as environment variables
        env: 
