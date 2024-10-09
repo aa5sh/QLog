@@ -15,12 +15,12 @@ VERSION = 0.39.0
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
 # Define paths to HAMLIB. Leave empty if system libraries should be used
-#HAMLIBINCLUDEPATH =
-#HAMLIBLIBPATH =
+HAMLIBINCLUDEPATH = /Users/michaelmorgan/hamlib-prefix/src/inlcude
+HAMLIBLIBPATH = /Users/michaelmorgan/hamlib-prefix/src/lib
 # Define Hamlib version. Leave empty if pkg-config should detect the version (lib must be installed and registered)
-#HAMLIBVERSION_MAJOR =
-#HAMLIBVERSION_MINOR =
-#HAMLIBVERSION_PATCH =
+HAMLIBVERSION_MAJOR = 4
+HAMLIBVERSION_MINOR = 6
+HAMLIBVERSION_PATCH = 0
 
 # Define paths to pthread - needed for Hamlib4.5 and later. Leave empty if system libraries should be used
 #PTHREADINCLUDEPATH =
