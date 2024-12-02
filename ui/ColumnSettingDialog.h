@@ -53,11 +53,11 @@ class ColumnSettingDialog : public ColumnSettingGenericDialog
 public:
     explicit ColumnSettingDialog(QTableView *table,
                                  QWidget *parent = nullptr,
-                                 const QList<LogbookModel::column_id> &columnIdFilter = QList<LogbookModel::column_id>());
+                                 const QList<LogbookModel::ColumnID> &columnIdFilter = QList<LogbookModel::ColumnID>());
     explicit ColumnSettingDialog(const QAbstractItemModel *model,
                                  const QSet<int> &defaultSetting,
                                  QWidget *parent = nullptr,
-                                 const QList<LogbookModel::column_id> &columnIdFilter = QList<LogbookModel::column_id>());
+                                 const QList<LogbookModel::ColumnID> &columnIdFilter = QList<LogbookModel::ColumnID>());
     ~ColumnSettingDialog();
 
 private:
@@ -65,7 +65,7 @@ private:
     Ui::ColumnSettingDialog *ui;
     QTableView *table;
     QSet<int> defaultColumnsState;
-    QList<LogbookModel::column_id> columnIdExcludeFilter;
+    QList<LogbookModel::ColumnID> columnIdExcludeFilter;
 };
 
 #endif // QLOG_UI_COLUMNSETTINGDIALOG_H

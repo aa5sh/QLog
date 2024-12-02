@@ -29,6 +29,12 @@ ExportDialog::ExportDialog(QWidget *parent) :
     ui->startDateEdit->setDate(QDate::currentDate());
     ui->endDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
     ui->endDateEdit->setDate(QDate::currentDate().addDays(1));
+
+    ui->userFilterComboBox->setModel(new SqlListModel("SELECT filter_name "
+                                                      "FROM qso_filters "
+                                                      "ORDER BY filter_name COLLATE LOCALEAWARE ASC",
+                                                      "", this));
+    ui->userFilterCheckBox->setEnabled(ui->userFilterComboBox->count() > 0);
 }
 
 ExportDialog::ExportDialog(const QList<QSqlRecord>& qsos, QWidget *parent) :
@@ -107,6 +113,13 @@ void ExportDialog::toggleSentStatus()
     ui->addlSentStatusAlreadySentCheckBox->setEnabled(ui->addlSentStatusCheckbox->isChecked());
 }
 
+void ExportDialog::toggleUserFilter()
+{
+    FCT_IDENTIFICATION;
+
+    ui->userFilterComboBox->setEnabled(ui->userFilterCheckBox->isChecked());
+}
+
 void ExportDialog::runExport()
 {
     FCT_IDENTIFICATION;
@@ -138,25 +151,20 @@ void ExportDialog::runExport()
     }
 
     if ( ui->dateRangeCheckBox->isChecked() )
-    {
         format->setFilterDateRange(ui->startDateEdit->date(), ui->endDateEdit->date());
-    }
 
     if ( ui->myCallsignCheckBox->isChecked() )
-    {
         format->setFilterMyCallsign(ui->myCallsignComboBox->currentText());
-    }
 
     if ( ui->myGridCheckBox->isChecked() )
-    {
         format->setFilterMyGridsquare(ui->myGridComboBox->currentText());
-    }
+
+    if ( ui->userFilterCheckBox->isChecked() )
+        format->setUserFilter(ui->userFilterComboBox->currentText());
 
     if ( ui->exportTypeCombo->currentData() == "qsl"
          && ui->qslSendViaCheckbox->isChecked() )
-    {
         format->setFilterSendVia(ui->qslSendViaComboBox->currentData().toString());
-    }
 
     if ( ui->exportTypeCombo->currentData() == "qsl" )
     {
@@ -190,7 +198,8 @@ void ExportDialog::runExport()
     ui->qslSendViaComboBox->setEnabled(false);
     ui->markAsSentCheckbox->setEnabled(false);
     ui->exportedColumnsCombo->setEnabled(false);
-
+    ui->userFilterCheckBox->setEnabled(false);
+    ui->userFilterComboBox->setEnabled(false);
     if ( exportedColumns.count() > 0 )
     {
         //translate column indexes to SQL column names
@@ -246,7 +255,7 @@ void ExportDialog::showColumnsSetting()
     FCT_IDENTIFICATION;
 
     // don't want to export QSO ID because it is not a ADIF field
-    QList<LogbookModel::column_id> excludeFilter({LogbookModel::COLUMN_ID});
+    QList<LogbookModel::ColumnID> excludeFilter({LogbookModel::COLUMN_ID});
 
     ColumnSettingDialog dialog(&logbookmodel,
                                exportedColumns,

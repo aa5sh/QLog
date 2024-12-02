@@ -9,8 +9,9 @@
 
 class MainLayoutProfile
 {
+
 public:
-    MainLayoutProfile(){darkMode = false;};
+    MainLayoutProfile(){darkMode = false; tabsexpanded = true;};
 
     QString profileName;
     QList<int> rowA;
@@ -21,6 +22,7 @@ public:
     QByteArray mainGeometry;
     QByteArray mainState;
     bool darkMode;
+    bool tabsexpanded;
 
     bool operator== (const MainLayoutProfile &profile);
     bool operator!= (const MainLayoutProfile &profile);
@@ -34,13 +36,13 @@ private:
 
 Q_DECLARE_METATYPE(MainLayoutProfile);
 
-class MainLayoutProfilesManager : QObject, public ProfileManagerSQL<MainLayoutProfile>
+class MainLayoutProfilesManager : public ProfileManagerSQL<MainLayoutProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit MainLayoutProfilesManager(QObject *parent = nullptr);
+    explicit MainLayoutProfilesManager();
     ~MainLayoutProfilesManager() { };
 
     static MainLayoutProfilesManager* instance()

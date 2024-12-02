@@ -62,13 +62,10 @@ QDataStream& operator>>(QDataStream& in, RigProfile& v)
     return in;
 }
 
-RigProfilesManager::RigProfilesManager(QObject *parent) :
-    QObject(parent),
+RigProfilesManager::RigProfilesManager() :
     ProfileManagerSQL<RigProfile>("rig_profiles")
 {
     FCT_IDENTIFICATION;
-
-    QSettings settings;
 
     QSqlQuery profileQuery;
 

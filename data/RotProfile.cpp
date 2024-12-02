@@ -35,8 +35,7 @@ QDataStream& operator>>(QDataStream& in, RotProfile& v)
     return in;
 }
 
-RotProfilesManager::RotProfilesManager(QObject *parent) :
-    QObject(parent),
+RotProfilesManager::RotProfilesManager() :
     ProfileManagerSQL<RotProfile>("rot_profiles")
 {
     FCT_IDENTIFICATION;

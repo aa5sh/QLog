@@ -7,6 +7,7 @@
 #include "core/debug.h"
 #include "BandPlan.h"
 #include "data/StationProfile.h"
+#include "core/LogParam.h"
 
 MODULE_IDENTIFICATION("qlog.data.data");
 
@@ -129,13 +130,22 @@ Data::~Data()
     }
 }
 
+#define RETCODE(a)  \
+    dxccStatusCache.insert(dxcc, myDXCC, band, mode, new DxccStatus(a)); \
+    return ((a));
+
 DxccStatus Data::dxccStatus(int dxcc, const QString &band, const QString &mode)
 {
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << dxcc << " " << band << " " << mode;
 
-    const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
+    const int myDXCC = StationProfilesManager::instance()->getCurProfile1().dxcc;
+
+    DxccStatus *statusFromCache = dxccStatusCache.value(dxcc, myDXCC, band, mode);
+
+    if ( statusFromCache )
+        return *statusFromCache;
 
     QString sql_mode(":mode");
 
@@ -160,7 +170,7 @@ DxccStatus Data::dxccStatus(int dxcc, const QString &band, const QString &mode)
                                          "         (SELECT 1 FROM all_dxcc_qsos INNER JOIN modes ON (modes.name = all_dxcc_qsos.mode) "
                                          "          WHERE modes.dxcc = %4 AND all_dxcc_qsos.band = :band "
                                          "                AND (all_dxcc_qsos.qsl_rcvd = 'Y' OR all_dxcc_qsos.lotw_qsl_rcvd = 'Y') LIMIT 1) as confirmed")
-                                         .arg(( profile.dxcc != 0 ) ? QString(" AND my_dxcc = %1").arg(profile.dxcc)
+                                         .arg(( myDXCC != 0 ) ? QString(" AND my_dxcc = %1").arg(myDXCC)
                                                                     : "",
                                               sql_mode,
                                               sql_mode,
@@ -185,36 +195,65 @@ DxccStatus Data::dxccStatus(int dxcc, const QString &band, const QString &mode)
     if ( query.next() )
     {
         if ( query.value(0).toString().isEmpty() )
-            return DxccStatus::NewEntity;
+        {
+            RETCODE(DxccStatus::NewEntity);
+        }
 
         if ( query.value(1).toString().isEmpty() )
         {
             if ( query.value(2).toString().isEmpty() )
-                return DxccStatus::NewBandMode;
+            {
+                RETCODE(DxccStatus::NewBandMode);
+            }
             else
-                return DxccStatus::NewBand;
+            {
+                RETCODE(DxccStatus::NewBand);
+            }
         }
 
         if ( query.value(2).toString().isEmpty() )
-            return DxccStatus::NewMode;
+        {
+            RETCODE(DxccStatus::NewMode);
+        }
 
         if ( query.value(3).toString().isEmpty() )
-            return DxccStatus::NewSlot;
+        {
+            RETCODE(DxccStatus::NewSlot);
+        }
 
         if ( query.value(4).toString().isEmpty() )
-            return DxccStatus::Worked;
+        {
+            RETCODE(DxccStatus::Worked);
+        }
         else
-            return DxccStatus::Confirmed;
+        {
+            RETCODE(DxccStatus::Confirmed);
+        }
     }
 
-    return DxccStatus::UnknownStatus;
+    RETCODE(DxccStatus::UnknownStatus);
+}
+#undef RETCODE
+
+QStringList Data::contestList()
+{
+    FCT_IDENTIFICATION;
+
+    QStringList contestLOV;
+
+    QSqlQuery query(QLatin1String("SELECT DISTINCT contest_id FROM contacts ORDER BY 1 COLLATE LOCALEAWARE ASC"));
+
+    while ( query.next() )
+        contestLOV << query.value(0).toString();
+
+    return contestLOV + contests.keys();
 }
 
 #define RETURNCODE(a) \
     qCDebug(runtime) << "new DXCC Status: " << (a); \
     return ((a))
 
-DxccStatus Data::dxccFutureStatus(const DxccStatus &oldStatus,
+DxccStatus Data::dxccNewStatusWhenQSOAdded(const DxccStatus &oldStatus,
                                   const qint32 oldDxcc,
                                   const QString &oldBand,
                                   const QString &oldMode,
@@ -367,12 +406,76 @@ DxccStatus Data::dxccFutureStatus(const DxccStatus &oldStatus,
     RETURNCODE(DxccStatus::UnknownStatus);
 }
 
-#undef RETURNCODE
-
-QColor Data::statusToColor(const DxccStatus &status, const QColor &defaultColor) {
+qulonglong Data::dupeNewCountWhenQSOAdded(qulonglong oldCounter,
+                                          const QString &oldBand,
+                                          const QString &oldMode,
+                                          const QString &addedBand,
+                                          const QString &addedMode)
+{
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << status;
+    qCDebug(function_parameters) << oldCounter
+                                 << oldBand
+                                 << oldMode
+                                 << addedBand
+                                 << addedMode;
+
+    int dupeType = LogParam::getParam("contest/dupetype" , Data::DupeType::ALL_BANDS).toInt();
+    const QString &contestID = LogParam::getParam("contest/contestid").toString();
+
+    qCDebug(runtime) << dupeType << contestID;
+
+    if ( contestID.isEmpty() )
+        return oldCounter;
+
+    bool shouldIncrease = (dupeType == DupeType::ALL_BANDS) ||
+                          (dupeType == DupeType::EACH_BAND && oldBand == addedBand) ||
+                          (dupeType == DupeType::EACH_BAND_MODE && oldBand == addedBand && oldMode == addedMode);
+
+    RETURNCODE( shouldIncrease ? oldCounter + 1 : oldCounter);
+}
+
+qulonglong Data::dupeNewCountWhenQSODelected(qulonglong oldCounter,
+                                             const QString &oldBand,
+                                             const QString &oldMode,
+                                             const QString &deletedBand,
+                                             const QString &deletedMode)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << oldCounter
+                                 << oldBand
+                                 << oldMode
+                                 << deletedBand
+                                 << deletedMode;
+
+    if ( oldCounter == 0 )
+        return 0;
+
+    int dupeType = LogParam::getParam("contest/dupetype" , Data::DupeType::ALL_BANDS).toInt();
+    const QString &contestID = LogParam::getParam("contest/contestid").toString();
+
+    qCDebug(runtime) << dupeType << contestID;
+
+    if ( contestID.isEmpty() )
+        return oldCounter;
+
+    bool shouldDecrease = (dupeType == DupeType::ALL_BANDS) ||
+                          (dupeType == DupeType::EACH_BAND && oldBand == deletedBand) ||
+                          (dupeType == DupeType::EACH_BAND_MODE && oldBand == deletedBand && oldMode == deletedMode);
+
+    RETURNCODE( shouldDecrease ? oldCounter - 1 : oldCounter);
+}
+
+#undef RETURNCODE
+
+QColor Data::statusToColor(const DxccStatus &status, bool isDupe, const QColor &defaultColor) {
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << status << isDupe;
+
+    if ( isDupe )
+        return QColor(109, 109, 109, 100);
 
     switch (status) {
         case DxccStatus::NewEntity:
@@ -584,6 +687,101 @@ QStringList Data::sigIDList()
         sigLOV << query.value(0).toString();
 
     return sigLOV;
+}
+
+void Data::invalidateDXCCStatusCache(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    dxccStatusCache.invalidate(record.value("dxcc").toInt(), StationProfilesManager::instance()->getCurProfile1().dxcc);
+}
+
+void Data::invalidateSetOfDXCCStatusCache(const QSet<uint> &entities)
+{
+    FCT_IDENTIFICATION;
+
+    int myDXCC = StationProfilesManager::instance()->getCurProfile1().dxcc;
+
+    for ( uint entity : entities )
+       dxccStatusCache.invalidate(entity, myDXCC);
+}
+
+void Data::clearDXCCStatusCache()
+{
+    FCT_IDENTIFICATION;
+
+    dxccStatusCache.clear();
+}
+
+qulonglong Data::countDupe(const QString &callsign,
+                           const QString &band,
+                           const QString &mode)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << callsign
+                                 << band
+                                 << mode;
+
+    int dupeType = LogParam::getParam("contest/dupetype" , Data::DupeType::ALL_BANDS).toInt();
+    const QString &contestID = LogParam::getParam("contest/contestid").toString();
+    const QDateTime &dupeStartTime = LogParam::getParam("contest/dupeDate").toDateTime();
+
+    qCDebug(runtime) << dupeType <<  dupeStartTime << contestID;
+
+    if ( contestID.isEmpty()
+         || dupeType == DupeType::NO_CHECK
+         || !dupeStartTime.isValid() )
+        return false;
+
+    QStringList whereClause =
+    {
+        "callsign = :callsign",
+        "contest_id = :contestid"
+    };
+
+    if ( dupeType >= DupeType::ALL_BANDS )
+        whereClause << QLatin1String("start_time >= :date");
+
+    if ( dupeType >= DupeType::EACH_BAND)
+        whereClause << QLatin1String("band = :band");
+
+    if ( dupeType >= DupeType::EACH_BAND_MODE )
+    {
+        QString sql_mode = (mode != BandPlan::MODE_GROUP_STRING_CW &&
+                            mode != BandPlan::MODE_GROUP_STRING_PHONE &&
+                            mode != BandPlan::MODE_GROUP_STRING_DIGITAL)
+                            ? "(SELECT modes.dxcc FROM modes WHERE modes.name = :mode LIMIT 1)"
+                            : ":mode";
+        whereClause << QString("m.dxcc = %1").arg(sql_mode);
+    }
+
+    QString queryString("SELECT COUNT(1) "
+                        "FROM contacts c "
+                        "INNER JOIN modes m ON (m.name = c.mode) "
+                        "WHERE %1 ");
+
+    QSqlQuery query;
+
+    if ( ! query.prepare(queryString.arg(whereClause.join(" AND "))))
+    {
+        qWarning() << "Cannot prepare Select statement" << queryString.arg(whereClause.join(" AND "));
+        return false;
+    }
+
+    query.bindValue(":callsign", callsign);
+    query.bindValue(":date", dupeStartTime);
+    query.bindValue(":band", band);
+    query.bindValue(":mode", mode);
+    query.bindValue(":contestid", contestID);
+
+    if ( ! query.exec() )
+    {
+        qWarning() << "Cannot execute Select statement" << query.lastError() << query.lastQuery();
+        return false;
+    }
+
+    return (query.first()) ? query.value(0).toULongLong() : 0ULL;
 }
 
 void Data::loadContests()

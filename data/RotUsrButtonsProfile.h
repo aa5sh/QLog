@@ -33,13 +33,13 @@ private:
 
 Q_DECLARE_METATYPE(RotUsrButtonsProfile);
 
-class RotUsrButtonsProfilesManager : QObject, public ProfileManagerSQL<RotUsrButtonsProfile>
+class RotUsrButtonsProfilesManager : public ProfileManagerSQL<RotUsrButtonsProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit RotUsrButtonsProfilesManager(QObject *parent = nullptr);
+    explicit RotUsrButtonsProfilesManager();
     ~RotUsrButtonsProfilesManager() { };
 
     static RotUsrButtonsProfilesManager* instance()

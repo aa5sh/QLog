@@ -45,13 +45,13 @@ private:
 
 Q_DECLARE_METATYPE(CWKeyProfile);
 
-class CWKeyProfilesManager : QObject, public ProfileManagerSQL<CWKeyProfile>
+class CWKeyProfilesManager : public ProfileManagerSQL<CWKeyProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit CWKeyProfilesManager(QObject *parent = nullptr);
+    explicit CWKeyProfilesManager();
     ~CWKeyProfilesManager() { };
 
     static CWKeyProfilesManager* instance()

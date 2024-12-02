@@ -1,7 +1,4 @@
 #include <QStringListModel>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QSqlError>
 #include <QMessageBox>
 #include <QDateTimeEdit>
 #include <QStackedWidget>
@@ -9,6 +6,7 @@
 #include "ui_QSOFilterDetail.h"
 #include "core/debug.h"
 #include "data/Data.h"
+#include "core/QSOFilterManager.h"
 
 MODULE_IDENTIFICATION("qlog.ui.qsofilterdetail");
 
@@ -22,35 +20,13 @@ QSOFilterDetail::QSOFilterDetail(const QString &filterName, QWidget *parent) :
 
     ui->setupUi(this);
 
-    logbookmodel = new LogbookModel(this);
-
     if ( ! filterName.isEmpty() )
-    {
         loadFilter(filterName);
-    }
     else
     {
         /* get Filters name from DB to checking whether a new filter name
          * will be unique */
-        QSqlQuery filterStmt;
-        if ( ! filterStmt.prepare("SELECT filter_name FROM qso_filters ORDER BY filter_name") )
-        {
-            qWarning() << "Cannot prepare select statement";
-        }
-        else
-        {
-            if ( filterStmt.exec() )
-            {
-                while (filterStmt.next())
-                {
-                    filterNamesList << filterStmt.value(0).toString();
-                }
-            }
-            else
-            {
-                qInfo()<< "Cannot get filters names from DB" << filterStmt.lastError();;
-            }
-        }
+        filterNamesList = QSOFilterManager::instance()->getFilterList();
     }
 }
 
@@ -80,16 +56,8 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     sizePolicy1.setHeightForWidth(fieldNameCombo->sizePolicy().hasHeightForWidth());
     fieldNameCombo->setSizePolicy(sizePolicy1);
 
-    int columnIndex = 0;
-
-    QStringList columnsNames;
-    while ( columnIndex < logbookmodel->columnCount() )
-    {
-        columnsNames << logbookmodel->headerData(columnIndex, Qt::Horizontal).toString();
-        columnIndex++;
-    }
-
-    QStringListModel* columnsNameModel = new QStringListModel(columnsNames,this);
+    QStringListModel* columnsNameModel = new QStringListModel(LogbookModel::getAllFieldNamesTranslation(),
+                                                              this);
     fieldNameCombo->setModel(columnsNameModel);
 
     /* Do not set combo value here because we will connect signal Change later */
@@ -109,9 +77,7 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     conditionCombo->setObjectName(QString::fromUtf8("conditionCombo%1").arg(condCount));
 
     if ( operatorId >= 0 )
-    {
         conditionCombo->setCurrentIndex(operatorId);
-    }
 
     conditionLayout->addWidget(conditionCombo);
 
@@ -151,52 +117,30 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
            Therefore, we can use Column aliases here
          */
         if ( this->isDateField(index) )
-        {
             stacked->setCurrentIndex(1); //Date Edit
-        }
         else if ( this->isDateTimeField(index) )
-        {
             stacked->setCurrentIndex(2); //DateTime edit
-        }
         else if ( this->isQSLSentField(index) )
-        {
             stacked->setCurrentIndex(3);
-        }
         else if ( this->isQSLSentViaField(index) )
-        {
             stacked->setCurrentIndex(4);
-        }
         else if ( this->isQSLRcvdField(index) )
-        {
             stacked->setCurrentIndex(5);
-        }
         else if ( this->isUploadStatusField(index) )
-        {
             stacked->setCurrentIndex(6);
-        }
         else if ( this->isAntPathField(index) )
-        {
             stacked->setCurrentIndex(7);
-        }
         else if ( this->isBoolField(index) )
-        {
             stacked->setCurrentIndex(8);
-        }
         else if ( this->isQSOCompleteField(index) )
-        {
             stacked->setCurrentIndex(9);
-        }
         else
-        {
             stacked->setCurrentIndex(0);
-        }
     });
 
     /* Set FieldNameCombo here to update Stacked Widget */
     if ( fieldIdx >= 0 )
-    {
         fieldNameCombo->setCurrentIndex(fieldIdx);
-    }
 
     /*****************/
     /* Remove Button */
@@ -232,32 +176,14 @@ void QSOFilterDetail::loadFilter(const QString &filterName)
     ui->filterLineEdit->setText(filterName);
     ui->filterLineEdit->setEnabled(false);
 
-    QSqlQuery query;
-    if ( ! query.prepare("SELECT matching_type, table_field_index, operator_id, value "
-                  "FROM qso_filter_rules r, qso_filters f "
-                  "WHERE f.filter_name = :filter AND f.filter_name = r.filter_name") )
-    {
-        qWarning() << "Cannot prepare select statement";
-        return;
-    }
+    const QSOFilter &filter = QSOFilterManager::instance()->getFilter(filterName);
 
-    query.bindValue(":filter", filterName);
-
-    if ( query.exec() )
+    if ( filter.filterName == filterName )
     {
-        while ( query.next() )
-        {
-            QSqlRecord record = query.record();
+        ui->matchingCombo->setCurrentIndex(filter.machingType);
 
-            ui->matchingCombo->setCurrentIndex(record.value("matching_type").toInt());
-            addCondition(record.value("table_field_index").toInt(),
-                         record.value("operator_id").toInt(),
-                         record.value("value").toString());
-        }
-    }
-    else
-    {
-        qCDebug(runtime) << "SQL execution error: " << query.lastError().text();
+        for ( const QSOFilterRule &rule : filter.rules )
+            addCondition(rule.tableFieldIndex, rule.operatorID, rule.value);
     }
 }
 
@@ -400,9 +326,7 @@ QComboBox* QSOFilterDetail::createComboBox(const QMap<QString, QString> &mapping
         iter.next();
         combo->addItem(iter.value(), iter.key());
         if ( ! value.isEmpty() && iter.key() == value )
-        {
             value_index = iter_index;
-        }
         iter_index++;
     }
     combo->setCurrentIndex(value_index);
@@ -425,9 +349,7 @@ QDateEdit *QSOFilterDetail::createDateEdit(const QString &value, const int ident
     valueDate->setDisplayFormat(locale.formatDateShortWithYYYY());
     valueDate->setSizePolicy(sizepolicy);
     if ( !value.isEmpty() )
-    {
         valueDate->setDate(QDate::fromString(value, "yyyy-MM-dd"));
-    }
     return valueDate;
 }
 
@@ -439,7 +361,6 @@ QDateTimeEdit *QSOFilterDetail::createDateTimeEdit(const QString &value, const i
     QDateTimeEdit* valueDateTime = new QDateTimeEdit();
     valueDateTime->setObjectName(QString::fromUtf8("valueDateTimeEdit%1").arg(identified));
     valueDateTime->setFocusPolicy(Qt::ClickFocus);
-    valueDateTime->setCalendarPopup(true);
     valueDateTime->setTimeSpec(Qt::UTC);
     valueDateTime->setDisplayFormat(locale.formatDateShortWithYYYY()
                                     + " " + locale.formatTimeLongWithoutTZ());
@@ -465,9 +386,6 @@ void QSOFilterDetail::save()
 {
     FCT_IDENTIFICATION;
 
-    QString valueString;
-    QSqlQuery filterInsertStmt, deleteFilterStmt, updateStmt;
-
     if ( ui->filterLineEdit->text().isEmpty() )
     {
         ui->filterLineEdit->setPlaceholderText(tr("Must not be empty"));
@@ -481,139 +399,73 @@ void QSOFilterDetail::save()
         return;
     }
 
-    if ( ! filterInsertStmt.prepare("INSERT INTO qso_filter_rules(filter_name, table_field_index, operator_id, value) "
-                              "VALUES (:filterName, :tableFieldIndex, :operatorID, :valueString)") )
+    const QList<QHBoxLayout *> &conditionLayouts = ui->conditionsLayout->findChildren<QHBoxLayout *>();
+
+    QSOFilter filter;
+
+    filter.filterName = ui->filterLineEdit->text();
+    filter.machingType = ui->matchingCombo->currentIndex();
+
+    for ( auto &condition: conditionLayouts )
     {
-        qWarning() << "cannot preapre insert statement";
-        return;
-    }
+        QSOFilterRule rule;
 
-    if ( ! updateStmt.prepare("INSERT INTO qso_filters (filter_name, matching_type) VALUES (:filterName, :matchingType) "
-                       "ON CONFLICT(filter_name) DO UPDATE SET matching_type = :matchingType WHERE filter_name = :filterName") )
-    {
-        qWarning() << "Cannot prepare insert statement";
-        return;
-    }
-
-    updateStmt.bindValue(":matchingType", ui->matchingCombo->currentIndex());
-    updateStmt.bindValue(":filterName", ui->filterLineEdit->text());
-
-    if ( ! deleteFilterStmt.prepare("DELETE FROM qso_filter_rules WHERE filter_name = :filterName") )
-    {
-        qWarning() << "Cannot prepare delete statement";
-        return;
-    }
-    deleteFilterStmt.bindValue(":filterName", ui->filterLineEdit->text());
-
-    QSqlDatabase::database().transaction();
-
-    if ( updateStmt.exec() )
-    {
-        if ( deleteFilterStmt.exec() )
+        for ( int i = 0; i < 3; i++ )
         {
-            const QList<QHBoxLayout *> &conditionLayouts = ui->conditionsLayout->findChildren<QHBoxLayout *>();
 
-            for (auto &condition: conditionLayouts )
+            QString objectName = condition->itemAt(i)->widget()->objectName();
+
+            if ( objectName.contains("fieldNameCom") )
+                rule.tableFieldIndex = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentIndex();
+            else if ( objectName.contains("conditionCombo") )
+                rule.operatorID = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentIndex();
+            else if ( objectName.contains("stackedValueEdit") )
             {
-                int fieldNameIdx = 0;
-                int conditionIdx = 0;
+                QStackedWidget* editStack = dynamic_cast<QStackedWidget*>(condition->itemAt(i)->widget());
 
-                for (int i = 0; i < 3; i++)
+                QWidget* stackedEdit = editStack->currentWidget();
+
+                if ( stackedEdit )
                 {
+                    QString stacketEditObjName = stackedEdit->objectName();
 
-                    QString objectName = condition->itemAt(i)->widget()->objectName();
-
-                    if ( objectName.contains("fieldNameCom") )
+                    if ( stacketEditObjName.contains("valueLineEdit") )
                     {
-                        fieldNameIdx = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentIndex();
+                        QLineEdit* editLine = dynamic_cast<QLineEdit*>(stackedEdit);
+                        rule.value = editLine->text();
                     }
-
-                    if ( objectName.contains("conditionCombo") )
+                    else if ( stacketEditObjName.contains("valueDateEdit") )
                     {
-                        conditionIdx = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentIndex();
+                        QDateEdit* dateTimeEdit = dynamic_cast<QDateEdit*>(stackedEdit);
+                        rule.value = dateTimeEdit->date().toString(Qt::ISODate);
                     }
-
-                    if ( objectName.contains("stackedValueEdit") )
+                    else if ( stacketEditObjName.contains("valueDateTimeEdit") )
                     {
-                        QStackedWidget* editStack = dynamic_cast<QStackedWidget*>(condition->itemAt(i)->widget());
-
-                        QWidget* stackedEdit = editStack->currentWidget();
-
-                        if ( stackedEdit )
-                        {
-                            QString stacketEditObjName = stackedEdit->objectName();
-
-                            if ( stacketEditObjName.contains("valueLineEdit") )
-                            {
-                                QLineEdit* editLine = dynamic_cast<QLineEdit*>(stackedEdit);
-                                valueString = editLine->text();
-                            }
-                            else if ( stacketEditObjName.contains("valueDateEdit") )
-                            {
-                                QDateEdit* dateTimeEdit = dynamic_cast<QDateEdit*>(stackedEdit);
-                                valueString = dateTimeEdit->date().toString(Qt::ISODate);
-                            }
-                            else if ( stacketEditObjName.contains("valueDateTimeEdit") )
-                            {
-                                QDateTimeEdit* dateEdit = dynamic_cast<QDateTimeEdit*>(stackedEdit);
-                                valueString = dateEdit->dateTime().toString("yyyy-MM-ddTHH:mm:ss");
-                            }
-                            else if ( stacketEditObjName.contains("valueCombo") )
-                            {
-                                QComboBox* combo = dynamic_cast<QComboBox*>(stackedEdit);
-                                valueString = combo->currentData().toString();
-                                if ( valueString == " ") // empty value
-                                {
-                                    valueString = QString();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            qCCritical(runtime) << "Unexpected empty Stack - null pointer";
-                        }
+                        QDateTimeEdit* dateEdit = dynamic_cast<QDateTimeEdit*>(stackedEdit);
+                        rule.value = dateEdit->dateTime().toString("yyyy-MM-ddTHH:mm:ss");
                     }
-                }
-
-                qCDebug(runtime)<< "Condition Values: " << ui->filterLineEdit->text() << " " << fieldNameIdx << " " << conditionIdx << " " << valueString;
-                filterInsertStmt.bindValue(":filterName", ui->filterLineEdit->text());
-                filterInsertStmt.bindValue(":tableFieldIndex", fieldNameIdx);
-                filterInsertStmt.bindValue(":operatorID", conditionIdx);
-                if ( valueString.isEmpty() )
-                {
-                    filterInsertStmt.bindValue(":valueString", QVariant());
+                    else if ( stacketEditObjName.contains("valueCombo") )
+                    {
+                        QComboBox* combo = dynamic_cast<QComboBox*>(stackedEdit);
+                        rule.value = combo->currentData().toString();
+                        if ( rule.value == " ") // empty value
+                            rule.value = QString();
+                    }
                 }
                 else
-                {
-                    filterInsertStmt.bindValue(":valueString", valueString);
-                }
-
-                if ( ! filterInsertStmt.exec() )
-                {
-                    QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                                          QMessageBox::tr("Cannot update QSO Filter Conditions - ") + filterInsertStmt.lastError().text());
-                    qInfo()<< "Cannot update QSO Filter Conditions - " << filterInsertStmt.lastError().text();
-                    QSqlDatabase::database().rollback();
-                    return;
-                }
+                    qCritical(runtime) << "Unexpected empty Stack - null pointer";
             }
-            QSqlDatabase::database().commit();
+            else
+                qWarning() << "Unknown object name"  << objectName;
         }
-        else
-        {
-            QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                                  QMessageBox::tr("Cannot delete QSO Filter Conditions before updating - ") + deleteFilterStmt.lastError().text());
-            qInfo()<< "Cannot delete QSO Filter Conditions before updating -  " << deleteFilterStmt.lastError().text();
-            QSqlDatabase::database().rollback();
-            return;
-        }
+
+        filter.addRule(rule);
     }
-    else
+
+    if ( !QSOFilterManager::instance()->save(filter) )
     {
         QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                              QMessageBox::tr("Cannot Update QSO Filter Matching type - ") + updateStmt.lastError().text());
-        qInfo()<< "Cannot Update QSO Filter Matching type - " << updateStmt.lastError().text();
-        QSqlDatabase::database().rollback();
+                              QMessageBox::tr("Cannot update QSO Filter Conditions"));
         return;
     }
 
@@ -625,15 +477,7 @@ void QSOFilterDetail::filterNameChanged(const QString &newFilterName)
     FCT_IDENTIFICATION;
 
     QPalette p;
-
-    if ( filterExists(newFilterName) )
-    {
-        p.setColor(QPalette::Text,Qt::red);
-    }
-    else
-    {
-        p.setColor(QPalette::Text,qApp->palette().text().color());
-    }
-
+    p.setColor(QPalette::Text, (filterExists(newFilterName)) ? Qt::red
+                                                             : qApp->palette().text().color());
     ui->filterLineEdit->setPalette(p);
 }

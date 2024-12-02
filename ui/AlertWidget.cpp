@@ -101,6 +101,47 @@ void AlertWidget::showEditRules()
     emit rulesChanged();
 }
 
+void AlertWidget::resetDupe()
+{
+    FCT_IDENTIFICATION;
+
+    alertTableModel->resetDupe();
+}
+
+void AlertWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    alertTableModel->updateSpotsStatusWhenQSOAdded(record);
+}
+
+void AlertWidget::updateSpotsStatusWhenQSOUpdated(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    alertTableModel->updateSpotsStatusWhenQSOUpdated(record);
+}
+
+void AlertWidget::updateSpotsDupeWhenQSODeleted(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    // Pay attention: this method is called before the QSO is added to contacts
+    alertTableModel->updateSpotsStatusWhenQSODeleted(record);
+}
+
+void AlertWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+{
+    alertTableModel->updateSpotsDxccStatusWhenQSODeleted(entities);
+}
+
+void AlertWidget::recalculateDupe()
+{
+    FCT_IDENTIFICATION;
+
+    alertTableModel->recalculateDupe();
+}
+
 void AlertWidget::showColumnVisibility()
 {
     FCT_IDENTIFICATION;

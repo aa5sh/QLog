@@ -14,7 +14,6 @@ MODULE_IDENTIFICATION("qlog.rotator.rotator");
 
 Rotator::Rotator(QObject *parent) :
     QObject{parent},
-    timer(nullptr),
     rotDriver(nullptr),
     connected(false),
     cacheAzimuth(0.0),
@@ -35,9 +34,6 @@ Rotator::Rotator(QObject *parent) :
 Rotator::~Rotator()
 {
     FCT_IDENTIFICATION;
-
-    if ( timer )
-        timer->deleteLater();
 
     __closeRot();
 }
@@ -123,63 +119,12 @@ void Rotator::stopTimerImplt()
     FCT_IDENTIFICATION;
 
     if ( rotDriver )
-    {
         rotDriver->stopTimers();
-    }
-
-    if ( timer )
-    {
-        timer->stop();
-        timer->deleteLater();
-        timer = nullptr;
-    }
 }
 
 void Rotator::start()
 {
     FCT_IDENTIFICATION;
-
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &Rotator::update);
-    timer->start(TIME_PERIOD);
-}
-
-void Rotator::update()
-{
-    FCT_IDENTIFICATION;
-
-    qCDebug(runtime) << "Waiting for rot mutex";
-
-    if ( !rotLock.tryLock(200) )
-    {
-        qCDebug(runtime) << "Waited too long";
-        return;
-    }
-
-    qCDebug(runtime) << "Updating Rot";
-
-    if ( !rotDriver )
-    {
-        rotLock.unlock();
-        return;
-    }
-
-    RotProfile currRotProfile = RotProfilesManager::instance()->getCurProfile1();
-    /***********************************************************/
-    /* Is Opened Profile still the globaly used Rot Profile ? */
-    /* if NO then reconnect it                                 */
-    /***********************************************************/
-    if ( currRotProfile != rotDriver->getCurrRotProfile())
-    {
-        /* Rot Profile Changed
-         * Need to reconnect Rot
-         */
-        qCDebug(runtime) << "Reconnecting to a new ROT - " << currRotProfile.profileName;
-        qCDebug(runtime) << "Old - " << rotDriver->getCurrRotProfile().profileName;
-        __openRot();
-    }
-    timer->start(TIME_PERIOD);
-    rotLock.unlock();
 }
 
 void Rotator::open()

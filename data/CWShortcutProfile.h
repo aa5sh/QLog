@@ -32,13 +32,13 @@ private:
 
 Q_DECLARE_METATYPE(CWShortcutProfile);
 
-class CWShortcutProfilesManager : QObject, public ProfileManagerSQL<CWShortcutProfile>
+class CWShortcutProfilesManager : public ProfileManagerSQL<CWShortcutProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit CWShortcutProfilesManager(QObject *parent = nullptr);
+    explicit CWShortcutProfilesManager();
     ~CWShortcutProfilesManager() { };
 
     static CWShortcutProfilesManager* instance()

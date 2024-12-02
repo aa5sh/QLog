@@ -32,7 +32,8 @@ signals:
     void themeChanged(int);
     void altBackslash(bool active);
     void manualMode(bool);
-    void layoutChanged();
+    void contestStopped();
+    void dupeTypeChanged();
 
 public slots:
     void rigErrorHandler(const QString &error, const QString &errorDetail);
@@ -40,6 +41,7 @@ public slots:
     void cwKeyerErrorHandler(const QString &error, const QString &errorDetail);
     void stationProfileChanged();
     void setLayoutGeometry();
+    void setSimplyLayoutGeometry();
 
 private slots:
     void rigConnect();
@@ -77,12 +79,22 @@ private slots:
     void saveProfileLayoutGeometry();
     void setEquipmentKeepOptions(bool);
 
+    void saveContestMenuSeqnoType(QAction *action);
+    void saveContestMenuDupeType(QAction *action);
+    void saveContestMenuLinkExchangeType(QAction *action);
+    void startContest(const QString contestID, const QDateTime);
+    void stopContest();
+    void setContestMode(const QString &contestID);
+
+    void handleActivityChange(const QString name);
+
 private:
     Ui::MainWindow* ui;
     QLabel* conditionsLabel;
     QLabel* profileLabel;
     QLabel* callsignLabel;
     QLabel* locatorLabel;
+    QLabel* contestLabel;
     QPushButton* alertButton;
     QPushButton* alertTextButton;
     SwitchButton* darkLightModeSwith;
@@ -95,17 +107,27 @@ private:
     bool isFusionStyle;
     ClubLog* clublogRT;
     Wsjtx* wsjtx;
+    QActionGroup *seqGroup;
+    QActionGroup *dupeGroup;
+    QActionGroup *linkExchangeGroup;
+    QPushButton *activityButton;
 
     void setDarkMode();
     void setLightMode();
 
-    void setupLayoutMenu();
+    void setupActivitiesMenu();
     void saveEquipmentConnOptions();
     void restoreConnectionStates();
     void restoreEquipmentConnOptions();
 
     void restoreUserDefinedShortcuts();
     void saveUserDefinedShortcuts();
+
+    void restoreContestMenuSeqnoType();
+    void restoreContestMenuDupeType();
+    void restoreContestMenuLinkExchange();
+
+    QString stationCallsignStatus(const StationProfile &profile) const;
 };
 
 #endif // QLOG_UI_MAINWINDOW_H

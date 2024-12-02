@@ -42,6 +42,34 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Fri Nov 29 2024 Ladislav Foldyna - 0.40.1-1
+- Fixed Bands - Added missing 8m band (issue #515)
+- Fixed CW Console - EXCSTR does not work properly (issue #517)
+- Fixed Activity Manager - Missing Propagation Mode None (issue #519)
+- Fixed QSO Filter - filter fields with random order (PR #525 @aa5sh)
+- Fixed TCI error when you change Rig (issue #526)
+- Fixed NewContact - satellite mode too wide (issue #527)
+
+* Sun Nov 24 2024 Ladislav Foldyna - 0.40.0-1
+- [NEW] - Activity Manager - merged Layout Manager and profiles (issue #408)
+- [NEW] - Activity Manager - Added new dynamic fields - Contest fields, RX/TX Power
+- [NEW] - Added light support for contests (issue #345)
+- [NEW] - Added CW macros EXCHSTR, EXCHNR, EXCHNRN
+- [NEW] - Export Filter - Added user filter combo (original idea PR #476 @aa5sh)
+- [NEW] - New Contact -  Added expand/collapse button to QSO field tab widget (PR #495 @kyleboyle)
+- [NEW] - Alert - Added CQZ and ITUZ filters
+- [NEW] - KSTChat - Added a new 40MHz room (PR #496 @kyleboyle)
+- [NEW] - Station Profile contains Operator Callsign (issue #441 @kyleboyle)
+- [NEW] - Station Profile contains County (issue #493 @kyleboyle)
+- [NEW] - Statistics - Adds time of day and better qso mapping (PR #501 @kyleboyle)
+- [NEW] - Bandmap - Tooltip shows a spotter callsign (PR #507 @Skittlebrau)
+- [CHANGED] - New Contact - Renamed DXCC Tab to DX Stats contains DXCC and Station Statistics (issue #477)
+- [CHANGED] - QSL Import dialog - Detail text is selectable by mouse and keyboard
+- [CHANGED] - Removed Main Menu Layout; Activity Manager is in the bottom-left corner
+- [CHANGED] - Removed Keep Options from the Equipment Menu - use Activity Manager for it
+- Fixed issue when CW is always selected after Settings exiting or connecting the Rig
+- Updated Timezone definition file - version 2024b
+
 * Sat Oct 5 2024 Ladislav Foldyna - 0.39.0-1
 - [NEW] - DXC - Added Full-text search
 - [NEW] - Select S in RST Edit when focused (issue #454)

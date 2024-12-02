@@ -83,8 +83,6 @@
     <addaction name="actionConnectRig"/>
     <addaction name="actionConnectCWKeyer"/>
     <addaction name="actionConnectRotator"/>
-    <addaction name="separator"/>
-    <addaction name="actionEquipmentKeepOptions"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -123,26 +121,47 @@
     <addaction name="actionLotw"/>
     <addaction name="actionQRZ_com"/>
    </widget>
-   <widget class="QMenu" name="menuLayout">
+   <widget class="QMenu" name="menuContest">
     <property name="title">
-     <string>La&amp;yout</string>
+     <string>Contest</string>
     </property>
-    <widget class="QMenu" name="menuMainLayout">
+    <widget class="QMenu" name="menuDupeCheck">
      <property name="title">
-      <string>Profiles</string>
+      <string>Dupe Check</string>
      </property>
+     <addaction name="actionDupeAllBands"/>
+     <addaction name="actionDupeEachBand"/>
+     <addaction name="actionDupeEachBandMode"/>
+     <addaction name="actionDupeNoCheck"/>
     </widget>
-    <addaction name="menuMainLayout"/>
-    <addaction name="actionSaveGeometry"/>
+    <widget class="QMenu" name="menuSequence">
+     <property name="title">
+      <string>Sequence</string>
+     </property>
+     <addaction name="actionSeqSingle"/>
+     <addaction name="actionSeqPerBand"/>
+     <addaction name="separator"/>
+     <addaction name="actionSeqReset"/>
+    </widget>
+    <widget class="QMenu" name="menuLinkExchange">
+     <property name="title">
+      <string>Linking Exchange With</string>
+     </property>
+     <addaction name="actionLinkExchangeNone"/>
+     <addaction name="separator"/>
+    </widget>
+    <addaction name="menuDupeCheck"/>
+    <addaction name="menuSequence"/>
+    <addaction name="menuLinkExchange"/>
     <addaction name="separator"/>
-    <addaction name="actionLayoutEdit"/>
+    <addaction name="actionContestStop"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLogbook"/>
+   <addaction name="menuContest"/>
    <addaction name="menuServices"/>
    <addaction name="menuEquipment"/>
    <addaction name="menuWindow"/>
-   <addaction name="menuLayout"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -558,7 +577,7 @@
     <string>Mailing List...</string>
    </property>
   </action>
-  <action name="actionLayoutEdit">
+  <action name="actionActivitiesEdit">
    <property name="text">
     <string>Edit</string>
    </property>
@@ -791,6 +810,75 @@
     <string>Show Alerts</string>
    </property>
   </action>
+  <action name="actionDupeAllBands">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>All Bands</string>
+   </property>
+  </action>
+  <action name="actionDupeEachBand">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Each Band</string>
+   </property>
+  </action>
+  <action name="actionDupeEachBandMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Each Band &amp;&amp; Mode</string>
+   </property>
+  </action>
+  <action name="actionDupeNoCheck">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>No Check</string>
+   </property>
+  </action>
+  <action name="actionSeqSingle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Single</string>
+   </property>
+  </action>
+  <action name="actionSeqPerBand">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Per Band</string>
+   </property>
+  </action>
+  <action name="actionContestStop">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionSeqReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionLinkExchangeNone">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -806,6 +894,7 @@
     <slot>saveContact()</slot>
     <slot>tuneDx(QString,double)</slot>
     <slot>readGlobalSettings()</slot>
+    <slot>resetSTXSeq()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1426,7 +1515,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionLayoutEdit</sender>
+   <sender>actionActivitiesEdit</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>showEditLayout()</slot>
@@ -1478,22 +1567,6 @@
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>saveProfileLayoutGeometry()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>456</x>
-     <y>256</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionEquipmentKeepOptions</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setEquipmentKeepOptions(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1569,6 +1642,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionContestStop</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>stopContest()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSeqReset</sender>
+   <signal>triggered()</signal>
+   <receiver>newContactWidget</receiver>
+   <slot>resetSTXSeq()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>426</x>
+     <y>529</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>settingsChanged()</signal>
@@ -1600,5 +1705,6 @@
   <slot>showHRDLog()</slot>
   <slot>saveProfileLayoutGeometry()</slot>
   <slot>setEquipmentKeepOptions(bool)</slot>
+  <slot>stopContest()</slot>
  </slots>
 </ui>

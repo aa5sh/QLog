@@ -17,7 +17,6 @@ MODULE_IDENTIFICATION("qlog.rig.rig");
 
 Rig::Rig(QObject *parent)
     : QObject{parent},
-    timer(nullptr),
     rigDriver(nullptr),
     connected(false)
 {
@@ -147,63 +146,14 @@ void Rig::stopTimerImplt()
     MUTEXLOCKER;
 
     if ( rigDriver )
-    {
         rigDriver->stopTimers();
-    }
-
-    if ( timer )
-    {
-        timer->stop();
-        timer->deleteLater();
-        timer = nullptr;
-    }
 }
 
 void Rig::start()
 {
     FCT_IDENTIFICATION;
-
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &Rig::update);
-    timer->start(TIME_PERIOD);
 }
 
-void Rig::update()
-{
-    FCT_IDENTIFICATION;
-
-    qCDebug(runtime) << "Waiting for rig mutex";
-
-    if ( !rigLock.tryLock(200) )
-    {
-        qCDebug(runtime) << "Waited too long";
-        return;
-    }
-    qCDebug(runtime) << "Updating Rig";
-
-    if ( !rigDriver )
-    {
-        rigLock.unlock();
-        return;
-    }
-
-    RigProfile currRigProfile = RigProfilesManager::instance()->getCurProfile1();
-    /***********************************************************/
-    /* Is Opened Profile still the globaly used Rig Profile ? */
-    /* if NO then reconnect it                                 */
-    /***********************************************************/
-    if ( currRigProfile != rigDriver->getCurrRigProfile())
-    {
-        /* Rig Profile Changed
-         * Need to reconnect Rig
-         */
-        qCDebug(runtime) << "Reconnecting to a new RIG - " << currRigProfile.profileName;
-        qCDebug(runtime) << "Old - " << rigDriver->getCurrRigProfile().profileName;
-        __openRig();
-    }
-    timer->start(TIME_PERIOD);
-    rigLock.unlock();
-}
 
 void Rig::open()
 {
@@ -367,8 +317,6 @@ void Rig::__closeRig()
 bool Rig::isRigConnected()
 {
     FCT_IDENTIFICATION;
-
-    //MUTEXLOCKER;
 
     return connected;
 }
@@ -666,9 +614,6 @@ const QStringList Rig::getAvailableRawModes()
 Rig::~Rig()
 {
     FCT_IDENTIFICATION;
-
-    if ( timer )
-        timer->deleteLater();
 
     __closeRig();
 }

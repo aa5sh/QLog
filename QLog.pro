@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.39.0
+VERSION = 0.40.1
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -72,6 +72,7 @@ SOURCES += \
         core/PropConditions.cpp \
         core/QRZ.cpp \
         core/QSLStorage.cpp \
+        core/QSOFilterManager.cpp \
         core/SerialPort.cpp \
         core/UpdatableSQLRecord.cpp \
         core/Wsjtx.cpp \
@@ -85,6 +86,7 @@ SOURCES += \
         cwkey/drivers/CWFldigiKey.cpp \
         cwkey/drivers/CWKey.cpp \
         cwkey/drivers/CWWinKey.cpp \
+        data/ActivityProfile.cpp \
         data/AntProfile.cpp \
         data/BandPlan.cpp \
         data/CWKeyProfile.cpp \
@@ -120,6 +122,7 @@ SOURCES += \
         rotator/drivers/GenericRotDrv.cpp \
         rotator/drivers/HamlibRotDrv.cpp \
         rotator/drivers/PSTRotDrv.cpp \
+        ui/ActivityEditor.cpp \
         ui/AlertRuleDetail.cpp \
         ui/AlertSettingDialog.cpp \
         ui/AlertWidget.cpp \
@@ -133,7 +136,7 @@ SOURCES += \
         ui/DxFilterDialog.cpp \
         ui/DxWidget.cpp \
         ui/DxccTableWidget.cpp \
-        ui/EditLayoutDialog.cpp \
+        ui/EditActivitiesDialog.cpp \
         ui/EditLine.cpp \
         ui/Eqsldialog.cpp \
         ui/ExportDialog.cpp \
@@ -146,7 +149,6 @@ SOURCES += \
         ui/KSTHighlighterSettingDialog.cpp \
         ui/LogbookWidget.cpp \
         ui/LotwDialog.cpp \
-        ui/MainLayoutEditor.cpp \
         ui/MainWindow.cpp \
         ui/MapWebChannelHandler.cpp \
         ui/MapWidget.cpp \
@@ -197,6 +199,8 @@ HEADERS += \
         core/PropConditions.h \
         core/QRZ.h \
         core/QSLStorage.h \
+        core/QSOFilterManager.h \
+        core/QuadKeyCache.h \
         core/SerialPort.h \
         core/UpdatableSQLRecord.h \
         core/Wsjtx.h \
@@ -209,6 +213,7 @@ HEADERS += \
         cwkey/drivers/CWFldigiKey.h \
         cwkey/drivers/CWKey.h \
         cwkey/drivers/CWWinKey.h \
+        data/ActivityProfile.h \
         data/AntProfile.h \
         data/Band.h \
         data/BandPlan.h \
@@ -257,6 +262,7 @@ HEADERS += \
         rotator/drivers/GenericRotDrv.h \
         rotator/drivers/HamlibRotDrv.h \
         rotator/drivers/PSTRotDrv.h \
+        ui/ActivityEditor.h \
         ui/AlertRuleDetail.h \
         ui/AlertSettingDialog.h \
         ui/AlertWidget.h \
@@ -271,7 +277,7 @@ HEADERS += \
         ui/DxFilterDialog.h \
         ui/DxWidget.h \
         ui/DxccTableWidget.h \
-        ui/EditLayoutDialog.h \
+        ui/EditActivitiesDialog.h \
         ui/EditLine.h \
         ui/Eqsldialog.h \
         ui/ExportDialog.h \
@@ -284,7 +290,6 @@ HEADERS += \
         ui/KSTHighlighterSettingDialog.h \
         ui/LogbookWidget.h \
         ui/LotwDialog.h \
-        ui/MainLayoutEditor.h \
         ui/MainWindow.h \
         ui/MapWebChannelHandler.h \
         ui/MapWidget.h \
@@ -313,6 +318,7 @@ HEADERS += \
         i18n/datastrings.tri
 
 FORMS += \
+        ui/ActivityEditor.ui \
         ui/AlertRuleDetail.ui \
         ui/AlertSettingDialog.ui \
         ui/AlertWidget.ui \
@@ -326,7 +332,7 @@ FORMS += \
         ui/ColumnSettingSimpleDialog.ui \
         ui/DxFilterDialog.ui \
         ui/DxWidget.ui \
-        ui/EditLayoutDialog.ui \
+        ui/EditActivitiesDialog.ui \
         ui/Eqsldialog.ui \
         ui/ExportDialog.ui \
         ui/HRDLogDialog.ui \
@@ -337,7 +343,6 @@ FORMS += \
         ui/KSTHighlighterSettingDialog.ui \
         ui/LogbookWidget.ui \
         ui/LotwDialog.ui \
-        ui/MainLayoutEditor.ui \
         ui/MainWindow.ui \
         ui/NewContactWidget.ui \
         ui/PaperQSLDialog.ui \

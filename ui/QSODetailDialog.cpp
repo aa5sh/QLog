@@ -242,9 +242,7 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     ui->qslSentViaBox->addItem(tr("Electronic"), QVariant("E"));
 
     /* Propagation */
-    QStringList propagationModeList = Data::instance()->propagationModesList();
-    propagationModeList.prepend("");
-    QStringListModel* propagationModeModel = new QStringListModel(propagationModeList, this);
+    QStringListModel* propagationModeModel = new QStringListModel(Data::instance()->propagationModesList(), this);
     ui->propagationModeEdit->setModel(propagationModeModel);
 
     /* Sat Modes & sat names */
@@ -358,6 +356,8 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     mapper->addMapping(ui->myVUCCEdit, LogbookModel::COLUMN_MY_VUCC_GRIDS);
     mapper->addMapping(ui->myWWFFEdit, LogbookModel::COLUMN_MY_WWFF_REF);
     mapper->addMapping(ui->powerEdit, LogbookModel::COLUMN_TX_POWER);
+    mapper->addMapping(ui->myCountyEdit, LogbookModel::COLUMN_MY_CNTY);
+    mapper->addMapping(ui->myOperatorCallsignEdit, LogbookModel::COLUMN_OPERATOR);
 
     /* Notes */
     mapper->addMapping(ui->noteEdit, LogbookModel::COLUMN_NOTES_INTL);
@@ -400,7 +400,7 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     drawDXOnMap(ui->callsignEdit->text(), Gridsquare(ui->gridEdit->text()));
     drawMyQTHOnMap(ui->myCallsignEdit->text(), Gridsquare(ui->myGridEdit->text()));
 
-    refreshDXCCTab();
+    refreshDXStatTabs();
 
     queryMemberList();
 
@@ -797,7 +797,7 @@ void QSODetailDialog::callsignChanged(const QString &)
 {
     FCT_IDENTIFICATION;
 
-    refreshDXCCTab();
+    refreshDXStatTabs();
 }
 
 void QSODetailDialog::callsignEditFinished()
@@ -1324,7 +1324,7 @@ void QSODetailDialog::clubQueryResult(const QString &in_callsign,
     while ( clubs.hasNext() )
     {
         clubs.next();
-        QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value()), palette.color(QPalette::Text));
+        QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value()), false, palette.color(QPalette::Text));
         memberText.append(QString("<font color='%1'>%2</font>&nbsp;&nbsp;&nbsp;").arg(Data::colorToHTMLColor(color), clubs.key()));
     }
     ui->memberListLabel->setText(memberText);
@@ -1580,19 +1580,16 @@ void QSODetailDialog::callbookLookupStart()
     lookupButtonWaitingStyle(true);
 }
 
-void QSODetailDialog::refreshDXCCTab()
+void QSODetailDialog::refreshDXStatTabs()
 {
     FCT_IDENTIFICATION;
 
-    DxccEntity dxccEntity = Data::instance()->lookupDxcc(ui->callsignEdit->text());
-    if ( dxccEntity.dxcc )
-    {
-        ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, BandPlan::freq2Band(ui->freqTXEdit->value()));
-    }
-    else
-    {
-        ui->dxccTableWidget->clear();
-    }
+    const QString &currCallsign = ui->callsignEdit->text();
+    const DxccEntity &dxccEntity = Data::instance()->lookupDxcc(currCallsign);
+    const Band &currBand = BandPlan::freq2Band(ui->freqTXEdit->value());
+
+    ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, currBand);
+    ui->stationTableWidget->setDxCallsign(currCallsign, currBand);
 }
 
 const QString QSODetailDialog::getButtonText(int index) const
@@ -2160,6 +2157,7 @@ bool QSODetailDialog::LogbookModelPrivate::setData(const QModelIndex &index, con
            case COLUMN_MY_WWFF_REF:
            case COLUMN_WWFF_REF:
            case COLUMN_STATION_CALLSIGN:
+           case COLUMN_OPERATOR:
                main_update_result = QSqlTableModel::setData(index, ( !value.toString().isEmpty() ) ? value.toString().toUpper() // clazy:exclude=skipped-base-method
                                                                                                    : QVariant(), role);
                break;

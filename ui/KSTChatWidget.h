@@ -150,6 +150,11 @@ public slots:
     void setPrivateChatCallsign(QString);
     void reloadStationProfile();
     void setBeamActionVisible(bool);
+    void resetDupe();
+    void recalculateDupe();
+    void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
+    void updateSpotsStatusWhenQSODeleted(const QSqlRecord &record);
+    void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);
 
 private slots:
     void showChatError(const QString &);

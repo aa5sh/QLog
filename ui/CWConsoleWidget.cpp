@@ -89,18 +89,25 @@ void CWConsoleWidget::cwShortcutProfileComboChanged(QString profileName)
     const CWShortcutProfile &profile = shortcutManager->getCurProfile1();
 
     ui->macroButton1->setText("F1\n" + profile.shortDescs[0]);
+    ui->macroButton1->setToolTip(profile.macros[0]);
     ui->macroButton1->setShortcut(Qt::Key_F1);
     ui->macroButton2->setText("F2\n" + profile.shortDescs[1]);
+    ui->macroButton2->setToolTip(profile.macros[1]);
     ui->macroButton2->setShortcut(Qt::Key_F2);
     ui->macroButton3->setText("F3\n" + profile.shortDescs[2]);
+    ui->macroButton3->setToolTip(profile.macros[2]);
     ui->macroButton3->setShortcut(Qt::Key_F3);
     ui->macroButton4->setText("F4\n" + profile.shortDescs[3]);
+    ui->macroButton4->setToolTip(profile.macros[3]);
     ui->macroButton4->setShortcut(Qt::Key_F4);
     ui->macroButton5->setText("F5\n" + profile.shortDescs[4]);
+    ui->macroButton5->setToolTip(profile.macros[4]);
     ui->macroButton5->setShortcut(Qt::Key_F5);
     ui->macroButton6->setText("F6\n" + profile.shortDescs[5]);
+    ui->macroButton6->setToolTip(profile.macros[5]);
     ui->macroButton6->setShortcut(Qt::Key_F6);
     ui->macroButton7->setText("F7\n" + profile.shortDescs[6]);
+    ui->macroButton7->setToolTip(profile.macros[6]);
     ui->macroButton7->setShortcut(Qt::Key_F7);
 
     emit cwShortcutProfileChanged();
@@ -497,6 +504,9 @@ void CWConsoleWidget::expandMacros(QString &text)
     static QRegularExpression myWWFTRE("<MYWWFT>");
     static QRegularExpression myVUCCRE("<MYVUCC>");
     static QRegularExpression myPWRRE("<MYPWR>");
+    static QRegularExpression myEXCHSTRRE("<EXCHSTR>");
+    static QRegularExpression myEXCHNRRE("<EXCHNR>");
+    static QRegularExpression myEXCHNRNRE("<EXCHNRN>");
 
     if ( contact )
     {
@@ -518,5 +528,10 @@ void CWConsoleWidget::expandMacros(QString &text)
         text.replace(myWWFTRE, contact->getMyWWFT().toUpper());
         text.replace(myVUCCRE, contact->getMyVUCC().toUpper());
         text.replace(myPWRRE, contact->getMyPWR().toUpper());
+        text.replace(myEXCHSTRRE, contact->getSentExch().toUpper());
+        text.replace(myEXCHNRRE, contact->getSentNr().rightJustified(3, '0'));
+        text.replace(myEXCHNRNRE, contact->getSentNr().rightJustified(3, '0')
+                                                      .replace('9', 'N')
+                                                      .replace('0', 'T'));
     }
 }

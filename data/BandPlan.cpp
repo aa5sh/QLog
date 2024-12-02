@@ -283,13 +283,11 @@ const QList<Band> BandPlan::bandsList(const bool onlyDXCCBands,
     QSqlQuery query;
     QList<Band> ret;
 
-    QString stmt = QString("SELECT name, start_freq, end_freq, sat_designator "
-                           "FROM bands WHERE 1 = 1 ");
+    QString stmt(QLatin1String("SELECT name, start_freq, end_freq, sat_designator "
+                               "FROM bands WHERE 1 = 1 "));
 
     if ( onlyEnabled )
-    {
         stmt.append("AND enabled = 1 ");
-    }
 
     if ( onlyDXCCBands )
     {

@@ -18,7 +18,8 @@ QDataStream& operator<<(QDataStream& out, const MainLayoutProfile& v)
         << v.detailColC
         << v.mainGeometry
         << v.mainState
-        << v.darkMode;
+        << v.darkMode
+        << v.tabsexpanded;
 
     return out;
 }
@@ -34,19 +35,19 @@ QDataStream& operator>>(QDataStream& in, MainLayoutProfile& v)
     in >> v.mainGeometry;
     in >> v.mainState;
     in >> v.darkMode;
+    in >> v.tabsexpanded;
 
     return in;
 }
 
-MainLayoutProfilesManager::MainLayoutProfilesManager(QObject *parent) :
-    QObject(parent),
+MainLayoutProfilesManager::MainLayoutProfilesManager() :
     ProfileManagerSQL<MainLayoutProfile>("main_layout_profiles")
 {
     FCT_IDENTIFICATION;
 
     QSqlQuery profileQuery;
 
-    if ( ! profileQuery.prepare("SELECT profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode FROM main_layout_profiles") )
+    if ( ! profileQuery.prepare("SELECT profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode, tabsexpanded FROM main_layout_profiles") )
     {
         qWarning()<< "Cannot prepare select";
     }
@@ -65,6 +66,7 @@ MainLayoutProfilesManager::MainLayoutProfilesManager(QObject *parent) :
             profileDB.mainGeometry = QByteArray::fromBase64(profileQuery.value(6).toString().toUtf8());
             profileDB.mainState = QByteArray::fromBase64(profileQuery.value(7).toString().toUtf8());
             profileDB.darkMode = profileQuery.value(8).toBool();
+            profileDB.tabsexpanded = profileQuery.value(9).toBool();
             addProfile(profileDB.profileName, profileDB);
         }
     }
@@ -87,8 +89,8 @@ void MainLayoutProfilesManager::save()
         return;
     }
 
-    if ( ! insertQuery.prepare("INSERT INTO main_layout_profiles(profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode) "
-                               "VALUES (:profile_name, :row_A, :row_B, :detail_col_A, :detail_col_B, :detail_col_C, :main_geometry, :main_state, :dark_mode)") )
+    if ( ! insertQuery.prepare("INSERT INTO main_layout_profiles(profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode, tabsexpanded) "
+                               "VALUES (:profile_name, :row_A, :row_B, :detail_col_A, :detail_col_B, :detail_col_C, :main_geometry, :main_state, :dark_mode, :tabsexpanded)") )
     {
         qWarning() << "Cannot prepare Insert statement";
         return;
@@ -110,6 +112,7 @@ void MainLayoutProfilesManager::save()
             insertQuery.bindValue(":main_geometry", layoutProfile.mainGeometry.toBase64());
             insertQuery.bindValue(":main_state", layoutProfile.mainState.toBase64());
             insertQuery.bindValue(":dark_mode", layoutProfile.darkMode);
+            insertQuery.bindValue(":tabsexpanded", layoutProfile.tabsexpanded);
 
             if ( ! insertQuery.exec() )
             {
@@ -171,7 +174,8 @@ bool MainLayoutProfile::operator==(const MainLayoutProfile &profile)
             && profile.detailColC == this->detailColC
             && profile.mainGeometry == this->mainGeometry
             && profile.mainState == this->mainState
-            && profile.darkMode == this->darkMode);
+            && profile.darkMode == this->darkMode
+            && profile.tabsexpanded == this->tabsexpanded);
 }
 
 bool MainLayoutProfile::operator!=(const MainLayoutProfile &profile)

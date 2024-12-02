@@ -8,12 +8,26 @@
 #include "WWFFEntity.h"
 #include "POTAEntity.h"
 #include "core/zonedetect.h"
+#include "core/QuadKeyCache.h"
 
 class Data : public QObject
 {
     Q_OBJECT
 public:
 
+    enum DupeType
+    {
+        ALL_BANDS = 1,
+        EACH_BAND = 2,
+        EACH_BAND_MODE = 3,
+        NO_CHECK = 4
+    };
+
+    enum SeqType
+    {
+        SINGLE = 1,
+        PER_BAND = 2
+    };
 
     const QMap<QString, QString> qslSentEnum = {
         {"Y", tr("Yes")},
@@ -68,16 +82,25 @@ public:
         return &instance;
     };
 
-    static DxccStatus dxccStatus(int dxcc, const QString &band, const QString &mode);
-    static DxccStatus dxccFutureStatus(const DxccStatus &oldStatus,
+    static DxccStatus dxccNewStatusWhenQSOAdded(const DxccStatus &oldStatus,
                                        const qint32 oldDxcc,
                                        const QString &oldBand,
                                        const QString &oldMode,
                                        const qint32 newDxcc,
                                        const QString &newBand,
                                        const QString &newMode);
+    static qulonglong dupeNewCountWhenQSOAdded(qulonglong oldCounter,
+                                               const QString &oldBand,
+                                               const QString &oldMode,
+                                               const QString &addedBand,
+                                               const QString &addedMode);
+    static qulonglong dupeNewCountWhenQSODelected(qulonglong oldCounter,
+                                                  const QString &oldBand,
+                                                  const QString &oldMode,
+                                                  const QString &deletedBand,
+                                                  const QString &deletedMode);
 
-    static QColor statusToColor(const DxccStatus &status, const QColor &defaultColor);
+    static QColor statusToColor(const DxccStatus &status, bool isDupe, const QColor &defaultColor);
     static QString colorToHTMLColor(const QColor&);
     static QString statusToText(const DxccStatus &status);
     static QString removeAccents(const QString &input);
@@ -90,11 +113,16 @@ public:
                                        QString &unit,
                                        unsigned char &efectiveDecP);
 
-    QStringList contestList() { return contests.values(); }
-    QStringList propagationModesList() { return propagationModes.values(); }
-    QStringList propagationModesIDList() { return propagationModes.keys(); }
-    QString propagationModeTextToID(const QString &propagationText) { return propagationModes.key(propagationText);}
-    QString propagationModeIDToText(const QString &propagationID) { return propagationModes.value(propagationID);}
+    static qulonglong countDupe(const QString& callsign,
+                                const QString &band,
+                                const QString &mode);
+
+    DxccStatus dxccStatus(int dxcc, const QString &band, const QString &mode);
+    QStringList contestList();
+    QStringList propagationModesList() const { return QStringList{""} + propagationModes.values(); }
+    QStringList propagationModesIDList() const { return QStringList{""} + propagationModes.keys(); }
+    QString propagationModeTextToID(const QString &propagationText) const { return propagationModes.key(propagationText);}
+    QString propagationModeIDToText(const QString &propagationID) const { return propagationModes.value(propagationID);}
     DxccEntity lookupDxcc(const QString &callsign);
     DxccEntity lookupDxccID(const int dxccID);
     SOTAEntity lookupSOTA(const QString &SOTACode);
@@ -118,6 +146,9 @@ public:
 signals:
 
 public slots:
+    void invalidateDXCCStatusCache(const QSqlRecord &record);
+    void invalidateSetOfDXCCStatusCache(const QSet<uint> &entities);
+    void clearDXCCStatusCache();
 
 private:
     void loadContests();
@@ -151,6 +182,7 @@ private:
     bool isWWFFQueryValid;
     bool isPOTAQueryValid;
     bool isDXCCIDQueryValid;
+    QuadKeyCache<DxccStatus> dxccStatusCache;
 
     static const char translitTab[];
     static const int tranlitIndexMap[];

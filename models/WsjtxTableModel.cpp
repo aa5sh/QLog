@@ -37,7 +37,7 @@ QVariant WsjtxTableModel::data(const QModelIndex& index, int role) const
     }
     else if (index.column() == COLUMN_CALLSIGN && role == Qt::BackgroundRole)
     {
-        return Data::statusToColor(entry.status, QColor(Qt::transparent));
+        return Data::statusToColor(entry.status, entry.dupeCount, QColor(Qt::transparent));
     }
     else if (index.column() > COLUMN_CALLSIGN && role == Qt::BackgroundRole)
     {
@@ -107,6 +107,7 @@ void WsjtxTableModel::addOrReplaceEntry(WsjtxEntry entry)
         wsjtxData[idx].status = entry.status;
         wsjtxData[idx].decode = entry.decode;
         wsjtxData[idx].receivedTime = entry.receivedTime;
+        wsjtxData[idx].dupeCount = entry.dupeCount;
         // does not update club info
 
         emit dataChanged(createIndex(idx,0), createIndex(idx,4));
@@ -165,6 +166,21 @@ void WsjtxTableModel::clear()
 {
     beginResetModel();
     wsjtxData.clear();
+    endResetModel();
+}
+
+void WsjtxTableModel::removeSpot(const QString &callsign)
+{
+    beginResetModel();
+
+    QMutableListIterator<WsjtxEntry> entry(wsjtxData);
+
+    while ( entry.hasNext() )
+    {
+        if ( entry.next().callsign == callsign )
+            entry.remove();
+    }
+
     endResetModel();
 }
 

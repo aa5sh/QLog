@@ -206,6 +206,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     bandTableModel->select();
 
     ui->stationCallsignEdit->setValidator(new QRegularExpressionValidator(Callsign::callsignRegEx(), this));
+    ui->stationOperatorCallsignEdit->setValidator(new QRegularExpressionValidator(Callsign::callsignRegEx(), this));
     ui->stationLocatorEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridRegEx(), this));
     ui->stationVUCCEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridVUCCRegEx(), this));
 
@@ -1506,6 +1507,14 @@ void SettingsDialog::addStationProfile()
         return;
     }
 
+    if ( !ui->stationOperatorCallsignEdit->text().isEmpty()
+         && ! ui->stationOperatorCallsignEdit->hasAcceptableInput() )
+    {
+        QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                             QMessageBox::tr("Operator Callsign has an invalid format"));
+        return;
+    }
+
     if ( ! ui->stationLocatorEdit->hasAcceptableInput() )
     {
         QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
@@ -1555,6 +1564,7 @@ void SettingsDialog::addStationProfile()
     profile.callsign = ui->stationCallsignEdit->text().toUpper();
     profile.locator = ui->stationLocatorEdit->text().toUpper();
     profile.operatorName = ui->stationOperatorEdit->text();
+    profile.operatorCallsign = ui->stationOperatorCallsignEdit->text().toUpper();
     profile.qthName = ui->stationQTHEdit->text();
     profile.iota = ui->stationIOTAEdit->text().toUpper();
     profile.sota = ui->stationSOTAEdit->text().toUpper();
@@ -1565,6 +1575,7 @@ void SettingsDialog::addStationProfile()
     profile.wwff = ui->stationWWFFEdit->text().toUpper();
     profile.cqz = ui->stationCQZEdit->text().toInt();
     profile.ituz = ui->stationITUEdit->text().toInt();
+    profile.county = ui->stationCountyEdit->text();
 
     int row = ui->stationCountryCombo->currentIndex();
     const QModelIndex &idxDXCC = ui->stationCountryCombo->model()->index(row,0);
@@ -1610,6 +1621,7 @@ void SettingsDialog::doubleClickStationProfile(QModelIndex i)
     ui->stationCallsignEdit->blockSignals(false);
     ui->stationLocatorEdit->setText(profile.locator);
     ui->stationOperatorEdit->setText(profile.operatorName);
+    ui->stationOperatorCallsignEdit->setText(profile.operatorCallsign);
     ui->stationQTHEdit->setText(profile.qthName);
     ui->stationIOTAEdit->setText(profile.iota);
     ui->stationSOTAEdit->blockSignals(true);
@@ -1626,6 +1638,7 @@ void SettingsDialog::doubleClickStationProfile(QModelIndex i)
     ui->stationWWFFEdit->blockSignals(false);
     ui->stationCQZEdit->setText(QString::number(profile.cqz));
     ui->stationITUEdit->setText(QString::number(profile.ituz));
+    ui->stationCountyEdit->setText(profile.county);
     const QModelIndexList &countryIndex = ui->stationCountryCombo->model()->match(ui->stationCountryCombo->model()->index(0,0),
                                                                            Qt::DisplayRole, profile.dxcc,
                                                                            1, Qt::MatchExactly);
@@ -1646,6 +1659,7 @@ void SettingsDialog::clearStationProfileForm()
     ui->stationLocatorEdit->clear();
     ui->stationLocatorEdit->setPlaceholderText(QString());
     ui->stationOperatorEdit->clear();
+    ui->stationOperatorCallsignEdit->clear();
     ui->stationQTHEdit->clear();
     ui->stationSOTAEdit->clear();
     ui->stationPOTAEdit->clear();
@@ -1657,6 +1671,7 @@ void SettingsDialog::clearStationProfileForm()
     ui->stationCQZEdit->clear();
     ui->stationITUEdit->clear();
     ui->stationCountryCombo->setCurrentIndex(0);
+    ui->stationCountyEdit->clear();
 
     ui->stationAddProfileButton->setText(tr("Add"));
 }
@@ -1951,6 +1966,13 @@ void SettingsDialog::adjustCWKeyCOMPortTextColor()
     FCT_IDENTIFICATION;
 
     setValidationResultColor(ui->cwPortEdit);
+}
+
+void SettingsDialog::adjustOperatorTextColor()
+{
+    FCT_IDENTIFICATION;
+
+    setValidationResultColor(ui->stationOperatorCallsignEdit);
 }
 
 void SettingsDialog::cancelled()

@@ -79,7 +79,7 @@
           <string>Band</string>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
          <item>
           <property name="text">
@@ -100,7 +100,7 @@
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
          <item>
           <property name="text">
@@ -121,7 +121,7 @@
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
          <item>
           <property name="text">
@@ -134,6 +134,9 @@
         <widget class="QComboBox" name="clubFilter">
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
          <item>
           <property name="text">
@@ -154,7 +157,7 @@
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
          </property>
          <item>
           <property name="text">

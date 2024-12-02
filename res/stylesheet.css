@@ -2,6 +2,22 @@ QLineEdit#callsignEdit {
         text-transform: uppercase;
 }
 
+QLineEdit#stationCallsignEdit{
+        text-transform: uppercase;
+}
+
+QLineEdit#stationOperatorCallsignEdit{
+        text-transform: uppercase;
+}
+
+QLineEdit#myCallsignEdit{
+        text-transform: uppercase;
+}
+
+QLineEdit#myOperatorCallsignEdit{
+        text-transform: uppercase;
+}
+
 QLineEdit#gridEdit {
         text-transform: uppercase;
 }

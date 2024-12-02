@@ -225,7 +225,6 @@ void RigWidget::rigProfileComboChanged(const QString &profileName)
     resetRigInfo();
 
     ui->pttLabel->setHidden(!RigProfilesManager::instance()->getCurProfile1().getPTTInfo);
-
     emit rigProfileChanged();
 }
 

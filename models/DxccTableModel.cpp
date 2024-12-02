@@ -8,84 +8,58 @@
 
 DxccTableModel::DxccTableModel(QObject* parent) : QSqlQueryModel(parent) {}
 
-
 QVariant DxccTableModel::data(const QModelIndex &index, int role) const
 {
-    if ( index.column() != 0 && role == Qt::TextAlignmentRole )
+
+    if ( index.column() == 0 )
+        return QSqlQueryModel::data(index, role);
+
+    switch ( role )
     {
-        return int(Qt::AlignCenter | Qt::AlignVCenter);
+    case  Qt::TextAlignmentRole:
+       return int(Qt::AlignCenter | Qt::AlignVCenter);
+    case  Qt::BackgroundRole:
+    {
+        const QString &currData = data(index, Qt::DisplayRole).toString();
+
+        if ( currData.contains("L") || currData.contains("P"))
+            return Data::statusToColor(DxccStatus::NewMode, false, Qt::green);
+
+        if ( currData == "e" || currData == "W" )
+            return Data::statusToColor(DxccStatus::Worked, false, Qt::transparent);
     }
-    else if ( index.column() != 0 && role == Qt::BackgroundRole )
+        break;
+
+    case Qt::DisplayRole:
     {
-        QString currData = data(index, Qt::DisplayRole).toString();
-
-        if ( currData.contains("L")
-             || currData.contains("P"))
-        {
-            return Data::statusToColor(DxccStatus::NewMode, Qt::green);
-        }
-
-        if ( currData == QString("e")
-             || currData == QString("W") )
-        {
-            return QColor(QColor(255,165,0));
-        }
-
-    }
-    else if ( index.column() != 0 && role == Qt::DisplayRole )
-    {
-        QString currData = QSqlQueryModel::data(index, Qt::DisplayRole).toString();
+        const QString &currData = QSqlQueryModel::data(index, Qt::DisplayRole).toString();
 
         if ( currData.isEmpty() || currData.size() < 3 )
             return QString();
 
-        if ( currData == QString("111") )
-        {
-            return QString("W");
-        }
+        if ( currData == "111" ) return QString("W");
 
         QString ret;
 
-        if ( currData[0] == '2' )
-        {
-            ret.append("e");
-        }
+        if ( currData[0] == '2' ) ret.append("e");
+        if ( currData[1] == '2' ) ret.append("L");
+        if ( currData[2] == '2' ) ret.append("P");
 
-        if ( currData[1] == '2' )
-        {
-            ret.append("L");
-        }
-
-        if ( currData[2] == '2' )
-        {
-            ret.append("P");
-        }
-
-        return QString(ret);
+        return ret;
     }
-    else if ( index.column() != 0 && role == Qt::ToolTipRole )
+
+    case Qt::ToolTipRole:
     {
-        QString currData = data(index, Qt::DisplayRole).toString();
+        const QString &currData = data(index, Qt::DisplayRole).toString();
         QStringList ret;
 
-        if ( currData.contains("W") )
-        {
-            ret.append(tr("Worked"));
-        }
-        if ( currData.contains("e") )
-        {
-            ret.append(tr("eQSL"));
-        }
-        if ( currData.contains("L") )
-        {
-            ret.append(tr("LoTW"));
-        }
-        if ( currData.contains("P") )
-        {
-            ret.append(tr("Paper"));
-        }
+        if ( currData.contains("W") ) ret.append(tr("Worked"));
+        if ( currData.contains("e") ) ret.append(tr("eQSL"));
+        if ( currData.contains("L") ) ret.append(tr("LoTW"));
+        if ( currData.contains("P") ) ret.append(tr("Paper"));
 
         return ret.join(", ");
+    }
     }
 
     return QSqlQueryModel::data(index, role);

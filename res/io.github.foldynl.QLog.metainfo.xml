@@ -47,6 +47,42 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.40.1" date="2024-11-29">
+      <description>
+        <ul>
+          <li>Fixed Bands - Added missing 8m band (issue #515)</li>
+          <li>Fixed CW Console - EXCSTR does not work properly (issue #517)</li>
+          <li>Fixed Activity Manager - Missing Propagation Mode None (issue #519)</li>
+          <li>Fixed QSO Filter - filter fields with random order (PR #525 @aa5sh)</li>
+          <li>Fixed TCI error when you change Rig (issue #526)</li>
+          <li>Fixed NewContact - satellite mode too wide (issue #527)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.40.0" date="2024-11-24">
+      <description>
+        <ul>
+          <li>[NEW] - Activity Manager - merged Layout Manager and profiles (issue #408)</li>
+          <li>[NEW] - Activity Manager - Added new dynamic fields - Contest fields, RX/TX Power</li>
+          <li>[NEW] - Added light support for contests (issue #345)</li>
+          <li>[NEW] - Added CW macros EXCHSTR, EXCHNR, EXCHNRN</li>
+          <li>[NEW] - Export Filter - Added user filter combo (original idea PR #476 @aa5sh)</li>
+          <li>[NEW] - New Contact -  Added expand/collapse button to QSO field tab widget (PR #495 @kyleboyle)</li>
+          <li>[NEW] - Alert - Added CQZ and ITUZ filters</li>
+          <li>[NEW] - KSTChat - Added a new 40MHz room (PR #496 @kyleboyle)</li>
+          <li>[NEW] - Station Profile contains Operator Callsign (issue #441 @kyleboyle)</li>
+          <li>[NEW] - Station Profile contains County (issue #493 @kyleboyle)</li>
+          <li>[NEW] - Statistics - Adds time of day and better qso mapping (PR #501 @kyleboyle)</li>
+          <li>[NEW] - Bandmap - Tooltip shows a spotter callsign (PR #507 @Skittlebrau)</li>
+          <li>[CHANGED] - New Contact - Renamed DXCC Tab to DX Stats contains DXCC and Station Statistics (issue #477)</li>
+          <li>[CHANGED] - QSL Import dialog - Detail text is selectable by mouse and keyboard</li>
+          <li>[CHANGED] - Removed Main Menu Layout; Activity Manager is in the bottom-left corner</li>
+          <li>[CHANGED] - Removed Keep Options from the Equipment Menu - use Activity Manager for it</li>
+          <li>Fixed issue when CW is always selected after Settings exiting or connecting the Rig</li>
+          <li>Updated Timezone definition file - version 2024b</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.39.0" date="2024-10-05">
       <description>
         <ul>
