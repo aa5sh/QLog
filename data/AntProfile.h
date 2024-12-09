@@ -29,13 +29,13 @@ private:
 
 Q_DECLARE_METATYPE(AntProfile)
 
-class AntProfilesManager : QObject, public ProfileManagerSQL<AntProfile>
+class AntProfilesManager : public ProfileManagerSQL<AntProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit AntProfilesManager(QObject *parent = nullptr);
+    explicit AntProfilesManager();
     ~AntProfilesManager() { };
 
     static AntProfilesManager *instance()

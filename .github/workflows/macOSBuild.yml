@@ -180,4 +180,3 @@ jobs:
        with:
          name: QLog-${{ env.TAGVERSION }}-${{ matrix.os }}
          path: /Users/runner/work/QLog/QLog/build/qlog.dmg
-

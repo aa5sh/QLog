@@ -164,6 +164,19 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QLabel" name="dupeLabel">
+             <property name="styleSheet">
+              <string notr="true">QLabel { color : red; }</string>
+             </property>
+             <property name="text">
+              <string>&lt;b&gt;DUPE !!!&lt;/b&gt;</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item row="1" column="5">
@@ -525,12 +538,6 @@
             <property name="icon">
              <iconset theme="document-save">
               <normaloff>.</normaloff>.</iconset>
-            </property>
-            <property name="autoDefault">
-             <bool>true</bool>
-            </property>
-            <property name="default">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1357,7 +1364,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="dxccTab">
+     <widget class="QWidget" name="dxStatTab">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
         <horstretch>0</horstretch>
@@ -1365,7 +1372,7 @@
        </sizepolicy>
       </property>
       <attribute name="title">
-       <string>D&amp;XCC</string>
+       <string>D&amp;X Stats</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
@@ -1383,6 +1390,13 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <item>
+        <widget class="QLabel" name="dxccTableLabel">
+         <property name="text">
+          <string>&lt;b&gt;DXCC Statistics&lt;/b&gt;</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="DxccTableWidget" name="dxccTableWidget">
          <property name="sizePolicy">
@@ -1423,6 +1437,50 @@
          </attribute>
          <attribute name="horizontalHeaderStretchLastSection">
           <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderMinimumSectionSize">
+          <number>21</number>
+         </attribute>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>21</number>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="stationTableLabel">
+         <property name="text">
+          <string>&lt;b&gt;Station Statistics&lt;/b&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="DxccTableWidget" name="stationTableWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
+         <attribute name="horizontalHeaderMinimumSectionSize">
+          <number>20</number>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>65</number>
          </attribute>
          <attribute name="verticalHeaderMinimumSectionSize">
           <number>21</number>
@@ -1507,41 +1565,6 @@
            </property>
            <property name="sizeAdjustPolicy">
             <enum>QComboBox::AdjustToContents</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="powerLabel">
-           <property name="text">
-            <string>Power</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QDoubleSpinBox" name="powerEdit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="specialValueText">
-            <string>Blank</string>
-           </property>
-           <property name="suffix">
-            <string> W</string>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="maximum">
-            <double>1000000.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -1856,22 +1879,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>powerEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>NewContactWidget</receiver>
-   <slot>potaEditFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>325</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>489</x>
-     <y>237</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>webLookupButton</sender>
    <signal>clicked()</signal>
    <receiver>NewContactWidget</receiver>
@@ -1997,5 +2004,6 @@
   <slot>potaEditFinished()</slot>
   <slot>potaChanged(QString)</slot>
   <slot>changeCallbookSearchStatus()</slot>
+  <slot>resetSTXCounters()</slot>
  </slots>
 </ui>

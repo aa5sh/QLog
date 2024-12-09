@@ -11,6 +11,7 @@
 #include "core/Callsign.h"
 #include "data/BandPlan.h"
 #include "models/LogbookModel.h"
+#include "core/QSOFilterManager.h"
 
 MODULE_IDENTIFICATION("qlog.logformat.logformat");
 
@@ -142,6 +143,12 @@ void LogFormat::setFilterSendVia(const QString &value)
     this->filterSendVia = value;
 }
 
+void LogFormat::setUserFilter(const QString &value)
+{
+    FCT_IDENTIFICATION;
+    userFilter = value;
+}
+
 QString LogFormat::getWhereClause()
 {
     FCT_IDENTIFICATION;
@@ -151,30 +158,23 @@ QString LogFormat::getWhereClause()
     whereClause << "1 = 1"; //generic filter
 
     if ( isDateRange() )
-    {
         whereClause << "(start_time BETWEEN :start_date AND :end_date)";
-    }
 
     if ( !filterMyCallsign.isEmpty() )
-    {
         whereClause << "upper(station_callsign) = upper(:stationCallsign)";
-    }
 
     if ( !filterMyGridsquare.isEmpty() )
-    {
         whereClause << "upper(my_gridsquare) = upper(:myGridsquare)";
-    }
 
     if ( !filterSentPaperQSL.isEmpty() )
-    {
         whereClause << QString("upper(qsl_sent) in  (%1)").arg(filterSentPaperQSL.join(", "));
-    }
 
     if ( !filterSendVia.isEmpty() )
-    {
         whereClause << ( ( filterSendVia == " " ) ? "qsl_sent_via is NULL"
                                                   : "upper(qsl_sent_via) = upper(:qsl_sent_via)");
-    }
+
+    if ( !userFilter.isEmpty() )
+        whereClause << QSOFilterManager::getWhereClause(userFilter);
 
     return whereClause.join(" AND ");
 }
@@ -287,6 +287,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
         setIfEmpty(LogbookModel::COLUMN_STATION_CALLSIGN, defaultStationProfile->callsign);
         setIfEmpty(LogbookModel::COLUMN_MY_GRIDSQUARE, defaultStationProfile->locator);
         setIfEmpty(LogbookModel::COLUMN_MY_NAME, defaultStationProfile->operatorName);
+        setIfEmpty(LogbookModel::COLUMN_OPERATOR, defaultStationProfile->operatorCallsign);
         setIfEmpty(LogbookModel::COLUMN_MY_CITY_INTL, defaultStationProfile->qthName);
         setIfEmpty(LogbookModel::COLUMN_MY_CITY, Data::removeAccents(defaultStationProfile->qthName));
         setIfEmpty(LogbookModel::COLUMN_MY_IOTA, defaultStationProfile->iota);
@@ -301,6 +302,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
         setIfEmpty(LogbookModel::COLUMN_MY_CQ_ZONE, QString::number(defaultStationProfile->cqz));
         setIfEmpty(LogbookModel::COLUMN_MY_COUNTRY_INTL, defaultStationProfile->country);
         setIfEmpty(LogbookModel::COLUMN_MY_COUNTRY, Data::removeAccents(defaultStationProfile->country));
+        setIfEmpty(LogbookModel::COLUMN_MY_CNTY, Data::removeAccents(defaultStationProfile->county));
     };
 
     auto setMyEntity = [&](const DxccEntity &myEntity)

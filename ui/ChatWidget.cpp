@@ -73,6 +73,73 @@ void ChatWidget::reloadStationProfile()
     }
 }
 
+void ChatWidget::resetDupe()
+{
+    FCT_IDENTIFICATION;
+
+    for (int i = 0; i < ui->chatTabWidget->count(); i++ )
+    {
+        KSTChatWidget *kstWidget = qobject_cast<KSTChatWidget*>(ui->chatTabWidget->widget(i));
+
+        if ( kstWidget )
+            kstWidget->resetDupe();
+    }
+}
+
+void ChatWidget::recalculateDupe()
+{
+    FCT_IDENTIFICATION;
+
+    for (int i = 0; i < ui->chatTabWidget->count(); i++ )
+    {
+        KSTChatWidget *kstWidget = qobject_cast<KSTChatWidget*>(ui->chatTabWidget->widget(i));
+
+        if ( kstWidget )
+            kstWidget->recalculateDupe();
+    }
+
+}
+
+void ChatWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    for (int i = 0; i < ui->chatTabWidget->count(); i++ )
+    {
+        KSTChatWidget *kstWidget = qobject_cast<KSTChatWidget*>(ui->chatTabWidget->widget(i));
+
+        if ( kstWidget )
+            kstWidget->updateSpotsStatusWhenQSOAdded(record);
+    }
+
+}
+
+void ChatWidget::updateSpotsDupeWhenQSODeleted(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    for (int i = 0; i < ui->chatTabWidget->count(); i++ )
+    {
+        KSTChatWidget *kstWidget = qobject_cast<KSTChatWidget*>(ui->chatTabWidget->widget(i));
+
+        if ( kstWidget )
+            kstWidget->updateSpotsStatusWhenQSODeleted(record);
+    }
+}
+
+void ChatWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+{
+    FCT_IDENTIFICATION;
+
+    for (int i = 0; i < ui->chatTabWidget->count(); i++ )
+    {
+        KSTChatWidget *kstWidget = qobject_cast<KSTChatWidget*>(ui->chatTabWidget->widget(i));
+
+        if ( kstWidget )
+            kstWidget->updateSpotsDxccStatusWhenQSODeleted(entities);
+    }
+}
+
 void ChatWidget::connectChat()
 {
     FCT_IDENTIFICATION;

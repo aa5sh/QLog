@@ -124,7 +124,7 @@ private:
     SubmitError submitAllChanges();
     void callbookLookupFinished();
     void callbookLookupStart();
-    void refreshDXCCTab();
+    void refreshDXStatTabs();
     const QString getButtonText(int index) const;
 
     Ui::QSODetailDialog *ui;

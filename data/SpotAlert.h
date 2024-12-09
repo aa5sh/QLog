@@ -32,6 +32,7 @@ struct SpotAlert
     QString spotter;
     DxccEntity dxcc_spotter;
     WsjtxDecode wsjtxDecode;
+    qulonglong dupeCount = 0;
 
     QStringList memberList2StringList() const
     {

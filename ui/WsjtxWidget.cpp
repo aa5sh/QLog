@@ -1,7 +1,6 @@
 #include <QDebug>
 #include <QSortFilterProxyModel>
 #include <QScrollBar>
-#include <QMutableListIterator>
 
 #include "WsjtxWidget.h"
 #include "ui_WsjtxWidget.h"
@@ -81,6 +80,7 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
             entry.dxcc.dxcc = profile.dxcc;
             entry.distance = 0.0;
             entry.callsign_member = MembershipQE::instance()->query(entry.callsign);
+            entry.dupeCount = Data::countDupe(entry.callsign, entry.band, BandPlan::MODE_GROUP_STRING_DIGITAL);
 
             if ( !profile.locator.isEmpty() )
             {
@@ -114,6 +114,7 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
                  && entry.decode.snr >= snrFilter
                  && ( dxMemberFilter.size() == 0
                       || (dxMemberFilter.size() && entry.memberList2Set().intersects(dxMemberFilter)))
+                  && entry.dupeCount == 0
                )
             {
                 wsjtxTableModel->addOrReplaceEntry(entry);
@@ -147,6 +148,7 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
                 entry.dxcc_spotter.ituz = profile.ituz;
                 entry.dxcc.dxcc = profile.dxcc;
                 entry.distance = 0.0;
+                entry.dupeCount = Data::countDupe(entry.callsign, entry.band, BandPlan::MODE_GROUP_STRING_DIGITAL);
                 // it is not needed to update entry.callsign_clubs because addOrReplaceEntry does not
                 // update it. Only CQ provides the club membeship info
 
@@ -232,6 +234,13 @@ void WsjtxWidget::tableViewClicked(QModelIndex)
     //const QModelIndex &source_index = proxyModel->mapToSource(index);
 
     //lastSelectedCallsign = wsjtxTableModel->getEntry(source_index).callsign;
+}
+
+void WsjtxWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    wsjtxTableModel->removeSpot(record.value("callsign").toString());
 }
 
 void WsjtxWidget::displayedColumns()

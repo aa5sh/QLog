@@ -23,6 +23,9 @@ AlertRuleDetail::AlertRuleDetail(const QString &ruleName, QWidget *parent) :
 
     ui->setupUi(this);
 
+    ui->cqzEdit->setValidator(new QIntValidator(Data::getCQZMin(), Data::getCQZMax(), ui->cqzEdit));
+    ui->ituEdit->setValidator(new QIntValidator(Data::getITUZMin(), Data::getITUZMax(), ui->ituEdit));
+
     /*************/
     /* Get Bands */
     /*************/
@@ -366,6 +369,16 @@ void AlertRuleDetail::save()
 
     rule.spotterContinent = spotterContinentRE;
 
+    /************
+     * CQ Zones
+     ***********/
+    rule.cqz = (ui->cqzEdit->text().isEmpty() ? 0 : ui->cqzEdit->text().toInt());
+
+    /************
+     * ITU Zones
+     ***********/
+    rule.ituz = (ui->ituEdit->text().isEmpty() ? 0 : ui->ituEdit->text().toInt());
+
     qCDebug(runtime) << rule;
 
     if ( ! rule.save() )
@@ -384,15 +397,8 @@ void AlertRuleDetail::ruleNameChanged(const QString &newRuleName)
 
     QPalette p;
 
-    if ( ruleExists(newRuleName) )
-    {
-        p.setColor(QPalette::Text,Qt::red);
-    }
-    else
-    {
-        p.setColor(QPalette::Text,qApp->palette().text().color());
-    }
-
+    p.setColor(QPalette::Text, ( ruleExists(newRuleName) ) ? Qt::red
+                                                           : qApp->palette().text().color());
     ui->ruleNameEdit->setPalette(p);
 }
 
@@ -404,15 +410,7 @@ void AlertRuleDetail::callsignChanged(const QString &enteredRE)
 
     QRegularExpression rx(enteredRE);
 
-    if ( !rx.isValid() )
-    {
-        p.setColor(QPalette::Text,Qt::red);
-    }
-    else
-    {
-        p.setColor(QPalette::Text,qApp->palette().text().color());
-    }
-
+    p.setColor(QPalette::Text, ( !rx.isValid() ) ? Qt::red : qApp->palette().text().color());
     ui->dxCallsignEdit->setPalette(p);
 }
 
@@ -424,15 +422,7 @@ void AlertRuleDetail::spotCommentChanged(const QString &enteredRE)
 
     QRegularExpression rx(enteredRE);
 
-    if ( !rx.isValid() )
-    {
-        p.setColor(QPalette::Text,Qt::red);
-    }
-    else
-    {
-        p.setColor(QPalette::Text,qApp->palette().text().color());
-    }
-
+    p.setColor(QPalette::Text, ( !rx.isValid() ) ? Qt::red : qApp->palette().text().color());
     ui->spotCommentEdit->setPalette(p);
 }
 
@@ -642,6 +632,16 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
             ui->occheckbox_spotter->setChecked(spotterContinentRE.contains("|OC"));
             ui->sacheckbox_spotter->setChecked(spotterContinentRE.contains("|SA"));
         }
+
+        /***********
+         * CQ Zones
+         **********/
+        ui->cqzEdit->setText(( rule.cqz != 0) ? QString::number(rule.cqz) : QString());
+
+        /***********
+         * ITU Zones
+         **********/
+        ui->ituEdit->setText(( rule.ituz != 0) ? QString::number(rule.ituz) : QString());
     }
     else
     {

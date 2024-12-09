@@ -50,9 +50,9 @@ public:
     const QList<QPair<int, QString>> getDriverList() const;
     const RigCaps getRigCaps(const DriverID &, int) const;
 
+
 public slots:
     void start();
-    void update();
     void open();
     void close();
     void stopTimer();
@@ -134,7 +134,6 @@ private:
     GenericRigDrv *getDriver(const RigProfile &profile);
 
 private:
-    QTimer* timer;
     GenericRigDrv *rigDriver;
     QMutex rigLock;
     bool connected;

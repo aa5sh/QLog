@@ -26,6 +26,7 @@ struct KSTUsersInfo
     QString stationComment;
     DxccEntity dxcc;
     DxccStatus status;
+    qulonglong dupeCount = 0;
 };
 
 Q_DECLARE_METATYPE(KSTUsersInfo);
@@ -129,6 +130,11 @@ public slots:
     void disconnectChat();
     void sendMessage(const QString&);
     void reloadStationProfile();
+    void resetDupe();
+    void recalculateDupe();
+    void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
+    void updateSpotsStatusWhenQSODeleted(const QSqlRecord &record);
+    void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);
 
 private slots:
     void receiveData();

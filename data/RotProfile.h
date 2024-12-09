@@ -49,13 +49,13 @@ private:
 
 Q_DECLARE_METATYPE(RotProfile);
 
-class RotProfilesManager : QObject, public ProfileManagerSQL<RotProfile>
+class RotProfilesManager : public ProfileManagerSQL<RotProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit RotProfilesManager(QObject *parent = nullptr);
+    explicit RotProfilesManager();
     ~RotProfilesManager() { };
 
     static RotProfilesManager* instance();

@@ -53,7 +53,10 @@ bool CWCatKey::open()
     /* swith the rig to CW mode ?               */
     /* Maybe Yes - we will see users reaction   */
     /********************************************/
-    Rig::instance()->setMode("CW", QString());
+    //it has the side-effect that every time you connect,
+    // it causes to switch to CW when the key is assigned.
+    // So let's disable it and see what's worse
+    //Rig::instance()->setMode("CW", QString());
 
     /*******************/
     /* set default WPM */

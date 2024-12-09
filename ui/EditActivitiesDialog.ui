@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditLayoutDialog</class>
- <widget class="QDialog" name="EditLayoutDialog">
+ <class>EditActivitiesDialog</class>
+ <widget class="QDialog" name="EditActivitiesDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Edit Layout</string>
+   <string>Edit Activities</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -19,7 +19,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>Layouts</string>
+        <string>Activities</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -102,7 +102,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>EditLayoutDialog</receiver>
+   <receiver>EditActivitiesDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -118,7 +118,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>EditLayoutDialog</receiver>
+   <receiver>EditActivitiesDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -134,7 +134,7 @@
   <connection>
    <sender>addButton</sender>
    <signal>clicked()</signal>
-   <receiver>EditLayoutDialog</receiver>
+   <receiver>EditActivitiesDialog</receiver>
    <slot>addButton()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -150,7 +150,7 @@
   <connection>
    <sender>removeButton</sender>
    <signal>clicked()</signal>
-   <receiver>EditLayoutDialog</receiver>
+   <receiver>EditActivitiesDialog</receiver>
    <slot>removeButton()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -166,7 +166,7 @@
   <connection>
    <sender>listView</sender>
    <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>EditLayoutDialog</receiver>
+   <receiver>EditActivitiesDialog</receiver>
    <slot>editEvent(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -182,7 +182,7 @@
   <connection>
    <sender>editButton</sender>
    <signal>clicked()</signal>
-   <receiver>EditLayoutDialog</receiver>
+   <receiver>EditActivitiesDialog</receiver>
    <slot>editButton()</slot>
    <hints>
     <hint type="sourcelabel">

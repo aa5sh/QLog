@@ -11,7 +11,7 @@ MODULE_IDENTIFICATION("qlog.ui.ColumnSettingDialog");
 
 ColumnSettingDialog::ColumnSettingDialog(QTableView *table,
                                          QWidget *parent,
-                                         const QList<LogbookModel::column_id> &columnIdExcludeFilter) :
+                                         const QList<LogbookModel::ColumnID> &columnIdExcludeFilter) :
     ColumnSettingGenericDialog(table->model(), parent),
     ui(new Ui::ColumnSettingDialog),
     table(table),
@@ -25,7 +25,7 @@ ColumnSettingDialog::ColumnSettingDialog(QTableView *table,
 ColumnSettingDialog::ColumnSettingDialog(const QAbstractItemModel *model,
                                          const QSet<int> &defaultStates,
                                          QWidget *parent,
-                                         const QList<LogbookModel::column_id> &columnIdExcludeFilter) :
+                                         const QList<LogbookModel::ColumnID> &columnIdExcludeFilter) :
     ColumnSettingGenericDialog(model, parent),
     ui(new Ui::ColumnSettingDialog),
     table(nullptr),
@@ -58,7 +58,7 @@ void ColumnSettingDialog::setupDialog()
     int columnIndex = 0;
     while ( columnIndex < model->columnCount() )
     {
-        if ( columnIdExcludeFilter.contains(static_cast<LogbookModel::column_id>(columnIndex) ) )
+        if ( columnIdExcludeFilter.contains(static_cast<LogbookModel::ColumnID>(columnIndex) ) )
         {
             columnIndex++;
             continue;
@@ -184,6 +184,7 @@ void ColumnSettingDialog::setupDialog()
         case LogbookModel::COLUMN_LON:
         case LogbookModel::COLUMN_OWNER_CALLSIGN:
         case LogbookModel::COLUMN_CONTACTED_OP:
+        case LogbookModel::COLUMN_OPERATOR:
         case LogbookModel::COLUMN_STATION_CALLSIGN:
         case LogbookModel::COLUMN_COMMENT:
         case LogbookModel::COLUMN_COUNTRY:

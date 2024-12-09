@@ -19,6 +19,7 @@ struct WsjtxEntry {
     QString decodedMode;
     QString spotter;
     DxccEntity dxcc_spotter;
+    qulonglong dupeCount = 0;
 
     QStringList memberList2StringList() const
     {

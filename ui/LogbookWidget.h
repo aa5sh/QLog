@@ -24,6 +24,7 @@ signals:
     void logbookUpdated();
     void contactUpdated(QSqlRecord&);
     void contactDeleted(const QSqlRecord&);
+    void deletedEntities(const QSet<uint> &entities);
     void sendDXSpotContactReq(const QSqlRecord&);
 
     // Clublog special signals
@@ -45,6 +46,7 @@ public slots:
     void modeFilterChanged();
     void countryFilterChanged();
     void userFilterChanged();
+    void setUserFilter(const QString &filterName);
     void clubFilterChanged();
     void refreshClubFilter();
     void refreshUserFilter();
@@ -88,6 +90,7 @@ private:
     void restoreClubFilter();
     void reselectModel();
     void scrollToIndex(const QModelIndex& index, bool select = true);
+    void adjusteComboMinSize(QComboBox * combo);
 };
 
 /* https://forum.qt.io/topic/90403/show-tooltip-immediatly/7/ */

@@ -35,11 +35,15 @@ public:
     QString band;
     int spotterCountry;
     QString spotterContinent;
+    int ituz;
+    int cqz;
+
 private:
     bool ruleValid;
     QRegularExpression callsignRE;
     QRegularExpression commentRE;
     QSet<QString> dxMemberSet;
+
 };
 
 class AlertEvaluator : public QObject

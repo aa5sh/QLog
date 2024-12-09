@@ -14,172 +14,8 @@ LogbookModel::LogbookModel(QObject* parent, QSqlDatabase db)
     setEditStrategy(QSqlTableModel::OnFieldChange);
     setSort(COLUMN_TIME_ON, Qt::DescendingOrder);
 
-    setHeaderData(COLUMN_ID, Qt::Horizontal, tr("QSO ID"));
-    setHeaderData(COLUMN_TIME_ON, Qt::Horizontal, tr("Time on"));
-    setHeaderData(COLUMN_TIME_OFF, Qt::Horizontal, tr("Time off"));
-    setHeaderData(COLUMN_CALL, Qt::Horizontal, tr("Call"));
-    setHeaderData(COLUMN_RST_SENT, Qt::Horizontal, tr("RSTs"));
-    setHeaderData(COLUMN_RST_RCVD, Qt::Horizontal, tr("RSTr"));
-    setHeaderData(COLUMN_FREQUENCY, Qt::Horizontal, tr("Frequency"));
-    setHeaderData(COLUMN_BAND, Qt::Horizontal, tr("Band"));
-    setHeaderData(COLUMN_MODE, Qt::Horizontal, tr("Mode"));
-    setHeaderData(COLUMN_SUBMODE, Qt::Horizontal, tr("Submode"));
-    setHeaderData(COLUMN_NAME, Qt::Horizontal, tr("Name (ASCII)"));
-    setHeaderData(COLUMN_QTH, Qt::Horizontal, tr("QTH (ASCII)"));
-    setHeaderData(COLUMN_GRID, Qt::Horizontal, tr("Gridsquare"));
-    setHeaderData(COLUMN_DXCC, Qt::Horizontal, tr("DXCC"));
-    setHeaderData(COLUMN_COUNTRY, Qt::Horizontal, tr("Country (ASCII)"));
-    setHeaderData(COLUMN_CONTINENT, Qt::Horizontal, tr("Continent"));
-    setHeaderData(COLUMN_CQZ, Qt::Horizontal, tr("CQZ"));
-    setHeaderData(COLUMN_ITUZ, Qt::Horizontal, tr("ITU"));
-    setHeaderData(COLUMN_PREFIX, Qt::Horizontal, tr("Prefix"));
-    setHeaderData(COLUMN_STATE, Qt::Horizontal, tr("State"));
-    setHeaderData(COLUMN_COUNTY, Qt::Horizontal, tr("County"));
-    setHeaderData(COLUMN_IOTA, Qt::Horizontal, tr("IOTA"));
-    setHeaderData(COLUMN_QSL_RCVD, Qt::Horizontal, tr("QSLr"));
-    setHeaderData(COLUMN_QSL_RCVD_DATE, Qt::Horizontal, tr("QSLr Date"));
-    setHeaderData(COLUMN_QSL_SENT, Qt::Horizontal, tr("QSLs"));
-    setHeaderData(COLUMN_QSL_SENT_DATE, Qt::Horizontal, tr("QSLs Date"));
-    setHeaderData(COLUMN_LOTW_RCVD, Qt::Horizontal, tr("LoTWr"));
-    setHeaderData(COLUMN_LOTW_RCVD_DATE, Qt::Horizontal, tr("LoTWr Date"));
-    setHeaderData(COLUMN_LOTW_SENT, Qt::Horizontal, tr("LoTWs"));
-    setHeaderData(COLUMN_LOTW_SENT_DATE, Qt::Horizontal, tr("LoTWs Date"));
-    setHeaderData(COLUMN_TX_POWER, Qt::Horizontal, tr("TX PWR"));
-    setHeaderData(COLUMN_FIELDS, Qt::Horizontal, tr("Additional Fields"));
-    setHeaderData(COLUMN_ADDRESS, Qt::Horizontal, tr("Address (ASCII)"));
-    setHeaderData(COLUMN_ADDRESS_INTL, Qt::Horizontal, tr("Address"));
-    setHeaderData(COLUMN_AGE, Qt::Horizontal, tr("Age"));
-    setHeaderData(COLUMN_ALTITUDE, Qt::Horizontal, tr("Altitude"));
-    setHeaderData(COLUMN_A_INDEX, Qt::Horizontal, tr("A-Index"));
-    setHeaderData(COLUMN_ANT_AZ, Qt::Horizontal, tr("Antenna Az"));
-    setHeaderData(COLUMN_ANT_EL, Qt::Horizontal, tr("Antenna El"));
-    setHeaderData(COLUMN_ANT_PATH, Qt::Horizontal, tr("Signal Path"));
-    setHeaderData(COLUMN_ARRL_SECT, Qt::Horizontal, tr("ARRL Section"));
-    setHeaderData(COLUMN_AWARD_SUBMITTED, Qt::Horizontal, tr("Award Submitted"));
-    setHeaderData(COLUMN_AWARD_GRANTED, Qt::Horizontal, tr("Award Granted"));
-    setHeaderData(COLUMN_BAND_RX, Qt::Horizontal, tr("Band RX"));
-    setHeaderData(COLUMN_GRID_EXT, Qt::Horizontal, tr("Gridsquare Extended"));
-    setHeaderData(COLUMN_CHECK, Qt::Horizontal, tr("Contest Check"));
-    setHeaderData(COLUMN_CLASS, Qt::Horizontal, tr("Class"));
-    setHeaderData(COLUMN_CLUBLOG_QSO_UPLOAD_DATE, Qt::Horizontal, tr("ClubLog Upload Date"));
-    setHeaderData(COLUMN_CLUBLOG_QSO_UPLOAD_STATUS, Qt::Horizontal, tr("ClubLog Upload State"));
-    setHeaderData(COLUMN_COMMENT, Qt::Horizontal, tr("Comment (ASCII)"));
-    setHeaderData(COLUMN_COMMENT_INTL, Qt::Horizontal, tr("Comment"));
-    setHeaderData(COLUMN_CONTACTED_OP, Qt::Horizontal, tr("Contacted Operator"));
-    setHeaderData(COLUMN_CONTEST_ID, Qt::Horizontal, tr("Contest ID"));
-    setHeaderData(COLUMN_COUNTRY_INTL, Qt::Horizontal, tr("Country"));
-    setHeaderData(COLUMN_CREDIT_SUBMITTED, Qt::Horizontal, tr("Credit Submitted"));
-    setHeaderData(COLUMN_CREDIT_GRANTED, Qt::Horizontal, tr("Credit Granted"));
-    setHeaderData(COLUMN_DARC_DOK, Qt::Horizontal, tr("DOK"));
-    setHeaderData(COLUMN_DISTANCE, Qt::Horizontal, tr("Distance"));
-    setHeaderData(COLUMN_EMAIL, Qt::Horizontal, tr("Email"));
-    setHeaderData(COLUMN_EQ_CALL, Qt::Horizontal, tr("Owner Callsign"));
-    setHeaderData(COLUMN_EQSL_QSLRDATE, Qt::Horizontal, tr("eQSLr Date"));
-    setHeaderData(COLUMN_EQSL_QSLSDATE, Qt::Horizontal, tr("eQSLs Date"));
-    setHeaderData(COLUMN_EQSL_QSL_RCVD, Qt::Horizontal, tr("eQSLr"));
-    setHeaderData(COLUMN_EQSL_QSL_SENT, Qt::Horizontal, tr("eQSLs"));
-    setHeaderData(COLUMN_FISTS, Qt::Horizontal, tr("FISTS Number"));
-    setHeaderData(COLUMN_FISTS_CC, Qt::Horizontal, tr("FISTS CC"));
-    setHeaderData(COLUMN_FORCE_INIT, Qt::Horizontal, tr("EME Init"));
-    setHeaderData(COLUMN_FREQ_RX, Qt::Horizontal, tr("Frequency RX"));
-    setHeaderData(COLUMN_GUEST_OP, Qt::Horizontal, tr("Guest Operator"));
-    setHeaderData(COLUMN_HAMLOGEU_QSO_UPLOAD_DATE, Qt::Horizontal, tr("HamlogEU Upload Date"));
-    setHeaderData(COLUMN_HAMLOGEU_QSO_UPLOAD_STATUS, Qt::Horizontal, tr("HamlogEU Upload Status"));
-    setHeaderData(COLUMN_HAMQTH_QSO_UPLOAD_DATE, Qt::Horizontal, tr("HamQTH Upload Date"));
-    setHeaderData(COLUMN_HAMQTH_QSO_UPLOAD_STATUS, Qt::Horizontal, tr("HamQTH Upload Status"));
-    setHeaderData(COLUMN_HRDLOG_QSO_UPLOAD_DATE, Qt::Horizontal, tr("HRDLog Upload Date"));
-    setHeaderData(COLUMN_HRDLOG_QSO_UPLOAD_STATUS, Qt::Horizontal, tr("HRDLog Upload Status"));
-    setHeaderData(COLUMN_IOTA_ISLAND_ID, Qt::Horizontal, tr("IOTA Island ID"));
-    setHeaderData(COLUMN_K_INDEX, Qt::Horizontal, tr("K-Index"));
-    setHeaderData(COLUMN_LAT, Qt::Horizontal, tr("Latitude"));
-    setHeaderData(COLUMN_LON, Qt::Horizontal, tr("Longitude"));
-    setHeaderData(COLUMN_MAX_BURSTS, Qt::Horizontal, tr("Max Bursts"));
-    setHeaderData(COLUMN_MS_SHOWER, Qt::Horizontal, tr("MS Shower Name"));
-    setHeaderData(COLUMN_MY_ALTITUDE, Qt::Horizontal, tr("My Altitude"));
-    setHeaderData(COLUMN_MY_ANTENNA, Qt::Horizontal, tr("My Antenna (ASCII)"));
-    setHeaderData(COLUMN_MY_ANTENNA_INTL, Qt::Horizontal, tr("My Antenna"));
-    setHeaderData(COLUMN_MY_CITY, Qt::Horizontal, tr("My City (ASCII)"));
-    setHeaderData(COLUMN_MY_CITY_INTL, Qt::Horizontal, tr("My City"));
-    setHeaderData(COLUMN_MY_CNTY, Qt::Horizontal, tr("My County"));
-    setHeaderData(COLUMN_MY_COUNTRY, Qt::Horizontal, tr("My Country (ASCII)"));
-    setHeaderData(COLUMN_MY_COUNTRY_INTL, Qt::Horizontal, tr("My Country"));
-    setHeaderData(COLUMN_MY_CQ_ZONE, Qt::Horizontal, tr("My CQZ"));
-    setHeaderData(COLUMN_MY_DXCC, Qt::Horizontal, tr("My DXCC"));
-    setHeaderData(COLUMN_MY_FISTS, Qt::Horizontal, tr("My FISTS"));
-    setHeaderData(COLUMN_MY_GRIDSQUARE, Qt::Horizontal, tr("My Gridsquare"));
-    setHeaderData(COLUMN_MY_GRIDSQUARE_EXT, Qt::Horizontal, tr("My Gridsquare Extended"));
-    setHeaderData(COLUMN_MY_IOTA, Qt::Horizontal, tr("My IOTA"));
-    setHeaderData(COLUMN_MY_IOTA_ISLAND_ID, Qt::Horizontal, tr("My IOTA Island ID"));
-    setHeaderData(COLUMN_MY_ITU_ZONE, Qt::Horizontal, tr("My ITU"));
-    setHeaderData(COLUMN_MY_LAT, Qt::Horizontal, tr("My Latitude"));
-    setHeaderData(COLUMN_MY_LON, Qt::Horizontal, tr("My Longitude"));
-    setHeaderData(COLUMN_MY_NAME, Qt::Horizontal, tr("My Name (ASCII)"));
-    setHeaderData(COLUMN_MY_NAME_INTL, Qt::Horizontal, tr("My Name"));
-    setHeaderData(COLUMN_MY_POSTAL_CODE, Qt::Horizontal, tr("My Postal Code (ASCII)"));
-    setHeaderData(COLUMN_MY_POSTAL_CODE_INTL, Qt::Horizontal, tr("My Postal Code"));
-    setHeaderData(COLUMN_MY_POTA_REF, Qt::Horizontal, tr("My POTA Ref"));
-    setHeaderData(COLUMN_MY_RIG, Qt::Horizontal, tr("My Rig (ASCII)"));
-    setHeaderData(COLUMN_MY_RIG_INTL, Qt::Horizontal, tr("My Rig"));
-    setHeaderData(COLUMN_MY_SIG, Qt::Horizontal, tr("My Special Interest Activity (ASCII)"));
-    setHeaderData(COLUMN_MY_SIG_INTL, Qt::Horizontal, tr("My Special Interest Activity"));
-    setHeaderData(COLUMN_MY_SIG_INFO, Qt::Horizontal, tr("My Spec. Interes Activity Info (ASCII)"));
-    setHeaderData(COLUMN_MY_SIG_INFO_INTL, Qt::Horizontal, tr("My Spec. Interest Activity Info"));
-    setHeaderData(COLUMN_MY_SOTA_REF, Qt::Horizontal, tr("My SOTA"));
-    setHeaderData(COLUMN_MY_STATE, Qt::Horizontal, tr("My State"));
-    setHeaderData(COLUMN_MY_STREET, Qt::Horizontal, tr("My Street"));
-    setHeaderData(COLUMN_MY_STREET_INTL, Qt::Horizontal, tr("My Street"));
-    setHeaderData(COLUMN_MY_USACA_COUNTIES, Qt::Horizontal, tr("My USA-CA Counties"));
-    setHeaderData(COLUMN_MY_VUCC_GRIDS, Qt::Horizontal, tr("My VUCC Grids"));
-    setHeaderData(COLUMN_NAME_INTL, Qt::Horizontal, tr("Name"));
-    setHeaderData(COLUMN_NOTES, Qt::Horizontal, tr("Notes (ASCII)"));
-    setHeaderData(COLUMN_NOTES_INTL, Qt::Horizontal, tr("Notes"));
-    setHeaderData(COLUMN_NR_BURSTS, Qt::Horizontal, tr("#MS Bursts"));
-    setHeaderData(COLUMN_NR_PINGS, Qt::Horizontal, tr("#MS Pings"));
-    setHeaderData(COLUMN_OPERATOR, Qt::Horizontal, tr("Logging Operator"));
-    setHeaderData(COLUMN_OWNER_CALLSIGN, Qt::Horizontal, tr("Owner Callsign"));
-    setHeaderData(COLUMN_POTA_REF, Qt::Horizontal, tr("POTA"));
-    setHeaderData(COLUMN_PRECEDENCE, Qt::Horizontal, tr("Contest Precedence"));
-    setHeaderData(COLUMN_PROP_MODE, Qt::Horizontal, tr("Propagation Mode"));
-    setHeaderData(COLUMN_PUBLIC_KEY, Qt::Horizontal, tr("Public Encryption Key"));
-    setHeaderData(COLUMN_QRZCOM_QSO_UPLOAD_DATE, Qt::Horizontal, tr("QRZ Upload Date"));
-    setHeaderData(COLUMN_QRZCOM_QSO_UPLOAD_STATUS, Qt::Horizontal, tr("QRZ Upload Status"));
-    setHeaderData(COLUMN_QSLMSG, Qt::Horizontal, tr("QSL Message (ASCII)"));
-    setHeaderData(COLUMN_QSLMSG_INTL, Qt::Horizontal, tr("QSL Message"));
-    setHeaderData(COLUMN_QSL_RCVD_VIA, Qt::Horizontal, tr("QSLr Via"));
-    setHeaderData(COLUMN_QSL_SENT_VIA, Qt::Horizontal, tr("QSLs Via"));
-    setHeaderData(COLUMN_QSL_VIA, Qt::Horizontal, tr("QSL Via"));
-    setHeaderData(COLUMN_QSO_COMPLETE, Qt::Horizontal, tr("QSO Completed"));
-    setHeaderData(COLUMN_QSO_RANDOM, Qt::Horizontal, tr("QSO Random"));
-    setHeaderData(COLUMN_QTH_INTL, Qt::Horizontal, tr("QTH"));
-    setHeaderData(COLUMN_REGION, Qt::Horizontal, tr("Region"));
-    setHeaderData(COLUMN_RIG, Qt::Horizontal, tr("Rig (ASCII)"));
-    setHeaderData(COLUMN_RIG_INTL, Qt::Horizontal, tr("Rig"));
-    setHeaderData(COLUMN_RX_PWR, Qt::Horizontal, tr("Contact PWR"));
-    setHeaderData(COLUMN_SAT_MODE, Qt::Horizontal, tr("SAT Mode"));
-    setHeaderData(COLUMN_SAT_NAME, Qt::Horizontal, tr("SAT Name"));
-    setHeaderData(COLUMN_SFI, Qt::Horizontal, tr("Solar Flux"));
-    setHeaderData(COLUMN_SIG, Qt::Horizontal, tr("SIG (ASCII)"));
-    setHeaderData(COLUMN_SIG_INTL, Qt::Horizontal, tr("SIG"));
-    setHeaderData(COLUMN_SIG_INFO, Qt::Horizontal, tr("SIG Info (ASCII)"));
-    setHeaderData(COLUMN_SIG_INFO_INTL, Qt::Horizontal, tr("SIG Info"));
-    setHeaderData(COLUMN_SILENT_KEY, Qt::Horizontal, tr("Silent Key"));
-    setHeaderData(COLUMN_SKCC, Qt::Horizontal, tr("SKCC Member"));
-    setHeaderData(COLUMN_SOTA_REF, Qt::Horizontal, tr("SOTA"));
-    setHeaderData(COLUMN_SRX, Qt::Horizontal, tr("Contest Serial Number RX"));
-    setHeaderData(COLUMN_SRX_STRING, Qt::Horizontal, tr("Contest Exchange RX"));
-    setHeaderData(COLUMN_STATION_CALLSIGN, Qt::Horizontal, tr("Logging Station Callsign"));
-    setHeaderData(COLUMN_STX, Qt::Horizontal, tr("Contest Serial Number TX"));
-    setHeaderData(COLUMN_STX_STRING, Qt::Horizontal, tr("Contest Exchange TX"));
-    setHeaderData(COLUMN_SWL, Qt::Horizontal, tr("SWL"));
-    setHeaderData(COLUMN_TEN_TEN, Qt::Horizontal, tr("Ten-Ten Number"));
-    setHeaderData(COLUMN_UKSMG, Qt::Horizontal, tr("UKSMG Member"));
-    setHeaderData(COLUMN_USACA_COUNTIES, Qt::Horizontal, tr("USA-CA Counties"));
-    setHeaderData(COLUMN_VE_PROV, Qt::Horizontal, tr("VE Prov"));
-    setHeaderData(COLUMN_VUCC_GRIDS, Qt::Horizontal, tr("VUCC"));
-    setHeaderData(COLUMN_WEB, Qt::Horizontal, tr("Web"));
-    setHeaderData(COLUMN_MY_ARRL_SECT, Qt::Horizontal, tr("My ARRL Section"));
-    setHeaderData(COLUMN_MY_WWFF_REF, Qt::Horizontal, tr("My WWFF"));
-    setHeaderData(COLUMN_WWFF_REF, Qt::Horizontal, tr("WWFF"));
+    for (auto it = fieldNameTranslationMap.begin(); it != fieldNameTranslationMap.end(); ++it)
+        setHeaderData(it.key(), Qt::Horizontal, getFieldNameTranslation(it.key()));
 }
 
 QVariant LogbookModel::data(const QModelIndex &index, int role) const
@@ -740,6 +576,177 @@ bool LogbookModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     return main_update_result && depend_update_result;
 }
+
+QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap =
+{
+    {COLUMN_ID, QT_TR_NOOP("QSO ID")},
+    {COLUMN_TIME_ON, QT_TR_NOOP("Time on")},
+    {COLUMN_TIME_OFF, QT_TR_NOOP("Time off")},
+    {COLUMN_CALL, QT_TR_NOOP("Call")},
+    {COLUMN_RST_SENT, QT_TR_NOOP("RSTs")},
+    {COLUMN_RST_RCVD, QT_TR_NOOP("RSTr")},
+    {COLUMN_FREQUENCY, QT_TR_NOOP("Frequency")},
+    {COLUMN_BAND, QT_TR_NOOP("Band")},
+    {COLUMN_MODE, QT_TR_NOOP("Mode")},
+    {COLUMN_SUBMODE, QT_TR_NOOP("Submode")},
+    {COLUMN_NAME, QT_TR_NOOP("Name (ASCII)")},
+    {COLUMN_QTH, QT_TR_NOOP("QTH (ASCII)")},
+    {COLUMN_GRID, QT_TR_NOOP("Gridsquare")},
+    {COLUMN_DXCC, QT_TR_NOOP("DXCC")},
+    {COLUMN_COUNTRY, QT_TR_NOOP("Country (ASCII)")},
+    {COLUMN_CONTINENT, QT_TR_NOOP("Continent")},
+    {COLUMN_CQZ, QT_TR_NOOP("CQZ")},
+    {COLUMN_ITUZ, QT_TR_NOOP("ITU")},
+    {COLUMN_PREFIX, QT_TR_NOOP("Prefix")},
+    {COLUMN_STATE, QT_TR_NOOP("State")},
+    {COLUMN_COUNTY, QT_TR_NOOP("County")},
+    {COLUMN_IOTA, QT_TR_NOOP("IOTA")},
+    {COLUMN_QSL_RCVD, QT_TR_NOOP("QSLr")},
+    {COLUMN_QSL_RCVD_DATE, QT_TR_NOOP("QSLr Date")},
+    {COLUMN_QSL_SENT, QT_TR_NOOP("QSLs")},
+    {COLUMN_QSL_SENT_DATE, QT_TR_NOOP("QSLs Date")},
+    {COLUMN_LOTW_RCVD, QT_TR_NOOP("LoTWr")},
+    {COLUMN_LOTW_RCVD_DATE, QT_TR_NOOP("LoTWr Date")},
+    {COLUMN_LOTW_SENT, QT_TR_NOOP("LoTWs")},
+    {COLUMN_LOTW_SENT_DATE, QT_TR_NOOP("LoTWs Date")},
+    {COLUMN_TX_POWER, QT_TR_NOOP("TX PWR")},
+    {COLUMN_FIELDS, QT_TR_NOOP("Additional Fields")},
+    {COLUMN_ADDRESS, QT_TR_NOOP("Address (ASCII)")},
+    {COLUMN_ADDRESS_INTL, QT_TR_NOOP("Address")},
+    {COLUMN_AGE, QT_TR_NOOP("Age")},
+    {COLUMN_ALTITUDE, QT_TR_NOOP("Altitude")},
+    {COLUMN_A_INDEX, QT_TR_NOOP("A-Index")},
+    {COLUMN_ANT_AZ, QT_TR_NOOP("Antenna Az")},
+    {COLUMN_ANT_EL, QT_TR_NOOP("Antenna El")},
+    {COLUMN_ANT_PATH, QT_TR_NOOP("Signal Path")},
+    {COLUMN_ARRL_SECT, QT_TR_NOOP("ARRL Section")},
+    {COLUMN_AWARD_SUBMITTED, QT_TR_NOOP("Award Submitted")},
+    {COLUMN_AWARD_GRANTED, QT_TR_NOOP("Award Granted")},
+    {COLUMN_BAND_RX, QT_TR_NOOP("Band RX")},
+    {COLUMN_GRID_EXT, QT_TR_NOOP("Gridsquare Extended")},
+    {COLUMN_CHECK, QT_TR_NOOP("Contest Check")},
+    {COLUMN_CLASS, QT_TR_NOOP("Class")},
+    {COLUMN_CLUBLOG_QSO_UPLOAD_DATE, QT_TR_NOOP("ClubLog Upload Date")},
+    {COLUMN_CLUBLOG_QSO_UPLOAD_STATUS, QT_TR_NOOP("ClubLog Upload State")},
+    {COLUMN_COMMENT, QT_TR_NOOP("Comment (ASCII)")},
+    {COLUMN_COMMENT_INTL, QT_TR_NOOP("Comment")},
+    {COLUMN_CONTACTED_OP, QT_TR_NOOP("Contacted Operator")},
+    {COLUMN_CONTEST_ID, QT_TR_NOOP("Contest ID")},
+    {COLUMN_COUNTRY_INTL, QT_TR_NOOP("Country")},
+    {COLUMN_CREDIT_SUBMITTED, QT_TR_NOOP("Credit Submitted")},
+    {COLUMN_CREDIT_GRANTED, QT_TR_NOOP("Credit Granted")},
+    {COLUMN_DARC_DOK, QT_TR_NOOP("DOK")},
+    {COLUMN_DISTANCE, QT_TR_NOOP("Distance")},
+    {COLUMN_EMAIL, QT_TR_NOOP("Email")},
+    {COLUMN_EQ_CALL, QT_TR_NOOP("Owner Callsign")},
+    {COLUMN_EQSL_QSLRDATE, QT_TR_NOOP("eQSLr Date")},
+    {COLUMN_EQSL_QSLSDATE, QT_TR_NOOP("eQSLs Date")},
+    {COLUMN_EQSL_QSL_RCVD, QT_TR_NOOP("eQSLr")},
+    {COLUMN_EQSL_QSL_SENT, QT_TR_NOOP("eQSLs")},
+    {COLUMN_FISTS, QT_TR_NOOP("FISTS Number")},
+    {COLUMN_FISTS_CC, QT_TR_NOOP("FISTS CC")},
+    {COLUMN_FORCE_INIT, QT_TR_NOOP("EME Init")},
+    {COLUMN_FREQ_RX, QT_TR_NOOP("Frequency RX")},
+    {COLUMN_GUEST_OP, QT_TR_NOOP("Guest Operator")},
+    {COLUMN_HAMLOGEU_QSO_UPLOAD_DATE, QT_TR_NOOP("HamlogEU Upload Date")},
+    {COLUMN_HAMLOGEU_QSO_UPLOAD_STATUS, QT_TR_NOOP("HamlogEU Upload Status")},
+    {COLUMN_HAMQTH_QSO_UPLOAD_DATE, QT_TR_NOOP("HamQTH Upload Date")},
+    {COLUMN_HAMQTH_QSO_UPLOAD_STATUS, QT_TR_NOOP("HamQTH Upload Status")},
+    {COLUMN_HRDLOG_QSO_UPLOAD_DATE, QT_TR_NOOP("HRDLog Upload Date")},
+    {COLUMN_HRDLOG_QSO_UPLOAD_STATUS, QT_TR_NOOP("HRDLog Upload Status")},
+    {COLUMN_IOTA_ISLAND_ID, QT_TR_NOOP("IOTA Island ID")},
+    {COLUMN_K_INDEX, QT_TR_NOOP("K-Index")},
+    {COLUMN_LAT, QT_TR_NOOP("Latitude")},
+    {COLUMN_LON, QT_TR_NOOP("Longitude")},
+    {COLUMN_MAX_BURSTS, QT_TR_NOOP("Max Bursts")},
+    {COLUMN_MS_SHOWER, QT_TR_NOOP("MS Shower Name")},
+    {COLUMN_MY_ALTITUDE, QT_TR_NOOP("My Altitude")},
+    {COLUMN_MY_ANTENNA, QT_TR_NOOP("My Antenna (ASCII)")},
+    {COLUMN_MY_ANTENNA_INTL, QT_TR_NOOP("My Antenna")},
+    {COLUMN_MY_CITY, QT_TR_NOOP("My City (ASCII)")},
+    {COLUMN_MY_CITY_INTL, QT_TR_NOOP("My City")},
+    {COLUMN_MY_CNTY, QT_TR_NOOP("My County")},
+    {COLUMN_MY_COUNTRY, QT_TR_NOOP("My Country (ASCII)")},
+    {COLUMN_MY_COUNTRY_INTL, QT_TR_NOOP("My Country")},
+    {COLUMN_MY_CQ_ZONE, QT_TR_NOOP("My CQZ")},
+    {COLUMN_MY_DXCC, QT_TR_NOOP("My DXCC")},
+    {COLUMN_MY_FISTS, QT_TR_NOOP("My FISTS")},
+    {COLUMN_MY_GRIDSQUARE, QT_TR_NOOP("My Gridsquare")},
+    {COLUMN_MY_GRIDSQUARE_EXT, QT_TR_NOOP("My Gridsquare Extended")},
+    {COLUMN_MY_IOTA, QT_TR_NOOP("My IOTA")},
+    {COLUMN_MY_IOTA_ISLAND_ID, QT_TR_NOOP("My IOTA Island ID")},
+    {COLUMN_MY_ITU_ZONE, QT_TR_NOOP("My ITU")},
+    {COLUMN_MY_LAT, QT_TR_NOOP("My Latitude")},
+    {COLUMN_MY_LON, QT_TR_NOOP("My Longitude")},
+    {COLUMN_MY_NAME, QT_TR_NOOP("My Name (ASCII)")},
+    {COLUMN_MY_NAME_INTL, QT_TR_NOOP("My Name")},
+    {COLUMN_MY_POSTAL_CODE, QT_TR_NOOP("My Postal Code (ASCII)")},
+    {COLUMN_MY_POSTAL_CODE_INTL, QT_TR_NOOP("My Postal Code")},
+    {COLUMN_MY_POTA_REF, QT_TR_NOOP("My POTA Ref")},
+    {COLUMN_MY_RIG, QT_TR_NOOP("My Rig (ASCII)")},
+    {COLUMN_MY_RIG_INTL, QT_TR_NOOP("My Rig")},
+    {COLUMN_MY_SIG, QT_TR_NOOP("My Special Interest Activity (ASCII)")},
+    {COLUMN_MY_SIG_INTL, QT_TR_NOOP("My Special Interest Activity")},
+    {COLUMN_MY_SIG_INFO, QT_TR_NOOP("My Spec. Interes Activity Info (ASCII)")},
+    {COLUMN_MY_SIG_INFO_INTL, QT_TR_NOOP("My Spec. Interest Activity Info")},
+    {COLUMN_MY_SOTA_REF, QT_TR_NOOP("My SOTA")},
+    {COLUMN_MY_STATE, QT_TR_NOOP("My State")},
+    {COLUMN_MY_STREET, QT_TR_NOOP("My Street")},
+    {COLUMN_MY_STREET_INTL, QT_TR_NOOP("My Street")},
+    {COLUMN_MY_USACA_COUNTIES, QT_TR_NOOP("My USA-CA Counties")},
+    {COLUMN_MY_VUCC_GRIDS, QT_TR_NOOP("My VUCC Grids")},
+    {COLUMN_NAME_INTL, QT_TR_NOOP("Name")},
+    {COLUMN_NOTES, QT_TR_NOOP("Notes (ASCII)")},
+    {COLUMN_NOTES_INTL, QT_TR_NOOP("Notes")},
+    {COLUMN_NR_BURSTS, QT_TR_NOOP("#MS Bursts")},
+    {COLUMN_NR_PINGS, QT_TR_NOOP("#MS Pings")},
+    {COLUMN_OPERATOR, QT_TR_NOOP("Operator Callsign")},
+    {COLUMN_OWNER_CALLSIGN, QT_TR_NOOP("Owner Callsign")},
+    {COLUMN_POTA_REF, QT_TR_NOOP("POTA")},
+    {COLUMN_PRECEDENCE, QT_TR_NOOP("Contest Precedence")},
+    {COLUMN_PROP_MODE, QT_TR_NOOP("Propagation Mode")},
+    {COLUMN_PUBLIC_KEY, QT_TR_NOOP("Public Encryption Key")},
+    {COLUMN_QRZCOM_QSO_UPLOAD_DATE, QT_TR_NOOP("QRZ Upload Date")},
+    {COLUMN_QRZCOM_QSO_UPLOAD_STATUS, QT_TR_NOOP("QRZ Upload Status")},
+    {COLUMN_QSLMSG, QT_TR_NOOP("QSL Message (ASCII)")},
+    {COLUMN_QSLMSG_INTL, QT_TR_NOOP("QSL Message")},
+    {COLUMN_QSL_RCVD_VIA, QT_TR_NOOP("QSLr Via")},
+    {COLUMN_QSL_SENT_VIA, QT_TR_NOOP("QSLs Via")},
+    {COLUMN_QSL_VIA, QT_TR_NOOP("QSL Via")},
+    {COLUMN_QSO_COMPLETE, QT_TR_NOOP("QSO Completed")},
+    {COLUMN_QSO_RANDOM, QT_TR_NOOP("QSO Random")},
+    {COLUMN_QTH_INTL, QT_TR_NOOP("QTH")},
+    {COLUMN_REGION, QT_TR_NOOP("Region")},
+    {COLUMN_RIG, QT_TR_NOOP("Rig (ASCII)")},
+    {COLUMN_RIG_INTL, QT_TR_NOOP("Rig")},
+    {COLUMN_RX_PWR, QT_TR_NOOP("RcvPWR")},
+    {COLUMN_SAT_MODE, QT_TR_NOOP("SAT Mode")},
+    {COLUMN_SAT_NAME, QT_TR_NOOP("SAT Name")},
+    {COLUMN_SFI, QT_TR_NOOP("Solar Flux")},
+    {COLUMN_SIG, QT_TR_NOOP("SIG (ASCII)")},
+    {COLUMN_SIG_INTL, QT_TR_NOOP("SIG")},
+    {COLUMN_SIG_INFO, QT_TR_NOOP("SIG Info (ASCII)")},
+    {COLUMN_SIG_INFO_INTL, QT_TR_NOOP("SIG Info")},
+    {COLUMN_SILENT_KEY, QT_TR_NOOP("Silent Key")},
+    {COLUMN_SKCC, QT_TR_NOOP("SKCC Member")},
+    {COLUMN_SOTA_REF, QT_TR_NOOP("SOTA")},
+    {COLUMN_SRX, QT_TR_NOOP("RcvNr")},
+    {COLUMN_SRX_STRING, QT_TR_NOOP("RcvExch")},
+    {COLUMN_STATION_CALLSIGN, QT_TR_NOOP("Logging Station Callsign")},
+    {COLUMN_STX, QT_TR_NOOP("SentNr")},
+    {COLUMN_STX_STRING, QT_TR_NOOP("SentExch")},
+    {COLUMN_SWL, QT_TR_NOOP("SWL")},
+    {COLUMN_TEN_TEN, QT_TR_NOOP("Ten-Ten Number")},
+    {COLUMN_UKSMG, QT_TR_NOOP("UKSMG Member")},
+    {COLUMN_USACA_COUNTIES, QT_TR_NOOP("USA-CA Counties")},
+    {COLUMN_VE_PROV, QT_TR_NOOP("VE Prov")},
+    {COLUMN_VUCC_GRIDS, QT_TR_NOOP("VUCC")},
+    {COLUMN_WEB, QT_TR_NOOP("Web")},
+    {COLUMN_MY_ARRL_SECT, QT_TR_NOOP("My ARRL Section")},
+    {COLUMN_MY_WWFF_REF, QT_TR_NOOP("My WWFF")},
+    {COLUMN_WWFF_REF, QT_TR_NOOP("WWFF")}
+};
+
 
 #if 0
 void LogbookModel::updateExternalServicesUploadStatus(const QModelIndex &index, int role, bool &updateResult)

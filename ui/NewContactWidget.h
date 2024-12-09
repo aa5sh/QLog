@@ -10,6 +10,8 @@
 #include <QLineEdit>
 #include <QHash>
 #include <QFormLayout>
+#include <QDoubleSpinBox>
+#include <QToolButton>
 
 #include "data/DxSpot.h"
 #include "rig/Rig.h"
@@ -105,6 +107,27 @@ public:
     QLabel *satModeLabel;
     QComboBox *satModeEdit;
 
+    QLabel *contestIDLabel;
+    NewContactEditLine *contestIDEdit;
+
+    QLabel *srxStringLabel;
+    NewContactEditLine *srxStringEdit;
+
+    QLabel *stxStringLabel;
+    NewContactEditLine *stxStringEdit;
+
+    QLabel *srxLabel;
+    NewContactEditLine *srxEdit;
+
+    QLabel *stxLabel;
+    NewContactEditLine *stxEdit;
+
+    QLabel *rxPWRLabel;
+    NewContactEditLine *rxPWREdit;
+
+    QLabel *powerLabel;
+    QDoubleSpinBox *powerEdit;
+
     explicit NewContactDynamicWidgets(bool allocateWidgets,
                                       QWidget *parent);
     QWidget* getRowWidget(int index);
@@ -124,20 +147,15 @@ private:
        QString fieldLabelName;
     };
 
-    void initializeWidgets(int DBIndexMapping,
-                           const QString &,
-                           QLabel *&retLabel,
-                           NewContactEditLine *&retWidget);
-
-    void initializeWidgets(int DBIndexMapping,
-                           const QString &,
-                           QLabel *&retLabel,
-                           QComboBox *&retWidget);
+    template<typename WidgetType>
+    void initializeWidgets(LogbookModel::ColumnID DBIndexMapping,
+                               const QString &objectName,
+                               QLabel *&retLabel,
+                               WidgetType *&retWidget);
 
     // Mapping from DB Index to <Label, Editor>
     QHash<int, DynamicWidget> widgetMapping;
     QWidget *parent;
-    QPointer<LogbookModel> logbookmodel;
     bool widgetsAllocated;
 };
 
@@ -168,8 +186,11 @@ public:
     QString getMyPWR() const;
     QString getBand() const;
     QString getMode() const;
+    QString getSentNr() const;
+    QString getSentExch() const;
     double getQSOBearing() const;
     double getQSODistance() const;
+    bool getTabCollapseState() const;
 
 signals:
     void contactAdded(QSqlRecord record);
@@ -180,10 +201,11 @@ signals:
                          const QString &subMode, qint32 width);
     void markQSO(DxSpot spot);
 
-    void stationProfileChanged();
-    void rigProfileChanged();
-    void antProfileChanged();
     void callboolImageUrl(const QString&);
+
+    void contestStarted(const QString contestID,
+                        const QDateTime date);
+    void rigProfileChanged();
 
 public slots:
     void refreshRigProfileCombo();
@@ -205,15 +227,25 @@ public slots:
     void changePower(VFOID, double power);
     void rigConnected();
     void rigDisconnected();
-    void nearestSpot(const DxSpot &);
-    void setNearestSpotColor(const QString &call);
+    void setNearestSpot(const DxSpot &);
+    void setNearestSpotColor();
     void setManualMode(bool);
     void exitManualMode();
+    void refreshStationProfileCombo();
+    void refreshAntProfileCombo();
+    void stationProfileComboChanged(const QString&);
+    void setValuesFromActivity(const QString &);
 
     void markContact();
     void useNearestCallsign();
 
     void setupCustomUi();
+
+    void resetSTXSeq();
+    void stopContest();
+    void refreshCallsignsColors();
+
+    void changeSRXStringLink(int);
 
 private slots:
     void handleCallsignFromUser();
@@ -241,11 +273,13 @@ private slots:
     void setCallbookStatusEnabled(bool);
     void changeCallbookSearchStatus();
     void satNameChanged();
-    void stationProfileComboChanged(const QString&);
     void rigProfileComboChanged(const QString&);
     void antProfileComboChanged(const QString&);
     void webLookup();
     void refreshSIGCompleter();
+    void refreshContestCompleter();
+    void tabsExpandCollapse();
+    void setContestFieldsState();
 
 private:
     void useFieldsFromPrevQSO(const QString &callsign,
@@ -257,7 +291,6 @@ private:
     void readWidgetSettings();
     void writeWidgetSetting();
     void __modeChanged();
-    void refreshStationProfileCombo();
     void updateTXBand(double freq);
     void updateRXBand(double freq);
     void updateCoordinates(double lat, double lon, CoordPrecision prec);
@@ -265,7 +298,6 @@ private:
     void updateDxccStatus();
     void updatePartnerLocTime();
     void setDefaultReport();
-    void refreshAntProfileCombo();
     void addAddlFields(QSqlRecord &record, const StationProfile &profile);
     bool eventFilter(QObject *object, QEvent *event);
     bool isQSOTimeStarted();
@@ -288,6 +320,13 @@ private:
     bool isSOTAValid(SOTAEntity *entity);
     bool isWWFFValid(WWFFEntity *entity);
 
+    bool shouldStartContest();
+    void startContest(const QDateTime &date);
+    void setSTXSeq();
+    void setSTXSeq(int number);
+    void updateNearestSpotDupe();
+    void checkDupe();
+
 private:
     Rig* rig;
     double realRigFreq;
@@ -307,6 +346,7 @@ private:
     MultiselectCompleter *potaCompleter;
     QCompleter *wwffCompleter;
     QCompleter *sigCompleter;
+    QCompleter *contestCompleter;
     QTimeZone partnerTimeZone;
     double QSOFreq;
     qint32 bandwidthFilter;
@@ -326,6 +366,8 @@ private:
     QSqlQuery prevQSOBaseCallMatchQuery;
     bool isPrevQSOExactMatchQuery;
     bool isPrevQSOBaseCallMatchQuery;
+    DxSpot nearestSpot;
+    QToolButton *tabCollapseBtn;
 };
 
 #endif // QLOG_UI_NEWCONTACTWIDGET_H

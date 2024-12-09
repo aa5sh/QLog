@@ -21,6 +21,7 @@ public:
     DxccEntity dxcc;
     DxccEntity dxcc_spotter;
     DxccStatus status;
+    qulonglong dupeCount = 0;
 
     QStringList memberList2StringList() const
     {

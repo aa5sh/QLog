@@ -101,6 +101,7 @@ public slots:
     void adjustRotCOMPortTextColor();
     void adjustRigCOMPortTextColor();
     void adjustCWKeyCOMPortTextColor();
+    void adjustOperatorTextColor();
     void cancelled();
     void sotaChanged(const QString&);
     void sotaEditFinished();

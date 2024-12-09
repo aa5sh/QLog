@@ -61,8 +61,7 @@ void QSOFilterDialog::editFilterButton()
 {
     FCT_IDENTIFICATION;
 
-    foreach (QModelIndex index, ui->filtersListView->selectionModel()->selectedIndexes())
-    {
-       editFilter(index);
-    }
+    const QModelIndexList &list = ui->filtersListView->selectionModel()->selectedIndexes();
+    if ( !list.empty() )
+        editFilter(list.first());
 }

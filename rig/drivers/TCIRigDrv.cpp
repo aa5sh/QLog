@@ -276,7 +276,7 @@ void TCIRigDrv::sendDXSpot(const DxSpot &spot)
     if ( !rigProfile.dxSpot2Rig )
         return;
 
-    const QColor &spotColor = Data::statusToColor(spot.status, QColor(187,194,195));
+    const QColor &spotColor = Data::statusToColor(spot.status, spot.dupeCount, QColor(187,194,195));
 
     unsigned long long internalFreq = static_cast<unsigned long long>(MHz(spot.freq));
 

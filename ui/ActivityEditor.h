@@ -1,5 +1,5 @@
-#ifndef QLOG_UI_MAINLAYOUTEDITOR_H
-#define QLOG_UI_MAINLAYOUTEDITOR_H
+#ifndef QLOG_UI_ACTIVITYEDITOR_H
+#define QLOG_UI_ACTIVITYEDITOR_H
 
 #include <QDialog>
 #include <QPointer>
@@ -8,7 +8,7 @@
 #include "data/MainLayoutProfile.h"
 
 namespace Ui {
-class MainLayoutEditor;
+class ActivityEditor;
 }
 
 class StringListModel : public QStringListModel
@@ -67,17 +67,17 @@ public:
     };
 };
 
-class MainLayoutEditor : public QDialog
+class ActivityEditor : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit MainLayoutEditor(const QString &layoutName = QString(),
-                                    QWidget *parent = nullptr);
-    ~MainLayoutEditor();
+    explicit ActivityEditor(const QString &activityName = QString(),
+                            QWidget *parent = nullptr);
+    ~ActivityEditor();
 
 private:
-    Ui::MainLayoutEditor *ui;
+    Ui::ActivityEditor *ui;
     StringListModel *availableFieldsModel;
     StringListModel *qsoRowAFieldsModel;
     StringListModel *qsoRowBFieldsModel;
@@ -94,18 +94,25 @@ private slots:
     void save();
     void profileNameChanged(const QString&);
     void clearMainLayoutClick();
+    void setValueState();
 
 private:
     void fillWidgets(const MainLayoutProfile &profile);
-    bool layoutNameExists(const QString &layoutName);
+    bool activityNameExists(const QString &activityName);
     void moveField(StringListModel *source,
                    StringListModel *destination,
                    const QModelIndexList &sourceIndexList);
     void connectQSORowButtons();
     void connectDetailColsButtons();
+    void connectMoveButtons(QPushButton* downButton, QPushButton* upButton,
+                            QListView* listView, StringListModel* model);
+    void connectFieldButtons(QPushButton* moveToButton, QPushButton* removeButton,
+                             StringListModel* targetModel, QListView* targetListView);
+
     QList<int> getFieldIndexes(StringListModel *model);
+    void setupValuesTab(const QString &activityName);
 
     const QString statusUnSavedText = tr("Unsaved");
 };
 
-#endif // QLOG_UI_MAINLAYOUTEDITOR_H
+#endif // QLOG_UI_ACTIVITYEDITOR_H

@@ -40,7 +40,6 @@ signals:
 
 public slots:
     void start();
-    void update();
     void open();
     void close();
     void stopTimer();
@@ -92,7 +91,6 @@ private:
     GenericRotDrv *getDriver(const RotProfile &profile);
 
 private:
-    QTimer* timer;
     GenericRotDrv *rotDriver;
     QMutex rotLock;
     bool connected;

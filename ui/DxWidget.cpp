@@ -50,9 +50,9 @@ int DxTableModel::columnCount(const QModelIndex&) const
 
 QVariant DxTableModel::data(const QModelIndex& index, int role) const
 {
+    const DxSpot &spot = dxData.at(index.row());
     if ( role == Qt::DisplayRole )
     {
-        const DxSpot &spot = dxData.at(index.row());
         switch ( index.column() )
         {
         case 0:
@@ -83,12 +83,10 @@ QVariant DxTableModel::data(const QModelIndex& index, int role) const
     }
     else if (index.column() == 1 && role == Qt::BackgroundRole)
     {
-        const DxSpot &spot = dxData.at(index.row());
-        return Data::statusToColor(spot.status, QColor(Qt::transparent));
+        return Data::statusToColor(spot.status, spot.dupeCount, QColor(Qt::transparent));
     }
     else if (index.column() == 1 && role == Qt::ToolTipRole)
     {
-        const DxSpot &spot = dxData.at(index.row());
         return QCoreApplication::translate("DBStrings", spot.dxcc.country.toUtf8().constData()) + " [" + Data::statusToText(spot.status) + "]";
     }
     return QVariant();
@@ -1565,8 +1563,9 @@ void DxWidget::processDxSpot(const QString &spotter,
     spot.modeGroupString = BandPlan::bandMode2BandModeGroupString(spot.bandPlanMode);
     spot.dxcc = Data::instance()->lookupDxcc(call);
     spot.dxcc_spotter = Data::instance()->lookupDxcc(spotter);
-    spot.status = Data::dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+    spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
     spot.callsign_member = MembershipQE::instance()->query(spot.callsign);
+    spot.dupeCount = Data::countDupe(spot.callsign, spot.band, spot.modeGroupString);
 
     emit newSpot(spot);
 
@@ -1576,7 +1575,8 @@ void DxWidget::processDxSpot(const QString &spotter,
          && spot.band.contains(bandregexp)
          && ( spot.status & dxccStatusFilter)
          && ( dxMemberFilter.size() == 0
-              || (dxMemberFilter.size() && spot.memberList2Set().intersects(dxMemberFilter)))
+            || (dxMemberFilter.size() && spot.memberList2Set().intersects(dxMemberFilter)) )
+         && spot.dupeCount == 0
         )
     {
         if ( dxTableModel->addEntry(spot, deduplicateSpots, deduplicatetime, deduplicatefreq) )

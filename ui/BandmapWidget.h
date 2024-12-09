@@ -64,7 +64,12 @@ public slots:
     void clearSpots();
     void zoomIn();
     void zoomOut();
-    void spotsDxccStatusRecal(const QSqlRecord &record);
+    void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
+    void updateSpotsStatusWhenQSOUpdated(const QSqlRecord &);
+    void updateSpotsDupeWhenQSODeleted(const QSqlRecord &record);
+    void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);
+    void resetDupe();
+    void recalculateDupe();
 
 signals:
     void tuneDx(QString, double,  BandPlan::BandPlanMode);
@@ -85,7 +90,7 @@ private:
     QPointF Freq2ScenePos(const double) const;
     double ScenePos2Freq(const QPointF &point) const;
     DxSpot nearestSpot(const double) const;
-    void updateNearestSpot();
+    void updateNearestSpot(bool force = false);
     void setBandmapAnimation(bool);
     void setBand(const Band &newBand, bool savePrevBandZoom = true);
     void saveCurrentZoom();
@@ -131,6 +136,7 @@ private:
         double freq;
     };
     LastTuneDx lastTunedDX;
+    DxSpot lastNearestSpot;
 };
 
 Q_DECLARE_METATYPE(BandmapWidget::BandmapZoom)

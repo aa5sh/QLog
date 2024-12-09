@@ -15,8 +15,9 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     void updateExternalServicesUploadStatus( const QModelIndex &index, int role, bool &updateResult );
     void updateUploadToModified( const QModelIndex &index, int role, int column, bool &updateResult );
-    enum column_id
+    enum ColumnID
     {
+        COLUMN_INVALID = -1,
         COLUMN_ID = 0,
         COLUMN_TIME_ON = 1,
         COLUMN_TIME_OFF = 2,
@@ -185,6 +186,25 @@ public:
         COLUMN_POTA_REF = 165,
         COLUMN_LAST_ELEMENT = 166
     };
+
+private:
+    static QMap<LogbookModel::ColumnID, const char *> fieldNameTranslationMap;
+
+public:
+    static QString getFieldNameTranslation(const LogbookModel::ColumnID key)
+    {
+        const char *value = fieldNameTranslationMap.value(key);
+        return value ? tr(value) : QString();
+    }
+
+    static const QStringList getAllFieldNamesTranslation()
+    {
+        QStringList ret;
+        for (auto it = fieldNameTranslationMap.begin(); it != fieldNameTranslationMap.end(); ++it)
+            ret.append(getFieldNameTranslation(it.key()));
+
+        return ret;
+    }
 };
 
 #endif // QLOG_MODELS_LOGBOOKMODEL_H

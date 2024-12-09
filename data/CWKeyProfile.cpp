@@ -35,8 +35,7 @@ QDataStream& operator>>(QDataStream& in, CWKeyProfile& v)
     return in;
 }
 
-CWKeyProfilesManager::CWKeyProfilesManager(QObject *parent) :
-    QObject(parent),
+CWKeyProfilesManager::CWKeyProfilesManager() :
     ProfileManagerSQL<CWKeyProfile>("cwkey_profiles")
 {
     FCT_IDENTIFICATION;

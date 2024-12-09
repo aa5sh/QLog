@@ -20,6 +20,7 @@ public:
     QString callsign;
     QString locator;
     QString operatorName;
+    QString operatorCallsign;
     QString qthName;
     QString iota;
     QString pota;
@@ -32,6 +33,7 @@ public:
     int cqz;
     int dxcc;
     QString country;
+    QString county;
 
     bool operator== (const StationProfile &profile);
     bool operator!= (const StationProfile &profile);
@@ -45,13 +47,13 @@ private:
 
 Q_DECLARE_METATYPE(StationProfile)
 
-class StationProfilesManager : QObject, public ProfileManagerSQL<StationProfile>
+class StationProfilesManager : public ProfileManagerSQL<StationProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit StationProfilesManager(QObject *parent = nullptr);
+    explicit StationProfilesManager();
     ~StationProfilesManager() {};
 
     static StationProfilesManager* instance()

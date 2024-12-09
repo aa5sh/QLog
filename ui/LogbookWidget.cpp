@@ -27,6 +27,7 @@
 #include "core/MembershipQE.h"
 #include "core/GenericCallbook.h"
 #include "core/ClubLog.h"
+#include "core/QSOFilterManager.h"
 
 MODULE_IDENTIFICATION("qlog.ui.logbookwidget");
 
@@ -121,7 +122,7 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NR_PINGS, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES_INTL, new TextBoxDelegate(this));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES, new TextBoxDelegate(this));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_PROP_MODE, new ComboFormatDelegate(QStringList()<<" "<< Data::instance()->propagationModesIDList(), ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_PROP_MODE, new ComboFormatDelegate(Data::instance()->propagationModesIDList(), ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_DATE, new DateFormatDelegate());
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSO_COMPLETE, new ComboFormatDelegate(Data::instance()->qsoCompleteEnum, ui->contactTable));
@@ -167,10 +168,12 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
 
     ui->bandFilter->blockSignals(true);
     ui->bandFilter->setModel(new SqlListModel("SELECT name FROM bands ORDER BY start_freq", tr("Band"), this));
+    adjusteComboMinSize(ui->bandFilter);
     ui->bandFilter->blockSignals(false);
 
     ui->modeFilter->blockSignals(true);
     ui->modeFilter->setModel(new SqlListModel("SELECT name FROM modes", tr("Mode"), this));
+    adjusteComboMinSize(ui->modeFilter);
     ui->modeFilter->blockSignals(false);
 
     ui->countryFilter->blockSignals(true);
@@ -182,6 +185,7 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
 
     ui->countryFilter->setModel(countryModel);
     ui->countryFilter->setModelColumn(1);
+    adjusteComboMinSize(ui->countryFilter);
     ui->countryFilter->blockSignals(false);
 
     refreshClubFilter();
@@ -189,10 +193,11 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->userFilter->blockSignals(true);
     userFilterModel = new SqlListModel("SELECT filter_name "
                                        "FROM qso_filters "
-                                       "ORDER BY filter_name", tr("User Filter"), this);
+                                       "ORDER BY filter_name COLLATE LOCALEAWARE ASC", tr("User Filter"), this);
     while (userFilterModel->canFetchMore())
         userFilterModel->fetchMore();
     ui->userFilter->setModel(userFilterModel);
+    adjusteComboMinSize(ui->userFilter);
     ui->userFilter->blockSignals(false);
 
     clublog = new ClubLog(this);
@@ -388,6 +393,15 @@ void LogbookWidget::userFilterChanged()
     filterTable();
 }
 
+void LogbookWidget::setUserFilter(const QString &filterName)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << filterName;
+
+    ui->userFilter->setCurrentText(filterName);
+}
+
 void LogbookWidget::saveUserFilter()
 {
     FCT_IDENTIFICATION;
@@ -429,6 +443,7 @@ void LogbookWidget::refreshClubFilter()
     const QString &member = ui->clubFilter->currentText();
     ui->clubFilter->clear();
     ui->clubFilter->addItems(QStringList(tr("Club")) << MembershipQE::instance()->getEnabledClubLists());
+    adjusteComboMinSize(ui->clubFilter);
     ui->clubFilter->setCurrentText(member);
     ui->clubFilter->blockSignals(false);
     colorsFilterWidget(ui->clubFilter);
@@ -538,6 +553,7 @@ void LogbookWidget::deleteContact()
             blockClublogSignals = true;
     }
 
+    //It must be sorted in descending order to delete the correct rows.
     std::sort(deletedRowIndexes.begin(),
               deletedRowIndexes.end(),
               [](const QModelIndex &a, const QModelIndex &b)
@@ -565,11 +581,15 @@ void LogbookWidget::deleteContact()
     ui->contactTable->setModel(nullptr);
     QCoreApplication::processEvents();
 
-    int cnt = 0;
+    quint32 cnt = 0;
+
+    QSet<uint> removedEntities;
+    removedEntities.reserve(deletedRowIndexes.size());
 
     for ( const QModelIndex &index : static_cast<const QModelIndexList&>(deletedRowIndexes) )
     {
         cnt++;
+        removedEntities << model->data(model->index(index.row(), LogbookModel::COLUMN_DXCC), Qt::DisplayRole).toUInt();
         model->removeRow(index.row());
 
         if ( progress->wasCanceled() )
@@ -589,6 +609,7 @@ void LogbookWidget::deleteContact()
     updateTable();
     scrollToIndex(previousIndex);
     blockClublogSignals = false;
+    emit deletedEntities(removedEntities);
 }
 
 void LogbookWidget::exportContact()
@@ -857,6 +878,17 @@ void LogbookWidget::scrollToIndex(const QModelIndex &index, bool selectItem)
         ui->contactTable->selectRow(index.row());
 }
 
+void LogbookWidget::adjusteComboMinSize(QComboBox *combo)
+{
+    FCT_IDENTIFICATION;
+
+    if (combo->count() <= 0 )
+        return;
+
+    QFontMetrics fontMetrics(combo->font());
+    combo->setMinimumWidth(fontMetrics.horizontalAdvance(combo->itemText(0)) + 35);
+}
+
 bool LogbookWidget::eventFilter(QObject *obj, QEvent *event)
 {
     //FCT_IDENTIFICATION;
@@ -912,42 +944,7 @@ void LogbookWidget::filterTable()
         filterString.append(QString("id in (SELECT contactid FROM contact_clubs_view WHERE clubid = '%1')").arg(ui->clubFilter->currentText()));
 
     if ( ui->userFilter->currentIndex() != 0 )
-    {
-        QSqlQuery userFilterQuery;
-        if ( ! userFilterQuery.prepare("SELECT "
-                                     "'(' || GROUP_CONCAT( ' ' || c.name || ' ' || CASE WHEN r.value IS NULL AND o.sql_operator IN ('=', 'like') THEN 'IS' "
-                                     "                                                  WHEN r.value IS NULL and r.operator_id NOT IN ('=', 'like') THEN 'IS NOT' "
-                                     "                                                  WHEN o.sql_operator = ('starts with') THEN 'like' "
-                                     "                                                  ELSE o.sql_operator END || "
-                                     "' (' || quote(CASE o.sql_operator WHEN 'like' THEN '%' || r.value || '%' "
-                                     "                                  WHEN 'not like' THEN '%' || r.value || '%' "
-                                     "                                  WHEN 'starts with' THEN r.value || '%' "
-                                     "                                  ELSE r.value END)  || ') ', m.sql_operator) || ')' "
-                                     "FROM qso_filters f, qso_filter_rules r, "
-                                     "qso_filter_operators o, qso_filter_matching_types m, "
-                                     "PRAGMA_TABLE_INFO('contacts') c "
-                                     "WHERE f.filter_name = :filterName "
-                                     "      AND f.filter_name = r.filter_name "
-                                     "      AND o.operator_id = r.operator_id "
-                                     "      AND m.matching_id = f.matching_type "
-                                     "      AND c.cid = r.table_field_index") )
-        {
-            qWarning() << "Cannot prepare select statement";
-            return;
-        }
-
-        userFilterQuery.bindValue(":filterName", ui->userFilter->currentText());
-
-        qCDebug(runtime) << "User filter SQL: " << userFilterQuery.lastQuery();
-
-        if ( userFilterQuery.exec() )
-        {
-            userFilterQuery.next();
-            filterString.append(QString("( ") + userFilterQuery.value(0).toString() + ")");
-        }
-        else
-            qCDebug(runtime) << "User filter error - " << userFilterQuery.lastError().text();
-    }
+        filterString.append(QSOFilterManager::instance()->getWhereClause(ui->userFilter->currentText()));
 
     if ( !externalFilter.isEmpty() )
         filterString.append(QString("( ") + externalFilter + ")");

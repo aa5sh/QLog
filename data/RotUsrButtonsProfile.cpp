@@ -42,8 +42,7 @@ QDataStream& operator>>(QDataStream& in, RotUsrButtonsProfile& v)
     return in;
 }
 
-RotUsrButtonsProfilesManager::RotUsrButtonsProfilesManager(QObject *parent) :
-    QObject(parent),
+RotUsrButtonsProfilesManager::RotUsrButtonsProfilesManager() :
     ProfileManagerSQL<RotUsrButtonsProfile>("rot_user_buttons_profiles")
 {
     FCT_IDENTIFICATION;

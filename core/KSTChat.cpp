@@ -178,6 +178,108 @@ void KSTChat::reloadStationProfile()
     sendSetGridCommand();
 }
 
+void KSTChat::resetDupe()
+{
+    FCT_IDENTIFICATION;
+
+    for ( KSTUsersInfo &user: userList )
+        user.dupeCount = 0;
+    emit usersListUpdated();
+}
+
+void KSTChat::recalculateDupe()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !contact )
+        return;
+
+    for ( KSTUsersInfo &user: userList )
+        user.dupeCount = Data::countDupe(user.callsign, contact->getBand(), contact->getMode());
+
+    emit usersListUpdated();
+}
+
+void KSTChat::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    if ( !contact )
+        return;
+
+    qint32 dxcc = record.value("dxcc").toInt();
+    const QString &band = record.value("band").toString();
+    const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+    const QString &callsign = record.value("callsign").toString();
+    const QString &currBand = contact->getBand();
+    const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+
+    for ( KSTUsersInfo &user: userList )
+    {
+        user.status = Data::dxccNewStatusWhenQSOAdded(user.status,
+                                                      user.dxcc.dxcc,
+                                                      currBand,
+                                                      modeGroupString,
+                                                      dxcc,
+                                                      currBand,
+                                                      dxccModeGroup);
+        if ( user.callsign == callsign )
+            user.dupeCount = Data::dupeNewCountWhenQSOAdded(user.dupeCount,
+                                                            currBand,
+                                                            modeGroupString,
+                                                            band,
+                                                            dxccModeGroup);
+    }
+    emit usersListUpdated();
+}
+
+void KSTChat::updateSpotsStatusWhenQSODeleted(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    if ( !contact )
+        return;
+
+    const QString &band = record.value("band").toString();
+    const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+    const QString &callsign = record.value("callsign").toString();
+    const QString &currBand = contact->getBand();
+    const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+
+    for ( KSTUsersInfo &user: userList )
+    {
+        if ( user.dupeCount && user.callsign == callsign )
+            user.dupeCount = Data::dupeNewCountWhenQSODelected(user.dupeCount,
+                                                               currBand,
+                                                               modeGroupString,
+                                                               band,
+                                                               dxccModeGroup);
+    }
+
+}
+
+void KSTChat::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+{
+    FCT_IDENTIFICATION;
+
+    // this method is called at the end of QSO Delete (after commit).
+
+    if ( entities.isEmpty() || !contact)
+        return;
+
+    const QString &currBand = contact->getBand();
+    const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+
+    for ( KSTUsersInfo &user: userList )
+    {
+        if ( !entities.contains(user.dxcc.dxcc) )
+            continue;
+
+        user.status = Data::instance()->dxccStatus(user.dxcc.dxcc, currBand, modeGroupString);
+    }
+    emit usersListUpdated();
+}
+
 void KSTChat::sendShowUsersCommand()
 {
     FCT_IDENTIFICATION;
@@ -473,7 +575,10 @@ void KSTChat::finalizeShowUsersCommand(const QStringList &buffer)
             user.stationComment = match.captured(3);
             user.dxcc = Data::instance()->lookupDxcc(user.callsign);
             if ( contact )
-                user.status = Data::dxccStatus(user.dxcc.dxcc, contact->getBand(), contact->getMode());
+            {
+                user.status = Data::instance()->dxccStatus(user.dxcc.dxcc, contact->getBand(), contact->getMode());
+                user.dupeCount = Data::countDupe(user.callsign, contact->getBand(), contact->getMode());
+            }
             userList << user;
         }
         else
@@ -500,7 +605,8 @@ const QStringList KSTChat::chatRooms = {"50/70 MHz",
                                        "144/432 MHz IARU R 3",
                                        "kHz (2000-630m)",
                                        "Warc (30,17,12m)",
-                                       "28 MHz"};
+                                       "28 MHz",
+                                       "40 MHz"};
 
 const QString KSTChat::SECURE_STORAGE_KEY = "KST";
 const QString KSTChat::CONFIG_USERNAME_KEY = "kst/username";

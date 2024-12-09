@@ -65,6 +65,7 @@ public:
     void setFilterMyGridsquare(const QString &myGridsquare);
     void setFilterSentPaperQSL(bool includeNo, bool includeIgnore, bool includeAlreadySent);
     void setFilterSendVia(const QString &value);
+    void setUserFilter(const QString&value);
     QString getWhereClause();
     void bindWhereClause(QSqlQuery &);
     void setExportedFields(const QStringList& fieldsList);
@@ -119,6 +120,7 @@ private:
     QString filterSendVia;
     QStringList whereClause;
     QStringList exportedFields;
+    QString userFilter;
     bool updateDxcc = false;
     duplicateQSOBehaviour (*duplicateQSOFunc)(QSqlRecord *, QSqlRecord *);
     LogLocale locale;

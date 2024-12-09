@@ -14,9 +14,9 @@
 #include "data/BandPlan.h"
 #include "core/debug.h"
 #include "rig/macros.h"
+#include "core/LogParam.h"
 
 MODULE_IDENTIFICATION("qlog.ui.bandmapwidget");
-
 
 //Maximal refresh rate for bandmap is 1s
 #define BANDMAP_MAX_REFRESH_TIME 1000
@@ -233,7 +233,8 @@ void BandmapWidget::updateStations()
         QString unit;
         unsigned char decP;
         double spotFreq = Data::MHz2UserFriendlyFreq(lower.key(), unit, decP);
-        text->setToolTip(QString("<b>%1</b><br/>%2 %3; %4<br/>%5").arg(callsignTmp,
+        text->setToolTip(QString("<b>%1</b> de %2<br/>%3 %4; %5<br/>%6").arg(callsignTmp,
+                                                             lower.value().spotter,
                                                              QString::number(spotFreq, 'f', decP),
                                                              unit,
                                                              lower.value().modeGroupString,
@@ -241,7 +242,10 @@ void BandmapWidget::updateStations()
 
         min_y = text_y + text->boundingRect().height() / 2;
 
-        text->setDefaultTextColor(Data::statusToColor(lower.value().status, qApp->palette().color(QPalette::Text)));
+        text->setDefaultTextColor(Data::statusToColor(lower.value().status,
+                                                      lower.value().dupeCount,
+                                                      qApp->palette().color(QPalette::Text)));
+
         textItemList.append(text);
         ++lower;
     }
@@ -483,16 +487,15 @@ DxSpot BandmapWidget::nearestSpot(const double freq) const
     return it.value();
 }
 
-void BandmapWidget::updateNearestSpot()
+void BandmapWidget::updateNearestSpot(bool force)
 {
     FCT_IDENTIFICATION;
 
-    static DxSpot lastNearestSpot;
     DxSpot currNearestSpot;
 
     currNearestSpot = nearestSpot(rx_freq);
 
-    if ( currNearestSpot.callsign != lastNearestSpot.callsign )
+    if ( force || currNearestSpot.callsign != lastNearestSpot.callsign )
     {
         emit nearestSpotFound(currNearestSpot);
         lastNearestSpot = currNearestSpot;
@@ -620,27 +623,120 @@ void BandmapWidget::zoomOut()
     setBandmapAnimation(true);
 }
 
-void BandmapWidget::spotsDxccStatusRecal(const QSqlRecord &record)
+void BandmapWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
 {
     FCT_IDENTIFICATION;
 
     qint32 dxcc = record.value("dxcc").toInt();
     const QString &band = record.value("band").toString();
     const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+    const QString &callsign = record.value("callsign").toString();
 
-    QMutableMapIterator<double, DxSpot> spotIterator(spots);
-
-    while ( spotIterator.hasNext() )
+    for ( auto it = spots.begin(); it != spots.end(); ++it )
     {
-        spotIterator.next();
-        spotIterator.value().status = Data::dxccFutureStatus(spotIterator.value().status,
-                                                             spotIterator.value().dxcc.dxcc,
-                                                             spotIterator.value().band,
-                                                             ( ( spotIterator.value().modeGroupString == BandPlan::MODE_GROUP_STRING_FT8 ) ? BandPlan::MODE_GROUP_STRING_DIGITAL
-                                                                                                                                     : dxccModeGroup ),
-                                                             dxcc,
-                                                             band,
-                                                             dxccModeGroup);
+        DxSpot &spot =  it.value();
+        spot.status = Data::dxccNewStatusWhenQSOAdded(spot.status,
+                                                      spot.dxcc.dxcc,
+                                                      spot.band,
+                                                      ( ( spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FT8 )
+                                                           ? BandPlan::MODE_GROUP_STRING_DIGITAL
+                                                           : dxccModeGroup ),
+                                                      dxcc,
+                                                      band,
+                                                      dxccModeGroup);
+        if ( spot.callsign == callsign )
+            spot.dupeCount = Data::dupeNewCountWhenQSOAdded(spot.dupeCount,
+                                                            spot.band,
+                                                            spot.modeGroupString,
+                                                            band,
+                                                            dxccModeGroup);
+    }
+    updateStations();
+    if ( callsign == lastNearestSpot.callsign )
+        updateNearestSpot(true);
+}
+
+void BandmapWidget::updateSpotsStatusWhenQSOUpdated(const QSqlRecord &)
+{
+    FCT_IDENTIFICATION;
+
+    // at this point, we don't know if callsign has been changed or other field.
+    // TODO: DXCC status
+    // TODO: Dupe status update
+
+    // for ( auto it = spots.begin(); it != spots.end(); ++it )
+    // {
+    //     DxSpot &spot =  it.value();
+    //     spot.dupeCount = Data::countDupe(spot.callsign, spot.band, spot.modeGroupString);
+    // }
+}
+
+void BandmapWidget::updateSpotsDupeWhenQSODeleted(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    // Pay attention: this method is called before the QSO is deleted from contacts
+    const QString &callsign = record.value("callsign").toString();
+    const QString &band = record.value("band").toString();
+    const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+
+    for ( auto it = spots.begin(); it != spots.end(); ++it )
+    {
+        DxSpot &spot =  it.value();
+
+        if ( spot.dupeCount && spot.callsign == callsign )
+            spot.dupeCount = Data::dupeNewCountWhenQSODelected(spot.dupeCount,
+                                                               spot.band,
+                                                               spot.modeGroupString,
+                                                               band,
+                                                               dxccModeGroup);
+    }
+    // do not call updateStation. it will be updated at the end of delete procedure
+    // by updateSpotsDxccStatusWhenQSODeleted;
+}
+
+void BandmapWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+{
+    FCT_IDENTIFICATION;
+
+    // this method is called at the end of QSO Delete (after commit).
+
+    if ( entities.isEmpty() )
+        return;
+
+    for ( auto it = spots.begin(); it != spots.end(); ++it )
+    {
+        DxSpot &spot =  it.value();
+
+        if ( !entities.contains(spot.dxcc.dxcc) )
+            continue;
+
+        spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+    }
+    updateStations();
+    updateNearestSpot(true);
+}
+
+void BandmapWidget::resetDupe()
+{
+    FCT_IDENTIFICATION;
+
+    for ( auto it = spots.begin(); it != spots.end(); ++it )
+        it.value().dupeCount = 0;
+
+    updateStations();
+}
+
+void BandmapWidget::recalculateDupe()
+{
+    FCT_IDENTIFICATION;
+
+    for ( auto it = spots.begin(); it != spots.end(); ++it )
+    {
+        DxSpot &spot = it.value();
+        spot.dupeCount = Data::countDupe(spot.callsign,
+                                         spot.band,
+                                         spot.modeGroupString);
     }
     updateStations();
 }

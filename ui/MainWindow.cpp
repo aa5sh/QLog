@@ -25,10 +25,17 @@
 #include "core/QRZ.h"
 #include "core/PropConditions.h"
 #include "data/MainLayoutProfile.h"
-#include "ui/EditLayoutDialog.h"
+#include "ui/EditActivitiesDialog.h"
 #include "core/HRDLog.h"
 #include "ui/HRDLogDialog.h"
 #include "ui/ProfileImageWidget.h"
+#include "core/LogParam.h"
+#include "core/QSOFilterManager.h"
+#include "data/Data.h"
+#include "data/ActivityProfile.h"
+#include "data/AntProfile.h"
+#include "data/RigProfile.h"
+#include "data/RotProfile.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 
@@ -40,8 +47,11 @@ MainWindow::MainWindow(QWidget* parent) :
 {
     FCT_IDENTIFICATION;
 
-
     ui->setupUi(this);
+
+    restoreContestMenuSeqnoType();
+    restoreContestMenuDupeType();
+    restoreContestMenuLinkExchange();
 
     darkLightModeSwith = new SwitchButton("", ui->statusBar);
     darkIconLabel = new QLabel("<html><img src=':/icons/light-dark-24px.svg'></html>",ui->statusBar);
@@ -76,8 +86,6 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->profileImageDockWidget->hide();
     ui->alertDockWidget->hide();
 
-    setupLayoutMenu();
-
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
     ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
@@ -87,13 +95,21 @@ MainWindow::MainWindow(QWidget* parent) :
 
     const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
 
+    activityButton = new QPushButton("", ui->statusBar);
+    activityButton->setFlat(true);
+    activityButton->setFocusPolicy(Qt::NoFocus);
+    QMenu *activityMenu = new QMenu(activityButton);
+    activityButton->setMenu(activityMenu);
+
     conditionsLabel = new QLabel("", ui->statusBar);
     conditionsLabel->setIndent(20);
     conditionsLabel->setToolTip(QString("<img src='%1'>").arg(PropConditions::solarSummaryFile()));
     profileLabel = new QLabel("<b>" + profile.profileName + ":</b>", ui->statusBar);
     profileLabel->setIndent(10);
-    callsignLabel = new QLabel(profile.callsign.toLower() , ui->statusBar);
+    callsignLabel = new QLabel(stationCallsignStatus(profile), ui->statusBar);
     locatorLabel = new QLabel(profile.locator.toLower(), ui->statusBar);
+    contestLabel = new QLabel(ui->statusBar);
+    contestLabel->setIndent(20);
     alertButton = new QPushButton("0", ui->statusBar);
     alertButton->setIcon(QIcon(":/icons/alert.svg"));
     alertButton->setFlat(true);
@@ -113,15 +129,59 @@ MainWindow::MainWindow(QWidget* parent) :
     alertTextButton->setToolTip(tr("Press to tune the alert"));
 
     ui->toolBar->hide();
+    ui->statusBar->addWidget(activityButton);
     ui->statusBar->addWidget(profileLabel);
     ui->statusBar->addWidget(callsignLabel);
     ui->statusBar->addWidget(locatorLabel);
+    ui->statusBar->addWidget(contestLabel);
     ui->statusBar->addWidget(conditionsLabel);
 
     ui->statusBar->addPermanentWidget(alertTextButton);
     ui->statusBar->addPermanentWidget(alertButton);
     ui->statusBar->addPermanentWidget(darkLightModeSwith);
     ui->statusBar->addPermanentWidget(darkIconLabel);
+
+    setContestMode(LogParam::getParam("contest/contestid", QString()).toString());
+
+    connect(seqGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuSeqnoType);
+    connect(dupeGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuDupeType);
+    connect(linkExchangeGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuLinkExchangeType);
+    
+    connect(ActivityProfilesManager::instance(), &ActivityProfilesManager::changeFinished,
+            this, &MainWindow::handleActivityChange);
+    connect(ActivityProfilesManager::instance(), &ActivityProfilesManager::changeFinished,
+            ui->newContactWidget, &NewContactWidget::setValuesFromActivity);
+
+    connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
+            ui->newContactWidget, &NewContactWidget::refreshAntProfileCombo);
+    connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
+            ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
+
+    connect(RotProfilesManager::instance(), &RotProfilesManager::profileChanged,
+            ui->rotatorWidget, &RotatorWidget::refreshRotProfileCombo);
+
+    connect(RigProfilesManager::instance(), &RigProfilesManager::profileChanged,
+            ui->newContactWidget, &NewContactWidget::refreshRigProfileCombo);
+    connect(RigProfilesManager::instance(), &RigProfilesManager::profileChanged,
+            ui->rigWidget, &RigWidget::refreshRigProfileCombo);
+
+    connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
+            this, &MainWindow::setSimplyLayoutGeometry);
+    connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
+            ui->newContactWidget, &NewContactWidget::setupCustomUi);
+
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            this, &MainWindow::stationProfileChanged);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->newContactWidget, &NewContactWidget::refreshStationProfileCombo);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->rotatorWidget, &RotatorWidget::redrawMap);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->chatWidget, &ChatWidget::reloadStationProfile);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->clockWidget, &ClockWidget::updateSun);
 
     connect(this, &MainWindow::themeChanged, ui->bandmapWidget, &BandmapWidget::update);
     connect(this, &MainWindow::themeChanged, ui->clockWidget, &ClockWidget::updateClock);
@@ -194,37 +254,56 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(this, &MainWindow::settingsChanged, ui->logbookWidget, &LogbookWidget::reloadSetting);
     connect(this, &MainWindow::settingsChanged, ui->dxWidget, &DxWidget::reloadSetting);
-    connect(this, &MainWindow::layoutChanged, ui->newContactWidget, &NewContactWidget::setupCustomUi);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
+    connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);
+    connect(this, &MainWindow::contestStopped, ui->bandmapWidget, &BandmapWidget::resetDupe);
+    connect(this, &MainWindow::contestStopped, ui->alertsWidget, &AlertWidget::resetDupe);
+    connect(this, &MainWindow::contestStopped, ui->chatWidget, &ChatWidget::resetDupe);
 
+    connect(this, &MainWindow::dupeTypeChanged, ui->bandmapWidget, &BandmapWidget::recalculateDupe);
+    connect(this, &MainWindow::dupeTypeChanged, ui->alertsWidget, &AlertWidget::recalculateDupe);
+    connect(this, &MainWindow::dupeTypeChanged, ui->chatWidget, &ChatWidget::recalculateDupe);
+    connect(this, &MainWindow::dupeTypeChanged, ui->newContactWidget, &NewContactWidget::refreshCallsignsColors);
+
+    connect(ui->rigWidget, &RigWidget::rigProfileChanged, this, &MainWindow::rigConnect);
+
+    connect(ui->rotatorWidget, &RotatorWidget::rotProfileChanged, this, &MainWindow::rotConnect);
+
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, Data::instance(), &Data::invalidateSetOfDXCCStatusCache); // must be the first delete signal
     connect(ui->logbookWidget, &LogbookWidget::logbookUpdated, stats, &StatisticsWidget::refreshWidget);
     connect(ui->logbookWidget, &LogbookWidget::contactUpdated, &networknotification, &NetworkNotification::QSOUpdated);
     connect(ui->logbookWidget, &LogbookWidget::clublogContactUpdated, clublogRT, &ClubLog::updateQSOImmediately);
     connect(ui->logbookWidget, &LogbookWidget::contactDeleted, &networknotification, &NetworkNotification::QSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::contactDeleted, ui->bandmapWidget, &BandmapWidget::updateSpotsDupeWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->bandmapWidget, &BandmapWidget::updateSpotsDxccStatusWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::contactDeleted, ui->alertsWidget, &AlertWidget::updateSpotsDupeWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->alertsWidget, &AlertWidget::updateSpotsDxccStatusWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::contactDeleted, ui->chatWidget, &ChatWidget::updateSpotsDupeWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->chatWidget, &ChatWidget::updateSpotsDxccStatusWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->newContactWidget, &NewContactWidget::refreshCallsignsColors);
     connect(ui->logbookWidget, &LogbookWidget::clublogContactDeleted, clublogRT, &ClubLog::deleteQSOImmediately);
     connect(ui->logbookWidget, &LogbookWidget::sendDXSpotContactReq, ui->dxWidget, &DxWidget::prepareQSOSpot);
 
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, Data::instance(), &Data::invalidateDXCCStatusCache); // must be the first delete signal
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::updateTable);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, &networknotification, &NetworkNotification::QSOInserted);
-    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->bandmapWidget, &BandmapWidget::spotsDxccStatusRecal);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->bandmapWidget, &BandmapWidget::updateSpotsStatusWhenQSOAdded);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->alertsWidget, &AlertWidget::updateSpotsStatusWhenQSOAdded);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->chatWidget, &ChatWidget::updateSpotsStatusWhenQSOAdded);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->wsjtxWidget, &WsjtxWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->dxWidget, &DxWidget::setLastQSO);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, clublogRT, &ClubLog::insertQSOImmediately);
-
+    connect(ui->newContactWidget, &NewContactWidget::contestStarted, this, &MainWindow::startContest);
     connect(ui->newContactWidget, &NewContactWidget::newTarget, ui->mapWidget, &MapWidget::setTarget);
     connect(ui->newContactWidget, &NewContactWidget::newTarget, ui->onlineMapWidget, &OnlineMapWidget::setTarget);
     connect(ui->newContactWidget, &NewContactWidget::filterCallsign, ui->logbookWidget, &LogbookWidget::filterCallsign);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->bandmapWidget, &BandmapWidget::updateTunedFrequency);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
     connect(ui->newContactWidget, &NewContactWidget::userModeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
-    connect(ui->newContactWidget, &NewContactWidget::stationProfileChanged, this, &MainWindow::stationProfileChanged);
-    connect(ui->newContactWidget, &NewContactWidget::stationProfileChanged, ui->rotatorWidget, &RotatorWidget::redrawMap);
-    connect(ui->newContactWidget, &NewContactWidget::stationProfileChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
-    connect(ui->newContactWidget, &NewContactWidget::stationProfileChanged, ui->chatWidget, &ChatWidget::reloadStationProfile);
-    connect(ui->newContactWidget, &NewContactWidget::antProfileChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(ui->newContactWidget, &NewContactWidget::markQSO, ui->bandmapWidget, &BandmapWidget::addSpot);
-    connect(ui->newContactWidget, &NewContactWidget::rigProfileChanged, ui->rigWidget, &RigWidget::refreshRigProfileCombo);
     connect(ui->newContactWidget, &NewContactWidget::callboolImageUrl, ui->profileImageWidget, &ProfileImageWidget::loadImageFromUrl);
+    connect(ui->newContactWidget, &NewContactWidget::rigProfileChanged, this, &MainWindow::rigConnect);
 
     connect(ui->dxWidget, &DxWidget::newFilteredSpot, ui->bandmapWidget, &BandmapWidget::addSpot);
     connect(ui->dxWidget, &DxWidget::newFilteredSpot, Rig::instance(), &Rig::sendDXSpot);
@@ -239,11 +318,9 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, &networknotification, &NetworkNotification::spotAlert);
 
     connect(ui->bandmapWidget, &BandmapWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
-    connect(ui->bandmapWidget, &BandmapWidget::nearestSpotFound, ui->newContactWidget, &NewContactWidget::nearestSpot);
+    connect(ui->bandmapWidget, &BandmapWidget::nearestSpotFound, ui->newContactWidget, &NewContactWidget::setNearestSpot);
 
     connect(ui->wsjtxWidget, &WsjtxWidget::callsignSelected, ui->newContactWidget, &NewContactWidget::prepareWSJTXQSO);
-
-    connect(ui->rigWidget, &RigWidget::rigProfileChanged, ui->newContactWidget, &NewContactWidget::refreshRigProfileCombo);
 
     connect(ui->chatWidget, &ChatWidget::prepareQSOInfo, ui->newContactWidget, &NewContactWidget::fillCallsignGrid);
     connect(ui->chatWidget, &ChatWidget::userListUpdated, ui->onlineMapWidget, &OnlineMapWidget::drawChatUsers);
@@ -275,13 +352,10 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(clublogRT, &ClubLog::QSOUploaded, ui->logbookWidget, &LogbookWidget::updateTable);
 
     if ( StationProfilesManager::instance()->profileNameList().isEmpty() )
-    {
         showSettings();
-    }
     else
-    {
         MembershipQE::instance()->updateLists();
-    }
+
     /********************/
     /* GLOBAL SHORTCUTs */
     /********************/
@@ -316,8 +390,10 @@ MainWindow::MainWindow(QWidget* parent) :
 
     restoreUserDefinedShortcuts();
 
-    restoreEquipmentConnOptions();
-    restoreConnectionStates();
+    //restoreEquipmentConnOptions();
+    //restoreConnectionStates();
+
+    setupActivitiesMenu();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -418,16 +494,12 @@ void MainWindow::rigConnect()
 {
     FCT_IDENTIFICATION;
 
-    saveEquipmentConnOptions();
+    //saveEquipmentConnOptions();
 
     if ( ui->actionConnectRig->isChecked() )
-    {
         Rig::instance()->open();
-    }
     else
-    {
         Rig::instance()->close();
-    }
 }
 
 void MainWindow::rigErrorHandler(const QString &error, const QString &errorDetail)
@@ -469,10 +541,18 @@ void MainWindow::stationProfileChanged()
     qCDebug(runtime) << profile.callsign << " " << profile.locator << " " << profile.operatorName;
 
     profileLabel->setText("<b>" + profile.profileName + ":</b>");
-    callsignLabel->setText(profile.callsign.toLower());
+    callsignLabel->setText(stationCallsignStatus(profile));
     locatorLabel->setText(profile.locator.toLower());
+}
 
-    emit settingsChanged();
+QString MainWindow::stationCallsignStatus(const StationProfile &profile) const
+{
+    FCT_IDENTIFICATION;
+
+    if ( profile.operatorCallsign.isEmpty() || profile.callsign == profile.operatorCallsign )
+        return profile.callsign.toLower();
+
+    return profile.callsign.toLower() + " [" + tr("op: ") + profile.operatorCallsign.toLower() + "]";
 }
 
 void MainWindow::darkModeToggle(int mode)
@@ -572,10 +652,9 @@ void MainWindow::showEditLayout()
 {
     FCT_IDENTIFICATION;
 
-    EditLayoutDialog dialog(this);
+    EditActivitiesDialog dialog(this);
     dialog.exec();
-    setupLayoutMenu();
-    emit layoutChanged();
+    setupActivitiesMenu();
 }
 
 void MainWindow::setLayoutGeometry()
@@ -616,6 +695,23 @@ void MainWindow::setLayoutGeometry()
     }
 }
 
+void MainWindow::setSimplyLayoutGeometry()
+{
+    //this method is a nextstep of the workaround for QTBUG-46620.
+    // In the repeated setLayout, it is necessary to call only this.
+
+    FCT_IDENTIFICATION;
+
+    const MainLayoutProfile &layoutProfile = MainLayoutProfilesManager::instance()->getCurProfile1();
+    if ( layoutProfile.mainGeometry != QByteArray()
+        || layoutProfile.mainState != QByteArray() )
+    {
+        restoreGeometry(layoutProfile.mainGeometry);
+        restoreState(layoutProfile.mainState);
+        darkLightModeSwith->setChecked(isFusionStyle && layoutProfile.darkMode);
+    }
+}
+
 void MainWindow::saveProfileLayoutGeometry()
 {
     FCT_IDENTIFICATION;
@@ -627,6 +723,7 @@ void MainWindow::saveProfileLayoutGeometry()
         layoutProfile.mainGeometry = saveGeometry();
         layoutProfile.mainState = saveState();
         layoutProfile.darkMode = darkLightModeSwith->isChecked();
+        layoutProfile.tabsexpanded =  ui->newContactWidget->getTabCollapseState();
         MainLayoutProfilesManager::instance()->addProfile(layoutProfile.profileName, layoutProfile);
         MainLayoutProfilesManager::instance()->save();
     }
@@ -636,8 +733,12 @@ void MainWindow::setEquipmentKeepOptions(bool)
 {
     FCT_IDENTIFICATION;
 
-    saveEquipmentConnOptions();
+    // this is obsolete, use activities instead.
+    // Left only because of possible problems and for quick activation of the function.
+    //saveEquipmentConnOptions();
 }
+
+
 
 void MainWindow::setDarkMode()
 {
@@ -671,79 +772,82 @@ void MainWindow::setLightMode()
     qApp->setPalette(this->style()->standardPalette());
 }
 
-void MainWindow::setupLayoutMenu()
+void MainWindow::setupActivitiesMenu()
 {
     FCT_IDENTIFICATION;
 
-    const QList<QAction*> layoutActions = ui->menuMainLayout->actions();
+    QMenu *actionMenu = activityButton->menu();
 
-    for ( auto action : layoutActions )
-    {
-        action->deleteLater();
-    }
+    actionMenu->clear();
 
-    const QString &currMainProfile = MainLayoutProfilesManager::instance()->getCurProfile1().profileName;
+    const QString &currActivityProfile = ActivityProfilesManager::instance()->getCurProfile1().profileName;
 
-    // The first position will be always the Classic Layout Profile
-    QAction *classicLayoutAction = new QAction(tr("Classic"), this);
+    // The first position will be always the Classic Profile
+    QAction *classicLayoutAction = new QAction(tr("Classic"), actionMenu);
     classicLayoutAction->setCheckable(true);
-    if ( currMainProfile == QString() )
+    if ( currActivityProfile == QString() )
     {
         classicLayoutAction->setChecked(true);
         ui->actionSaveGeometry->setEnabled(false);
+        setSimplyLayoutGeometry();
+        activityButton->setText(classicLayoutAction->text());
     }
-    connect(classicLayoutAction, &QAction::triggered, this, [this]()
+    connect(classicLayoutAction, &QAction::triggered, this, [this, classicLayoutAction]()
     {
         //save empty profile
+        // Classic Action is only about Layout
         MainLayoutProfilesManager::instance()->setCurProfile1("");
+        ActivityProfilesManager::instance()->setCurProfile1("");
         ui->actionSaveGeometry->setEnabled(false);
-        emit layoutChanged();
+        activityButton->setText(classicLayoutAction->text());
     } );
 
-    ui->menuMainLayout->addAction(classicLayoutAction);
-    QActionGroup *newContactMenuGroup = new QActionGroup(classicLayoutAction);
-    newContactMenuGroup->addAction(classicLayoutAction);
+    actionMenu->addAction(classicLayoutAction);
 
-    ui->menuMainLayout->addSeparator();
+    QActionGroup *activitiMenuGroup = new QActionGroup(classicLayoutAction);
+    activitiMenuGroup->addAction(classicLayoutAction);
 
-    // The rest of positions will be the Custom Layout Profiles
-    const QStringList &layoutProfileNames = MainLayoutProfilesManager::instance()->profileNameList();
+    actionMenu->addSeparator();
 
-    for ( const QString &profileName : layoutProfileNames )
+    // The rest of positions will be the Custom Activity Profiles
+    const QStringList &activityProfileNames = ActivityProfilesManager::instance()->profileNameList();
+
+    for ( const QString &profileName : activityProfileNames )
     {
-        QAction *layoutAction = new QAction(profileName, this);
-        layoutAction->setCheckable(true);
-        if ( currMainProfile == profileName )
-        {
-            layoutAction->setChecked(true);
-            ui->actionSaveGeometry->setEnabled(true);
-        }
-        connect(layoutAction, &QAction::triggered, this, [this, profileName]()
-        {
-            MainLayoutProfilesManager::instance()->setCurProfile1(profileName);
-            ui->actionSaveGeometry->setEnabled(true);
+        QAction *activityAction = new QAction(profileName, actionMenu);
+        activityAction->setCheckable(true);
 
-            const MainLayoutProfile &layoutProfile = MainLayoutProfilesManager::instance()->getCurProfile1();
-            if ( layoutProfile.mainGeometry != QByteArray()
-                 || layoutProfile.mainState != QByteArray() )
-            {
-                restoreGeometry(layoutProfile.mainGeometry);
-                restoreState(layoutProfile.mainState);
-                darkLightModeSwith->setChecked(isFusionStyle && layoutProfile.darkMode);
-            }
-            emit layoutChanged();
+        if ( currActivityProfile == profileName )
+        {
+            activityAction->setChecked(true);
+            ui->actionSaveGeometry->setEnabled(true);
+            ActivityProfilesManager::instance()->setAllProfiles();
+            activityButton->setText(activityAction->text());
+        }
+
+        connect(activityAction, &QAction::triggered, this, [this, profileName, activityAction]()
+        {
+            ActivityProfilesManager::instance()->setCurProfile1(profileName);
+            ui->actionSaveGeometry->setEnabled(true);
+            activityButton->setText(activityAction->text());
         } );
-        ui->menuMainLayout->addAction(layoutAction);
-        newContactMenuGroup->addAction(layoutAction);
+        actionMenu->addAction(activityAction);
+        activitiMenuGroup->addAction(activityAction);
     }
+
+    actionMenu->addSeparator();
+    actionMenu->addAction(ui->actionSaveGeometry);
+    actionMenu->addSeparator();
+    actionMenu->addAction(ui->actionActivitiesEdit);
 }
 
 void MainWindow::saveEquipmentConnOptions()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-
+    // this is obsolete, use activities instead.
+    // Left only because of possible problems and for quick activation of the function.
+#if 0
     settings.setValue("equipment/keepoptions", ui->actionEquipmentKeepOptions->isChecked());
 
     if ( ui->actionEquipmentKeepOptions->isChecked() )
@@ -752,14 +856,17 @@ void MainWindow::saveEquipmentConnOptions()
         settings.setValue("equipment/rotconnected", ui->actionConnectRotator->isChecked());
         settings.setValue("equipment/cwkeyconnected", ui->actionConnectCWKeyer->isChecked());
     }
+#endif
+
 }
 
 void MainWindow::restoreConnectionStates()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-
+    // this is obsolete, use activities instead.
+    // Left only because of possible problems and for quick activation of the function.
+#if 0
     if ( ui->actionEquipmentKeepOptions->isChecked() )
     {
         if ( settings.value("equipment/rigconnected", false).toBool() )
@@ -789,17 +896,22 @@ void MainWindow::restoreConnectionStates()
             });
         }
     }
+#endif
+
 }
 
 void MainWindow::restoreEquipmentConnOptions()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-
+    // this is obsolete, use activities instead.
+    // Left only because of possible problems and for quick activation of the function.
+#if 0
     ui->actionEquipmentKeepOptions->blockSignals(true);
     ui->actionEquipmentKeepOptions->setChecked(settings.value("equipment/keepoptions", false).toBool());
     ui->actionEquipmentKeepOptions->blockSignals(false);
+#endif
+
 }
 
 void MainWindow::restoreUserDefinedShortcuts()
@@ -845,27 +957,238 @@ void MainWindow::saveUserDefinedShortcuts()
     settings.setValue("shortcuts", state);
 }
 
+void MainWindow::saveContestMenuSeqnoType(QAction *action)
+{
+    FCT_IDENTIFICATION;
+
+    LogParam::setParam("contest/seqnotype", action->data());
+    // this function is called only if contest is not active
+    // therefore it is not needed to somehow recalculate seq
+}
+
+void MainWindow::restoreContestMenuSeqnoType()
+{
+    FCT_IDENTIFICATION;
+
+    ui->actionSeqSingle->setData(Data::SeqType::SINGLE);
+    ui->actionSeqPerBand->setData(Data::SeqType::PER_BAND);
+    seqGroup = new QActionGroup(ui->menuSequence);
+    seqGroup->addAction(ui->actionSeqSingle);
+    seqGroup->addAction(ui->actionSeqPerBand);
+
+    int seqnoType = LogParam::getParam("contest/seqnotype", Data::SeqType::SINGLE).toInt();
+
+    const QList<QAction *> seqActions = seqGroup->actions();
+    for ( QAction *action : seqActions)
+    {
+        if ( action->data().toInt() == seqnoType )
+        {
+            action->setChecked(true);
+            break;
+        }
+    }
+}
+
+void MainWindow::saveContestMenuDupeType(QAction *action)
+{
+    FCT_IDENTIFICATION;
+
+    LogParam::setParam("contest/dupetype", action->data());
+    emit dupeTypeChanged();
+}
+
+void MainWindow::saveContestMenuLinkExchangeType(QAction *action)
+{
+    FCT_IDENTIFICATION;
+
+    LogParam::setParam("contest/linkexchangetype", action->data());
+    ui->newContactWidget->changeSRXStringLink(action->data().toInt());
+}
+
+void MainWindow::restoreContestMenuDupeType()
+{
+    FCT_IDENTIFICATION;
+
+    dupeGroup = new QActionGroup(ui->menuDupeCheck);
+    ui->actionDupeAllBands->setData(Data::DupeType::ALL_BANDS);
+    ui->actionDupeEachBand->setData(Data::DupeType::EACH_BAND);
+    ui->actionDupeEachBandMode->setData(Data::DupeType::EACH_BAND_MODE);
+    ui->actionDupeNoCheck->setData(Data::DupeType::NO_CHECK);
+    dupeGroup->addAction(ui->actionDupeAllBands);
+    dupeGroup->addAction(ui->actionDupeEachBand);
+    dupeGroup->addAction(ui->actionDupeEachBandMode);
+    dupeGroup->addAction(ui->actionDupeNoCheck);
+
+    int dupeType = LogParam::getParam("contest/dupetype", Data::DupeType::ALL_BANDS).toInt();
+
+    const QList<QAction *> seqActions = dupeGroup->actions();
+    for ( QAction *action : seqActions)
+    {
+        if ( action->data().toInt() == dupeType )
+        {
+            action->setChecked(true);
+            break;
+        }
+    }
+}
+
+void MainWindow::restoreContestMenuLinkExchange()
+{
+    FCT_IDENTIFICATION;
+
+    linkExchangeGroup = new QActionGroup(ui->menuLinkExchange);
+
+    int linkExchangeType = LogParam::getParam("contest/linkexchangetype", LogbookModel::COLUMN_INVALID).toInt();
+
+    ui->actionLinkExchangeNone->setData(LogbookModel::COLUMN_INVALID);
+    linkExchangeGroup->addAction(ui->actionLinkExchangeNone);
+    ui->actionLinkExchangeNone->setChecked(linkExchangeType == LogbookModel::COLUMN_INVALID);
+
+    QList<QAction*> actions;
+
+    auto addActionToMenu = [&] (const LogbookModel::ColumnID columnID)
+    {
+        QAction *newAction = new QAction(ui->menuLinkExchange);
+        newAction->setCheckable(true);
+        newAction->setText(LogbookModel::getFieldNameTranslation(columnID));
+        newAction->setData(columnID);
+        actions.append(newAction);
+    };
+
+    addActionToMenu(LogbookModel::COLUMN_AGE);
+    addActionToMenu(LogbookModel::COLUMN_CQZ);
+    addActionToMenu(LogbookModel::COLUMN_ITUZ);
+    addActionToMenu(LogbookModel::COLUMN_GRID);
+    addActionToMenu(LogbookModel::COLUMN_NAME_INTL);
+    addActionToMenu(LogbookModel::COLUMN_QTH_INTL);
+    addActionToMenu(LogbookModel::COLUMN_RX_PWR);
+    addActionToMenu(LogbookModel::COLUMN_STATE);
+
+    std::sort(actions.begin(), actions.end(), [](QAction *a, QAction *b)
+    {
+        return a->text().localeAwareCompare(b->text()) < 0;
+    });
+
+    for (QAction *action : actions)
+    {
+        ui->menuLinkExchange->addAction(action);
+        linkExchangeGroup->addAction(action);
+
+        if ( action->data().toInt() == linkExchangeType )
+            action->setChecked(true);
+    }
+
+    ui->newContactWidget->changeSRXStringLink(linkExchangeType);
+}
+
+void MainWindow::startContest(const QString contestID, const QDateTime)
+{
+    FCT_IDENTIFICATION;
+
+    // Contest's start signal is sent from NewContact
+    const QSOFilter &contestFilter = QSOFilter::createFromNowContestFilter(contestID);
+    QSOFilterManager::instance()->save(contestFilter);
+    ui->logbookWidget->refreshUserFilter();
+    ui->logbookWidget->setUserFilter(contestFilter.filterName);
+    LogParam::setParam("contest/filter", contestFilter.filterName);
+    setContestMode(contestID);
+}
+
+void MainWindow::stopContest()
+{
+    FCT_IDENTIFICATION;
+
+    const QString &contestFilterName = LogParam::getParam("contest/filter").toString();
+
+    if ( !contestFilterName.isEmpty() )
+    {
+        QMessageBox::StandardButton reply;
+
+        reply = QMessageBox::question(this, tr("Contest"),
+                                      tr("Do you want to remove the Contest filter %1?").arg(contestFilterName),
+                                      QMessageBox::Yes|QMessageBox::No);
+
+        if ( reply == QMessageBox::Yes )
+        {
+            QSOFilterManager::instance()->remove(contestFilterName);
+            ui->logbookWidget->refreshUserFilter();
+        }
+        else
+        {
+            QSOFilter contestFilter = QSOFilterManager::instance()->getFilter(contestFilterName);
+            contestFilter.addRule(QSOFilter::createToDateRule(QDateTime::currentDateTimeUtc()));
+            QSOFilterManager::instance()->save(contestFilter);
+        }
+    }
+    LogParam::setParam("contest/filter", QString());
+    setContestMode(QString());
+
+    emit contestStopped();
+}
+
+void MainWindow::setContestMode(const QString &contestID)
+{
+    FCT_IDENTIFICATION;
+
+    bool isActive = !contestID.isEmpty();
+    ui->actionContestStop->setEnabled(isActive);
+    if ( seqGroup )
+        seqGroup->setEnabled(!isActive);
+
+    contestLabel->setVisible(isActive);
+    contestLabel->setText((isActive) ? "<b>" + tr("Contest: ") + "</b>" + contestID : QString());
+}
+
+void MainWindow::handleActivityChange(const QString name)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << name;
+
+    const ActivityProfile &profile = ActivityProfilesManager::instance()->getProfile(name);
+
+    const QVariant &valueRig = profile.getProfileParam(ActivityProfile::ProfileType::RIG_PROFILE,
+                                                       ActivityProfile::ProfileParamType::CONNECT);
+
+    if ( !valueRig.isNull()
+        && RigProfilesManager::instance()->getCurProfile1().profileName == profile.profiles[ActivityProfile::ProfileType::RIG_PROFILE].name )
+    {
+        if ( ui->actionConnectRig->isChecked() && valueRig.toBool() )
+            rigConnect();
+        else
+            ui->actionConnectRig->setChecked(valueRig.toBool()); // rigConnect is called when the signal is processed
+    }
+
+    const QVariant &valueRot = profile.getProfileParam(ActivityProfile::ProfileType::ROT_PROFILE,
+                                                       ActivityProfile::ProfileParamType::CONNECT);
+
+    if ( !valueRig.isNull()
+          && RotProfilesManager::instance()->getCurProfile1().profileName == profile.profiles[ActivityProfile::ProfileType::ROT_PROFILE].name )
+    {
+        if ( ui->actionConnectRotator->isChecked() && valueRig.toBool() )
+            rotConnect();
+        else
+            ui->actionConnectRotator->setChecked(valueRot.toBool()); // rotConnect is called when the signal is processed
+    }
+}
+
 void MainWindow::rotConnect()
 {
     FCT_IDENTIFICATION;
 
-    saveEquipmentConnOptions();
+    //saveEquipmentConnOptions();
 
     if ( ui->actionConnectRotator->isChecked() )
-    {
         Rotator::instance()->open();
-    }
     else
-    {
         Rotator::instance()->close();
-    }
 }
 
 void MainWindow::cwKeyerConnect()
 {
     FCT_IDENTIFICATION;
 
-    saveEquipmentConnOptions();;
+    //saveEquipmentConnOptions();;
 
     if ( ui->actionConnectCWKeyer->isChecked() )
     {
@@ -942,8 +1265,7 @@ void MainWindow::showSettings()
 
         MembershipQE::instance()->updateLists();
         saveUserDefinedShortcuts();
-        //Do not call settingsChange because stationProfileChanged does it
-        //emit settingsChanged();
+        emit settingsChanged();
     }
     else
         restoreUserDefinedShortcuts();
@@ -1227,7 +1549,7 @@ MainWindow::~MainWindow()
 {
     FCT_IDENTIFICATION;
 
-    saveEquipmentConnOptions();
+    //saveEquipmentConnOptions();
 
     CWKeyer::instance()->close();
     QThread::msleep(500);
@@ -1246,5 +1568,7 @@ MainWindow::~MainWindow()
     if ( wsjtx )
         wsjtx->deleteLater();
 
+    seqGroup->deleteLater();
+    dupeGroup->deleteLater();
     delete ui;
 }

@@ -35,6 +35,7 @@ public slots:
     void reloadSettings();
     void rotConnected();
     void rotDisconnected();
+    void refreshRotProfileCombo();
 
 protected:
     void showEvent(QShowEvent* event);
@@ -51,7 +52,7 @@ private slots:
     void qsoBearingSP();
 
 private:
-    void refreshRotProfileCombo();
+
     void refreshRotUserButtonProfileCombo();
     void refreshRotUserButtons();
     void setUserButtonDesc(QPushButton *button, const QString&, const double);

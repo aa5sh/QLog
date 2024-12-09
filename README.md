@@ -25,6 +25,7 @@ QLogs aims to be as simple as possible, but to provide everything the operator e
 - Station Location Profile support
 - Various station statistics
 - Basic Awards support
+- Basic Contest support
 - Custom QSO Filters
 - **NO** ads, **NO** user tracking, **NO** hidden telemetry - simply free and open-source
 - SQLite backend.
@@ -140,12 +141,40 @@ C:/Qt/6.4.1/msvc2019_64/bin/qmake.exe C:\Users\devel\development\QLog\QLog.pro -
 
 Prerequisites
 
-- Visual Studio 2019
-- QT with source codes
-- Omnirig v1 and v2
-- qtkeychain package (via vcpkg)
+- [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
+- QT with source codes (6.x, Qt Webengine, OpenSSL Toolkit)
+- [Omnirig v1](https://www.dxatlas.com/omnirig/)
+- [Omnirig v2](https://www.hb9ryz.ch/omnirig/)
+- [Hamlib](https://github.com/Hamlib/Hamlib/releases)
+  - hamlib-w64-4.5.5.exe is the latest
+    - Need to run the following commands to "fix" the library *** Fix Paths if necessary ***
+      CD "C:\Program Files\hamlib-w64-4.5.5\lib\msvc"
+      "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64\link.exe" /lib /machine:X64 /def:libhamlib-4.def
+      copy libhamlib-4.lib hamlib.lib
+- Install C++ Module - https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-vscode?pivots=shell-powershell
 
-To be honest, It is not easy to compile it under Windows but it is possible.
+	cd C:\Program Files\Microsoft Visual Studio\2022\Community\VC\vcpkg
+	vcpkg install pthreads
+	vcpkg install qtkeychain-qt6
+
+System Environmental Path Settings
+	C:\Program Files\hamlib-w64-4.5.5\bin
+	C:\QTTools\vcpkg\packages\qtkeychain-qt6_x64-windows\bin
+
+Clone QLog Master Branch
+In QT Creator Projects->Desktop Qt 6.8.0 MSVC2022 64Bit->Build Steps->Additional Arguments
+	**** You need to update the paths accordingly ****
+	**** Need to be on same line seperated by spaces ****
+	"HAMLIBINCLUDEPATH='C:\Program Files\hamlib-w64-4.5.5\include'"
+	"HAMLIBLIBPATH='C:\Program Files\hamlib-w64-4.5.5\lib\msvc'"
+	"HAMLIBVERSION_MAJOR=4"
+	"HAMLIBVERSION_MINOR=5"
+	"HAMLIBVERSION_PATCH=5"
+	"QTKEYCHAININCLUDEPATH=C:\QTTools\vcpkg\packages\qtkeychain-qt6_x64-windows\include"
+	"QTKEYCHAINLIBPATH=C:\QTTools\vcpkg\packages\qtkeychain-qt6_x64-windows\lib"
+	"PTHREADLIBPATH=C:\QTTools\vcpkg\packages\pthreads_x64-windows\lib"
+	"PTHREADINCLUDEPATH=C:\QTTools\vcpkg\packages\pthreads_x64-windows\include"
+
 
 ### Linux
 

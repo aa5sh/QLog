@@ -1,5 +1,6 @@
 #include <QColor>
 #include "AlertTableModel.h"
+#include "core/debug.h"
 #include "data/Data.h"
 #include "rig/macros.h"
 
@@ -37,7 +38,7 @@ QVariant AlertTableModel::data(const QModelIndex& index, int role) const
     }
     else if ( index.column() == COLUMN_CALLSIGN && role == Qt::BackgroundRole )
     {
-        return Data::statusToColor(selectedRecord.alert.status, QColor(Qt::transparent));
+        return Data::statusToColor(selectedRecord.alert.status, selectedRecord.alert.dupeCount, QColor(Qt::transparent));
     }
     else if ( role == Qt::UserRole )
     {
@@ -145,6 +146,121 @@ void AlertTableModel::aging(const int clear_interval_sec)
     endResetModel();
 }
 
+void AlertTableModel::resetDupe()
+{
+    QMutexLocker locker(&alertListMutex);
+
+    beginResetModel();
+    for ( AlertTableRecord &alert : alertList )
+        alert.alert.dupeCount = 0;
+    endResetModel();
+}
+
+void AlertTableModel::recalculateDupe()
+{
+    QMutexLocker locker(&alertListMutex);
+
+    beginResetModel();
+    for ( AlertTableRecord &alert : alertList )
+    {
+        SpotAlert &spotAlert = alert.alert;
+        spotAlert.dupeCount = Data::countDupe(spotAlert.callsign,
+                                              spotAlert.band,
+                                              spotAlert.modeGroupString);
+    }
+    endResetModel();
+}
+
+void AlertTableModel::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    qint32 dxcc = record.value("dxcc").toInt();
+    const QString &band = record.value("band").toString();
+    const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+    const QString &callsign = record.value("callsign").toString();
+
+    QMutexLocker locker(&alertListMutex);
+
+    beginResetModel();
+    for ( AlertTableRecord &alert : alertList )
+    {
+        SpotAlert &spot = alert.alert;
+
+        spot.status = Data::dxccNewStatusWhenQSOAdded(spot.status,
+                                             spot.dxcc.dxcc,
+                                             spot.band,
+                                             ( ( spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FT8 ) ? BandPlan::MODE_GROUP_STRING_DIGITAL
+                                                                                                        : dxccModeGroup ),
+                                             dxcc,
+                                             band,
+                                             dxccModeGroup);
+        if ( spot.callsign == callsign )
+            spot.dupeCount = Data::dupeNewCountWhenQSOAdded(spot.dupeCount,
+                                                            spot.band,
+                                                            spot.modeGroupString,
+                                                            band,
+                                                            dxccModeGroup);
+    }
+    endResetModel();
+}
+
+void AlertTableModel::updateSpotsStatusWhenQSOUpdated(const QSqlRecord &)
+{
+    QMutexLocker locker(&alertListMutex);
+
+    // at this point, we don't know if callsign has been changed or other field.
+    // TODO: DXCC status
+    // TODO: Dupe status update
+
+    // beginResetModel();
+    // for ( AlertTableRecord &alert : alertList )
+    // {
+    //     SpotAlert &spot = alert.alert;
+    //     spot.dupeCount = Data::countDupe(spot.callsign, spot.band, spot.modeGroupString);
+    // }
+    // endResetModel();
+}
+
+void AlertTableModel::updateSpotsStatusWhenQSODeleted(const QSqlRecord &record)
+{
+    // Pay attention: this method is called before the QSO is added to contacts
+    const QString &callsign = record.value("callsign").toString();
+    const QString &band = record.value("band").toString();
+    const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+
+    QMutexLocker locker(&alertListMutex);
+
+    for ( AlertTableRecord &alert : alertList )
+    {
+        SpotAlert &spot = alert.alert;
+
+        if ( spot.dupeCount && spot.callsign == callsign )
+            spot.dupeCount = Data::dupeNewCountWhenQSODelected(spot.dupeCount,
+                                                               spot.band,
+                                                               spot.modeGroupString,
+                                                               band,
+                                                               dxccModeGroup);
+    }
+}
+
+void AlertTableModel::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+{
+    if ( entities.isEmpty() )
+        return;
+
+    QMutexLocker locker(&alertListMutex);
+
+    beginResetModel();
+    for ( AlertTableRecord &alert : alertList  )
+    {
+        SpotAlert &spot = alert.alert;
+
+        if ( !entities.contains(spot.dxcc.dxcc) )
+            continue;
+
+        spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+    }
+    endResetModel();
+}
 
 bool AlertTableModel::AlertTableRecord::operator==(const AlertTableRecord &spot) const
 {

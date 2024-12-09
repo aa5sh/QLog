@@ -77,13 +77,13 @@ private:
 
 Q_DECLARE_METATYPE(RigProfile)
 
-class RigProfilesManager : QObject, public ProfileManagerSQL<RigProfile>
+class RigProfilesManager : public ProfileManagerSQL<RigProfile>
 {
     Q_OBJECT
 
 public:
 
-    explicit RigProfilesManager(QObject *parent = nullptr);
+    explicit RigProfilesManager();
     ~RigProfilesManager() { };
 
     static RigProfilesManager* instance()

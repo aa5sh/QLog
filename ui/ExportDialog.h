@@ -31,6 +31,7 @@ public slots:
     void toggleMyGridsquare();
     void toggleQslSendVia();
     void toggleSentStatus();
+    void toggleUserFilter();
     void runExport();
     void myCallsignChanged(const QString &myCallsign);
     void showColumnsSetting();

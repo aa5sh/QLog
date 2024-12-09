@@ -35,6 +35,7 @@
 #include <functional>
 #include <math.h>
 #include <tuple>
+#include <cstdint>
 
 unsigned version = 1;
 

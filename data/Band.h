@@ -9,7 +9,7 @@ public:
     double start;
     double end;
     QString satDesignator;
-    bool operator==(const Band &band)
+    bool operator==(const Band &band) const
     {
         return ( this->name == band.name
                  && this->start == band.start
