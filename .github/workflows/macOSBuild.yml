@@ -47,6 +47,7 @@ jobs:
        with:
          repository: hamlib/hamlib
          path: ./hamlib
+         ref: Hamlib-4.6
          
      - name: Configure and compile
        run: |
