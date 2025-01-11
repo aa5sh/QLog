@@ -151,7 +151,13 @@ void RotatorWidget::mousePressEvent(QMouseEvent *event)
 
     if( event->button() == Qt::LeftButton )
     {
-        QPointF clickPos = ui->compassView->mapToScene(ui->compassView->mapFromGlobal(event->globalPos()));
+        QPointF clickPos = ui->compassView->mapToScene(ui->compassView->mapFromGlobal(
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                                                                                      event->globalPosition().toPoint()
+#else
+                                                                                      event->globalPos()
+#endif
+                                                                                     ));
 
         qreal dx = clickPos.x();
         qreal dy = -1 * clickPos.y();

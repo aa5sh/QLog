@@ -24,7 +24,7 @@ public:
 
     virtual void setFrequency(double) override;
     virtual void setRawMode(const QString &) override;
-    virtual void setMode(const QString &, const QString &) override;
+    virtual void setMode(const QString &, const QString &, bool) override;
     virtual void setPTT(bool) override;
     virtual void setKeySpeed(qint16 wpm) override;
     virtual void syncKeySpeed(qint16 wpm) override;
@@ -40,7 +40,10 @@ private slots:
 
 private:
 
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 6 )
+// https://github.com/Hamlib/Hamlib/issues/1647
+// It seems that the authors, under fire
+// from other application authors, have changed the API back.
+#if ( HAMLIBVERSION_MAJOR == 4 && HAMLIBVERSION_MINOR == 6 && HAMLIBVERSION_PATCH == 0 )
     static int addRig(rig_caps *caps, void* data);
 #else
     static int addRig(const rig_caps *caps, void* data);
@@ -92,6 +95,7 @@ private:
     bool morseOverCatSupported;
     QMutex drvLock;
     QHash<QString, QString>postponedErrors;
+    QStringList modeList;
 };
 
 #endif // RIG_DRIVERS_HAMLIBRIGDRV_H

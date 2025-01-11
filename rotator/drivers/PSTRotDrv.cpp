@@ -3,12 +3,6 @@
 #include "core/debug.h"
 #include "PSTRotDrv.h"
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
-
 #define MUTEXLOCKER     qCDebug(runtime) << "Waiting for Rot Drv mutex"; \
                         QMutexLocker locker(&drvLock); \
                         qCDebug(runtime) << "Using Rot Drv"
@@ -179,11 +173,7 @@ void PSTRotDrv::checkRotStateChange()
 
 void PSTRotDrv::commandSleep()
 {
-#ifdef Q_OS_WIN
-        Sleep(100);
-#else
-        usleep(100000);
-#endif
+    QThread::msleep(100);
 }
 
 void PSTRotDrv::sendCommand(const QString &cmd)

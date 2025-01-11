@@ -134,6 +134,8 @@ void QRZ::actionInsert(QByteArray& data, const QString &insertPolicy)
 
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    QString rheader = QString("QLog/%1").arg(VERSION);
+    request.setRawHeader("User-Agent", rheader.toUtf8());
 
     qCDebug(runtime) << url;
 
@@ -298,6 +300,7 @@ void QRZ::processReply(QNetworkReply* reply)
     {
         qCDebug(runtime) << "QRZ.com error URL " << reply->request().url().toString();
         qCDebug(runtime) << "QRZ.com error" << reply->errorString();
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
 
         if ( reply->error() != QNetworkReply::OperationCanceledError )
         {

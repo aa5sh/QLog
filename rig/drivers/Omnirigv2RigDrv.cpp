@@ -1,6 +1,6 @@
 // This module is compiled only under Windows - therefore no ifdef related to Windows is needed
 
-#include <windows.h>
+#include <Combaseapi.h>
 
 #include <QTimer>
 #include "Omnirigv2RigDrv.h"
@@ -174,10 +174,10 @@ QStringList OmnirigV2RigDrv::getAvailableModes()
     FCT_IDENTIFICATION;
 
     QStringList ret;
-    const QStringList &modes = modeMap.values();
 
-    for ( const QString& mode : modes )
-        ret << mode;
+    for ( auto it = modeMap.constBegin(); it != modeMap.constEnd(); ++it )
+        if ( it.key() & writableParams )
+            ret.append(it.value());
 
     return ret;
 }
@@ -253,19 +253,28 @@ void OmnirigV2RigDrv::setRawMode(const QString &rawMode)
         if ( rawMode & writableParams )
         {
             qCDebug(runtime) << "Setting Mode";
-            rig->SetMode(mappedMode.at(0));
+            rig->SetMode(rawMode);
             commandSleep();
         }
     }
 }
 
-void OmnirigV2RigDrv::setMode(const QString &mode, const QString &submode)
+void OmnirigV2RigDrv::setMode(const QString &mode, const QString &submode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << mode << submode;
+    qCDebug(function_parameters) << mode << submode << digiVariant;
 
-    setRawMode((submode.isEmpty()) ? mode.toUpper() : submode.toUpper());
+    QString innerSubmode(submode);
+
+    if ( digiVariant )
+    {
+        const QString digMode = QLatin1String("DIG_") + innerSubmode.at(0);
+        if ( modeMap.key(digMode) & writableParams )
+            innerSubmode = digMode;
+    }
+
+    setRawMode((submode.isEmpty()) ? mode.toUpper() : innerSubmode.toUpper());
 }
 
 void OmnirigV2RigDrv::setPTT(bool newPTTSTate)
@@ -406,6 +415,8 @@ void OmnirigV2RigDrv::rigStatusChange(int rigID)
         emit errorOccured(tr("Rig status changed"),
                           tr("Rig is not connected"));
     }
+    else
+        emit rigIsReady();
 }
 
 void OmnirigV2RigDrv::COMException(int code,
@@ -465,7 +476,7 @@ OmniRigV2::IRigX *OmnirigV2RigDrv::getRigPtr()
 
 void OmnirigV2RigDrv::commandSleep()
 {
-    Sleep(100);
+    QThread::msleep(100);
 }
 
 const QString OmnirigV2RigDrv::getModeNormalizedText(const QString &rawMode, QString &submode)
@@ -498,14 +509,14 @@ const QString OmnirigV2RigDrv::getModeNormalizedText(const QString &rawMode, QSt
         return "FM";
 
     // maybe bad maybe good
-    if ( rawMode == "DIGI_U" )
+    if ( rawMode == "DIG_U" )
     {
         submode = "USB";
         return "SSB";
     }
 
     // maybe bad maybe good
-    if ( rawMode == "DIGI_L" )
+    if ( rawMode == "DIG_L" )
     {
         submode = "LSB";
         return "SSB";

@@ -78,11 +78,9 @@ void AlertWidget::entryDoubleClicked(QModelIndex index)
     const AlertTableModel::AlertTableRecord &record = alertTableModel->getTableRecord(source_index);
 
     if ( record.alert.source == SpotAlert::WSJTXCQSPOT )
-        emit tuneWsjtx(record.alert.wsjtxDecode);
+        emit tuneWsjtx(record.alert.spot.decode);
     else
-        emit tuneDx(record.alert.callsign,
-                    record.alert.freq,
-                    record.alert.bandPlanMode);
+        emit tuneDx(record.alert.getDxSpot());
 }
 
 void AlertWidget::alertAgingChanged(int)
@@ -140,6 +138,13 @@ void AlertWidget::recalculateDupe()
     FCT_IDENTIFICATION;
 
     alertTableModel->recalculateDupe();
+}
+
+void AlertWidget::recalculateDxccStatus()
+{
+    FCT_IDENTIFICATION;
+
+    alertTableModel->recalculateDxccStatus();
 }
 
 void AlertWidget::showColumnVisibility()

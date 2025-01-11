@@ -39,9 +39,7 @@ public:
                   bool deduplicate = false,
                   qint16 dedup_interval = DEDUPLICATION_TIME,
                   double freq_tolerance = DEDUPLICATION_FREQ_TOLERANCE);
-    QString getCallsign(const QModelIndex& index);
-    double getFrequency(const QModelIndex& index);
-    BandPlan::BandPlanMode getBandPlanode(const QModelIndex& index);
+    const DxSpot getSpot(const QModelIndex& index) const {return dxData.at(index.row());};
     void clear();
 
 private:
@@ -154,7 +152,7 @@ private slots:
     void displayedColumns();
 
 signals:
-    void tuneDx(QString, double, BandPlan::BandPlanMode);
+    void tuneDx(DxSpot);
     void newSpot(DxSpot);
     void newWCYSpot(WCYSpot);
     void newWWVSpot(WWVSpot);
@@ -229,6 +227,13 @@ private:
 
     QVector<int> dxcListHiddenCols() const;
     BandPlan::BandPlanMode modeGroupFromComment(const QString &comment) const;
+    QString refFromComment(const QString &comment, bool &flag,
+                           const QRegularExpression &regEx,
+                           const QString &refType, int justified) const;
+    void wwffRefFromComment(DxSpot &spot) const;
+    void potaRefFromComment(DxSpot &spot) const;
+    void sotaRefFromComment(DxSpot &spot) const;
+    void iotaRefFromComment(DxSpot &spot) const;
 };
 
 #endif // QLOG_UI_DXWIDGET_H

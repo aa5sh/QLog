@@ -42,6 +42,38 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Sat Jan 11 2025 Ladislav Foldyna - 0.41.0-1
+- [NEW] - Logbook - Added a new context menu item - Update QSO from Callbook (issue #450 @aa5sh)
+- [NEW] - DIGI mode is used in case of DXC Digi Spots (issue #480)
+- [NEW] - DXC - Retrieve information about SOTA, POTA, IOTA and WWFF from comment (issue #482)
+- [NEW] - Alert - Added SOTA, POTA, IOTA and WWFF filter
+- [NEW] - Added the COM Port Completer for Windows platform (issue #490)
+- [NEW] - Settings - Added DXCC Confirmed By options (issue #508)
+- [NEW] - Added POTA Export Formatter (activator/hunter) (PR #514 @kyleboyle)
+- [NEW] - CW Console - CW Halt with the user-defined shortcut (issue #518)
+- [NEW] - Added an input parameter to save debug message to file
+- [NEW] - Logbook - Added sorting function to logbook table columns (PR #540 @kyleboyle)
+- [NEW] - Network Notification - Added Rig Status Notification
+- [NEW] - Implemented ADIF 3.1.5
+- [NEW] - ADIF 3.1.5 - Added new submodes FSKH245 and FSKH105 for HELL
+- [NEW] - ADIF 3.1.5 - Added new contest IDs
+- [NEW] - ADIF 3.1.5 - Added new columns (Import/Export only)
+- [NEW] - ADIF 3.1.5 - Added My DARC DOK to Station Profile
+- [CHANGED] - Settings: disabled band and mode name modification
+- [CHANGED] - DX Stats contain all enabled bands (issue #538)
+- [CHANGED] - Removed Freq, TimeDate On/Off Data Type Indicators (issue #552)
+- [CHANGED] - ADIF 3.1.5 - VUCC and MY_VUCC can contain 6 or 4-chars locators
+- [CHANGED] - Stop exporting default value N for qsl_rcvd, qsl_sent, lotw/dcl/eslq_qsl_rcvd/sent
+- [CHANGED] - Extended QSL/Import Dupe matching rule to Callsign, Band, Mode, Time and Sat_Name (issue #563)
+- Fixed MacOS - keep floating windows visible on app unfocus (issue #530)
+- Fixed Contest Filter ignores the first QSO (issue #529)
+- Fixed It is not possible to quit Qlog with detached widgets Rot and Rig (issue #534)
+- Fixed ADX/CSV/JSON do not export non-ASCII chars (issue #542)
+- Fixed Checking the 60m checkbox in cluster filters allows 160m spots to appear (issue #543 @aa5sh)
+- Fixed Problems uploading to QRZ.com (issue #559 PR #561 @aa5sh)
+- Fixed DX Stat screen is jumping up/down
+- Fixed Omnirig drivers: Digi modes are not correclty recognized
+
 * Fri Nov 29 2024 Ladislav Foldyna - 0.40.1-1
 - Fixed Bands - Added missing 8m band (issue #515)
 - Fixed CW Console - EXCSTR does not work properly (issue #517)

@@ -158,7 +158,7 @@ void ClubLog::sendRealtimeRequest(const OnlineCommand command,
     case ClubLog::DELETE_QSO:
         url.setUrl(API_LIVE_DELETE_URL);
         query.addQueryItem("dxcall", record.value("callsign").toByteArray());
-        query.addQueryItem("datetime", record.value("start_time").toDateTime().toTimeSpec(Qt::UTC).toString("yyyy-MM-dd hh:mm:ss").toUtf8());
+        query.addQueryItem("datetime", record.value("start_time").toDateTime().toTimeZone(QTimeZone::utc()).toString("yyyy-MM-dd hh:mm:ss").toUtf8());
         query.addQueryItem("bandid", record.value("band").toString().replace(rx, "").toUtf8()); //clublog support non-ADIF bands enumaration, need remove m, cm, mm string
         break;
     default:
@@ -275,6 +275,8 @@ void ClubLog::processReply(QNetworkReply* reply)
     {
         qCDebug(runtime) << "Clublog error URL " << reply->request().url().toString();
         qCDebug(runtime) << "Clublog error" << reply->errorString();
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
+
         if ( reply->error() != QNetworkReply::OperationCanceledError )
         {
             emit uploadError(tr("Clublog Operation for Callsign %1 failed.<br>%2").arg(reply->property("uploadCallsign").toString(),

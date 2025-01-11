@@ -55,7 +55,7 @@ void LOVDownloader::update(const SourceType & sourceType)
     Q_ASSERT(sourceDef.type == sourceType);
 
     QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
-    QDate last_update = LogParam::getParam(sourceDef.lastTimeConfigName).toDate();
+    const QDate &last_update = LogParam::getLOVaParam(sourceDef.lastTimeConfigName);
 
     if ( dir.exists(sourceDef.fileName)
          && last_update.isValid()
@@ -145,7 +145,8 @@ void LOVDownloader::download(const LOVDownloader::SourceDefinition &sourceDef)
     QUrl url(sourceDef.URL);
     QNetworkRequest request(url);
 
-    request.setRawHeader("User-Agent", "QLog/1.0 (Qt)");
+    QString rheader = QString("QLog/%1").arg(VERSION);
+    request.setRawHeader("User-Agent", rheader.toUtf8());
 
     if ( currentReply )
     {
@@ -1008,11 +1009,12 @@ void LOVDownloader::processReply(QNetworkReply *reply)
         file.close();
         reply->deleteLater();
 
-        LogParam::setParam(sourceDef.lastTimeConfigName, QDateTime::currentDateTimeUtc().date());
+        LogParam::setLOVParam(sourceDef.lastTimeConfigName, QDateTime::currentDateTimeUtc().date());
         loadData(sourceDef);
     }
     else
     {
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
         qCDebug(runtime) << "Failed to download " << sourceDef.fileName;
 
         reply->deleteLater();

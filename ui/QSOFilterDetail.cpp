@@ -48,7 +48,7 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     /***************/
     /* Field Combo */
     /***************/
-    QComboBox* fieldNameCombo = new QComboBox();
+    QComboBox* fieldNameCombo = new QComboBox(this);
     fieldNameCombo->setObjectName(QString::fromUtf8("fieldNameCombo%1").arg(condCount));
     QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Fixed);
     sizePolicy1.setHorizontalStretch(0);
@@ -56,9 +56,20 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     sizePolicy1.setHeightForWidth(fieldNameCombo->sizePolicy().hasHeightForWidth());
     fieldNameCombo->setSizePolicy(sizePolicy1);
 
-    QStringListModel* columnsNameModel = new QStringListModel(LogbookModel::getAllFieldNamesTranslation(),
-                                                              this);
-    fieldNameCombo->setModel(columnsNameModel);
+    const QMap<LogbookModel::ColumnID, QString> &fieldMapping = LogbookModel::getAllFieldNamesTranslation();
+    QList<QPair<LogbookModel::ColumnID, QString>> items;
+
+    for ( auto it = fieldMapping.cbegin(); it != fieldMapping.cend(); ++it)
+        items.append({it.key(), it.value()});
+
+    std::sort(items.begin(), items.end(), [](const QPair<LogbookModel::ColumnID, QString>& a,
+                                             const QPair<LogbookModel::ColumnID, QString>& b)
+    {
+        return a.second.localeAwareCompare(b.second) < 0;
+    });
+
+    for (const auto& item : items)
+        fieldNameCombo->addItem(item.second, item.first);
 
     /* Do not set combo value here because we will connect signal Change later */
     conditionLayout->addWidget(fieldNameCombo);
@@ -66,7 +77,7 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     /*******************/
     /* Condition Combo */
     /*******************/
-    QComboBox* conditionCombo = new QComboBox();
+    QComboBox* conditionCombo = new QComboBox(this);
     conditionCombo->addItem(QString(tr("Equal")));
     conditionCombo->addItem(QString(tr("Not Equal")));
     conditionCombo->addItem(QString(tr("Contains")));
@@ -90,7 +101,7 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     sizePolicy.setVerticalStretch(0);
 
     // use stack to change Line and Date Edit - it will depend on column from combo selection
-    QStackedWidget* stacked = new QStackedWidget();
+    QStackedWidget* stacked = new QStackedWidget(this);
     stacked->setObjectName(QString::fromUtf8("stackedValueEdit%1").arg(condCount));
     stacked->setMaximumSize(QSize(16777215, 30));
     stacked->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -106,46 +117,58 @@ void QSOFilterDetail::addCondition(int fieldIdx, int operatorId, QString value)
     stacked->addWidget(createComboBox(Data::instance()->antPathEnum, value, condCount, sizePolicy));
     stacked->addWidget(createComboBox(Data::instance()->boolEnum, value, condCount, sizePolicy));
     stacked->addWidget(createComboBox(Data::instance()->qsoCompleteEnum, value, condCount, sizePolicy));
+    stacked->addWidget(createComboBox(Data::instance()->downloadStatusEnum, value, condCount, sizePolicy));
+    stacked->addWidget(createComboBox(Data::instance()->morseKeyTypeEnum, value, condCount, sizePolicy));
 
     conditionLayout->addWidget(stacked);
 
     // connect field combo and stacked widged to switch correct Edit Widget
     connect(fieldNameCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this, stacked, value](int index)
+            this, [this, stacked, value, fieldNameCombo](int)
     {
         /* Index is mapped the same way as LogbookModel columns
            Therefore, we can use Column aliases here
          */
-        if ( this->isDateField(index) )
+        int fieldIndex = fieldNameCombo->currentData().toInt();
+
+        if ( this->isDateField(fieldIndex) )
             stacked->setCurrentIndex(1); //Date Edit
-        else if ( this->isDateTimeField(index) )
+        else if ( this->isDateTimeField(fieldIndex) )
             stacked->setCurrentIndex(2); //DateTime edit
-        else if ( this->isQSLSentField(index) )
+        else if ( this->isQSLSentField(fieldIndex) )
             stacked->setCurrentIndex(3);
-        else if ( this->isQSLSentViaField(index) )
+        else if ( this->isQSLSentViaField(fieldIndex) )
             stacked->setCurrentIndex(4);
-        else if ( this->isQSLRcvdField(index) )
+        else if ( this->isQSLRcvdField(fieldIndex) )
             stacked->setCurrentIndex(5);
-        else if ( this->isUploadStatusField(index) )
+        else if ( this->isUploadStatusField(fieldIndex) )
             stacked->setCurrentIndex(6);
-        else if ( this->isAntPathField(index) )
+        else if ( this->isAntPathField(fieldIndex) )
             stacked->setCurrentIndex(7);
-        else if ( this->isBoolField(index) )
+        else if ( this->isBoolField(fieldIndex) )
             stacked->setCurrentIndex(8);
-        else if ( this->isQSOCompleteField(index) )
+        else if ( this->isQSOCompleteField(fieldIndex) )
             stacked->setCurrentIndex(9);
+        else if ( this->isDownloadStatusField(fieldIndex))
+            stacked->setCurrentIndex(10);
+        else if ( this->isMorseKeyTypeField(fieldIndex))
+            stacked->setCurrentIndex(11);
         else
             stacked->setCurrentIndex(0);
     });
 
     /* Set FieldNameCombo here to update Stacked Widget */
     if ( fieldIdx >= 0 )
-        fieldNameCombo->setCurrentIndex(fieldIdx);
+    {
+        int index = fieldNameCombo->findData(fieldIdx);
+        if (index != -1)
+            fieldNameCombo->setCurrentIndex(index);
+    }
 
     /*****************/
     /* Remove Button */
     /*****************/
-    QPushButton* removeButton = new QPushButton(tr("Remove"));
+    QPushButton* removeButton = new QPushButton(tr("Remove"), this);
     removeButton->setObjectName(QString::fromUtf8("removeButton%1").arg(condCount));
 
     conditionLayout->addWidget(removeButton);
@@ -209,7 +232,10 @@ bool QSOFilterDetail::isDateField(int index)
                  || index == LogbookModel::COLUMN_EQSL_QSLSDATE
                  || index == LogbookModel::COLUMN_HRDLOG_QSO_UPLOAD_DATE
                  || index == LogbookModel::COLUMN_HAMLOGEU_QSO_UPLOAD_DATE
-                 || index == LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_DATE);
+                 || index == LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_DATE
+                 || index == LogbookModel::COLUMN_DCL_QSLRDATE
+                 || index == LogbookModel::COLUMN_DCL_QSLSDATE
+                 || index == LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_DATE);
 
     qCDebug(function_parameters) << index << " return " << ret;
     return ret;
@@ -232,7 +258,8 @@ bool QSOFilterDetail::isQSLSentField(int index)
 
     bool ret = (    index == LogbookModel::COLUMN_QSL_SENT
                  || index == LogbookModel::COLUMN_LOTW_SENT
-                 || index == LogbookModel::COLUMN_EQSL_QSL_SENT );
+                 || index == LogbookModel::COLUMN_EQSL_QSL_SENT
+                 || index == LogbookModel::COLUMN_DCL_QSL_SENT);
 
     qCDebug(function_parameters) << index << " return " << ret;
     return ret;
@@ -255,7 +282,8 @@ bool QSOFilterDetail::isQSLRcvdField(int index)
 
     bool ret = (    index == LogbookModel::COLUMN_QSL_RCVD
                  || index == LogbookModel::COLUMN_LOTW_RCVD
-                 || index == LogbookModel::COLUMN_EQSL_QSL_RCVD);
+                 || index == LogbookModel::COLUMN_EQSL_QSL_RCVD
+                 || index == LogbookModel::COLUMN_DCL_QSL_RCVD);
 
     qCDebug(function_parameters) << index << " return " << ret;
     return ret;
@@ -308,6 +336,25 @@ bool QSOFilterDetail::isQSOCompleteField(int index)
     return ret;
 }
 
+bool QSOFilterDetail::isDownloadStatusField(int index)
+{
+    FCT_IDENTIFICATION;
+
+    bool ret = ( index == LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_STATUS );
+
+    qCDebug(function_parameters) << index << " return " << ret;
+    return ret;
+}
+
+bool QSOFilterDetail::isMorseKeyTypeField(int index)
+{
+    bool ret = ( index == LogbookModel::COLUMN_MORSE_KEY_TYPE
+                 || index == LogbookModel::COLUMN_MY_MORSE_KEY_TYPE );
+
+    qCDebug(function_parameters) << index << " return " << ret;
+    return ret;
+}
+
 QComboBox* QSOFilterDetail::createComboBox(const QMap<QString, QString> &mapping,
                                            const QString &value, const int identifier,
                                            const QSizePolicy &sizepolicy)
@@ -345,7 +392,11 @@ QDateEdit *QSOFilterDetail::createDateEdit(const QString &value, const int ident
     valueDate->setObjectName(QString::fromUtf8("valueDateEdit%1").arg(identified));
     valueDate->setFocusPolicy(Qt::ClickFocus);
     valueDate->setCalendarPopup(true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    valueDate->setTimeZone(QTimeZone::UTC);
+#else
     valueDate->setTimeSpec(Qt::UTC);
+#endif
     valueDate->setDisplayFormat(locale.formatDateShortWithYYYY());
     valueDate->setSizePolicy(sizepolicy);
     if ( !value.isEmpty() )
@@ -361,7 +412,11 @@ QDateTimeEdit *QSOFilterDetail::createDateTimeEdit(const QString &value, const i
     QDateTimeEdit* valueDateTime = new QDateTimeEdit();
     valueDateTime->setObjectName(QString::fromUtf8("valueDateTimeEdit%1").arg(identified));
     valueDateTime->setFocusPolicy(Qt::ClickFocus);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    valueDateTime->setTimeZone(QTimeZone::UTC);
+#else
     valueDateTime->setTimeSpec(Qt::UTC);
+#endif
     valueDateTime->setDisplayFormat(locale.formatDateShortWithYYYY()
                                     + " " + locale.formatTimeLongWithoutTZ());
     valueDateTime->setSizePolicy(sizepolicy);
@@ -415,8 +470,8 @@ void QSOFilterDetail::save()
 
             QString objectName = condition->itemAt(i)->widget()->objectName();
 
-            if ( objectName.contains("fieldNameCom") )
-                rule.tableFieldIndex = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentIndex();
+            if ( objectName.contains("fieldNameCombo") )
+                rule.tableFieldIndex = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentData().toInt();
             else if ( objectName.contains("conditionCombo") )
                 rule.operatorID = dynamic_cast<QComboBox*>(condition->itemAt(i)->widget())->currentIndex();
             else if ( objectName.contains("stackedValueEdit") )

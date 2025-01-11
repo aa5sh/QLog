@@ -30,6 +30,40 @@ public:
         TCI_DRIVER = 4
     };
 
+    struct Status
+    {
+        QString profile;
+        double freq = 0.0;
+        QString mode;
+        QString submode;
+        QString rawmode;
+        qint8 ptt = -1;
+        double power = 0.0;
+        quint16 keySpeed = 0;
+        QString vfo = "Curr";
+        double rit = 0.0;
+        double xit = 0.0;
+        qint32 bandwidth = 0;
+        bool isConnected = false;
+
+        void clear()
+        {
+            profile.clear();
+            freq = 0.0;
+            mode.clear();
+            submode.clear();
+            rawmode.clear();
+            ptt = -1;
+            power = 0.0;
+            keySpeed = 0;
+            vfo="Curr";
+            rit = 0.0;
+            xit = 0.0;
+            bandwidth = 0;
+            isConnected = false;
+        };
+    };
+
     static Rig* instance()
     {
         static Rig instance;
@@ -59,7 +93,7 @@ public slots:
 
     void setFrequency(double);
     void setRawMode(const QString &rawMode);
-    void setMode(const QString &, const QString &);
+    void setMode(const QString &, const QString &, bool = false);
     void setPTT(bool);
     void setKeySpeed(qint16 wpm);
     void syncKeySpeed(qint16 wpm);
@@ -82,6 +116,7 @@ signals:
     void rigDisconnected();
     void rigConnected();
     void rigErrorPresent(QString, QString);
+    void rigStatusChanged(Rig::Status);
 
 private slots:
     void stopTimerImplt();
@@ -90,7 +125,7 @@ private slots:
 
     void setFrequencyImpl(double);
     void setRawModeImpl(const QString&);
-    void setModeImpl(const QString &, const QString &);
+    void setModeImpl(const QString &, const QString &, bool);
     void setPTTImpl(bool);
     void setKeySpeedImpl(qint16 wpm);
     void syncKeySpeedImpl(qint16 wpm);
@@ -132,11 +167,15 @@ private:
     void __closeRig();
     void __openRig();
     GenericRigDrv *getDriver(const RigProfile &profile);
+    void emitRigStatusChanged();
 
 private:
     GenericRigDrv *rigDriver;
     QMutex rigLock;
+    Rig::Status rigStatus;
     bool connected;
 };
+
+Q_DECLARE_METATYPE(Rig::Status);
 
 #endif // RIG_RIG_H

@@ -1,7 +1,7 @@
 
 // This module is compiled only under Windows - therefore no ifdef related to Windows is needed
 
-#include <windows.h>
+#include <Combaseapi.h>
 
 #include <QTimer>
 #include "OmnirigRigDrv.h"
@@ -171,10 +171,10 @@ QStringList OmnirigRigDrv::getAvailableModes()
     FCT_IDENTIFICATION;
 
     QStringList ret;
-    const QStringList &modes = modeMap.values();
 
-    for ( const QString& mode : modes )
-        ret << mode;
+    for ( auto it = modeMap.constBegin(); it != modeMap.constEnd(); ++it )
+        if ( it.key() & writableParams )
+            ret.append(it.value());
 
     return ret;
 }
@@ -250,17 +250,26 @@ void OmnirigRigDrv::setRawMode(const QString &rawMode)
         if ( rawMode & writableParams )
         {
             qCDebug(runtime) << "Setting Mode";
-            rig->SetMode(mappedMode.at(0));
+            rig->SetMode(rawMode);
             commandSleep();
         }
     }
 }
 
-void OmnirigRigDrv::setMode(const QString &mode, const QString &submode)
+void OmnirigRigDrv::setMode(const QString &mode, const QString &submode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << mode << submode;
+    qCDebug(function_parameters) << mode << submode << digiVariant;
+
+    QString innerSubmode(submode);
+
+    if ( digiVariant )
+    {
+        const QString digMode = QLatin1String("DIG_") + innerSubmode.at(0);
+        if ( modeMap.key(digMode) & writableParams )
+            innerSubmode = digMode;
+    }
 
     setRawMode((submode.isEmpty()) ? mode.toUpper() : submode.toUpper());
 }
@@ -365,7 +374,7 @@ void OmnirigRigDrv::__rigTypeChange(int rigID)
 
 void OmnirigRigDrv::commandSleep()
 {
-    Sleep(100);
+    QThread::msleep(200);
 }
 
 const QString OmnirigRigDrv::getModeNormalizedText(const QString &rawMode, QString &submode)
@@ -398,14 +407,14 @@ const QString OmnirigRigDrv::getModeNormalizedText(const QString &rawMode, QStri
         return "FM";
 
     // maybe bad maybe good
-    if ( rawMode == "DIGI_U" )
+    if ( rawMode == "DIG_U" )
     {
         submode = "USB";
         return "SSB";
     }
 
     // maybe bad maybe good
-    if ( rawMode == "DIGI_L" )
+    if ( rawMode == "DIG_L" )
     {
         submode = "LSB";
         return "SSB";
@@ -454,6 +463,8 @@ void OmnirigRigDrv::rigStatusChange(int rigID)
         emit errorOccured(tr("Rig status changed"),
                           tr("Rig is not connected"));
     }
+    else
+        emit rigIsReady();
 }
 
 void OmnirigRigDrv::COMException(int code,

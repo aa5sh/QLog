@@ -47,11 +47,10 @@ public:
                                                   // ON of OFF???
     }
 
-    static QSOFilter createFromNowContestFilter(const QString &contestID)
+    static QSOFilter createFromDateContestFilter(const QString &contestID, const QDateTime &date)
     {
         QSOFilter ret;
 
-        const QDateTime &date = QDateTime::currentDateTimeUtc();
         ret.filterName = QString("%1-%2").arg(contestID, date.toString("yyyy/MM/dd hh:mm"));
         ret.machingType = 0; // should be enum - later
         ret.addRule(createFromDateRule(date));

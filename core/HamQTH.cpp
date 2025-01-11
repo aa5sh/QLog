@@ -184,7 +184,8 @@ void HamQTH::processReply(QNetworkReply* reply) {
          || replyStatusCode < 200
          || replyStatusCode >= 300)
     {
-        qInfo() << "HamQTH error" << reply->errorString();
+        qCDebug(runtime) << "HamQTH error" << reply->errorString();
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
         emit lookupError(reply->errorString());
         reply->deleteLater();
         return;

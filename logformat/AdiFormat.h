@@ -2,8 +2,6 @@
 #define QLOG_LOGFORMAT_ADIFORMAT_H
 
 #include "LogFormat.h"
-#define ADIF_VERSION_STRING "3.1.4"
-#define PROGRAMID_STRING "QLog"
 
 class AdiFormat : public LogFormat
 {
@@ -45,6 +43,7 @@ protected:
     static const QString toLower(const QVariant &);
     static const QString toUpper(const QVariant &);
     static const QString toYYYYMMDD(const QVariant &);
+    static const QString removeDefaulValueN(const QVariant &);
 
     class ExportParams
     {
@@ -69,6 +68,9 @@ protected:
 
     static QHash<QString, AdiFormat::ExportParams> DB2ADIFExportParams;
 
+    const QString ADIF_VERSION_STRING = "3.1.5";
+    const QString PROGRAMID_STRING = "QLog";
+
 private:
 
     void readField(QString& field,
@@ -78,6 +80,8 @@ private:
     QString parseQslRcvd(const QString &value);
     QString parseQslSent(const QString &value);
     QString parseUploadStatus(const QString &value);
+    QString parseDownloadStatus(const QString &value);
+    QString parseMorseKeyType(const QString &value);
     enum ParserState {
         START,
         FIELD,

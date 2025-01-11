@@ -185,6 +185,7 @@ void PropConditions::processReply(QNetworkReply* reply)
     }
     else
     {
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
         repeateRequest(reply->url());
         reply->deleteLater();
     }

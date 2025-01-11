@@ -78,6 +78,11 @@
           <string>JSON</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>POTA</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
@@ -713,6 +718,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>typeSelect</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>ExportDialog</receiver>
+   <slot>exportFormatChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>397</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggleDateRange()</slot>
@@ -721,6 +742,7 @@
   <slot>toggleMyCallsign()</slot>
   <slot>toggleMyGridsquare()</slot>
   <slot>myCallsignChanged(QString)</slot>
+  <slot>exportFormatChanged(QString)</slot>
   <slot>showColumnsSetting()</slot>
   <slot>toggleQslSendVia()</slot>
   <slot>exportTypeChanged(int)</slot>

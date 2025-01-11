@@ -141,7 +141,7 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->statusBar->addPermanentWidget(darkLightModeSwith);
     ui->statusBar->addPermanentWidget(darkIconLabel);
 
-    setContestMode(LogParam::getParam("contest/contestid", QString()).toString());
+    setContestMode(LogParam::getContestID());
 
     connect(seqGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuSeqnoType);
     connect(dupeGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuDupeType);
@@ -214,6 +214,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::xitChanged, ui->rigWidget, &RigWidget::updateXIT);
     connect(Rig::instance(), &Rig::ritChanged, ui->rigWidget, &RigWidget::updateRIT);
     connect(Rig::instance(), &Rig::pttChanged, ui->rigWidget, &RigWidget::updatePTT);
+    connect(Rig::instance(), &Rig::rigStatusChanged, &networknotification, &NetworkNotification::rigStatus);
 
     connect(Rotator::instance(), &Rotator::rotErrorPresent, this, &MainWindow::rotErrorHandler);
     connect(Rotator::instance(), &Rotator::positionChanged, ui->onlineMapWidget, &OnlineMapWidget::antPositionChanged);
@@ -254,6 +255,9 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(this, &MainWindow::settingsChanged, ui->logbookWidget, &LogbookWidget::reloadSetting);
     connect(this, &MainWindow::settingsChanged, ui->dxWidget, &DxWidget::reloadSetting);
+    connect(this, &MainWindow::settingsChanged, ui->bandmapWidget, &BandmapWidget::recalculateDxccStatus);
+    connect(this, &MainWindow::settingsChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
+    connect(this, &MainWindow::settingsChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
     connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);
@@ -287,6 +291,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, Data::instance(), &Data::invalidateDXCCStatusCache); // must be the first delete signal
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::updateTable);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::setDefaultSort);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, &networknotification, &NetworkNotification::QSOInserted);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->bandmapWidget, &BandmapWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->alertsWidget, &AlertWidget::updateSpotsStatusWhenQSOAdded);
@@ -394,6 +399,14 @@ MainWindow::MainWindow(QWidget* parent) :
     //restoreConnectionStates();
 
     setupActivitiesMenu();
+
+    const QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    for ( QDockWidget* dockWidget : dockWidgets )
+    {
+        if ( dockWidget )
+            dockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -410,6 +423,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
         stats->deleteLater();
         stats = nullptr;
     }
+
+     const QList<QDockWidget*> docks = findChildren<QDockWidget*>();
+     for (QDockWidget* dock : docks)
+         dock->close();  // Ensure they are closed
 
     QMainWindow::closeEvent(event);
 }
@@ -588,17 +605,15 @@ void MainWindow::processSpotAlert(SpotAlert alert)
 
     ui->alertsWidget->addAlert(alert);
     alertButton->setText(QString::number(ui->alertsWidget->alertCount()));
-    alertTextButton->setText(alert.ruleName.join(", ") + ": " + alert.callsign + ", " + alert.band + ", " + alert.modeGroupString);
+    alertTextButton->setText(alert.ruleNameList.join(", ") + ": " + alert.spot.callsign + ", " + alert.spot.band + ", " + alert.spot.modeGroupString);
     alertTextButton->disconnect();
 
     connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
     {
         if ( alert.source == SpotAlert::WSJTXCQSPOT )
-            this->wsjtx->startReply(alert.wsjtxDecode);
+            wsjtx->startReply(alert.spot.decode);
         else
-            ui->newContactWidget->tuneDx(alert.callsign,
-                                         alert.freq,
-                                         alert.bandPlanMode);
+            ui->newContactWidget->tuneDx(alert.getDxSpot());
     });
 
     if ( ui->actionBeepSettingAlert->isChecked() )
@@ -961,7 +976,7 @@ void MainWindow::saveContestMenuSeqnoType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/seqnotype", action->data());
+    LogParam::setContestSeqnoType(action->data());
     // this function is called only if contest is not active
     // therefore it is not needed to somehow recalculate seq
 }
@@ -976,7 +991,7 @@ void MainWindow::restoreContestMenuSeqnoType()
     seqGroup->addAction(ui->actionSeqSingle);
     seqGroup->addAction(ui->actionSeqPerBand);
 
-    int seqnoType = LogParam::getParam("contest/seqnotype", Data::SeqType::SINGLE).toInt();
+    int seqnoType = LogParam::getContestSeqnoType();
 
     const QList<QAction *> seqActions = seqGroup->actions();
     for ( QAction *action : seqActions)
@@ -993,7 +1008,7 @@ void MainWindow::saveContestMenuDupeType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/dupetype", action->data());
+    LogParam::setContestManuDupeType(action->data());
     emit dupeTypeChanged();
 }
 
@@ -1001,7 +1016,7 @@ void MainWindow::saveContestMenuLinkExchangeType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/linkexchangetype", action->data());
+    LogParam::setContestLinkExchange(action->data());
     ui->newContactWidget->changeSRXStringLink(action->data().toInt());
 }
 
@@ -1019,7 +1034,7 @@ void MainWindow::restoreContestMenuDupeType()
     dupeGroup->addAction(ui->actionDupeEachBandMode);
     dupeGroup->addAction(ui->actionDupeNoCheck);
 
-    int dupeType = LogParam::getParam("contest/dupetype", Data::DupeType::ALL_BANDS).toInt();
+    int dupeType = LogParam::getContestDupeType();
 
     const QList<QAction *> seqActions = dupeGroup->actions();
     for ( QAction *action : seqActions)
@@ -1038,7 +1053,7 @@ void MainWindow::restoreContestMenuLinkExchange()
 
     linkExchangeGroup = new QActionGroup(ui->menuLinkExchange);
 
-    int linkExchangeType = LogParam::getParam("contest/linkexchangetype", LogbookModel::COLUMN_INVALID).toInt();
+    int linkExchangeType = LogParam::getContestLinkExchange();
 
     ui->actionLinkExchangeNone->setData(LogbookModel::COLUMN_INVALID);
     linkExchangeGroup->addAction(ui->actionLinkExchangeNone);
@@ -1081,16 +1096,16 @@ void MainWindow::restoreContestMenuLinkExchange()
     ui->newContactWidget->changeSRXStringLink(linkExchangeType);
 }
 
-void MainWindow::startContest(const QString contestID, const QDateTime)
+void MainWindow::startContest(const QString contestID, const QDateTime dateTime)
 {
     FCT_IDENTIFICATION;
 
     // Contest's start signal is sent from NewContact
-    const QSOFilter &contestFilter = QSOFilter::createFromNowContestFilter(contestID);
+    const QSOFilter &contestFilter = QSOFilter::createFromDateContestFilter(contestID, dateTime);
     QSOFilterManager::instance()->save(contestFilter);
     ui->logbookWidget->refreshUserFilter();
     ui->logbookWidget->setUserFilter(contestFilter.filterName);
-    LogParam::setParam("contest/filter", contestFilter.filterName);
+    LogParam::setContestFilter(contestFilter.filterName);
     setContestMode(contestID);
 }
 
@@ -1098,7 +1113,7 @@ void MainWindow::stopContest()
 {
     FCT_IDENTIFICATION;
 
-    const QString &contestFilterName = LogParam::getParam("contest/filter").toString();
+    const QString &contestFilterName = LogParam::getContestFilter();
 
     if ( !contestFilterName.isEmpty() )
     {
@@ -1120,7 +1135,7 @@ void MainWindow::stopContest()
             QSOFilterManager::instance()->save(contestFilter);
         }
     }
-    LogParam::setParam("contest/filter", QString());
+    LogParam::setContestFilter(QString());
     setContestMode(QString());
 
     emit contestStopped();
@@ -1259,6 +1274,7 @@ void MainWindow::showSettings()
 
     if ( sw.exec() == QDialog::Accepted )
     {
+        Data::instance()->clearDXCCStatusCache();
         rigConnect();
         rotConnect();
         stationProfileChanged();
@@ -1397,7 +1413,7 @@ void MainWindow::showAbout() {
 
     QString aboutText = tr("<h1>QLog %1</h1>"
                            "<p>&copy; 2019 Thomas Gatzweiler DL2IC<br/>"
-                           "&copy; 2021-2024 Ladislav Foldyna OK1MLG</p>"
+                           "&copy; 2021-2025 Ladislav Foldyna OK1MLG</p>"
                            "<p>Based on Qt %2<br/>"
                            "%3<br/>"
                            "%4<br/>"

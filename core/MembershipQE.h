@@ -55,7 +55,10 @@ public:
 public slots:
     void getClubStatus(const QString &callsign,
                        const QString &band,
-                       const QString &mode);
+                       const QString &mode,
+                       bool lowtConfirmed,
+                       bool paperConfirmed,
+                       bool eqslConfirmed);
 
 signals:
     void status(QString, QMap<QString, ClubStatusQuery::ClubStatus>);

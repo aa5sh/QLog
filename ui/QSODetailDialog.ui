@@ -1259,7 +1259,7 @@
           <number>20</number>
          </attribute>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>65</number>
+          <number>45</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
           <number>22</number>
@@ -1285,7 +1285,7 @@
           <number>20</number>
          </attribute>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>65</number>
+          <number>45</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
           <number>22</number>
@@ -1450,75 +1450,85 @@
          <property name="rightMargin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="myIOTALabel">
            <property name="text">
             <string>IOTA</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="NewContactEditLine" name="myIOTAEdit"/>
          </item>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="myPOTALabel">
            <property name="text">
             <string>POTA</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="NewContactEditLine" name="myPOTAEdit"/>
          </item>
-         <item row="2" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="mySOTALabel">
            <property name="text">
             <string>SOTA</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="NewContactEditLine" name="mySOTAEdit"/>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="myWWFFLabel">
            <property name="text">
             <string>WWFF</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="NewContactEditLine" name="myWWFFEdit"/>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="mySIGLabel">
            <property name="text">
             <string>SIG</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="NewContactEditLine" name="mySIGEdit"/>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="mySIGInfoLabel">
            <property name="text">
             <string>Sig Info</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="NewContactEditLine" name="mySIGInfoEdit"/>
          </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="NewContactEditLine" name="myVUCCEdit"/>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="myVUCCLabel">
            <property name="text">
             <string>VUCC</string>
            </property>
           </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="myDOKLabel">
+           <property name="text">
+            <string>DOK</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="NewContactEditLine" name="myDOKEdit"/>
          </item>
         </layout>
        </item>
@@ -2274,6 +2284,7 @@
   <tabstop>myGridEdit</tabstop>
   <tabstop>myQTHEdit</tabstop>
   <tabstop>myCountyEdit</tabstop>
+  <tabstop>myDOKEdit</tabstop>
   <tabstop>myIOTAEdit</tabstop>
   <tabstop>myPOTAEdit</tabstop>
   <tabstop>mySOTAEdit</tabstop>
@@ -2283,7 +2294,6 @@
   <tabstop>myVUCCEdit</tabstop>
   <tabstop>myRigEdit</tabstop>
   <tabstop>myAntEdit</tabstop>
-  <tabstop>powerEdit</tabstop>
   <tabstop>qslPaperReceiveDateEdit</tabstop>
   <tabstop>qslPaperReceiveStatusBox</tabstop>
   <tabstop>qslPaperSentDateEdit</tabstop>
@@ -2301,6 +2311,7 @@
   <tabstop>srxStringEdit</tabstop>
   <tabstop>stxEdit</tabstop>
   <tabstop>stxStringEdit</tabstop>
+  <tabstop>stationTableWidget</tabstop>
  </tabstops>
  <resources>
   <include location="../res/icons/icons.qrc"/>

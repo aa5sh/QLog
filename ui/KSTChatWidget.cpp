@@ -275,6 +275,13 @@ void KSTChatWidget::recalculateDupe()
     chat->recalculateDupe();
 }
 
+void KSTChatWidget::recalculateDxccStatus()
+{
+    FCT_IDENTIFICATION;
+
+    chat->recalculateDxccStatus();
+}
+
 void KSTChatWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
 {
     FCT_IDENTIFICATION;

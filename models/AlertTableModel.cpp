@@ -1,6 +1,5 @@
 #include <QColor>
 #include "AlertTableModel.h"
-#include "core/debug.h"
 #include "data/Data.h"
 #include "rig/macros.h"
 
@@ -19,26 +18,26 @@ int AlertTableModel::columnCount(const QModelIndex&) const
 
 QVariant AlertTableModel::data(const QModelIndex& index, int role) const
 {
-    AlertTableRecord selectedRecord = alertList.at(index.row());
+    const AlertTableRecord &selectedRecord = alertList.at(index.row());
 
     if (role == Qt::DisplayRole)
     {
         switch ( index.column() )
         {
         case COLUMN_RULENAME: return selectedRecord.ruleName.join(",");
-        case COLUMN_CALLSIGN: return selectedRecord.alert.callsign;
-        case COLUMN_FREQ: return QSTRING_FREQ(selectedRecord.alert.freq);
-        case COLUMN_MODE: return selectedRecord.alert.modeGroupString;
+        case COLUMN_CALLSIGN: return selectedRecord.alert.spot.callsign;
+        case COLUMN_FREQ: return QSTRING_FREQ(selectedRecord.alert.spot.freq);
+        case COLUMN_MODE: return selectedRecord.alert.spot.modeGroupString;
         case COLUMN_UPDATED: return selectedRecord.counter;
-        case COLUMN_LAST_UPDATE: return selectedRecord.alert.dateTime.toString(locale.formatTimeLongWithoutTZ());
-        case COLUMN_LAST_COMMENT: return selectedRecord.alert.comment;
-        case COLUMN_MEMBER: return selectedRecord.alert.memberList2StringList().join(",");
+        case COLUMN_LAST_UPDATE: return selectedRecord.alert.spot.dateTime.toString(locale.formatTimeLongWithoutTZ());
+        case COLUMN_LAST_COMMENT: return selectedRecord.alert.spot.comment;
+        case COLUMN_MEMBER: return selectedRecord.alert.spot.memberList2StringList().join(",");
         default: return QVariant();
         }
     }
     else if ( index.column() == COLUMN_CALLSIGN && role == Qt::BackgroundRole )
     {
-        return Data::statusToColor(selectedRecord.alert.status, selectedRecord.alert.dupeCount, QColor(Qt::transparent));
+        return Data::statusToColor(selectedRecord.alert.spot.status, selectedRecord.alert.spot.dupeCount, QColor(Qt::transparent));
     }
     else if ( role == Qt::UserRole )
     {
@@ -46,7 +45,7 @@ QVariant AlertTableModel::data(const QModelIndex& index, int role) const
         {
         case COLUMN_FREQ: return data(index, Qt::DisplayRole).toDouble(); break;
         case COLUMN_UPDATED: return data(index, Qt::DisplayRole).toULongLong(); break;
-        case COLUMN_LAST_UPDATE: return selectedRecord.alert.dateTime; break;
+        case COLUMN_LAST_UPDATE: return selectedRecord.alert.spot.dateTime; break;
         default: return data(index, Qt::DisplayRole);
         }
     }
@@ -72,7 +71,7 @@ QVariant AlertTableModel::headerData(int section, Qt::Orientation orientation, i
     }
 }
 
-void AlertTableModel::addAlert(SpotAlert entry)
+void AlertTableModel::addAlert(const SpotAlert &entry)
 {
     AlertTableRecord newRecord(entry);
 
@@ -84,7 +83,7 @@ void AlertTableModel::addAlert(SpotAlert entry)
     {
         /* QLog already contains the spot, update it */
         alertList[spotIndex].counter++;
-        alertList[spotIndex].ruleName << entry.ruleName;
+        alertList[spotIndex].ruleName << entry.ruleNameList;
         alertList[spotIndex].ruleName.removeDuplicates();
         alertList[spotIndex].ruleName.sort();
 
@@ -93,9 +92,9 @@ void AlertTableModel::addAlert(SpotAlert entry)
         if ( entry.source == SpotAlert::DXSPOT
              && alertList[spotIndex].alert.source == SpotAlert::WSJTXCQSPOT )
         {
-            alertList[spotIndex].alert.comment = entry.comment;
-            alertList[spotIndex].alert.spotter = entry.spotter;
-            alertList[spotIndex].alert.dxcc_spotter = entry.dxcc_spotter;
+            alertList[spotIndex].alert.spot.comment = entry.spot.comment;
+            alertList[spotIndex].alert.spot.spotter = entry.spot.spotter;
+            alertList[spotIndex].alert.spot.dxcc_spotter = entry.spot.dxcc_spotter;
         }
         else
         {
@@ -138,7 +137,7 @@ void AlertTableModel::aging(const int clear_interval_sec)
     while ( alertIterator.hasNext() )
     {
         alertIterator.next();
-        if ( alertIterator.value().alert.dateTime.addSecs(clear_interval_sec) <= QDateTime::currentDateTimeUtc() )
+        if ( alertIterator.value().alert.spot.dateTime.addSecs(clear_interval_sec) <= QDateTime::currentDateTimeUtc() )
         {
             alertIterator.remove();
         }
@@ -152,7 +151,7 @@ void AlertTableModel::resetDupe()
 
     beginResetModel();
     for ( AlertTableRecord &alert : alertList )
-        alert.alert.dupeCount = 0;
+        alert.alert.spot.dupeCount = 0;
     endResetModel();
 }
 
@@ -161,12 +160,12 @@ void AlertTableModel::recalculateDupe()
     QMutexLocker locker(&alertListMutex);
 
     beginResetModel();
-    for ( AlertTableRecord &alert : alertList )
+    for ( AlertTableRecord &alertRecord : alertList )
     {
-        SpotAlert &spotAlert = alert.alert;
-        spotAlert.dupeCount = Data::countDupe(spotAlert.callsign,
-                                              spotAlert.band,
-                                              spotAlert.modeGroupString);
+        SpotAlert &alert = alertRecord.alert;
+        alert.spot.dupeCount = Data::countDupe(alert.spot.callsign,
+                                               alert.spot.band,
+                                               alert.spot.modeGroupString);
     }
     endResetModel();
 }
@@ -181,24 +180,24 @@ void AlertTableModel::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
     QMutexLocker locker(&alertListMutex);
 
     beginResetModel();
-    for ( AlertTableRecord &alert : alertList )
+    for ( AlertTableRecord &alertRecord : alertList )
     {
-        SpotAlert &spot = alert.alert;
+        SpotAlert &alert = alertRecord.alert;
 
-        spot.status = Data::dxccNewStatusWhenQSOAdded(spot.status,
-                                             spot.dxcc.dxcc,
-                                             spot.band,
-                                             ( ( spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FT8 ) ? BandPlan::MODE_GROUP_STRING_DIGITAL
-                                                                                                        : dxccModeGroup ),
-                                             dxcc,
-                                             band,
-                                             dxccModeGroup);
-        if ( spot.callsign == callsign )
-            spot.dupeCount = Data::dupeNewCountWhenQSOAdded(spot.dupeCount,
-                                                            spot.band,
-                                                            spot.modeGroupString,
+        alert.spot.status = Data::dxccNewStatusWhenQSOAdded(alert.spot.status,
+                                                            alert.spot.dxcc.dxcc,
+                                                            alert.spot.band,
+                                                            ( ( alert.spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FT8 ) ? BandPlan::MODE_GROUP_STRING_DIGITAL
+                                                                                                                                : dxccModeGroup ),
+                                                            dxcc,
                                                             band,
                                                             dxccModeGroup);
+        if ( alert.spot.callsign == callsign )
+            alert.spot.dupeCount = Data::dupeNewCountWhenQSOAdded(alert.spot.dupeCount,
+                                                                  alert.spot.band,
+                                                                  alert.spot.modeGroupString,
+                                                                  band,
+                                                                  dxccModeGroup);
     }
     endResetModel();
 }
@@ -229,16 +228,16 @@ void AlertTableModel::updateSpotsStatusWhenQSODeleted(const QSqlRecord &record)
 
     QMutexLocker locker(&alertListMutex);
 
-    for ( AlertTableRecord &alert : alertList )
+    for ( AlertTableRecord &alertRecord : alertList )
     {
-        SpotAlert &spot = alert.alert;
+        SpotAlert &alert = alertRecord.alert;
 
-        if ( spot.dupeCount && spot.callsign == callsign )
-            spot.dupeCount = Data::dupeNewCountWhenQSODelected(spot.dupeCount,
-                                                               spot.band,
-                                                               spot.modeGroupString,
-                                                               band,
-                                                               dxccModeGroup);
+        if ( alert.spot.dupeCount && alert.spot.callsign == callsign )
+            alert.spot.dupeCount = Data::dupeNewCountWhenQSODelected(alert.spot.dupeCount,
+                                                                     alert.spot.band,
+                                                                     alert.spot.modeGroupString,
+                                                                     band,
+                                                                     dxccModeGroup);
     }
 }
 
@@ -250,29 +249,43 @@ void AlertTableModel::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &enti
     QMutexLocker locker(&alertListMutex);
 
     beginResetModel();
-    for ( AlertTableRecord &alert : alertList  )
+    for ( AlertTableRecord &alertRecord : alertList  )
     {
-        SpotAlert &spot = alert.alert;
+        SpotAlert &alert = alertRecord.alert;
 
-        if ( !entities.contains(spot.dxcc.dxcc) )
+        if ( !entities.contains(alert.spot.dxcc.dxcc) )
             continue;
 
-        spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+        alert.spot.status = Data::instance()->dxccStatus(alert.spot.dxcc.dxcc, alert.spot.band, alert.spot.modeGroupString);
+    }
+    endResetModel();
+}
+
+void AlertTableModel::recalculateDxccStatus()
+{
+    QMutexLocker locker(&alertListMutex);
+
+    beginResetModel();
+    for ( AlertTableRecord &alertRecord : alertList  )
+    {
+        SpotAlert &alert = alertRecord.alert;
+
+        alert.spot.status = Data::instance()->dxccStatus(alert.spot.dxcc.dxcc, alert.spot.band, alert.spot.modeGroupString);
     }
     endResetModel();
 }
 
 bool AlertTableModel::AlertTableRecord::operator==(const AlertTableRecord &spot) const
 {
-   return ( (spot.alert.callsign == this->alert.callsign)
-            && (spot.alert.modeGroupString == this->alert.modeGroupString)
-            && (qAbs(this->alert.freq - spot.alert.freq) <= FREQ_MATCH_TOLERANCE)
+   return ( (spot.alert.spot.callsign == this->alert.spot.callsign)
+            && (spot.alert.spot.modeGroupString == this->alert.spot.modeGroupString)
+            && (qAbs(this->alert.spot.freq - spot.alert.spot.freq) <= FREQ_MATCH_TOLERANCE)
             );
 }
 
 AlertTableModel::AlertTableRecord::AlertTableRecord(const SpotAlert &spotAlert) :
 
-    ruleName(spotAlert.ruleName),
+    ruleName(spotAlert.ruleNameList),
     counter(0),
     alert(spotAlert)
 {

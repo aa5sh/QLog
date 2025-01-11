@@ -180,6 +180,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->modeTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->modeTableView->hideColumn(0);
     ui->modeTableView->hideColumn(2);
+    ui->modeTableView->setItemDelegateForColumn(1, new ReadOnlyDelegate(ui->modeTableView));
     ui->modeTableView->setItemDelegateForColumn(4,new ComboFormatDelegate(QStringList()<<"CW"<< "PHONE" << "DIGITAL"));
     ui->modeTableView->setItemDelegateForColumn(5,new CheckBoxDelegate(ui->modeTableView));
     modeTableModel->select();
@@ -199,6 +200,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->bandTableView->horizontalHeader()->moveSection(6, 4);
     ui->bandTableView->hideColumn(0); // primary key
     ui->bandTableView->hideColumn(5); // last_seen_freq
+    ui->bandTableView->setItemDelegateForColumn(1, new ReadOnlyDelegate(ui->bandTableView));
     ui->bandTableView->setItemDelegateForColumn(2, new UnitFormatDelegate("", 6, 0.001, ui->bandTableView));
     ui->bandTableView->setItemDelegateForColumn(3, new UnitFormatDelegate("", 6, 0.001, ui->bandTableView));
     ui->bandTableView->setItemDelegateForColumn(4,new CheckBoxDelegate(ui->bandTableView));
@@ -210,19 +212,6 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->stationLocatorEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridRegEx(), this));
     ui->stationVUCCEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridVUCCRegEx(), this));
 
-    static QRegularExpression comPortRE(
-#if defined(Q_OS_WIN)
-                                    "^COM[0-9]+$",
-#else
-                                    ".*",
-#endif
-                                    QRegularExpression::CaseInsensitiveOption);
-
-    ui->rigPortEdit->setValidator(new QRegularExpressionValidator(comPortRE, this));
-    ui->rotPortEdit->setValidator(new QRegularExpressionValidator(comPortRE, this));
-    ui->cwPortEdit->setValidator(new QRegularExpressionValidator(comPortRE, this));
-    ui->rigPTTPortEdit->setValidator(new QRegularExpressionValidator(comPortRE, this));
-
     /* https://stackoverflow.com/questions/13145397/regex-for-multicast-ip-address */
     static QRegularExpression multicastAddress("^2(?:2[4-9]|3\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d?|0)){3}$");
 
@@ -232,6 +221,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->notifDXSpotsEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), this));
     ui->notifWSJTXCQSpotsEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), this));
     ui->notifSpotAlertEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), this));
+    ui->notifRigEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), this));
 
     iotaCompleter = new QCompleter(Data::instance()->iotaIDList(), this);
     iotaCompleter->setCaseSensitivity(Qt::CaseInsensitive);
@@ -1576,6 +1566,7 @@ void SettingsDialog::addStationProfile()
     profile.cqz = ui->stationCQZEdit->text().toInt();
     profile.ituz = ui->stationITUEdit->text().toInt();
     profile.county = ui->stationCountyEdit->text();
+    profile.darcDOK = ui->stationDarcDokEdit->text().toUpper();
 
     int row = ui->stationCountryCombo->currentIndex();
     const QModelIndex &idxDXCC = ui->stationCountryCombo->model()->index(row,0);
@@ -1639,6 +1630,7 @@ void SettingsDialog::doubleClickStationProfile(QModelIndex i)
     ui->stationCQZEdit->setText(QString::number(profile.cqz));
     ui->stationITUEdit->setText(QString::number(profile.ituz));
     ui->stationCountyEdit->setText(profile.county);
+    ui->stationDarcDokEdit->setText(profile.darcDOK);
     const QModelIndexList &countryIndex = ui->stationCountryCombo->model()->match(ui->stationCountryCombo->model()->index(0,0),
                                                                            Qt::DisplayRole, profile.dxcc,
                                                                            1, Qt::MatchExactly);
@@ -1672,6 +1664,7 @@ void SettingsDialog::clearStationProfileForm()
     ui->stationITUEdit->clear();
     ui->stationCountryCombo->setCurrentIndex(0);
     ui->stationCountyEdit->clear();
+    ui->stationDarcDokEdit->clear();
 
     ui->stationAddProfileButton->setText(tr("Add"));
 }
@@ -2320,6 +2313,13 @@ void SettingsDialog::readSettings() {
     /***********/
     ui->qrzApiKeyEdit->setText(QRZ::getLogbookAPIKey());
 
+    /***********************/
+    /* Others - DXCC Group */
+    /***********************/
+    ui->dxccConfirmedByLotwCheckBox->setChecked(LogParam::getDxccConfirmedByLotwState());
+    ui->dxccConfirmedByPaperCheckBox->setChecked(LogParam::getDxccConfirmedByPaperState());
+    ui->dxccConfirmedByEqslCheckBox->setChecked(LogParam::getDxccConfirmedByEqslState());
+
     /***************/
     /* ON4KST Chat */
     /***************/
@@ -2341,11 +2341,12 @@ void SettingsDialog::readSettings() {
     ui->wsjtMulticastAddressEdit->setText(Wsjtx::getConfigMulticastAddress());
     ui->wsjtMulticastTTLSpin->setValue(Wsjtx::getConfigMulticastTTL());
 
-    ui->notifLogIDEdit->setText(LogParam::getParam("logid").toString());
+    ui->notifLogIDEdit->setText(LogParam::getLogID());
     ui->notifQSOEdit->setText(NetworkNotification::getNotifQSOAdiAddrs());
     ui->notifDXSpotsEdit->setText(NetworkNotification::getNotifDXSpotAddrs());
     ui->notifWSJTXCQSpotsEdit->setText(NetworkNotification::getNotifWSJTXCQSpotAddrs());
     ui->notifSpotAlertEdit->setText(NetworkNotification::getNotifSpotAlertAddrs());
+    ui->notifRigEdit->setText(NetworkNotification::getNotifRigStateAddrs());
 
     /******************/
     /* END OF Reading */
@@ -2416,6 +2417,13 @@ void SettingsDialog::writeSettings() {
     /***********/
     QRZ::saveLogbookAPI(ui->qrzApiKeyEdit->text());
 
+    /***********************/
+    /* Others - DXCC Group */
+    /***********************/
+    LogParam::setDxccConfirmedByLotwState(ui->dxccConfirmedByLotwCheckBox->isChecked());
+    LogParam::setDxccConfirmedByPaperState(ui->dxccConfirmedByPaperCheckBox->isChecked());
+    LogParam::setDxccConfirmedByEqslState(ui->dxccConfirmedByEqslCheckBox->isChecked());
+
     /***************/
     /* ON4KST Chat */
     /***************/
@@ -2450,6 +2458,7 @@ void SettingsDialog::writeSettings() {
     NetworkNotification::saveNotifDXSpotAddrs(ui->notifDXSpotsEdit->text());
     NetworkNotification::saveNotifWSJTXCQSpotAddrs(ui->notifWSJTXCQSpotsEdit->text());
     NetworkNotification::saveNotifSpotAlertAddrs(ui->notifSpotAlertEdit->text());
+    NetworkNotification::saveNotifRigStateAddrs(ui->notifRigEdit->text());
 }
 
 /* this function is called when user modify rig progile

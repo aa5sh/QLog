@@ -3,6 +3,7 @@
 #include "LogFormat.h"
 #include "AdiFormat.h"
 #include "AdxFormat.h"
+#include "PotaAdiFormat.h"
 #include "JsonFormat.h"
 #include "CSVFormat.h"
 #include "data/Data.h"
@@ -51,6 +52,9 @@ LogFormat* LogFormat::open(QString type, QTextStream& stream) {
     else if (type == "cabrillo") {
         return open(LogFormat::JSON, stream);
     }
+    else if (type == "pota") {
+        return open(LogFormat::POTA, stream);
+    }
     else {
         return nullptr;
     }
@@ -76,6 +80,9 @@ LogFormat* LogFormat::open(LogFormat::Type type, QTextStream& stream) {
 
     case LogFormat::CABRILLO:
         return nullptr;
+
+    case LogFormat::POTA:
+        return new PotaAdiFormat(stream);
 
     default:
         return nullptr;
@@ -149,6 +156,12 @@ void LogFormat::setUserFilter(const QString &value)
     userFilter = value;
 }
 
+void LogFormat::setPotaOnly(bool only)
+{
+    FCT_IDENTIFICATION;
+    filterPOTAOnly = only;
+}
+
 QString LogFormat::getWhereClause()
 {
     FCT_IDENTIFICATION;
@@ -172,6 +185,9 @@ QString LogFormat::getWhereClause()
     if ( !filterSendVia.isEmpty() )
         whereClause << ( ( filterSendVia == " " ) ? "qsl_sent_via is NULL"
                                                   : "upper(qsl_sent_via) = upper(:qsl_sent_via)");
+
+    if ( filterPOTAOnly )
+        whereClause << QLatin1String("(my_pota_ref is not NULL OR pota_ref is not NULL OR lower(sig)='pota' OR lower(my_sig)='pota')");
 
     if ( !userFilter.isEmpty() )
         whereClause << QSOFilterManager::getWhereClause(userFilter);
@@ -260,6 +276,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
                             "WHERE callsign=upper(:callsign) "
                             "AND upper(mode)=upper(:mode) "
                             "AND upper(band)=upper(:band) "
+                            "AND COALESCE(sat_name, '') = COALESCE(:sat_name, '') "
                             "AND ABS(JULIANDAY(start_time)-JULIANDAY(datetime(:startdate)))*24*60<30") )
     {
         qWarning() << "cannot prepare Dup statement";
@@ -303,6 +320,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
         setIfEmpty(LogbookModel::COLUMN_MY_COUNTRY_INTL, defaultStationProfile->country);
         setIfEmpty(LogbookModel::COLUMN_MY_COUNTRY, Data::removeAccents(defaultStationProfile->country));
         setIfEmpty(LogbookModel::COLUMN_MY_CNTY, Data::removeAccents(defaultStationProfile->county));
+        setIfEmpty(LogbookModel::COLUMN_MY_DARC_DOK, Data::removeAccents(defaultStationProfile->darcDOK));
     };
 
     auto setMyEntity = [&](const DxccEntity &myEntity)
@@ -374,7 +392,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
         const QDateTime &start_time = record.value(RECORDIDX(LogbookModel::COLUMN_TIME_ON)).toDateTime();
         const QVariant &sota = record.value(RECORDIDX(LogbookModel::COLUMN_SOTA_REF));
         const QVariant &mysota = record.value(RECORDIDX(LogbookModel::COLUMN_MY_SOTA_REF));
-
+        const QVariant &satName = record.value(RECORDIDX(LogbookModel::COLUMN_SAT_NAME));
 
         /* checking matching fields if they are not empty */
         if ( !start_time.isValid()
@@ -419,7 +437,8 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
             dupQuery.bindValue(":callsign", call);
             dupQuery.bindValue(":mode", mode);
             dupQuery.bindValue(":band", band);
-            dupQuery.bindValue(":startdate", start_time.toTimeSpec(Qt::UTC).toString("yyyy-MM-dd hh:mm:ss"));
+            dupQuery.bindValue(":startdate", start_time.toTimeZone(QTimeZone::utc()).toString("yyyy-MM-dd hh:mm:ss"));
+            dupQuery.bindValue(":sat_name", satName);
 
             if ( !dupQuery.exec() )
             {
@@ -760,6 +779,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         const QVariant &band = QSLRecord.value("band");
         const QVariant &mode = QSLRecord.value("mode");
         const QVariant &start_time = QSLRecord.value("start_time");
+        const QVariant &satName = QSLRecord.value("sat_name");
 
         /* checking matching fields if they are not empty */
         if ( !start_time.toDateTime().isValid()
@@ -774,11 +794,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         }
 
         // It is important to use callsign index here
-        QString matchFilter = QString("callsign=upper('%1') AND upper(mode)=upper('%2') AND upper(band)=upper('%3') AND ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%4')))*24*60<30")
+        QString matchFilter = QString("callsign=upper('%1') AND upper(mode)=upper('%2') AND upper(band)=upper('%3') AND COALESCE(sat_name, '') = upper('%4') AND ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%5')))*24*60<30")
                 .arg(call.toString(),
                      mode.toString(),
                      band.toString(),
-                     start_time.toDateTime().toTimeSpec(Qt::UTC).toString("yyyy-MM-dd hh:mm:ss"));
+                     satName.toString(),
+                     start_time.toDateTime().toTimeZone(QTimeZone::utc()).toString("yyyy-MM-dd hh:mm:ss"));
 
         /* set filter */
         model.setFilter(matchFilter);
@@ -1108,7 +1129,7 @@ void LogFormat::writeImportLog(QTextStream& errorLogStream,
     errorLogStream << QString("[QSO#%1]: ").arg(recordNo)
                    << importLogSeverityToString(severity)
                    << msg
-                   << QString(" (%1; %2; %3)").arg(record.value("start_time").toDateTime().toTimeSpec(Qt::UTC).toString(locale.formatDateShortWithYYYY()),
+                   << QString(" (%1; %2; %3)").arg(record.value("start_time").toDateTime().toTimeZone(QTimeZone::utc()).toString(locale.formatDateShortWithYYYY()),
                                                    record.value("callsign").toString(),
                                                    record.value("mode").toString())
                    << "\n";

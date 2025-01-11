@@ -31,6 +31,8 @@ public:
         long long counter;
         SpotAlert alert;
 
+        AlertTableRecord() : counter(0){};
+
         bool operator==(const AlertTableRecord &) const;
         explicit AlertTableRecord(const SpotAlert&);
     };
@@ -40,7 +42,7 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    void addAlert(SpotAlert entry);
+    void addAlert(const SpotAlert &entry);
     void clear();
     const AlertTableRecord getTableRecord(const QModelIndex& index);
     void aging(const int clear_interval_sec);
@@ -50,6 +52,7 @@ public:
     void updateSpotsStatusWhenQSOUpdated(const QSqlRecord &);
     void updateSpotsStatusWhenQSODeleted(const QSqlRecord &record);
     void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);
+    void recalculateDxccStatus();
 
 private:
     LogLocale locale;

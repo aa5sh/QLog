@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.40.1
+VERSION = 0.41.0
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -102,6 +102,7 @@ SOURCES += \
         logformat/CSVFormat.cpp \
         logformat/JsonFormat.cpp \
         logformat/LogFormat.cpp \
+        logformat/PotaAdiFormat.cpp \
         models/AlertTableModel.cpp \
         models/AwardsTableModel.cpp \
         models/DxccTableModel.cpp \
@@ -241,6 +242,7 @@ HEADERS += \
         logformat/CSVFormat.h \
         logformat/JsonFormat.h \
         logformat/LogFormat.h \
+        logformat/PotaAdiFormat.h \
         models/AlertTableModel.h \
         models/AwardsTableModel.h \
         models/DxccTableModel.h \
@@ -519,6 +521,8 @@ win32: {
    LIBS += -lws2_32 -lhamlib
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
+
+   DEFINES += WIN32_LEAN_AND_MEAN
 }
 
 DEFINES += HAMLIBVERSION_MAJOR=$$HAMLIBVERSION_MAJOR

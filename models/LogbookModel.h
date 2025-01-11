@@ -184,26 +184,36 @@ public:
         COLUMN_MY_GRIDSQUARE_EXT = 163,
         COLUMN_MY_POTA_REF = 164,
         COLUMN_POTA_REF = 165,
-        COLUMN_LAST_ELEMENT = 166
+        COLUMN_CNTY_ALT = 166,
+        COLUMN_DCL_QSLRDATE = 167,
+        COLUMN_DCL_QSLSDATE = 168,
+        COLUMN_DCL_QSL_RCVD = 169,
+        COLUMN_DCL_QSL_SENT = 170,
+        COLUMN_MORSE_KEY_INFO = 171,
+        COLUMN_MORSE_KEY_TYPE = 172,
+        COLUMN_MY_CNTY_ALT = 173,
+        COLUMN_MY_DARC_DOK = 174,
+        COLUMN_MY_MORSE_KEY_INFO = 175,
+        COLUMN_MY_MORSE_KEY_TYPE = 176,
+        COLUMN_QRZCOM_QSO_DOWNLOAD_DATE = 177,
+        COLUMN_QRZCOM_QSO_DOWNLOAD_STATUS = 178,
+        COLUMN_QSLMSG_RCVD = 179,
+        COLUMN_LAST_ELEMENT = 180
     };
 
 private:
-    static QMap<LogbookModel::ColumnID, const char *> fieldNameTranslationMap;
+    static QMap<LogbookModel::ColumnID, QString> fieldNameTranslationMap;
 
 public:
-    static QString getFieldNameTranslation(const LogbookModel::ColumnID key)
+    static const QString getFieldNameTranslation(const LogbookModel::ColumnID key)
     {
-        const char *value = fieldNameTranslationMap.value(key);
-        return value ? tr(value) : QString();
+        const QString value = fieldNameTranslationMap.value(key);
+        return value.isEmpty() ? QString () : tr(value.toStdString().c_str());
     }
 
-    static const QStringList getAllFieldNamesTranslation()
+    static const QMap<LogbookModel::ColumnID, QString> getAllFieldNamesTranslation()
     {
-        QStringList ret;
-        for (auto it = fieldNameTranslationMap.begin(); it != fieldNameTranslationMap.end(); ++it)
-            ret.append(getFieldNameTranslation(it.key()));
-
-        return ret;
+        return fieldNameTranslationMap;
     }
 };
 

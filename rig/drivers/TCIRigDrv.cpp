@@ -142,13 +142,13 @@ void TCIRigDrv::setRawMode(const QString &rawMode)
     sendCmd("modulation", true, args);
 }
 
-void TCIRigDrv::setMode(const QString &mode, const QString &subMode)
+void TCIRigDrv::setMode(const QString &mode, const QString &subMode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << mode << subMode;
+    qCDebug(function_parameters) << mode << subMode << digiVariant;
 
-    setRawMode(mode2RawMode(mode, subMode));
+    setRawMode(mode2RawMode(mode, subMode, digiVariant));
 }
 
 void TCIRigDrv::setPTT(bool newPTTState)
@@ -285,7 +285,7 @@ void TCIRigDrv::sendDXSpot(const DxSpot &spot)
 
     QStringList args = {
         spot.callsign,
-        mode2RawMode(mode, submode),
+        mode2RawMode(mode, submode, (spot.bandPlanMode == BandPlan::BAND_MODE_FT8 || spot.bandPlanMode == BandPlan::BAND_MODE_DIGITAL)),
         QString::number(internalFreq),
         QString::number(spotColor.rgba()),
         spot.callsign
@@ -478,13 +478,21 @@ const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &
     return QString();
 }
 
-const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submode)
+const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
-
-    if ( mode == "SSB" )
-        return submode;
+    if (mode == "SSB")
+    {
+        QString innerSubmode = submode;
+        if ( digiVariant )
+        {
+            const QString digMode = QLatin1String("DIG") + submode.at(0);
+            if ( modeList.contains(digMode) )
+                innerSubmode = digMode;
+        }
+        return innerSubmode;
+    }
 
     if ( mode == "CW" )
         return mode;
@@ -499,6 +507,10 @@ const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submod
     {
         if ( modeList.contains("FT8") )
             return "FT8";
+
+        if ( modeList.contains("DIGU") )
+            return "DIGU";
+
         return "USB";
     }
 

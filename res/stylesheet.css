@@ -10,6 +10,22 @@ QLineEdit#stationOperatorCallsignEdit{
         text-transform: uppercase;
 }
 
+QLineEdit#stationDarcDokEdit{
+        text-transform: uppercase;
+}
+
+QLineEdit#stationDarcDokEdit{
+        text-transform: uppercase;
+}
+
+QLineEdit#myDOKEdit{
+        text-transform: uppercase;
+}
+
+QLineEdit#dokEdit{
+        text-transform: uppercase;
+}
+
 QLineEdit#myCallsignEdit{
         text-transform: uppercase;
 }

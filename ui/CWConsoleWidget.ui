@@ -377,12 +377,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
@@ -390,7 +384,7 @@
         <string>Immediatelly stop CW sending</string>
        </property>
        <property name="text">
-        <string>Hal&amp;t</string>
+        <string>Halt</string>
        </property>
       </widget>
      </item>
@@ -439,6 +433,26 @@
     </layout>
    </item>
   </layout>
+  <action name="actionHaltCW">
+   <property name="text">
+    <string notr="true">HaltCW</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">HaltCW</string>
+   </property>
+   <property name="toolTip">
+    <string>CW Console - Halt Sending</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Alt+T</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="changeableshortcut" stdset="0">
+    <bool>true</bool>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -613,16 +627,16 @@
   <connection>
    <sender>haltButton</sender>
    <signal>clicked()</signal>
-   <receiver>CWConsoleWidget</receiver>
-   <slot>haltButtonPressed()</slot>
+   <receiver>actionHaltCW</receiver>
+   <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>262</x>
      <y>200</y>
     </hint>
     <hint type="destinationlabel">
-     <x>157</x>
-     <y>111</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>
@@ -667,6 +681,22 @@
     <hint type="sourcelabel">
      <x>220</x>
      <y>215</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>147</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHaltCW</sender>
+   <signal>triggered()</signal>
+   <receiver>CWConsoleWidget</receiver>
+   <slot>haltButtonPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>205</x>

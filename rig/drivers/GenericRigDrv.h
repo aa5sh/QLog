@@ -22,7 +22,7 @@ public:
 
     virtual void setFrequency(double) = 0;
     virtual void setRawMode(const QString &) = 0;
-    virtual void setMode(const QString &, const QString &) = 0;
+    virtual void setMode(const QString &, const QString &, bool) = 0;
     virtual void setPTT(bool) = 0;
     virtual void setKeySpeed(qint16 wpm) = 0;
     virtual void syncKeySpeed(qint16 wpm) = 0;

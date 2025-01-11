@@ -34,6 +34,7 @@ public:
     int dxcc;
     QString country;
     QString county;
+    QString darcDOK;
 
     bool operator== (const StationProfile &profile);
     bool operator!= (const StationProfile &profile);

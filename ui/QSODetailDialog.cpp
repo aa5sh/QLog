@@ -358,6 +358,7 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     mapper->addMapping(ui->powerEdit, LogbookModel::COLUMN_TX_POWER);
     mapper->addMapping(ui->myCountyEdit, LogbookModel::COLUMN_MY_CNTY);
     mapper->addMapping(ui->myOperatorCallsignEdit, LogbookModel::COLUMN_OPERATOR);
+    mapper->addMapping(ui->myDOKEdit, LogbookModel::COLUMN_MY_DARC_DOK);
 
     /* Notes */
     mapper->addMapping(ui->noteEdit, LogbookModel::COLUMN_NOTES_INTL);
@@ -2158,6 +2159,8 @@ bool QSODetailDialog::LogbookModelPrivate::setData(const QModelIndex &index, con
            case COLUMN_WWFF_REF:
            case COLUMN_STATION_CALLSIGN:
            case COLUMN_OPERATOR:
+           case COLUMN_DARC_DOK:
+           case COLUMN_MY_DARC_DOK:
                main_update_result = QSqlTableModel::setData(index, ( !value.toString().isEmpty() ) ? value.toString().toUpper() // clazy:exclude=skipped-base-method
                                                                                                    : QVariant(), role);
                break;

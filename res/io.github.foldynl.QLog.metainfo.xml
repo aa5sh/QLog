@@ -47,6 +47,42 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.41.0" date="2025-01-11">
+      <description>
+        <ul>
+          <li>[NEW] - Logbook - Added a new context menu item - Update QSO from Callbook (issue #450 @aa5sh)</li>
+          <li>[NEW] - DIGI mode is used in case of DXC Digi Spots (issue #480)</li>
+          <li>[NEW] - DXC - Retrieve information about SOTA, POTA, IOTA and WWFF from comment (issue #482)</li>
+          <li>[NEW] - Alert - Added SOTA, POTA, IOTA and WWFF filter</li>
+          <li>[NEW] - Added the COM Port Completer for Windows platform (issue #490)</li>
+          <li>[NEW] - Settings - Added DXCC Confirmed By options (issue #508)</li>
+          <li>[NEW] - Added POTA Export Formatter (activator/hunter) (PR #514 @kyleboyle)</li>
+          <li>[NEW] - CW Console - CW Halt with the user-defined shortcut (issue #518)</li>
+          <li>[NEW] - Added an input parameter to save debug message to file</li>
+          <li>[NEW] - Logbook - Added sorting function to logbook table columns (PR #540 @kyleboyle)</li>
+          <li>[NEW] - Network Notification - Added Rig Status Notification</li>
+          <li>[NEW] - Implemented ADIF 3.1.5</li>
+          <li>[NEW] - ADIF 3.1.5 - Added new submodes FSKH245 and FSKH105 for HELL</li>
+          <li>[NEW] - ADIF 3.1.5 - Added new contest IDs</li>
+          <li>[NEW] - ADIF 3.1.5 - Added new columns (Import/Export only)</li>
+          <li>[NEW] - ADIF 3.1.5 - Added My DARC DOK to Station Profile</li>
+          <li>[CHANGED] - Settings: disabled band and mode name modification</li>
+          <li>[CHANGED] - DX Stats contain all enabled bands (issue #538)</li>
+          <li>[CHANGED] - Removed Freq, TimeDate On/Off Data Type Indicators (issue #552)</li>
+          <li>[CHANGED] - ADIF 3.1.5 - VUCC and MY_VUCC can contain 6 or 4-chars locators</li>
+          <li>[CHANGED] - Stop exporting default value N for qsl_rcvd, qsl_sent, lotw/dcl/eslq_qsl_rcvd/sent</li>
+          <li>[CHANGED] - Extended QSL/Import Dupe matching rule to Callsign, Band, Mode, Time and Sat_Name (issue #563)</li>
+          <li>Fixed MacOS - keep floating windows visible on app unfocus (issue #530)</li>
+          <li>Fixed Contest Filter ignores the first QSO (issue #529)</li>
+          <li>Fixed It is not possible to quit Qlog with detached widgets Rot and Rig (issue #534)</li>
+          <li>Fixed ADX/CSV/JSON do not export non-ASCII chars (issue #542)</li>
+          <li>Fixed Checking the 60m checkbox in cluster filters allows 160m spots to appear (issue #543 @aa5sh)</li>
+          <li>Fixed Problems uploading to QRZ.com (issue #559 PR #561 @aa5sh)</li>
+          <li>Fixed DX Stat screen is jumping up/down</li>
+          <li>Fixed Omnirig drivers: Digi modes are not correclty recognized</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.40.1" date="2024-11-29">
       <description>
         <ul>
@@ -185,142 +221,6 @@
         </ul>
       </description>
     </release>
-    <release version="0.36.0" date="2024-06-07">
-      <description>
-        <ul>
-          <li>[NEW] - WSJTX: Added support to received ADIF QSO Log record</li>
-          <li>[NEW] - Sat mode is derived from RX/TX Freq</li>
-          <li>[NEW] - Logbook filters change color when enabled</li>
-          <li>[NEW] - Frequency input boxes PageUp/Dn switches the band (issue #360)</li>
-          <li>[NEW] - CTRL + PgUp/Dn switch band on the connected rig - global shortcut (issue #360)</li>
-          <li>[NEW] - Added number of filtered QSOs (issue #374)</li>
-          <li>Fixed Callbook query does not work (issue #377)</li>
-          <li>Fixed Logbook columns are reordered after Delete (issue #383)</li>
-          <li>Fixed Missing Republic of Kosovo flag (issue #384)</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.35.2" date="2024-05-21">
-      <description>
-        <ul>
-          <li>Improved delete performance; added delete progress bar (issue #351)</li>
-          <li>Fixed Password with plus is incorrectly sent to online services (issue #366)</li>
-          <li>Fixed Compilation issue under v4.6 (issue #368)</li>
-          <li>Fixed Network Rig configuration is not saved (issue #370)</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.35.1" date="2024-05-06">
-      <description>
-        <ul>
-          <li>Fixed Free QRZ callbook - Name is not populating (issue #363)</li>
-          <li>Fixed Incorrect CW segment freqs (issue #365)</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.35.0" date="2024-05-03">
-      <description>
-        <ul>
-          <li>[NEW] - Added Rot Interface PSTRotator Network</li>
-          <li>[NEW] - Added QSO/QSL Since option to eQSL Dialog</li>
-          <li>[NEW] - Bandmap - Current Mode segment visualisation</li>
-          <li>[NEW] - CW Console - Added Word/Whole mode switch</li>
-          <li>[NEW] - Added Callbook Profile Image Widget</li>
-          <li>[NEW] - ASCII conversion based on Text-Unidecode/iconv algorithm (issue #316 #350)</li>
-          <li>[NEW] - ITU/CQ Zones can be defined in Station Profile (issue #358)</li>
-          <li>[CHANGED] - Spacebar is used as a focus changer for fields where space is not allowed</li>
-          <li>[CHANGED] - Focus does not select text in the input fields</li>
-          <li>[CHANGED] - Force XCB under Linux Wayland</li>
-          <li>[CHANGED] - Bandmap - Added Callsign/Freq/Mode to tooltip (issue #355)</li>
-          <li>Fixed incorrect ADIF date format for clublog_qso_upload_date (issue #342)</li>
-          <li>Fixed The last name from Callbooks queries (issue #346)</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.34.0" date="2024-03-25">
-      <description>
-        <ul>
-          <li>[NEW] - Rotator Widget - Azimuth by Clicking</li>
-          <li>[NEW] - Rotator Widget - QSO button provides Short/Long Path (issue #330)</li>
-          <li>[NEW] - Equipment Menu - Added Keep Options between application restart (issue #331)</li>
-          <li>Fixed TCI - Thetis Connection issue (issue #327)</li>
-          <li>Fixed TCI - Spots To Rig are not displayed (issue #328)</li>
-          <li>Fixed Bandmap unintentionally emits frequency labels (issue #333)</li>
-          <li>Fixed Failing to load grid square for G and EI SOTA summits (issue #336)</li>
-          <li>Fixed HRDLog On-Air message is not sent (issue #337)</li>
-          <li>Fixed Offline Map - Improved Path drawing</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.33.1" date="2024-03-09">
-      <description>
-        <ul>
-          <li>Fixed Rotator offline map is incorrectly centered (issue #324)</li>
-          <li>Fixed Hamlib integration not working (issue #325)</li>
-          <li>Fixed issue when Hamlib reopen rig caused Initialization Error</li>
-          <li>Fixed issue when Omnirig Drv did not emit rigIsReady signal</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.33.0" date="2024-03-08">
-      <description>
-        <ul>
-          <li>[NEW] - Added Rig Interface TCI</li>
-          <li>[NEW] - Callbook search can be temporarily paused</li>
-          <li>Improved DXC Mode recognition</li>
-          <li>Fixed Modal dialog blinks - Windows platform (issue #315)</li>
-          <li>Fixed LoTW and eQSL download are only QSLs dowloads - button label changed (issue #318)</li>
-          <li>Fixed i18n: Country Names and Prop-modes are translated (issue #322)</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.32.0" date="2024-02-10">
-      <description>
-        <ul>
-          <li>[NEW] - Added Rig Interface Omnirig v1 (Windows only)</li>
-          <li>[NEW] - Added Rig Interface Omnirig v2 (Windows only)</li>
-          <li>[NEW] - Clublog - Added Clear Clublog and reupload QSOs</li>
-          <li>[NEW] - Clublog - Added Real-time Insert/Update/Delete</li>
-          <li>[CHANGED] - Clublog - Upload callsign is derived from the Current Profile Callsign</li>
-          <li>Fixed clang linker failed issue (issue #301)</li>
-          <li>Fixed SAT Mode U/U missing (issue #308 PR #309 thanks ea5wa)</li>
-          <li>Fixed Multiple QSO selection. Callsigns modified by mistake (issue #310)</li>
-          <li>Fixed Callbook query cache is not properly cleared when Callbook settings change (issue #313)</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.31.0" date="2024-01-05">
-      <description>
-        <ul>
-          <li>[NEW] - DXC - Improved Mode recognition</li>
-          <li>[NEW] - DXC - Switch Rig mode based on DXC Spot Mode (issue #217)</li>
-          <li>[NEW] - DXC - Added Spot Country Column (issue #273)</li>
-          <li>[NEW] - DXC - Added Menu for server management</li>
-          <li>[NEW] - DXC - Added Auto-connect to server</li>
-          <li>[NEW] - DXC - Added Keep QSOs Context Menu</li>
-          <li>[NEW] - DXC - Added Clear QSO Context Menu</li>
-          <li>[NEW] - DXC - Added support for SH/DX response parsing</li>
-          <li>[NEW] - DXC - Added support for username, password for connection</li>
-          <li>[CHANGED] - DXC - Commands Combo changed to function button with selectable function</li>
-          <li>[CHANGED] - DXC - DX Spot is prepared via DXC Command Line, Remark dialog was removed</li>
-          <li>[NEW] - Online Map - IBP station double-click tunes freq and switch Rig mode</li>
-          <li>[NEW] - Main Window - Current profile name is shown (issue #282)</li>
-          <li>[NEW] - Import - Details can be saved to file (issue #284)</li>
-          <li>[NEW] - Added Simplified Chinese translation (PR #285 thank BG7JAF)</li>
-          <li>[NEW] - New Contact - Enter saves QSO if QSO time is running (issue #293 - partial)</li>
-          <li>[NEW] - New Contact - Callsign Enter event saves QSO if no Callbook is active - Pileup Mode (issue #293)</li>
-          <li>[NEW] - RIG Widget - RIT/XIT are displayed with user-friendly units (issue #294)</li>
-          <li>[CHANGED] - SAT List download - Shortened download period for SAT list from 30 to 7 days</li>
-          <li>Fixed ADI Import is too slow (issue #270)</li>
-          <li>Improved Import/Export Performance</li>
-          <li>Fixed Missing Satellite Mode SX (issue #291)</li>
-          <li>Fixed QSO Detail - Issue when Sat-Name field was always disabled</li>
-          <li>Fixed RPM build - Installed (but unpackaged) metainfo file issue</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.30.0" date="2023-12-01"/>
-    <release version="0.29.2" date="2023-11-13"/>
   </releases>
   <content_rating type="oars-1.1"/>
 </component>

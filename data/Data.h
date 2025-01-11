@@ -73,6 +73,22 @@ public:
         {"?", tr("Uncertain")},
         {" ", tr("Blank")}
     };
+    const QMap<QString, QString> morseKeyTypeEnum = {
+        {"SK", tr("Straight Key")},
+        {"SS", tr("Sideswiper")},
+        {"BUG", tr("Mechanical semi-automatic keyer or Bug")},
+        {"FAB", tr("Mechanical fully-automatic keyer or Bug")},
+        {"SP", tr("Single Paddle")},
+        {"DP", tr("Dual Paddle")},
+        {"CPU", tr("Computer Driven")},
+        {" ", tr("Blank")}
+        };
+    const QMap<QString, QString> downloadStatusEnum = {
+        {"Y", tr("Yes")},
+        {"N", tr("No")},
+        {"I", tr("Invalid")},
+        {" ", tr("Blank")}
+    };
 
     explicit Data(QObject *parent = nullptr);
     ~Data();
@@ -109,6 +125,7 @@ public:
     static int getCQZMin();
     static int getCQZMax();
     static QString dbFilename();
+    static QString debugFilename();
     static double MHz2UserFriendlyFreq(double,
                                        QString &unit,
                                        unsigned char &efectiveDecP);

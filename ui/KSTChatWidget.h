@@ -152,6 +152,7 @@ public slots:
     void setBeamActionVisible(bool);
     void resetDupe();
     void recalculateDupe();
+    void recalculateDxccStatus();
     void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
     void updateSpotsStatusWhenQSODeleted(const QSqlRecord &record);
     void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);

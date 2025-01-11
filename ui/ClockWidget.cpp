@@ -46,7 +46,7 @@ void ClockWidget::updateClock()
 {
     FCT_IDENTIFICATION;
 
-    QDateTime now = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
+    QDateTime now = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
     QColor textColor = qApp->palette().color(QPalette::Text);
     clockItem->setDefaultTextColor(textColor);
     clockItem->setPlainText(now.toString(locale.formatTimeLongWithoutTZ()));

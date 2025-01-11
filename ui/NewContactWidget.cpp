@@ -73,7 +73,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     ui->dupeLabel->setVisible(false);
 
     setupCustomUi();
-    uiDynamic->contestIDEdit->setText(LogParam::getParam("contest/contestid").toString());
+    uiDynamic->contestIDEdit->setText(LogParam::getContestID());
 
     CWKeyProfilesManager::instance(); //TODO remove, make it better - workaround
 
@@ -408,7 +408,7 @@ void NewContactWidget::readGlobalSettings()
     refreshAntProfileCombo();
 
     // recalculate all stats
-    setDxccInfo(ui->callsignEdit->text().toUpper());
+    setDxccInfo(ui->callsignEdit->text());
 
     ui->freqRXEdit->loadBands();
     ui->freqTXEdit->loadBands();
@@ -451,6 +451,7 @@ void NewContactWidget::handleCallsignFromUser()
 
     if ( callsign.isEmpty() )
     {
+        setDxccInfo(DxccEntity());
         updateTime();
         stopContactTimer();
     }
@@ -518,7 +519,7 @@ void NewContactWidget::setDxccInfo(const QString &callsign)
 
     qCDebug(function_parameters) << callsign;
 
-    setDxccInfo(Data::instance()->lookupDxcc(callsign));
+    setDxccInfo(Data::instance()->lookupDxcc(callsign.toUpper()));
 }
 
 void NewContactWidget::useFieldsFromPrevQSO(const QString &callsign, const QString &grid)
@@ -753,8 +754,8 @@ void NewContactWidget::refreshStationProfileCombo()
         ui->stationProfileCombo->setCurrentText(StationProfilesManager::instance()->getCurProfile1().profileName);
     }
 
-    setDxccInfo(ui->callsignEdit->text().toUpper());
-
+    setDxccInfo(ui->callsignEdit->text());
+    updateDxccStatus();
     ui->stationProfileCombo->blockSignals(false);
 }
 
@@ -972,7 +973,7 @@ void NewContactWidget::gridChanged()
     if (!newGrid.isValid())
     {
         coordPrec = COORD_NONE;
-        setDxccInfo(ui->callsignEdit->text().toUpper());
+        setDxccInfo(ui->callsignEdit->text());
         return;
     }
 
@@ -1105,6 +1106,8 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
     record.setValue("qsl_rcvd", "N");
     record.setValue("lotw_qsl_rcvd", "N");
     record.setValue("eqsl_qsl_rcvd", "N");
+    record.setValue("dcl_qsl_rcvd", "N");
+    record.setValue("dcl_qsl_sent", "N");
 
     /* isNull is not necessary to use because NULL Text fields are empty */
     if ( record.value("my_gridsquare").toString().isEmpty()
@@ -1246,6 +1249,12 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
          && profile.cqz != 0 )
     {
         record.setValue("my_cq_zone", profile.cqz);
+    }
+
+    if ( record.value("my_darc_dok").toString().isEmpty()
+        && !profile.darcDOK.isEmpty() )
+    {
+        record.setValue("my_darc_dok", profile.darcDOK);
     }
 
     if ( record.value("my_name_intl").toString().isEmpty()
@@ -1589,7 +1598,7 @@ void NewContactWidget::saveContact()
     if ( !isQSOTimeStarted() )
         updateTime();
 
-    QDateTime start = QDateTime(ui->dateEdit->date(), ui->timeOnEdit->time(), Qt::UTC);
+    QDateTime start = QDateTime(ui->dateEdit->date(), ui->timeOnEdit->time(), QTimeZone::utc());
     QDateTime end = ( isManualEnterMode ) ? start.addSecs(QTime(0,0).secsTo(ui->qsoDurationEdit->time()))
                                           : timeOff;
 
@@ -1991,7 +2000,7 @@ void NewContactWidget::markContact()
     {
         DxSpot spot;
 
-        spot.time = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
+        spot.dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
         spot.freq = ui->freqRXEdit->value();
         spot.band = BandPlan::freq2Band(spot.freq).name;
         spot.callsign = ui->callsignEdit->text().toUpper();
@@ -2103,6 +2112,7 @@ void NewContactWidget::updateDxccStatus()
     FCT_IDENTIFICATION;
 
     setNearestSpotColor();
+
 
     if ( callsign.isEmpty() )
     {
@@ -2680,13 +2690,13 @@ void NewContactWidget::updateSatMode()
                                                                                                                    : bandTX.satDesignator + bandRX.satDesignator));
 }
 
-void NewContactWidget::tuneDx(const QString &callsign,
-                              double frequency,
-                              const BandPlan::BandPlanMode bandPlanMode)
+void NewContactWidget::tuneDx(const DxSpot &spot)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << callsign<< frequency << bandPlanMode;
+    double frequency = spot.freq;
+
+    qCDebug(function_parameters) << spot.callsign<< frequency << spot.bandPlanMode;
 
     if ( isManualEnterMode )
     {
@@ -2697,12 +2707,12 @@ void NewContactWidget::tuneDx(const QString &callsign,
     if ( frequency > 0.0 )
     {
         QString subMode;
-        QString mode = BandPlan::bandPlanMode2ExpectedMode(bandPlanMode,
+        QString mode = BandPlan::bandPlanMode2ExpectedMode(spot.bandPlanMode,
                                                            subMode);
 
         if ( mode.isEmpty() )
         {
-            qCDebug(runtime) << "mode not found" << bandPlanMode;
+            qCDebug(runtime) << "mode not found" << spot.bandPlanMode;
             mode = BandPlan::freq2ExpectedMode(frequency,
                                                subMode);
         }
@@ -2713,12 +2723,13 @@ void NewContactWidget::tuneDx(const QString &callsign,
             // therefore change Mode without signals and then set the
             // final mode
             changeModeWithoutSignals(mode, subMode);
-            if ( mode == "FT8" )
+            if (spot.bandPlanMode ==  BandPlan::BAND_MODE_FT8
+                || spot.bandPlanMode ==  BandPlan::BAND_MODE_DIGITAL )
             {
                 // if rig is connected then FT8 mode is overwrotten by rit
                 // but it the rig is not connected then mode contains a correct
                 // mode
-                rig->setMode("SSB", "USB");
+                rig->setMode("SSB", "USB", true);
             }
             else
             {
@@ -2734,14 +2745,49 @@ void NewContactWidget::tuneDx(const QString &callsign,
 
     ui->freqRXEdit->setValue(frequency);
     resetContact();
-    changeCallsignManually(callsign, frequency);
+    changeCallsignManually(spot.callsign, frequency);
+
+    if ( uiDynamic->potaEdit->text().isEmpty()
+          && !spot.potaRef.isEmpty() )
+    {
+        uiDynamic->potaEdit->setText(spot.potaRef);
+        potaEditFinished();
+    }
+
+    if ( uiDynamic->sotaEdit->text().isEmpty()
+        && !spot.sotaRef.isEmpty() )
+    {
+        uiDynamic->sotaEdit->setText(spot.sotaRef);
+        sotaEditFinished();
+    }
+
+    if ( uiDynamic->wwffEdit->text().isEmpty()
+        && !spot.wwffRef.isEmpty() )
+    {
+        uiDynamic->wwffEdit->setText(spot.wwffRef);
+        wwffEditFinished();
+    }
+
+    if ( uiDynamic->iotaEdit->text().isEmpty()
+        && !spot.iotaRef.isEmpty() )
+    {
+        uiDynamic->iotaEdit->setText(spot.iotaRef);
+    }
 }
 
 void NewContactWidget::fillCallsignGrid(const QString &callsign, const QString &grid)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << callsign<< grid;
-    tuneDx(callsign, -1, BandPlan::BAND_MODE_UNKNOWN);
+
+    if ( isManualEnterMode )
+    {
+        qCDebug(runtime) << "Manual mode enabled - ignore event";
+        return;
+    }
+
+    resetContact();
+    changeCallsignManually(callsign, ui->freqRXEdit->value());
     uiDynamic->gridEdit->setText(grid);
 }
 
@@ -3070,7 +3116,7 @@ void NewContactWidget::stationProfileComboChanged(const QString &profileName)
     StationProfilesManager::instance()->setCurProfile1(profileName);
 
     // recalculate all stats
-    setDxccInfo(ui->callsignEdit->text().toUpper());
+    setDxccInfo(ui->callsignEdit->text());
 }
 
 void NewContactWidget::setValuesFromActivity(const QString &name)
@@ -3146,25 +3192,15 @@ void NewContactWidget::sotaChanged(const QString &newSOTA)
 {
     FCT_IDENTIFICATION;
 
-    if ( newSOTA.length() >= 3 )
-    {
-        uiDynamic->sotaEdit->setCompleter(sotaCompleter);
-    }
-    else
-    {
-        uiDynamic->sotaEdit->setCompleter(nullptr);
-    }
+    uiDynamic->sotaEdit->setCompleter(( newSOTA.length() >= 3 ) ? sotaCompleter
+                                                                : nullptr);
 
     if ( uiDynamic->qthEdit->text() == lastSOTA.summitName )
-    {
         uiDynamic->qthEdit->clear();
-    }
 
-    Gridsquare SOTAGrid(lastSOTA.latitude, lastSOTA.longitude);
+    const Gridsquare SOTAGrid(lastSOTA.latitude, lastSOTA.longitude);
     if ( uiDynamic->gridEdit->text() == SOTAGrid.getGrid() )
-    {
         uiDynamic->gridEdit->clear();
-    }
 
     ui->AMLSInfo->clear();
 }
@@ -3176,7 +3212,7 @@ bool NewContactWidget::isSOTAValid(SOTAEntity *entity)
     if ( uiDynamic->sotaEdit->text().isEmpty() )
         return false;
 
-    SOTAEntity sotaInfo = Data::instance()->lookupSOTA(uiDynamic->sotaEdit->text());
+    const SOTAEntity &sotaInfo = Data::instance()->lookupSOTA(uiDynamic->sotaEdit->text());
     if ( entity ) *entity = sotaInfo;
     return ( sotaInfo.summitCode.toUpper() == uiDynamic->sotaEdit->text().toUpper()
              && !sotaInfo.summitName.isEmpty());
@@ -3191,48 +3227,32 @@ void NewContactWidget::sotaEditFinished()
     if ( isSOTAValid(&sotaInfo) )
     {
         uiDynamic->qthEdit->setText(sotaInfo.summitName);
-        Gridsquare SOTAGrid(sotaInfo.latitude, sotaInfo.longitude);
+        const Gridsquare SOTAGrid(sotaInfo.latitude, sotaInfo.longitude);
         if ( SOTAGrid.isValid() )
-        {
             uiDynamic->gridEdit->setText(SOTAGrid.getGrid());
-        }
         ui->AMLSInfo->setText(QString::number(sotaInfo.altm) + tr(" m"));
         lastSOTA = sotaInfo;
     }
     else if ( isPOTAValid(nullptr) )
-    {
         potaEditFinished();
-    }
     else if ( isWWFFValid(nullptr) )
-    {
         wwffEditFinished();
-    } 
 }
 
 void NewContactWidget::potaChanged(const QString &newPOTA)
 {
     FCT_IDENTIFICATION;
 
-    if ( newPOTA.length() >= 3 )
-    {
-        uiDynamic->potaEdit->setCompleter(potaCompleter);
-    }
-    else
-    {
-        uiDynamic->potaEdit->setCompleter(nullptr);
-    }
+    uiDynamic->potaEdit->setCompleter( ( newPOTA.length() >= 3 ) ? potaCompleter
+                                                                 : nullptr);
 
     if ( uiDynamic->qthEdit->text() == lastPOTA.name )
-    {
         uiDynamic->qthEdit->clear();
-    }
 
-    Gridsquare POTAGrid(lastPOTA.grid);
+    const Gridsquare POTAGrid(lastPOTA.grid);
 
     if ( uiDynamic->gridEdit->text() == POTAGrid.getGrid() )
-    {
         uiDynamic->gridEdit->clear();
-    }
 }
 
 bool NewContactWidget::isPOTAValid(POTAEntity *entity)
@@ -3246,16 +3266,10 @@ bool NewContactWidget::isPOTAValid(POTAEntity *entity)
 
     QString potaString;
 
-    if ( potaList.size() > 0 )
-    {
-        potaString = potaList[0];
-    }
-    else
-    {
-        potaString = uiDynamic->potaEdit->text();
-    }
+    potaString = ( potaList.size() > 0 ) ? potaList[0]
+                                         : uiDynamic->potaEdit->text();
 
-    POTAEntity potaInfo = Data::instance()->lookupPOTA(potaString);
+    const POTAEntity &potaInfo = Data::instance()->lookupPOTA(potaString);
 
     if ( entity ) *entity = potaInfo;
     return (potaInfo.reference.toUpper() == potaString.toUpper()
@@ -3273,19 +3287,13 @@ void NewContactWidget::potaEditFinished()
         uiDynamic->qthEdit->setText(potaInfo.name);
         Gridsquare POTAGrid(potaInfo.grid);
         if ( POTAGrid.isValid() )
-        {
             uiDynamic->gridEdit->setText(POTAGrid.getGrid());
-        }
         lastPOTA = potaInfo;
     }
     else if ( isSOTAValid(nullptr) )
-    {
         sotaEditFinished();
-    }
     else if ( isWWFFValid(nullptr) )
-    {
         wwffEditFinished();
-    }
 }
 
 bool NewContactWidget::isWWFFValid(WWFFEntity *entity)
@@ -3296,7 +3304,7 @@ bool NewContactWidget::isWWFFValid(WWFFEntity *entity)
     if ( uiDynamic->wwffEdit->text().isEmpty() )
         return false;
 
-    WWFFEntity wwffInfo = Data::instance()->lookupWWFF(uiDynamic->wwffEdit->text());
+    const WWFFEntity &wwffInfo = Data::instance()->lookupWWFF(uiDynamic->wwffEdit->text());
 
     if ( entity ) *entity = wwffInfo;
 
@@ -3308,7 +3316,7 @@ bool NewContactWidget::shouldStartContest()
 {
     FCT_IDENTIFICATION;
 
-    const QString &prevContestID = LogParam::getParam("contest/contestid").toString();
+    const QString &prevContestID = LogParam::getContestID();
 
     qCDebug(runtime) << "Prev Contest" << prevContestID
                      << "Current" << uiDynamic->contestIDEdit->text();
@@ -3320,8 +3328,8 @@ void NewContactWidget::startContest(const QDateTime &date)
     FCT_IDENTIFICATION;
 
     resetSTXSeq();
-    LogParam::setParam("contest/contestid", uiDynamic->contestIDEdit->text());
-    LogParam::setParam("contest/dupeDate", date);
+    LogParam::setContestID(uiDynamic->contestIDEdit->text());
+    LogParam::setContestDupeDate(date);
     emit contestStarted(uiDynamic->contestIDEdit->text(), date);
 }
 
@@ -3329,11 +3337,10 @@ void NewContactWidget::setSTXSeq()
 {
     FCT_IDENTIFICATION;
 
-    int seqnoType = LogParam::getParam("contest/seqnotype", Data::SeqType::SINGLE).toInt();
-    QString key = ( seqnoType == Data::SeqType::SINGLE ) ? "contest/seqnos/single"
-                                     : QString("contest/seqnos/%1").arg(ui->bandRXLabel->text());
-
-    uiDynamic->stxEdit->setText(LogParam::getParam(key, 1).toString().rightJustified(3, '0'));
+    int seqnoType = LogParam::getContestSeqnoType();
+    int seq = LogParam::getContestSeqno(( seqnoType == Data::SeqType::SINGLE ) ? QString()
+                                                                               : ui->bandTXLabel->text());
+    uiDynamic->stxEdit->setText(QString::number(seq).rightJustified(3, '0'));
 }
 
 void NewContactWidget::setSTXSeq(int newValue)
@@ -3342,13 +3349,11 @@ void NewContactWidget::setSTXSeq(int newValue)
 
     qCDebug(function_parameters) << newValue;
 
-    int seqnoType = LogParam::getParam("contest/seqnotype", Data::SeqType::SINGLE).toInt();
-    QString key = ( seqnoType == Data::SeqType::SINGLE ) ? "contest/seqnos/single"
-                                                         : QString("contest/seqnos/%1").arg(ui->bandTXLabel->text());
+    int seqnoType = LogParam::getContestSeqnoType();
 
-    QString newValueString = QString::number(newValue);
-    LogParam::setParam(key, newValueString);
-    uiDynamic->stxEdit->setText(newValueString.rightJustified(3, '0'));
+    LogParam::setContestSeqno(newValue, (seqnoType == Data::SeqType::SINGLE) ? QString()
+                                                                             : ui->bandTXLabel->text());
+    uiDynamic->stxEdit->setText(QString::number(newValue).rightJustified(3, '0'));
 }
 
 void NewContactWidget::updateNearestSpotDupe()
@@ -3364,7 +3369,7 @@ void NewContactWidget::resetSTXSeq()
 {
     FCT_IDENTIFICATION;
 
-    LogParam::removeParamGroup("contest/seqnos/");
+    LogParam::removeContestSeqno();
     setSTXSeq();
 }
 
@@ -3372,8 +3377,8 @@ void NewContactWidget::stopContest()
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/contestid", QString());
-    LogParam::setParam("contest/dupeDate", QString());
+    LogParam::setContestID(QString());
+    LogParam::removeConetstDupeDate();
     resetSTXSeq();
     resetContact();
     nearestSpot.dupeCount = false;
@@ -3501,27 +3506,17 @@ void NewContactWidget::wwffEditFinished()
         lastWWFF = wwffInfo;
     }
     else if ( isSOTAValid(nullptr) )
-    {
         sotaEditFinished();
-    }
     else if ( isPOTAValid(nullptr) )
-    {
         potaEditFinished();
-    }
 }
 
 void NewContactWidget::wwffChanged(const QString &newWWFF)
 {
     FCT_IDENTIFICATION;
 
-    if ( newWWFF.length() >= 3 )
-    {
-        uiDynamic->wwffEdit->setCompleter(wwffCompleter);
-    }
-    else
-    {
-        uiDynamic->wwffEdit->setCompleter(nullptr);
-    }
+    uiDynamic->wwffEdit->setCompleter( ( newWWFF.length() >= 3 ) ? wwffCompleter
+                                                                 : nullptr);
 
     if ( uiDynamic->qthEdit->text() == lastWWFF.name )
     {

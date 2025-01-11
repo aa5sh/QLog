@@ -2,45 +2,41 @@
 #define QLOG_DATA_WSJTXENTRY_H
 
 #include "core/Wsjtx.h"
-#include "core/MembershipQE.h"
-#include "data/Dxcc.h"
+#include "data/DxSpot.h"
 
-struct WsjtxEntry {
+class WsjtxEntry : public DxSpot
+{
+
+public:
+
     WsjtxDecode decode;
-    DxccEntity dxcc;
-    DxccStatus status;
-    QString callsign;
-    QList<ClubInfo> callsign_member;
     QString grid;
     double distance;
     QDateTime receivedTime;
-    double freq;
-    QString band;
     QString decodedMode;
-    QString spotter;
-    DxccEntity dxcc_spotter;
-    qulonglong dupeCount = 0;
 
-    QStringList memberList2StringList() const
+    WsjtxEntry() : DxSpot(), distance(0.0){};
+
+    WsjtxEntry(const DxSpot &other) :
+        DxSpot(other), distance(0.0) {};
+
+    operator QString() const
     {
-        QStringList ret;
-        for ( const ClubInfo &member : static_cast<const QList<ClubInfo>&>(callsign_member) )
-        {
-            ret << member.getClubInfo();
-        }
-        return ret;
+        return QString("WsjtxEntry ")
+        + "Country: " + QString::number(dxcc.dxcc) + " "
+        + "CQZ" + QString::number(dxcc.cqz) + " "
+        + "ITUZ" + QString::number(dxcc.ituz) + " "
+        + "Status: " + QString::number(status) + " "
+        + "Band: " + band + " "
+        + "ModeGroup: " + ((decodedMode == "FT8") ? BandPlan::MODE_GROUP_STRING_FT8
+                                                  : BandPlan::MODE_GROUP_STRING_DIGITAL )  + " "
+        + "spotter Country: " + QString::number(dxcc_spotter.dxcc)  + " "
+        + "Continent: " + dxcc.cont  + " "
+        + "Spotter Continent: " + dxcc_spotter.cont  + " "
+        + "Callsign: " + callsign  + " "
+        + "Message: " + decode.message  + " "
+        + "DX Member: " + memberList2StringList().join(", ");
     };
-
-    QSet<QString> memberList2Set() const
-    {
-        QSet<QString> ret;
-
-        for ( const ClubInfo &member : static_cast<const QList<ClubInfo>&>(callsign_member) )
-        {
-            ret << member.getClubInfo();
-        }
-        return ret;
-    }
 };
 
 #endif // QLOG_DATA_WSJTXENTRY_H

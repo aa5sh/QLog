@@ -29,7 +29,9 @@
 
 MODULE_IDENTIFICATION("qlog.core.main");
 
-QMutex debug_mutex;
+static QMutex debug_mutex;
+static bool logToFile = false;
+
 QTemporaryDir tempDir
 #ifdef QLOG_FLATPAK
 // hack: I don't know how to openn image file
@@ -275,56 +277,67 @@ static void startCWKeyerThread()
 
 static void debugMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    static QFile logFile;
+    static QTextStream logStream;
+
     QMutexLocker locker(&debug_mutex);
 
-    QByteArray localMsg = msg.toLocal8Bit();
-    QString severity_string;
-
-    switch (type)
+    if ( logToFile && !logFile.isOpen() )
     {
-    case QtDebugMsg:
-        severity_string = "[DEBUG   ]";
-        break;
-    case QtInfoMsg:
-        severity_string = "[INFO    ]";
-        break;
-    case QtWarningMsg:
-        severity_string = "[WARNING ]";
-        break;
-    case QtCriticalMsg:
-        severity_string = "[CRITICAL]";
-        break;
-    case QtFatalMsg:
-        severity_string = "[FATAL   ]";
-        break;
-    default:
-        severity_string = "[UNKNOWN ]";
+        logFile.setFileName(Data::debugFilename());
+
+        if ( logFile.open(QIODevice::WriteOnly | QIODevice::Text) )
+        {
+            logStream.setDevice(&logFile);
+            logStream << "App: " << QCoreApplication::applicationVersion() << "\n"
+#ifdef QLOG_FLATPAK
+                      << "Flatpak" << "\n"
+#endif
+                      << "QT: " << qVersion() << "\n"
+                      << "OS: " << QString("%1 %2 (%3)").arg(QSysInfo::prettyProductName(), QSysInfo::currentCpuArchitecture(), QGuiApplication::platformName() ) << "\n"
+                      << "SSL: " << QSslSocket::sslLibraryVersionString() << "\n\n";
+        }
+        else
+        {
+            qWarning() << "Cannot open the file for log";
+            logToFile = false;
+        }
     }
 
-    QString cat(context.category);
-    if ( cat == "default" )
+    const char *severity_string = nullptr;
+    switch ( type )
     {
-        cat = "[             ]";
-    }
-    else
-    {
-        cat = "[" + cat + "]";
+    case QtDebugMsg:    severity_string = "[DEBUG   ]"; break;
+    case QtInfoMsg:     severity_string = "[INFO    ]"; break;
+    case QtWarningMsg:  severity_string = "[WARNING ]"; break;
+    case QtCriticalMsg: severity_string = "[CRITICAL]"; break;
+    case QtFatalMsg:    severity_string = "[FATAL   ]"; break;
+    default:            severity_string = "[UNKNOWN ]";
     }
 
-    QString idStr = QString::number(reinterpret_cast<quintptr>(QThread::currentThreadId()),16);
+    const QString &category = QString("[%1]").arg(context.category).leftJustified(50, ' ');
 
-    fprintf(stderr, "%s %s [0x%s] %50s => %s [%s:%s:%u] \n",
-                                                 QTime::currentTime().toString("HH:mm:ss.zzz").toLocal8Bit().constData(),
-                                                 severity_string.toLocal8Bit().constData(),
-                                                 idStr.toLocal8Bit().data(),
-                                                 cat.toLocal8Bit().constData(),
-                                                 localMsg.constData(),
-                                                 context.function,
-                                                 context.file,
-                                                 context.line
-                                                 );
+    const QString &logEntry = QString("%1 %2 [0x%3] %4 %5 [%6:%7:%8]\n")
+                           .arg(QTime::currentTime().toString("HH:mm:ss.zzz"))
+                           .arg(severity_string)
+                           .arg(QString::number(reinterpret_cast<quintptr>(QThread::currentThreadId()), 16))
+                           .arg(category)
+                           .arg(msg)
+                           .arg(context.function ? context.function : "unknown")
+                           .arg(context.file ? context.file : "unknown")
+                           .arg(context.line);
+
+    if ( logToFile && logFile.isOpen() )
+    {
+        logStream << logEntry;
+        logStream.flush();
+    }
+
+    fprintf(stderr, "%s", logEntry.toUtf8().constData());
+
     if ( type == QtFatalMsg )
     {
+        if (logFile.isOpen()) logFile.close();
         abort();
     }
 }
@@ -398,14 +411,19 @@ int main(int argc, char* argv[])
     QCommandLineOption forceLanguage(QStringList() << "l" << "language",
                 QCoreApplication::translate("main", "Set language. <code> example: 'en' or 'en_US'. Ignore environment setting."),
                 QCoreApplication::translate("main", "code"));
+    QCommandLineOption debugFile(QStringList() << "d" << "debug",
+                QCoreApplication::translate("main", "Writes debug messages to the debug file"));
 
     parser.addOption(environmentName);
     parser.addOption(translationFilename);
     parser.addOption(forceLanguage);
+    parser.addOption(debugFile);
+
     parser.process(app);
     QString environment = parser.value(environmentName);
     QString translation_file = parser.value(translationFilename);
     QString lang = parser.value(forceLanguage);
+    logToFile = parser.isSet(debugFile);
 
     app.setOrganizationName("hamradio");
     app.setApplicationName("QLog" + ((environment.isEmpty()) ? "" : environment.prepend("-")));
@@ -427,6 +445,8 @@ int main(int argc, char* argv[])
 #endif
     qRegisterMetaType<DxSpot>();
     qRegisterMetaType<BandPlan::BandPlanMode>();
+    qRegisterMetaType<SpotAlert>();
+    qRegisterMetaType<Rig::Status>();
 
     set_debug_level(LEVEL_PRODUCTION); // you can set more verbose rules via
                                        // environment variable QT_LOGGING_RULES (project setting/debug)

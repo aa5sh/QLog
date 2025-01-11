@@ -32,7 +32,8 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole && (index.column() == COLUMN_QSL_RCVD || index.column() == COLUMN_QSL_SENT ||
                                        index.column() == COLUMN_LOTW_RCVD || index.column() == COLUMN_LOTW_SENT ||
-                                       index.column() == COLUMN_EQSL_QSL_RCVD || index.column() == COLUMN_EQSL_QSL_SENT))
+                                       index.column() == COLUMN_EQSL_QSL_RCVD || index.column() == COLUMN_EQSL_QSL_SENT ||
+                                       index.column() == COLUMN_DCL_QSL_RCVD || index.column() == COLUMN_DCL_QSL_SENT ))
     {
         QVariant value = QSqlTableModel::data(index, Qt::DisplayRole);
         if (value.toString() == "Y") {
@@ -577,7 +578,7 @@ bool LogbookModel::setData(const QModelIndex &index, const QVariant &value, int 
     return main_update_result && depend_update_result;
 }
 
-QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap =
+QMap<LogbookModel::ColumnID, QString> LogbookModel::fieldNameTranslationMap =
 {
     {COLUMN_ID, QT_TR_NOOP("QSO ID")},
     {COLUMN_TIME_ON, QT_TR_NOOP("Time on")},
@@ -600,6 +601,7 @@ QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap
     {COLUMN_PREFIX, QT_TR_NOOP("Prefix")},
     {COLUMN_STATE, QT_TR_NOOP("State")},
     {COLUMN_COUNTY, QT_TR_NOOP("County")},
+    {COLUMN_CNTY_ALT, QT_TR_NOOP("County Alt")},
     {COLUMN_IOTA, QT_TR_NOOP("IOTA")},
     {COLUMN_QSL_RCVD, QT_TR_NOOP("QSLr")},
     {COLUMN_QSL_RCVD_DATE, QT_TR_NOOP("QSLr Date")},
@@ -636,6 +638,10 @@ QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap
     {COLUMN_CREDIT_SUBMITTED, QT_TR_NOOP("Credit Submitted")},
     {COLUMN_CREDIT_GRANTED, QT_TR_NOOP("Credit Granted")},
     {COLUMN_DARC_DOK, QT_TR_NOOP("DOK")},
+    {COLUMN_DCL_QSLRDATE, QT_TR_NOOP("DCLr Date")},
+    {COLUMN_DCL_QSLSDATE, QT_TR_NOOP("DCLs Date")},
+    {COLUMN_DCL_QSL_RCVD, QT_TR_NOOP("DCLr")},
+    {COLUMN_DCL_QSL_SENT, QT_TR_NOOP("DCLs")},
     {COLUMN_DISTANCE, QT_TR_NOOP("Distance")},
     {COLUMN_EMAIL, QT_TR_NOOP("Email")},
     {COLUMN_EQ_CALL, QT_TR_NOOP("Owner Callsign")},
@@ -659,6 +665,8 @@ QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap
     {COLUMN_LAT, QT_TR_NOOP("Latitude")},
     {COLUMN_LON, QT_TR_NOOP("Longitude")},
     {COLUMN_MAX_BURSTS, QT_TR_NOOP("Max Bursts")},
+    {COLUMN_MORSE_KEY_INFO, QT_TR_NOOP("CW Key Info")},
+    {COLUMN_MORSE_KEY_TYPE, QT_TR_NOOP("CW Key Type")},
     {COLUMN_MS_SHOWER, QT_TR_NOOP("MS Shower Name")},
     {COLUMN_MY_ALTITUDE, QT_TR_NOOP("My Altitude")},
     {COLUMN_MY_ANTENNA, QT_TR_NOOP("My Antenna (ASCII)")},
@@ -666,9 +674,11 @@ QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap
     {COLUMN_MY_CITY, QT_TR_NOOP("My City (ASCII)")},
     {COLUMN_MY_CITY_INTL, QT_TR_NOOP("My City")},
     {COLUMN_MY_CNTY, QT_TR_NOOP("My County")},
+    {COLUMN_MY_CNTY_ALT, QT_TR_NOOP("My County Alt")},
     {COLUMN_MY_COUNTRY, QT_TR_NOOP("My Country (ASCII)")},
     {COLUMN_MY_COUNTRY_INTL, QT_TR_NOOP("My Country")},
     {COLUMN_MY_CQ_ZONE, QT_TR_NOOP("My CQZ")},
+    {COLUMN_MY_DARC_DOK, QT_TR_NOOP("My DARC DOK")},
     {COLUMN_MY_DXCC, QT_TR_NOOP("My DXCC")},
     {COLUMN_MY_FISTS, QT_TR_NOOP("My FISTS")},
     {COLUMN_MY_GRIDSQUARE, QT_TR_NOOP("My Gridsquare")},
@@ -678,6 +688,8 @@ QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap
     {COLUMN_MY_ITU_ZONE, QT_TR_NOOP("My ITU")},
     {COLUMN_MY_LAT, QT_TR_NOOP("My Latitude")},
     {COLUMN_MY_LON, QT_TR_NOOP("My Longitude")},
+    {COLUMN_MY_MORSE_KEY_INFO, QT_TR_NOOP("My CW Key Info")},
+    {COLUMN_MY_MORSE_KEY_TYPE, QT_TR_NOOP("My CW Key Type")},
     {COLUMN_MY_NAME, QT_TR_NOOP("My Name (ASCII)")},
     {COLUMN_MY_NAME_INTL, QT_TR_NOOP("My Name")},
     {COLUMN_MY_POSTAL_CODE, QT_TR_NOOP("My Postal Code (ASCII)")},
@@ -706,10 +718,13 @@ QMap<LogbookModel::ColumnID, const char *> LogbookModel::fieldNameTranslationMap
     {COLUMN_PRECEDENCE, QT_TR_NOOP("Contest Precedence")},
     {COLUMN_PROP_MODE, QT_TR_NOOP("Propagation Mode")},
     {COLUMN_PUBLIC_KEY, QT_TR_NOOP("Public Encryption Key")},
+    {COLUMN_QRZCOM_QSO_DOWNLOAD_DATE, QT_TR_NOOP("QRZ Download Date")},
+    {COLUMN_QRZCOM_QSO_DOWNLOAD_STATUS, QT_TR_NOOP("QRZ Download Status")},
     {COLUMN_QRZCOM_QSO_UPLOAD_DATE, QT_TR_NOOP("QRZ Upload Date")},
     {COLUMN_QRZCOM_QSO_UPLOAD_STATUS, QT_TR_NOOP("QRZ Upload Status")},
-    {COLUMN_QSLMSG, QT_TR_NOOP("QSL Message (ASCII)")},
-    {COLUMN_QSLMSG_INTL, QT_TR_NOOP("QSL Message")},
+    {COLUMN_QSLMSG, QT_TR_NOOP("QSLs Message (ASCII)")},
+    {COLUMN_QSLMSG_INTL, QT_TR_NOOP("QSLs Message")},
+    {COLUMN_QSLMSG_RCVD, QT_TR_NOOP("QSLr Message")},
     {COLUMN_QSL_RCVD_VIA, QT_TR_NOOP("QSLr Via")},
     {COLUMN_QSL_SENT_VIA, QT_TR_NOOP("QSLs Via")},
     {COLUMN_QSL_VIA, QT_TR_NOOP("QSL Via")},

@@ -37,6 +37,10 @@ public:
     QString spotterContinent;
     int ituz;
     int cqz;
+    bool pota;
+    bool sota;
+    bool iota;
+    bool wwff;
 
 private:
     bool ruleValid;

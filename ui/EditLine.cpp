@@ -1,4 +1,7 @@
 #include <QFocusEvent>
+#include <QCompleter>
+#include <QSerialPortInfo>
+
 #include "EditLine.h"
 
 NewContactEditLine::NewContactEditLine(QWidget *parent) :
@@ -78,4 +81,30 @@ void NewContactRSTEditLine::focusInEvent(QFocusEvent *event)
 
     if ( event->reason() != Qt::PopupFocusReason && !text().isEmpty() && text().length() >= focusInSelectionBackwardOffset )
         setSelection(text().length() - focusInSelectionBackwardOffset, 1);
+}
+
+SerialPortEditLine::SerialPortEditLine(QWidget *parent) :
+    QLineEdit(parent)
+{
+#if defined(Q_OS_WIN)
+    // setInputMask("COM000"); // temporarily removed - it does not work in a user-friendly
+                               // because when you click, the cursor can reach the end
+                               // and in that case the mask does not work correctly.
+    QStringList portNames;
+    const QList<QSerialPortInfo> &ports = QSerialPortInfo::availablePorts();
+
+    for ( const QSerialPortInfo &port : ports )
+        portNames << port.portName();
+
+    setCompleter(new QCompleter(portNames));
+#endif
+}
+
+void SerialPortEditLine::focusInEvent(QFocusEvent *event)
+{
+    QLineEdit::focusInEvent(event);
+#if defined(Q_OS_WIN)
+    completer()->setCompletionPrefix("COM");
+    completer()->complete();
+#endif
 }

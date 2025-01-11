@@ -93,7 +93,7 @@ bool CWWinKey2::open()
     cmd.resize(3);
     cmd[0] = 0x00;
     cmd[1] = 0x04;
-    cmd[2] = 0xF1;
+    cmd[2] = 0xF1u;
 
     if ( sendDataAndWait(cmd) != 3 )
     {
@@ -627,7 +627,7 @@ bool CWWinKey2::__setPOTRange()
     cmd[0] = 0x05;
     cmd[1] = minWPMRange;
     cmd[2] = 31;
-    cmd[3] = 0xFF;
+    cmd[3] = 0xFFu;
 
     qint64 size = writeAsyncData(cmd);
     if ( size != 4 )

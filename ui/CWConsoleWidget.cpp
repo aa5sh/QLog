@@ -36,6 +36,8 @@ CWConsoleWidget::CWConsoleWidget(QWidget *parent) :
     sendWord = getSendWordConfig();
     ui->modeSwitch->setChecked(sendWord);
 
+    addAction(ui->actionHaltCW);
+
     cwKeyDisconnected();
 }
 
@@ -428,6 +430,9 @@ void CWConsoleWidget::cwKeyMacroF7()
 void CWConsoleWidget::haltButtonPressed()
 {
     FCT_IDENTIFICATION;
+
+    if ( !ui->haltButton->isEnabled() )
+        return;
 
     CWKeyer::instance()->imediatellyStop();
 }

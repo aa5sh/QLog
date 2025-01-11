@@ -28,7 +28,8 @@ public:
         ADX,
         CABRILLO,
         JSON,
-        CSV
+        CSV,
+        POTA
     };
 
     enum QSLFrom {
@@ -66,6 +67,7 @@ public:
     void setFilterSentPaperQSL(bool includeNo, bool includeIgnore, bool includeAlreadySent);
     void setFilterSendVia(const QString &value);
     void setUserFilter(const QString&value);
+    void setPotaOnly(bool only);
     QString getWhereClause();
     void bindWhereClause(QSqlQuery &);
     void setExportedFields(const QStringList& fieldsList);
@@ -121,6 +123,7 @@ private:
     QStringList whereClause;
     QStringList exportedFields;
     QString userFilter;
+    bool filterPOTAOnly = false;
     bool updateDxcc = false;
     duplicateQSOBehaviour (*duplicateQSOFunc)(QSqlRecord *, QSqlRecord *);
     LogLocale locale;

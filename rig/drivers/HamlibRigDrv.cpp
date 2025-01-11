@@ -136,8 +136,33 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
 
     rig_set_debug(RIG_DEBUG_BUG);
 
+    rmode_t localRigModes = RIG_MODE_NONE;
+
+    if ( rig->caps->rig_model == RIG_MODEL_NETRIGCTL )
+    {
+        /* Limit a set of modes for network rig */
+        localRigModes = static_cast<rmode_t>(RIG_MODE_CW|RIG_MODE_SSB|RIG_MODE_FM|RIG_MODE_AM);
+    }
+    else if ( rig->state.mode_list != RIG_MODE_NONE )
+        localRigModes = static_cast<rmode_t>(rig->state.mode_list);
+
+    /* hamlib 3.x and 4.x are very different - workaround */
+    for ( unsigned char i = 0; i < (sizeof(rmode_t)*8)-1; i++ )
+    {
+        /* hamlib 3.x and 4.x are very different - workaround */
+        const char *ms = rig_strrmode(static_cast<rmode_t>(localRigModes & rig_idx2setting(i)));
+
+        if (!ms || !ms[0])
+        {
+            continue;
+        }
+        qCDebug(runtime) << "Supported Mode :" << ms;
+
+        modeList.append(QString(ms));
+    }
+
     connect(&errorTimer, &QTimer::timeout,
-            this, &HamlibRigDrv::checkErrorCounter);
+            this, &HamlibRigDrv::checkErrorCounter);    
 }
 
 HamlibRigDrv::~HamlibRigDrv()
@@ -254,40 +279,6 @@ QStringList HamlibRigDrv::getAvailableModes()
 
     MUTEXLOCKER;
 
-    if ( !rig )
-    {
-        qCWarning(runtime) << "Rig is not active";
-        return QStringList();
-    }
-
-    rmode_t localRigModes = RIG_MODE_NONE;
-    QStringList modeList;
-
-    if ( rig->caps->rig_model == RIG_MODEL_NETRIGCTL )
-    {
-        /* Limit a set of modes for network rig */
-        localRigModes = static_cast<rmode_t>(RIG_MODE_CW|RIG_MODE_SSB|RIG_MODE_FM|RIG_MODE_AM);
-    }
-    else if ( rig->state.mode_list != RIG_MODE_NONE )
-    {
-        localRigModes = static_cast<rmode_t>(rig->state.mode_list);
-    }
-
-    /* hamlib 3.x and 4.x are very different - workaround */
-    for ( unsigned char i = 0; i < (sizeof(rmode_t)*8)-1; i++ )
-    {
-        /* hamlib 3.x and 4.x are very different - workaround */
-        const char *ms = rig_strrmode(static_cast<rmode_t>(localRigModes & rig_idx2setting(i)));
-
-        if (!ms || !ms[0])
-        {
-            continue;
-        }
-        qCDebug(runtime) << "Supported Mode :" << ms;
-
-        modeList.append(QString(ms));
-    }
-
     return modeList;
 }
 
@@ -337,13 +328,19 @@ void HamlibRigDrv::setRawMode(const QString &rawMode)
     __setMode(rig_parse_mode(rawMode.toLatin1()));
 }
 
-void HamlibRigDrv::setMode(const QString &mode, const QString &subMode)
+void HamlibRigDrv::setMode(const QString &mode, const QString &subMode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << mode << subMode;
+    qCDebug(function_parameters) << mode << subMode << digiVariant;
+    QString innerSubmode(subMode);
 
-    setRawMode((subMode.isEmpty()) ? mode : subMode);
+    if ( digiVariant
+        && (innerSubmode == "USB" || innerSubmode == "LSB")
+        && modeList.contains("PKT" + subMode) )
+        innerSubmode.prepend("PKT");
+
+    setRawMode((innerSubmode.isEmpty()) ? mode : innerSubmode);
 }
 
 void HamlibRigDrv::__setMode(rmode_t newModeID)

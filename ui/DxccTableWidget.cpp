@@ -41,7 +41,7 @@ void DxccTableWidget::updateDxTable(const QString &condition,
 
     qCDebug(function_parameters) << condition << conditionValue;
 
-    const QList<Band>& dxccBands = BandPlan::bandsList(true, true);
+    const QList<Band>& dxccBands = BandPlan::bandsList(false, true);
 
     if ( dxccBands.isEmpty() )
         return;
@@ -96,7 +96,7 @@ void DxccTableWidget::updateDxTable(const QString &condition,
                                                                                                : defaultBrush, Qt::BackgroundRole);
         dxccTableModel->setHeaderData(i+1, Qt::Horizontal, dxccBands.at(i).name);
     }
-
+    setColumnWidth(0,65);
     show();
 }
 
@@ -109,10 +109,7 @@ void DxccTableWidget::setDxCallsign(const QString &dxCallsign, Band band)
     if (!dxCallsign.isEmpty())
         updateDxTable("c.callsign = '%1'", dxCallsign.toUpper(), band);
     else
-    {
-        dxccTableModel->clear();
-        show();
-    }
+        clear();
 
 }
 
@@ -125,8 +122,5 @@ void DxccTableWidget::setDxcc(int dxcc, Band highlightedBand)
     if ( dxcc )
         updateDxTable("c.dxcc = %1", dxcc, highlightedBand);
     else
-    {
-        dxccTableModel->clear();
-        show();
-    }
+        clear();
 }

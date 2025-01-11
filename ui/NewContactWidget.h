@@ -21,7 +21,7 @@
 #include "core/LogLocale.h"
 #include "models/LogbookModel.h"
 #include "ui/EditLine.h"
-#include "data/BandPlan.h"
+#include "data/DxSpot.h"
 #include "core/MultiselectCompleter.h"
 #include "data/POTAEntity.h"
 #include "data/SOTAEntity.h"
@@ -211,9 +211,7 @@ public slots:
     void refreshRigProfileCombo();
     void saveExternalContact(QSqlRecord record);
     void readGlobalSettings();
-    void tuneDx(const QString &callsign,
-                double frequency,
-                const BandPlan::BandPlanMode mode);
+    void tuneDx(const DxSpot &spot);
     void fillCallsignGrid(const QString &callsign, const QString& grid);
     void prepareWSJTXQSO(const QString &callsign, const QString &grid);
     void resetContact();
