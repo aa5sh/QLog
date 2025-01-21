@@ -1,3 +1,9 @@
+2025/01/21 - 0.41.1
+- Fixed compilation issue under Debian 12 (issue #571)
+- Fixed Incorrect GPL version in rpm/deb packages (issue #572)
+- Fixed MacOS floating utility window bug (PR #576 @kyleboyle)
+- Updated IT translation
+
 2025/01/11 - 0.41.0
 - [NEW] - Logbook - Added a new context menu item - Update QSO from Callbook (issue #450 @aa5sh)
 - [NEW] - DIGI mode is used in case of DXC Digi Spots (issue #480)

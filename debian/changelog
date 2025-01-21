@@ -1,3 +1,11 @@
+qlog (0.41.1-1) UNRELEASED; urgency=low
+  * Fixed compilation issue under Debian 12 (issue #571)
+  * Fixed Incorrect GPL version in rpm/deb packages (issue #572)
+  * Fixed MacOS floating utility window bug (PR #576 @kyleboyle)
+  * Updated IT translation
+
+ -- foldynl <foldyna@gmail.com>  Tue, 21 Jan 2025 14:00:52 +0100
+
 qlog (0.41.0-1) UNRELEASED; urgency=low
   * [NEW] - Logbook - Added a new context menu item - Update QSO from Callbook (issue #450 @aa5sh)
   * [NEW] - DIGI mode is used in case of DXC Digi Spots (issue #480)

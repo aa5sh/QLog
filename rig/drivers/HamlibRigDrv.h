@@ -41,10 +41,9 @@ private slots:
 private:
 
 // https://github.com/Hamlib/Hamlib/issues/1647
-// It seems that the authors, under fire
-// from other application authors, have changed the API back.
-#if ( HAMLIBVERSION_MAJOR == 4 && HAMLIBVERSION_MINOR == 6 && HAMLIBVERSION_PATCH == 0 )
-    static int addRig(rig_caps *caps, void* data);
+// use a newer HAMLIB API rig_list_foreach_model from 4.2
+#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+    static int addRig (const rig_model_t rigModel, void *data);
 #else
     static int addRig(const rig_caps *caps, void* data);
 #endif

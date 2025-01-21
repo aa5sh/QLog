@@ -34,7 +34,12 @@ QList<QPair<int, QString>> HamlibRigDrv::getModelList()
     QList<QPair<int, QString>> ret;
 
     rig_load_all_backends();
+
+#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+    rig_list_foreach_model(addRig, &ret);
+#else
     rig_list_foreach(addRig, &ret);
+#endif
 
     return ret;
 }
@@ -53,11 +58,20 @@ QList<QPair<QString, QString> > HamlibRigDrv::getPTTTypeList()
     return ret;
 }
 
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 6 )
-int HamlibRigDrv::addRig(rig_caps *caps, void* data)
+#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+int HamlibRigDrv::addRig (const rig_model_t rigModel, void *data)
+{
+    QList<QPair<int, QString>> *list = static_cast<QList<QPair<int, QString>>*>(data);
+
+    QString name = QString("%1 %2 (%3)").arg(QString::fromLatin1(rig_get_caps_cptr(rigModel, RIG_CAPS_MFG_NAME_CPTR)).trimmed(),
+                                             QString::fromLatin1(rig_get_caps_cptr(rigModel, RIG_CAPS_MODEL_NAME_CPTR)).trimmed(),
+                                             QString::fromLatin1(rig_get_caps_cptr(rigModel, RIG_CAPS_VERSION_CPTR)).trimmed());
+
+    list->append(QPair<int, QString>(rigModel, name));
+    return -1;
+}
 #else
 int HamlibRigDrv::addRig(const rig_caps *caps, void* data)
-#endif
 {
     QList<QPair<int, QString>> *list = static_cast<QList<QPair<int, QString>>*>(data);
 
@@ -68,6 +82,7 @@ int HamlibRigDrv::addRig(const rig_caps *caps, void* data)
     list->append(QPair<int, QString>(caps->rig_model, name));
     return -1;
 }
+#endif
 
 RigCaps HamlibRigDrv::getCaps(int model)
 {

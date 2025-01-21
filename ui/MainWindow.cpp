@@ -91,6 +91,12 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
     ui->chatWidget->registerContactWidget(ui->newContactWidget);
 
+    const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
+    for (QDockWidget *dockWidget : dockWidgets) {
+        if (dockWidget)
+            dockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+    }
+
     setLayoutGeometry();
 
     const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
@@ -399,14 +405,6 @@ MainWindow::MainWindow(QWidget* parent) :
     //restoreConnectionStates();
 
     setupActivitiesMenu();
-
-    const QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    for ( QDockWidget* dockWidget : dockWidgets )
-    {
-        if ( dockWidget )
-            dockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
-    }
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)

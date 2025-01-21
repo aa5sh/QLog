@@ -3252,37 +3252,37 @@
     <message>
         <location filename="../data/Data.h" line="77"/>
         <source>Straight Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Tasto Verticale</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="78"/>
         <source>Sideswiper</source>
-        <translation type="unfinished"></translation>
+        <translation>Tasto a coltello</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="79"/>
         <source>Mechanical semi-automatic keyer or Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Tasto semiautomatico o Bug</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="80"/>
         <source>Mechanical fully-automatic keyer or Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Tasto meccanico automatico o Bug</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="81"/>
         <source>Single Paddle</source>
-        <translation type="unfinished">Single Paddle</translation>
+        <translation>Tasto a singola paletta</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="82"/>
         <source>Dual Paddle</source>
-        <translation type="unfinished"></translation>
+        <translation>Tasto a doppia paletta</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="83"/>
         <source>Computer Driven</source>
-        <translation type="unfinished"></translation>
+        <translation>Comandato dal Computer</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="1"/>
@@ -5735,17 +5735,17 @@
     <message>
         <location filename="../models/LogbookModel.cpp" line="725"/>
         <source>QSLs Message (ASCII)</source>
-        <translation type="unfinished"></translation>
+        <translation>QSLs Messaggio (ASCII)</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="726"/>
         <source>QSLs Message</source>
-        <translation type="unfinished"></translation>
+        <translation>QSLs Messaggio</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="727"/>
         <source>QSLr Message</source>
-        <translation type="unfinished"></translation>
+        <translation>QSLr Messaggio</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="737"/>
@@ -5826,22 +5826,22 @@
     <message>
         <location filename="../models/LogbookModel.cpp" line="668"/>
         <source>CW Key Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Info sul Tasto CW</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="669"/>
         <source>CW Key Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di Tasto CW</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="691"/>
         <source>My CW Key Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mie Info sul Tasto CW</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="692"/>
         <source>My CW Key Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Mio Tipo di Tasto CW</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="715"/>
@@ -10440,7 +10440,7 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4183"/>
         <source>&lt;p&gt; List of IP addresses to which QLog sends UDP notification packets when Rig State changes.&lt;/p&gt;The IP addresses are separated by a space and have the form IP:PORT</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Elenco di indirizzi IP a cui QLog invia pacchetti di notifica UDP quando cambia lo stato della Radio.&lt;/p&gt;Gli indirizzi IP sono separati da uno spazio e hanno il formato IP:PORT</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4210"/>

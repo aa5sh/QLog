@@ -47,6 +47,16 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.41.1" date="2025-01-21">
+      <description>
+        <ul>
+          <li>Fixed compilation issue under Debian 12 (issue #571)</li>
+          <li>Fixed Incorrect GPL version in rpm/deb packages (issue #572)</li>
+          <li>Fixed MacOS floating utility window bug (PR #576 @kyleboyle)</li>
+          <li>Updated IT translation</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.41.0" date="2025-01-11">
       <description>
         <ul>
