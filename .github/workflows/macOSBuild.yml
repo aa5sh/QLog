@@ -36,27 +36,14 @@ jobs:
          brew install autoconf
          brew install libtool
          brew install libusb-compat
+         brew install hamlib
          
      - name: Checkout Code
        uses: actions/checkout@v4
        with:
          fetch-depth: 0
          submodules: recursive
-     - name: Checkout Code
-       uses: actions/checkout@v4
-       with:
-         repository: hamlib/hamlib
-         path: ./hamlib
-         ref: Hamlib-4.6
-         
-     - name: Configure and compile
-       run: |
-         cd ./hamlib
-         ./bootstrap
-         ./configure --prefix=/Users/runner/work/QLog/QLog/hamlib
-         make -j 4
-         make check
-         make install
+
      - name: Get version from tag
        run : |
          TAGVERSION=$(git describe --tags)
@@ -66,7 +53,7 @@ jobs:
        run: |
          mkdir build
          cd build
-         qmake "HAMLIBINCLUDEPATH = /Users/runner/work/QLog/QLog/hamlib/include" "HAMLIBLIBPATH = /Users/runner/work/QLog/QLog/hamlib/lib" "HAMLIBVERSION_MAJOR = 4" "HAMLIBVERSION_MINOR = 6" "HAMLIBVERSION_PATCH = 0" -config release ..
+         qmake -config release ..
          make -j4
      - name: Build dmg
        run: |
