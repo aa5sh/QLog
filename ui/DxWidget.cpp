@@ -3,6 +3,8 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QFontMetrics>
+#include <QActionGroup>
+
 #ifdef Q_OS_WIN
 #include <Ws2tcpip.h>
 #include <winsock2.h>
@@ -31,6 +33,7 @@
 #include "core/DxServerString.h"
 #include "rig/macros.h"
 #include "core/Callsign.h"
+#include "core/LogParam.h"
 
 #define CONSOLE_VIEW 4
 #define NUM_OF_RECONNECT_ATTEMPTS 3
@@ -380,7 +383,9 @@ DxWidget::DxWidget(QWidget *parent) :
     deduplicateSpots(false),
     reconnectAttempts(0),
     connectionState(DISCONNECTED),
-    connectedServerString(nullptr)
+    connectedServerString(nullptr),
+    trendBandList({"6m", "10m", "12m", "15m", "17m", "20m", "30m", "40m", "60m", "80m", "160m"}),
+    trendTableCornerLabel(nullptr)
 {
     FCT_IDENTIFICATION;
 
@@ -430,6 +435,13 @@ DxWidget::DxWidget(QWidget *parent) :
     ui->toAllTable->addAction(ui->actionClear);
     ui->toAllTable->horizontalHeader()->setSectionsMovable(true);
 
+    ui->trendTable->setRowCount(trendBandList.size());
+    ui->trendTable->setColumnCount(Data::getContinentList().size());
+    ui->trendTable->setHorizontalHeaderLabels(Data::getContinentList());
+    ui->trendTable->setVerticalHeaderLabels(trendBandList);
+    ui->trendTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->trendTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     moderegexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
     contregexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
     spottercontregexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
@@ -454,6 +466,35 @@ DxWidget::DxWidget(QWidget *parent) :
     mainWidgetMenu->addAction(ui->actionForgetPassword);
     mainWidgetMenu->addSeparator();
     mainWidgetMenu->addAction(ui->actionConnectOnStartup);
+    QMenu *trendContinentMenu = new QMenu(tr("My Continent"), mainWidgetMenu);
+    QActionGroup *continentMenuGroup = new QActionGroup(trendContinentMenu);
+    continentMenuGroup->setExclusive(true);
+    const QString &myContinent = LogParam::getDXCTrendContinent(QString());
+
+    QAction *actionAuto = new QAction(tr("Auto"), continentMenuGroup);
+    actionAuto->setCheckable(true);
+    actionAuto->setChecked(true);
+    connect(actionAuto, &QAction::triggered, this, [this]()
+    {
+        LogParam::removeDXCTrendContinent();
+        recalculateTrend();
+    });
+    trendContinentMenu->addAction(actionAuto);
+    trendContinentMenu->addSeparator();
+
+    for ( const QString &name : Data::getContinentList() )
+    {
+        QAction* action = new QAction(name, continentMenuGroup);
+        action->setCheckable(true);
+        action->setChecked((myContinent == name));
+        connect(action, &QAction::triggered, this, [this, name]()
+        {
+            LogParam::setDXCTrendContinent(name);
+            recalculateTrend();
+        });
+        trendContinentMenu->addAction(action);
+    }
+    mainWidgetMenu->addMenu(trendContinentMenu);
     ui->menuButton->setMenu(mainWidgetMenu);
 
     reconnectTimer.setInterval(RECONNECT_TIMEOUT);
@@ -1323,6 +1364,146 @@ void DxWidget::setSearchClosed()
 {
     FCT_IDENTIFICATION;
     setSearchStatus(false);
+}
+
+void DxWidget::trendDoubleClicked(int row, int column)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << row << column;
+    emit tuneBand(trendBandList[row]);
+}
+
+void DxWidget::setTunedFrequency(VFOID, double vfoFreq, double ritFreq, double xitFreq)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << vfoFreq << ritFreq << xitFreq;
+
+    const QString& newBand = BandPlan::freq2Band(xitFreq).name;
+    const QBrush &defaultBrush = ui->trendTable->horizontalHeaderItem(0)->background();
+
+    for ( int i = 0; i < ui->trendTable->rowCount(); i++ )
+    {
+        QTableWidgetItem *bandItem = ui->trendTable->verticalHeaderItem(i);
+        if (!bandItem) continue;
+        bandItem->setBackground(((bandItem->text() == newBand) ? QBrush(Qt::darkGray)
+                                                               : defaultBrush));
+    }
+}
+
+void DxWidget::setDxTrend(QHash<QString, QHash<QString, QHash<QString, int>>> trend)
+{
+    FCT_IDENTIFICATION;
+
+    receivedTrendData = trend;
+    recalculateTrend();
+}
+
+QColor DxWidget::getHeatmapColor(int value, int maxValue)
+{
+    if (maxValue == 0)
+        return QColor(0,0,0,0);
+
+    //double normalized = static_cast<double>(value) / maxValue;
+    double normalized = log(1 + value) / log(1 + maxValue);
+
+    int g = 255;
+    int r =  static_cast<int>(255 * normalized);
+    int b = 0;
+    int a = ( value == 0 ? 0 : 255);
+
+    return QColor(r, g, b, a);
+}
+
+void DxWidget::recalculateTrend()
+{
+    FCT_IDENTIFICATION;
+
+    const DxccEntity &myDxccEntity = Data::instance()->lookupDxcc(StationProfilesManager::instance()->getCurProfile1().callsign);
+    const QString &myContinent = LogParam::getDXCTrendContinent(myDxccEntity.cont);
+    bool myContinentChanged = false;
+
+    // Create Left Top Corner Label
+    if ( ! trendTableCornerLabel )
+    {
+        // this part must not be called in the class constructor. Geometry is not determined in QT
+        trendTableCornerLabel = new QLabel(myContinent + " →", ui->trendTable);
+        trendTableCornerLabel->setAlignment(Qt::AlignCenter);
+        trendTableCornerLabel->setGeometry(0, 0,
+                                           ui->trendTable->verticalHeader()->width(),
+                                           ui->trendTable->horizontalHeader()->height());
+        trendTableCornerLabel->show();
+    }
+    else
+    {
+        myContinentChanged = !trendTableCornerLabel->text().contains(myContinent);
+        trendTableCornerLabel->setText(myContinent + " →");
+    }
+
+    //Clear Table
+    for (int row = 0; row < ui->trendTable->rowCount(); ++row)
+    {
+        for (int col = 0; col < ui->trendTable->columnCount(); ++col)
+        {
+            QTableWidgetItem *item = ui->trendTable->takeItem(row, col);
+            if (item) delete item;
+        }
+    }
+    ui->trendTable->clearContents();
+
+    // get my continent data
+    trendDataForMyCont = receivedTrendData.value(myContinent);
+
+    // update bidirections EU->OC and OC->EU
+    for ( auto continentData = receivedTrendData.cbegin(); continentData != receivedTrendData.cend(); ++continentData )
+    {
+        if (continentData.key() == myContinent )
+            continue;
+
+        for ( auto band = continentData.value()[myContinent].cbegin(); band != continentData.value()[myContinent].cend(); ++band )
+            trendDataForMyCont[continentData.key()][band.key()] += band.value();
+    }
+
+    int maxValue = 0;
+
+    // find the max value for heatmap
+    for ( const auto &outer : static_cast<const QHash<QString, QHash<QString, int>>&>(trendDataForMyCont) )
+        for ( const auto &inner : outer )
+            if ( inner > maxValue )
+                maxValue = inner;
+
+    // fill the table
+    for ( int row = 0; row < trendBandList.size(); ++row )
+    {
+        const QString &band = trendBandList[row];
+
+        for ( int col = 0; col < Data::getContinentList().size(); ++col )
+        {
+            const QString &toContinent = Data::getContinentList()[col];
+            int currentSpots = trendDataForMyCont.value(toContinent).value(band);
+            int prevSpots = prevTrendDataForMyCont.value(toContinent).value(band);
+            int diff = currentSpots - prevSpots;
+
+            QString displayText = ( currentSpots == 0 ) ? "" : QString::number(currentSpots);
+
+            if ( !prevTrendDataForMyCont.isEmpty() && !myContinentChanged )
+            {
+                if (diff > 0)
+                    displayText += " (\u2197)";
+                else if (diff < 0)
+                    displayText += " (\u2198)";
+            }
+
+            QTableWidgetItem *item = new QTableWidgetItem(displayText);
+            item->setBackground(getHeatmapColor(currentSpots, maxValue));
+            item->setForeground(QColor(Qt::black));
+            item->setTextAlignment(Qt::AlignCenter);
+            ui->trendTable->setItem(row, col, item);
+        }
+    }
+
+    prevTrendDataForMyCont = trendDataForMyCont;
 }
 
 void DxWidget::actionCommandSpotQSO()

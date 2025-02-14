@@ -57,7 +57,7 @@ jobs:
      name: MacOS CI
      strategy:
        matrix:
-         os: [macos-13]
+         os: [macos-15]
 
      runs-on: ${{ matrix.os }}
 

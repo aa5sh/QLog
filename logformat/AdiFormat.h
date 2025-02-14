@@ -39,11 +39,24 @@ protected:
     void contactFields2SQLRecord(QMap<QString, QVariant> &contact,
                               QSqlRecord &record);
 
-    static const QString toString(const QVariant &);
-    static const QString toLower(const QVariant &);
-    static const QString toUpper(const QVariant &);
-    static const QString toYYYYMMDD(const QVariant &);
-    static const QString removeDefaulValueN(const QVariant &);
+    enum OutputFieldFormatter
+    {
+        TOSTRING,
+        TOLOWER,
+        TOUPPER,
+        TODATE,
+        TOTIME,
+        REMOVEDEFAULTVALUEN
+    };
+
+    const QString formatOuput(OutputFieldFormatter formatter, const QVariant &in);
+
+    virtual const QString toString(const QVariant &);
+    virtual const QString toLower(const QVariant &);
+    virtual const QString toUpper(const QVariant &);
+    virtual const QString toDate(const QVariant &);
+    virtual const QString toTime(const QVariant &);
+    virtual const QString removeDefaulValueN(const QVariant &);
 
     class ExportParams
     {
@@ -51,18 +64,18 @@ protected:
         ExportParams() :
             ADIFName(QString()),
             outputType(QString()),
-            formatFct(nullptr),
+            formatter(TOSTRING),
             isValid(false) {};
         ExportParams(const QString &inADIFName,
-                         const QString (*inFct)(const QVariant &) = &AdiFormat::toString,
-                         const QString &inType = QString()) :
+                     const OutputFieldFormatter formatter = OutputFieldFormatter::TOSTRING,
+                     const QString &inType = QString()) :
             ADIFName(inADIFName),
             outputType(inType),
-            formatFct(inFct),
+            formatter(formatter),
             isValid(true) {};
         QString ADIFName;
         QString outputType;
-        const QString (*formatFct)(const QVariant &);
+        OutputFieldFormatter formatter;
         bool isValid;
     };
 

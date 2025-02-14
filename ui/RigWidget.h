@@ -40,6 +40,7 @@ public slots:
     void rigDisconnected();
     void bandUp();
     void bandDown();
+    void setBand(const QString &band);
 
 private slots:
     void sendOnAirState();

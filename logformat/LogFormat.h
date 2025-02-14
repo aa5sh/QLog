@@ -12,11 +12,10 @@ class QSqlRecord;
 
 struct QSLMergeStat {
     QStringList newQSLs;
+    QStringList updatedQSOs;
     QStringList unmatchedQSLs;
-    int qsos_updated;
-    int qsos_checked;
-    int qsos_unmatched;
-    int qsos_errors;
+    QStringList errorQSLs;
+    int qsosDownloaded;
 };
 
 class LogFormat : public QObject {

@@ -317,6 +317,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     if ( !isPrevQSOBaseCallMatchQuery)
         qWarning() << "Cannot prepare prevQSOBaseCallMatchQuery statement";
 
+    setContestFieldsState();
 }
 
 void NewContactWidget::setComboBaseData(QComboBox *combo, const QString &data)
@@ -412,6 +413,10 @@ void NewContactWidget::readGlobalSettings()
 
     ui->freqRXEdit->loadBands();
     ui->freqTXEdit->loadBands();
+
+    updatePartnerLocTime();
+    ui->dateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
+    ui->timeOnEdit->setDisplayFormat(locale.formatTimeLongWithoutTZ());
 }
 
 /* function is called when an operator change Callsign Edit */
@@ -793,8 +798,10 @@ void NewContactWidget::refreshRigProfileCombo()
     if ( isManualEnterMode )
         return;
 
-    ui->freqRXEdit->setValue(realRigFreq + RigProfilesManager::instance()->getProfile(currentText).ritOffset);
-    ui->freqTXEdit->setValue(realRigFreq + RigProfilesManager::instance()->getProfile(currentText).xitOffset);
+    __changeFrequency(VFO1, realRigFreq,
+                      realRigFreq + RigProfilesManager::instance()->getProfile(currentText).ritOffset,
+                      realRigFreq + RigProfilesManager::instance()->getProfile(currentText).xitOffset);
+
     uiDynamic->powerEdit->setValue(RigProfilesManager::instance()->getProfile(currentText).defaultPWR);
 }
 
@@ -1036,6 +1043,7 @@ void NewContactWidget::resetContact()
     uiDynamic->srxStringEdit->clear();
     uiDynamic->srxEdit->clear();
     uiDynamic->rxPWREdit->clear();
+    uiDynamic->rigEdit->clear();
     ui->dupeLabel->setVisible(false);
     clearCallbookQueryFields();
     clearMemberQueryFields();
@@ -1360,6 +1368,25 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
             setSTXSeq(uiDynamic->stxEdit->text().toInt() + 1);
         }
     }
+    else if ( !uiDynamic->srxStringEdit->text().isEmpty()
+               || !uiDynamic->stxStringEdit->text().isEmpty()
+               || uiDynamic->stxEdit->isVisible()
+               || !uiDynamic->srxEdit->text().isEmpty() )
+    {
+        QStringList fieldsTranslation
+        ({
+            LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_SRX_STRING),
+            LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_STX_STRING),
+            LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_SRX),
+            LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_STX),
+        });
+
+        QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                             QMessageBox::tr("The fields <b>%0</b> will not be saved because the <b>%1</b> is not filled.")
+                                             .arg(fieldsTranslation.join(", "),
+                                                  LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_CONTEST_ID)));
+
+    }
 
     if ( record.value("rx_pwr").toString().isEmpty()
          && uiDynamic->rxPWREdit->isVisible()
@@ -1573,6 +1600,9 @@ void NewContactWidget::connectFieldChanged()
     connect(uiDynamic->rxPWREdit, &QLineEdit::textChanged,
             this, &NewContactWidget::formFieldChangedString);
 
+    connect(uiDynamic->rigEdit, &QLineEdit::textChanged,
+            this, &NewContactWidget::formFieldChangedString);
+
     /* no other fields are currently considered
      * as an attempt to fill out the form */
 }
@@ -1761,6 +1791,11 @@ void NewContactWidget::saveContact()
 
     if (!uiDynamic->urlEdit->text().isEmpty()) {
         record.setValue("web", Data::removeAccents(uiDynamic->urlEdit->text()));
+    }
+
+    if ( ! uiDynamic->rigEdit->text().isEmpty() )
+    {
+        record.setValue("rig_intl", uiDynamic->rigEdit->text());
     }
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
@@ -2901,6 +2936,14 @@ QString NewContactWidget::getRST() const
     return ui->rstSentEdit->text();
 }
 
+QString NewContactWidget::getQTH() const
+{
+    FCT_IDENTIFICATION;
+
+    return uiDynamic->qthEdit->text();
+}
+
+
 QString NewContactWidget::getGreeting() const
 {
     FCT_IDENTIFICATION;
@@ -3692,6 +3735,7 @@ NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,
     initializeWidgets(LogbookModel::COLUMN_STX, "stx", stxLabel, stxEdit);
     initializeWidgets(LogbookModel::COLUMN_RX_PWR, "rx_pwr", rxPWRLabel, rxPWREdit);
     initializeWidgets(LogbookModel::COLUMN_TX_POWER, "power", powerLabel, powerEdit);
+    initializeWidgets(LogbookModel::COLUMN_RIG_INTL, "rigDX", rigLabel, rigEdit);
 
     if ( allocateWidgets )
     {
@@ -3708,13 +3752,9 @@ NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,
         contEdit->setMaximumSize(QSize(50, 16777215));
         contEdit->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         contEdit->addItem(QString());
-        contEdit->addItem(QString("AF"));
-        contEdit->addItem(QString("AN"));
-        contEdit->addItem(QString("AS"));
-        contEdit->addItem(QString("EU"));
-        contEdit->addItem(QString("NA"));
-        contEdit->addItem(QString("OC"));
-        contEdit->addItem(QString("SA"));
+
+        for ( const QString &cont : Data::getContinentList() )
+            contEdit->addItem(cont);
 
         ituEdit->setMaximumSize(QSize(40, 16777215));
         ituEdit->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Maximum);
@@ -3813,6 +3853,8 @@ NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,
         powerEdit->setDecimals(3);
         powerEdit->setSpecialValueText(QCoreApplication::translate("NewContactWidget", "Blank"));
         powerEdit->setSuffix(QCoreApplication::translate("NewContactWidget", " W"));
+
+        rigEdit->setToolTip(QCoreApplication::translate("NewContactWidget", "Description of the contacted station's equipment", nullptr));
     }
 }
 

@@ -11,12 +11,14 @@
 #include <QDomDocument>
 #include "PropConditions.h"
 #include "debug.h"
+#include "data/Data.h"
 
 //#define FLUX_URL "https://services.swpc.noaa.gov/products/summary/10cm-flux.json"
 #define K_INDEX_URL "https://www.hamqsl.com/solarxml.php"
 #define SOLAR_SUMMARY_IMG "https://www.hamqsl.com/solar101vhf.php"
 #define AURORA_MAP "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json"
 #define MUF_POINTS "https://prop.kc2g.com/api/stations.json?maxage=2700"
+#define DXC_TRENDS "https://api.ure.es/v2/heatmap"
 
 // the resend mechanism was implemented only because of a issue with prop.kc2g.com
 // This site has IPv4 and IPv6 DNS record, and if the notebook is IPv4 only, QT uses an IPv6
@@ -28,9 +30,15 @@
 #define RESEND_BASE_INTERVAL 5
 #define BASE_UPDATE_INTERVAL (15 * 60)
 
+// in seconds
+#define DXTRENDS_UPDATE_INTERVAL (5 * 60)
+// in seconds
+#define DXTRENDS_TIMEOUT 60
+
 MODULE_IDENTIFICATION("qlog.core.conditions");
 
-PropConditions::PropConditions(QObject *parent) : QObject(parent)
+PropConditions::PropConditions(QObject *parent) : QObject(parent),
+    agentString(QString("QLog/%1").arg(VERSION).toUtf8())
 {
     FCT_IDENTIFICATION;
 
@@ -41,16 +49,36 @@ PropConditions::PropConditions(QObject *parent) : QObject(parent)
     connect(timer, &QTimer::timeout, this, &PropConditions::update);
     update();
     timer->start(BASE_UPDATE_INTERVAL * 1000);
+
+    QTimer *timerTrends = new QTimer(this);
+    connect(timerTrends, &QTimer::timeout, this, &PropConditions::updateDxTrends);
+    updateDxTrends();
+    timerTrends->start(DXTRENDS_UPDATE_INTERVAL * 1000);
+
+    connect(&dxTrendTimeoutTimer, &QTimer::timeout, this, &PropConditions::dxTrendTimeout);
+
 }
 
 void PropConditions::update()
 {
     FCT_IDENTIFICATION;
 
-    nam->get(QNetworkRequest(QUrl(SOLAR_SUMMARY_IMG)));
-    nam->get(QNetworkRequest(QUrl(K_INDEX_URL)));
-    nam->get(QNetworkRequest(QUrl(AURORA_MAP)));
-    nam->get(QNetworkRequest(QUrl(MUF_POINTS)));
+    nam->get(prepareRequest(QUrl(SOLAR_SUMMARY_IMG)));
+    nam->get(prepareRequest(QUrl(K_INDEX_URL)));
+    nam->get(prepareRequest(QUrl(AURORA_MAP)));
+    nam->get(prepareRequest(QUrl(MUF_POINTS)));
+}
+
+void PropConditions::updateDxTrends()
+{
+    FCT_IDENTIFICATION;
+
+    dxTrendResult.clear();
+
+    for ( const QString& continent : Data::getContinentList() )
+        dxTrendPendingConnections << nam->get(prepareRequest(QUrl(DXC_TRENDS + QString("/%0/15").arg(continent))));
+
+    dxTrendTimeoutTimer.start(DXTRENDS_TIMEOUT * 1000);
 }
 
 void PropConditions::processReply(QNetworkReply* reply)
@@ -72,7 +100,8 @@ void PropConditions::processReply(QNetworkReply* reply)
     {
         failedRequests[reply->url()] = 0;
 
-        if (reply->url() == QUrl(SOLAR_SUMMARY_IMG))
+        const QUrl &replyURL = reply->url();
+        if (replyURL == QUrl(SOLAR_SUMMARY_IMG))
         {
             QFile file(solarSummaryFile());
 
@@ -83,7 +112,7 @@ void PropConditions::processReply(QNetworkReply* reply)
                 file.close();
             }
         }
-        else if (reply->url() == QUrl(K_INDEX_URL))
+        else if (replyURL == QUrl(K_INDEX_URL))
         {
             QDomDocument doc;
 
@@ -130,7 +159,7 @@ void PropConditions::processReply(QNetworkReply* reply)
                 emit fluxUpdated();
             }
         }
-        else if (reply->url() == QUrl(AURORA_MAP))
+        else if (replyURL == QUrl(AURORA_MAP))
         {
             auroraMap.clear();
 
@@ -156,7 +185,7 @@ void PropConditions::processReply(QNetworkReply* reply)
                 emit auroraMapUpdated();
             }
         }
-        else if (reply->url() == QUrl(MUF_POINTS))
+        else if (replyURL == QUrl(MUF_POINTS))
         {
             mufMap.clear();
 
@@ -180,6 +209,38 @@ void PropConditions::processReply(QNetworkReply* reply)
                 emit mufMapUpdated();
             }
         }
+        else if ( replyURL.toString().contains(DXC_TRENDS) )
+        {
+            dxTrendPendingConnections.removeAll(reply);
+
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+            const QString &requestContinent = replyURL.path().section('/', -2, -2);
+
+            if ( ! doc.isNull() )
+            {
+                QJsonObject jsonObject = doc.object();
+                for ( auto continentIt = jsonObject.begin(); continentIt != jsonObject.end(); ++continentIt )
+                {
+                    const QString &toContinent = continentIt.key();  // "AF", "AS", "EU"....
+                    const QJsonObject &values = continentIt->toObject();
+
+                    for ( auto valueIt = values.begin(); valueIt != values.end(); ++valueIt )
+                    {
+                        const QString &band = valueIt.key() + "m";  // "10", "12", "15" ...
+                        int spotCount = valueIt->toString().toInt();  // Number of Spots
+                        dxTrendResult[requestContinent][toContinent][band] = spotCount;
+                    }
+                }
+            }
+
+            if ( dxTrendPendingConnections.isEmpty() )
+            {
+                dxTrendTimeoutTimer.stop();
+                qCDebug(runtime) << "DXTrend finalized";
+                emit dxTrendFinalized(dxTrendResult);
+            }
+        }
+
         reply->deleteLater();
         emit conditionsUpdated();
     }
@@ -205,7 +266,7 @@ void PropConditions::repeateRequest(const QUrl &url)
         QTimer::singleShot(1000 * RESEND_BASE_INTERVAL * failedRequests[url], this, [this, url]()
         {
             qCDebug(runtime) << "Resending request" << url.toString();
-            nam->get(QNetworkRequest(url));
+            nam->get(prepareRequest(url));
         });
     }
     else
@@ -214,8 +275,33 @@ void PropConditions::repeateRequest(const QUrl &url)
     }
 }
 
-PropConditions::~PropConditions() {
-    delete nam;
+QNetworkRequest PropConditions::prepareRequest(const QUrl &url)
+{
+    FCT_IDENTIFICATION;
+
+    QNetworkRequest req(url);
+    req.setRawHeader("User-Agent", agentString);
+    return req;
+}
+
+void PropConditions::dxTrendTimeout()
+{
+    FCT_IDENTIFICATION;
+
+    for ( auto it = dxTrendPendingConnections.begin(); it != dxTrendPendingConnections.end(); ++it )
+    {
+        (*it)->abort();
+        (*it)->deleteLater();
+    }
+    dxTrendResult.clear();
+    emit dxTrendFinalized(dxTrendResult); // emit empty result
+}
+
+PropConditions::~PropConditions()
+{
+    dxTrendTimeoutTimer.stop();
+    dxTrendTimeout();
+    nam->deleteLater();
 }
 
 bool PropConditions::isFluxValid()

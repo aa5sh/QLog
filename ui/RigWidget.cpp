@@ -44,8 +44,6 @@ RigWidget::RigWidget(QWidget *parent) :
     ui->modeComboBox->setModel(modesModel);
 
     refreshRigProfileCombo();
-    refreshBandCombo();
-    refreshModeCombo();
 
     QTimer *onAirTimer = new QTimer(this);
     connect(onAirTimer, &QTimer::timeout, this, &RigWidget::sendOnAirState);
@@ -258,6 +256,8 @@ void RigWidget::refreshRigProfileCombo()
     ui->pttLabel->setHidden(!RigProfilesManager::instance()->getCurProfile1().getPTTInfo);
 
     ui->rigProfilCombo->blockSignals(false);
+    refreshBandCombo();
+    refreshModeCombo();
 }
 
 void RigWidget::refreshBandCombo()
@@ -294,8 +294,6 @@ void RigWidget::reloadSettings()
     FCT_IDENTIFICATION;
 
     refreshRigProfileCombo();
-    refreshBandCombo();
-    refreshModeCombo();
 }
 
 void RigWidget::rigConnected()
@@ -304,8 +302,13 @@ void RigWidget::rigConnected()
 
     ui->rigProfilCombo->setStyleSheet("QComboBox {color: green}");
     rigOnline = true;
+    ui->bandComboBox->blockSignals(true);
+    ui->modeComboBox->blockSignals(true);
     ui->bandComboBox->setEnabled(true);
     ui->modeComboBox->setEnabled(true);
+    ui->modeComboBox->blockSignals(false);
+    ui->bandComboBox->blockSignals(false);
+
     refreshModeCombo();
 }
 
@@ -313,12 +316,19 @@ void RigWidget::rigDisconnected()
 {
     FCT_IDENTIFICATION;
 
+    ui->bandComboBox->blockSignals(true);
+    ui->modeComboBox->blockSignals(true);
+
     saveLastSeenFreq();
     ui->rigProfilCombo->setStyleSheet("QComboBox {color: red}");
     rigOnline = false;
     resetRigInfo();
+
     ui->bandComboBox->setEnabled(false);
     ui->modeComboBox->setEnabled(false);
+
+    ui->modeComboBox->blockSignals(false);
+    ui->bandComboBox->blockSignals(false);
 }
 
 void RigWidget::bandUp()
@@ -345,6 +355,18 @@ void RigWidget::bandDown()
 
     if ( currentIndex > 0 )
         ui->bandComboBox->setCurrentIndex(currentIndex - 1);
+}
+
+void RigWidget::setBand(const QString &band)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << band;
+
+    if ( !rigOnline )
+        return;
+
+    ui->bandComboBox->setCurrentText(band);
 }
 
 void RigWidget::sendOnAirState()

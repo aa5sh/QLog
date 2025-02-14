@@ -41,6 +41,9 @@ AwardsDialog::AwardsDialog(QWidget *parent) :
     ui->awardComboBox->addItem(tr("POTA Activator"), QVariant("potaa"));
     ui->awardComboBox->addItem(tr("SOTA"), QVariant("sota"));
     ui->awardComboBox->addItem(tr("WWFF"), QVariant("wwff"));
+    ui->awardComboBox->addItem(tr("Gridsquare 2-Chars"), QVariant("grid2"));
+    ui->awardComboBox->addItem(tr("Gridsquare 4-Chars"), QVariant("grid4"));
+    ui->awardComboBox->addItem(tr("Gridsquare 6-Chars"), QVariant("grid6"));
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Done"));
     ui->awardTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -247,6 +250,22 @@ void AwardsDialog::refreshTable(int)
         addWherePart = " AND c.iota is not NULL"
                        " AND c.my_dxcc = '" + entitySelected + "' ";
     }
+    else if ( awardSelected == "grid2"
+              || awardSelected == "grid4"
+              || awardSelected == "grid6" )
+    {
+        const QString &number = awardSelected.right(awardSelected.size() - 4);
+
+        setEntityInputEnabled(true);
+        setNotWorkedEnabled(false);
+        const QString &entitySelected = getSelectedEntity();
+        headersColumns = QString("substr(c.gridsquare, 1, %0) col1, NULL col2 ").arg(number);
+        uniqColumns = QString("substr(c.gridsquare, 1, %0)").arg(number);
+        sqlPartDetailTable = " FROM source_contacts c"
+                             "      INNER JOIN modes m ON c.mode = m.name"
+                             " WHERE c.my_dxcc = '" + entitySelected + "' ";
+        addWherePart = QString(" AND length(c.gridsquare) >= %0 AND c.my_dxcc = '%1' ").arg(number, entitySelected);
+    }
     else if ( awardSelected == "potah" )
     {
         setEntityInputEnabled(false);
@@ -323,6 +342,17 @@ void AwardsDialog::refreshTable(int)
 
     addlCTEs.append(sourceContactsTable);
 
+    QString totalTable;
+
+    if (awardSelected == "dxcc")
+    {
+        totalTable = "dxcc_entities d   LEFT OUTER JOIN source_contacts c ON d.id = c.dxcc";
+    }
+    else
+    {
+        totalTable = "source_contacts c";
+    }
+
     QString finalSQL(QString(
               "WITH "
               "   %1, "
@@ -333,12 +363,12 @@ void AwardsDialog::refreshTable(int)
               "     GROUP BY  1,2) "
               "SELECT * FROM ( "
               "     SELECT 0 column_idx, '%6', COUNT(DISTINCT %7), %8"
-              "     FROM source_contacts c INNER JOIN modes m ON c.mode = m.name"
+              "     FROM %23 INNER JOIN modes m ON c.mode = m.name"
               "     WHERE m.dxcc IN (%9)"
               "           %10"
               "   UNION ALL "
               "     SELECT 0 column_idx, '%11', COUNT(DISTINCT %12), %13"
-              "     FROM source_contacts c INNER JOIN modes m ON c.mode = m.name "
+              "     FROM %23 INNER JOIN modes m ON c.mode = m.name "
               "     WHERE (%14)"
               "           AND m.dxcc IN (%15)"
               "           %16"
@@ -387,7 +417,7 @@ void AwardsDialog::refreshTable(int)
                                                            tr("Worked")).arg(
                                                            stmt_sum_worked.join(","),
                                                            stmt_sum_total.join(","),
-                                                           ui->notWorkedCheckBox->isChecked() ? QString("HAVING %1").arg(stmt_having.join(" AND ")) : QString() ));
+                                                           ui->notWorkedCheckBox->isChecked() ? QString("HAVING %1").arg(stmt_having.join(" AND ")) : QString(),totalTable ));
     qDebug(runtime) << finalSQL;
 
     detailedViewModel->setQuery(finalSQL);

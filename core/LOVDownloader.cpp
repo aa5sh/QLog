@@ -466,24 +466,39 @@ void LOVDownloader::parseSOTASummits(const SourceDefinition &sourceDef, QTextStr
                                "                        bonus_points,"
                                "                        valid_from,"
                                "                        valid_to) "
-                               " VALUES (               :summit_code,"
-                               "                        :association_name,"
-                               "                        :region_name,"
-                               "                        :summit_name,"
-                               "                        :altm,"
-                               "                        :altft,"
-                               "                        :gridref1,"
-                               "                        :gridref2,"
-                               "                        :longitude,"
-                               "                        :latitude,"
-                               "                        :points,"
-                               "                        :bonus_points,"
-                               "                        :valid_from,"
-                               "                        :valid_to)") )
+                               " VALUES (               ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?,"
+                               "                        ?)") )
     {
         qWarning() << "cannot prepare Insert statement";
         abortRequested = true;
     }
+
+    QVariantList sota_summit_code;
+    QVariantList sota_association_name;
+    QVariantList sota_region_name;
+    QVariantList sota_summit_name;
+    QVariantList sota_altm;
+    QVariantList sota_altft;
+    QVariantList sota_gridref1;
+    QVariantList sota_gridref2;
+    QVariantList sota_longitude;
+    QVariantList sota_latitude;
+    QVariantList sota_points;
+    QVariantList sota_bonus_points;
+    QVariantList sota_valid_from;
+    QVariantList sota_valid_to;
 
     while ( !data.atEnd() && !abortRequested )
     {
@@ -521,27 +536,20 @@ void LOVDownloader::parseSOTASummits(const SourceDefinition &sourceDef, QTextStr
         {
             qCDebug(runtime) << fields;
 
-            insertQuery.bindValue(":summit_code", fields.at(0));
-            insertQuery.bindValue(":association_name", fields.at(1));
-            insertQuery.bindValue(":region_name", fields.at(2));
-            insertQuery.bindValue(":summit_name", fields.at(3));
-            insertQuery.bindValue(":altm", fields.at(4));
-            insertQuery.bindValue(":altft", fields.at(5));
-            insertQuery.bindValue(":gridref1", fields.at(6));
-            insertQuery.bindValue(":gridref2", fields.at(7));
-            insertQuery.bindValue(":longitude", fields.at(8));
-            insertQuery.bindValue(":latitude", fields.at(9));
-            insertQuery.bindValue(":points", fields.at(10));
-            insertQuery.bindValue(":bonus_points", fields.at(11));
-            insertQuery.bindValue(":valid_from", fields.at(12));
-            insertQuery.bindValue(":valid_to", fields.at(13));
-
-            if ( ! insertQuery.exec() )
-            {
-                qInfo() << "SOTA Summit insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
-                abortRequested = true;
-                continue;
-            }
+            sota_summit_code << fields.at(0);
+            sota_association_name << fields.at(1);
+            sota_region_name << fields.at(2);
+            sota_summit_name << fields.at(3);
+            sota_altm << fields.at(4);
+            sota_altft << fields.at(5);
+            sota_gridref1 << fields.at(6);
+            sota_gridref2 << fields.at(7);
+            sota_longitude << fields.at(8);
+            sota_latitude << fields.at(9);
+            sota_points << fields.at(10);
+            sota_bonus_points << fields.at(11);
+            sota_valid_from << fields.at(12);
+            sota_valid_to << fields.at(13);
 
             if ( count%10000 == 0 )
             {
@@ -554,6 +562,27 @@ void LOVDownloader::parseSOTASummits(const SourceDefinition &sourceDef, QTextStr
             qCDebug(runtime) << "Invalid line in the input file " << line;
         }
         count++;
+    }
+
+    insertQuery.addBindValue(sota_summit_code);
+    insertQuery.addBindValue(sota_association_name);
+    insertQuery.addBindValue(sota_region_name);
+    insertQuery.addBindValue(sota_summit_name);
+    insertQuery.addBindValue(sota_altm);
+    insertQuery.addBindValue(sota_altft);
+    insertQuery.addBindValue(sota_gridref1);
+    insertQuery.addBindValue(sota_gridref2);
+    insertQuery.addBindValue(sota_longitude);
+    insertQuery.addBindValue(sota_latitude);
+    insertQuery.addBindValue(sota_points);
+    insertQuery.addBindValue(sota_bonus_points);
+    insertQuery.addBindValue(sota_valid_from);
+    insertQuery.addBindValue(sota_valid_to);
+
+    if ( ! insertQuery.execBatch() )
+    {
+        qInfo() << "SOTA Summit insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
+        abortRequested = true;
     }
 
     if ( !abortRequested )
@@ -586,39 +615,55 @@ void LOVDownloader::parseWWFFDirectory(const SourceDefinition &sourceDef, QTextS
     QSqlQuery insertQuery;
 
     if ( ! insertQuery.prepare("INSERT INTO wwff_directory(reference,"
-                               "                        status,"
-                               "                        name,"
-                               "                        program,"
-                               "                        dxcc,"
-                               "                        state,"
-                               "                        county,"
-                               "                        continent,"
-                               "                        iota,"
-                               "                        iaruLocator,"
-                               "                        latitude,"
-                               "                        longitude,"
-                               "                        iucncat,"
-                               "                        valid_from,"
-                               "                        valid_to) "
-                               " VALUES (               :reference,"
-                               "                        :status,"
-                               "                        :name,"
-                               "                        :program,"
-                               "                        :dxcc,"
-                               "                        :state,"
-                               "                        :county,"
-                               "                        :continent,"
-                               "                        :iota,"
-                               "                        :iaruLocator,"
-                               "                        :latitude,"
-                               "                        :longitude,"
-                               "                        :iucncat,"
-                               "                        :valid_from,"
-                               "                        :valid_to) ") )
+                             "                        status,"
+                             "                        name,"
+                             "                        program,"
+                             "                        dxcc,"
+                             "                        state,"
+                             "                        county,"
+                             "                        continent,"
+                             "                        iota,"
+                             "                        iaruLocator,"
+                             "                        latitude,"
+                             "                        longitude,"
+                             "                        iucncat,"
+                             "                        valid_from,"
+                             "                        valid_to) "
+                             " VALUES (               ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?,"
+                             "                        ?) ") )
     {
         qWarning() << "cannot prepare Insert statement";
         abortRequested = true;
     }
+
+    QVariantList wwff_reference;
+    QVariantList wwff_status;
+    QVariantList wwff_name;
+    QVariantList wwff_program;
+    QVariantList wwff_dxcc;
+    QVariantList wwff_state;
+    QVariantList wwff_county;
+    QVariantList wwff_continent;
+    QVariantList wwff_iota;
+    QVariantList wwff_iaruLocator;
+    QVariantList wwff_latitude;
+    QVariantList wwff_longitude;
+    QVariantList wwff_iucncat;
+    QVariantList wwff_valid_from;
+    QVariantList wwff_valid_to;
 
     while ( !data.atEnd() && !abortRequested )
     {
@@ -647,6 +692,7 @@ void LOVDownloader::parseWWFFDirectory(const SourceDefinition &sourceDef, QTextS
         QRegularExpressionMatchIterator i = CSVRe.globalMatch(line);
         QStringList fields;
 
+
         while ( i.hasNext() )
         {
             QRegularExpressionMatch match = i.next();
@@ -657,28 +703,21 @@ void LOVDownloader::parseWWFFDirectory(const SourceDefinition &sourceDef, QTextS
         {
             qCDebug(runtime) << fields;
 
-            insertQuery.bindValue(":reference", fields.at(0));
-            insertQuery.bindValue(":status", fields.at(1));
-            insertQuery.bindValue(":name", fields.at(2));
-            insertQuery.bindValue(":program", fields.at(3));
-            insertQuery.bindValue(":dxcc", fields.at(4));
-            insertQuery.bindValue(":state", fields.at(5));
-            insertQuery.bindValue(":county", fields.at(6));
-            insertQuery.bindValue(":continent", fields.at(7));
-            insertQuery.bindValue(":iota", fields.at(8));
-            insertQuery.bindValue(":iaruLocator", fields.at(9));
-            insertQuery.bindValue(":latitude", fields.at(10));
-            insertQuery.bindValue(":longitude", fields.at(11));
-            insertQuery.bindValue(":iucncat", fields.at(12));
-            insertQuery.bindValue(":valid_from", fields.at(13));
-            insertQuery.bindValue(":valid_to", fields.at(14));
-
-            if ( ! insertQuery.exec() )
-            {
-                qInfo() << "WWFT Directory insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
-                abortRequested = true;
-                continue;
-            }
+            wwff_reference << fields.at(0);
+            wwff_status << fields.at(1);
+            wwff_name << fields.at(2);
+            wwff_program << fields.at(3);
+            wwff_dxcc << fields.at(4);
+            wwff_state << fields.at(5);
+            wwff_county << fields.at(6);
+            wwff_continent << fields.at(7);
+            wwff_iota << fields.at(8);
+            wwff_iaruLocator << fields.at(9);
+            wwff_latitude << fields.at(10);
+            wwff_longitude << fields.at(11);
+            wwff_iucncat << fields.at(12);
+            wwff_valid_from << fields.at(13);
+            wwff_valid_to << fields.at(14);
 
             if ( count%10000 == 0 )
             {
@@ -693,6 +732,29 @@ void LOVDownloader::parseWWFFDirectory(const SourceDefinition &sourceDef, QTextS
         count++;
     }
 
+    insertQuery.addBindValue(wwff_reference);
+    insertQuery.addBindValue(wwff_status);
+    insertQuery.addBindValue(wwff_name);
+    insertQuery.addBindValue(wwff_program);
+    insertQuery.addBindValue(wwff_dxcc);
+    insertQuery.addBindValue(wwff_state);
+    insertQuery.addBindValue(wwff_county);
+    insertQuery.addBindValue(wwff_continent);
+    insertQuery.addBindValue(wwff_iota);
+    insertQuery.addBindValue(wwff_iaruLocator);
+    insertQuery.addBindValue(wwff_latitude);
+    insertQuery.addBindValue(wwff_longitude);
+    insertQuery.addBindValue(wwff_iucncat);
+    insertQuery.addBindValue(wwff_valid_from);
+    insertQuery.addBindValue( wwff_valid_to);
+
+
+    if ( ! insertQuery.execBatch() )
+    {
+        qInfo() << "WWFT Directory insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
+        abortRequested = true;
+    }
+
     if ( !abortRequested )
     {
         QSqlDatabase::database().commit();
@@ -705,83 +767,77 @@ void LOVDownloader::parseWWFFDirectory(const SourceDefinition &sourceDef, QTextS
     }
 }
 
+
 void LOVDownloader::parseIOTA(const SourceDefinition &sourceDef, QTextStream &data)
 {
     FCT_IDENTIFICATION;
+
+    QSqlQuery insertQuery;
+    if ( ! insertQuery.prepare("INSERT INTO IOTA(iotaid,"
+                             "                 islandname)"
+                             " VALUES (?, ?)") )
+    {
+        qWarning() << "cannot prepare Insert statement";
+        abortRequested = true;
+        return;
+    }
 
     QSqlDatabase::database().transaction();
 
     if ( ! deleteTable(sourceDef.tableName) )
     {
         qCWarning(runtime) << "IOTA List delete failed - rollback";
+        abortRequested = true;
         QSqlDatabase::database().rollback();
         return;
     }
 
-    int count = 0;
+    unsigned int count = 0;
 
-    QSqlQuery insertQuery;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data.readAll().toUtf8());
 
-    if ( ! insertQuery.prepare("INSERT INTO IOTA(iotaid,"
-                               "                 islandname)"
-                               " VALUES (:iotaid,"
-                               "         :islandname)") )
+    if ( !jsonDoc.isArray() )
     {
-        qWarning() << "cannot prepare Insert statement";
+        qCDebug(runtime) << jsonDoc;
+        qWarning() << "Unexpected IOTA JSON - aborting";
         abortRequested = true;
     }
-
-    while ( !data.atEnd() && !abortRequested )
+    else
     {
-        QString line = data.readLine();
-        if ( count == 0 )
+        QVariantList iota_id;
+        QVariantList iota_islandname;
+
+        const QJsonArray &jsonArray = jsonDoc.array();
+
+        for ( const QJsonValue &value : jsonArray )
         {
-            QString checkingString = "iotaid, islandname";
-            //read the first line
-            if ( !line.contains(checkingString) )
-            {
-                qCDebug(runtime) << line;
-                qWarning() << "Unexpected header for IOTA CSV file - aborting";
-                abortRequested = true;
-            }
-            count++;
-            continue;
-        }
+            if ( !value.isObject() ) continue;
 
-        QRegularExpressionMatchIterator i = CSVRe.globalMatch(line);
-        QStringList fields;
+            const QJsonObject &obj = value.toObject();
+            const QJsonValue &refno = obj.value("refno");
+            const QJsonValue &name = obj.value("name");
 
-        while ( i.hasNext() )
-        {
-            QRegularExpressionMatch match = i.next();
-            fields << match.captured(2);
-        }
+            qCDebug(runtime) << "IOTA Record" << refno << name;
 
-        if ( fields.size() >= 2 )
-        {
-            qCDebug(runtime) << fields;
+            iota_id << refno;
+            iota_islandname << name;
 
-            insertQuery.bindValue(":iotaid", fields.at(0));
-            insertQuery.bindValue(":islandname", fields.at(1));
-
-            if ( ! insertQuery.exec() )
-            {
-                qInfo() << "IOTA Directory insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
-                abortRequested = true;
-                continue;
-            }
-
-            if ( count%100 == 0 )
+            if ( count%500 == 0 )
             {
                 emit progress(data.pos());
                 QCoreApplication::processEvents();
             }
+            count++;
         }
-        else
+
+        insertQuery.addBindValue(iota_id);
+        insertQuery.addBindValue(iota_islandname);
+
+        if ( ! insertQuery.execBatch() )
         {
-            qCDebug(runtime) << "Invalid line in the input file " << line;
+            qInfo() << "IOTA Directory insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
+            abortRequested = true;
         }
-        count++;
     }
 
     if ( !abortRequested )
@@ -822,19 +878,28 @@ void LOVDownloader::parsePOTA(const SourceDefinition &sourceDef, QTextStream &da
                                "                           longitude,"
                                "                           grid"
                                ")"
-                               " VALUES (:reference,"
-                               "         :name,"
-                               "         :active,"
-                               "         :entityID,"
-                               "         :locationDesc,"
-                               "         :latitude,"
-                               "         :longitude,"
-                               "         :grid"
+                               " VALUES (?,"
+                               "         ?,"
+                               "         ?,"
+                               "         ?,"
+                               "         ?,"
+                               "         ?,"
+                               "         ?,"
+                               "         ?"
                                ")") )
     {
         qWarning() << "cannot prepare Insert statement";
         abortRequested = true;
     }
+
+    QVariantList pota_reference;
+    QVariantList pota_name;
+    QVariantList pota_active;
+    QVariantList pota_entityID;
+    QVariantList pota_locationDesc;
+    QVariantList pota_latitude;
+    QVariantList pota_longitude;
+    QVariantList pota_grid;
 
     while ( !data.atEnd() && !abortRequested )
     {
@@ -866,21 +931,14 @@ void LOVDownloader::parsePOTA(const SourceDefinition &sourceDef, QTextStream &da
         {
             qCDebug(runtime) << fields;
 
-            insertQuery.bindValue(":reference", fields.at(0));
-            insertQuery.bindValue(":name", fields.at(1));
-            insertQuery.bindValue(":active", fields.at(2));
-            insertQuery.bindValue(":entityID", fields.at(3));
-            insertQuery.bindValue(":locationDesc", fields.at(4));
-            insertQuery.bindValue(":latitude", fields.at(5));
-            insertQuery.bindValue(":longitude", fields.at(6));
-            insertQuery.bindValue(":grid", fields.at(7));
-
-            if ( ! insertQuery.exec() )
-            {
-                qInfo() << "POTA Directory insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
-                abortRequested = true;
-                continue;
-            }
+            pota_reference << fields.at(0);
+            pota_name << fields.at(1);
+            pota_active << fields.at(2);
+            pota_entityID << fields.at(3);
+            pota_locationDesc << fields.at(4);
+            pota_latitude << fields.at(5);
+            pota_longitude << fields.at(6);
+            pota_grid << fields.at(7);
 
             if ( count%3000 == 0 )
             {
@@ -893,6 +951,21 @@ void LOVDownloader::parsePOTA(const SourceDefinition &sourceDef, QTextStream &da
             qCDebug(runtime) << "Invalid line in the input file " << line;
         }
         count++;
+    }
+
+    insertQuery.addBindValue(pota_reference);
+    insertQuery.addBindValue(pota_name);
+    insertQuery.addBindValue(pota_active);
+    insertQuery.addBindValue(pota_entityID);
+    insertQuery.addBindValue(pota_locationDesc);
+    insertQuery.addBindValue(pota_latitude);
+    insertQuery.addBindValue(pota_longitude);
+    insertQuery.addBindValue(pota_grid);
+
+    if ( ! insertQuery.execBatch() )
+    {
+        qInfo() << "POTA Directory insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
+        abortRequested = true;
     }
 
     if ( !abortRequested )

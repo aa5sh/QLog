@@ -4,9 +4,11 @@
 #include <QObject>
 #include <QDateTime>
 #include <QVector>
+#include <QTimer>
 
 class QNetworkAccessManager;
 class QNetworkReply;
+class QNetworkRequest;
 
 template<class T>
 class GenericValueMap
@@ -83,9 +85,11 @@ signals:
     void AIndexUpdated();
     void auroraMapUpdated();
     void mufMapUpdated();
+    void dxTrendFinalized(QHash<QString, QHash<QString, QHash<QString, int>>>);
 
 public slots:
     void update();
+    void updateDxTrends();
     void processReply(QNetworkReply* reply);
 
 private:
@@ -100,8 +104,15 @@ private:
     GenericValueMap<double> auroraMap;
     GenericValueMap<double> mufMap;
     QHash<QUrl, int> failedRequests;
-
+    QList<QNetworkReply *> dxTrendPendingConnections;
+    QTimer dxTrendTimeoutTimer;
+    QHash<QString, QHash<QString, QHash<QString, int>>> dxTrendResult;
+    QByteArray agentString;
     void repeateRequest(const QUrl &);
+    QNetworkRequest prepareRequest(const QUrl &);
+
+private slots:
+    void dxTrendTimeout();
 
 private:
     QNetworkAccessManager* nam;

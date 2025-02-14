@@ -6,6 +6,9 @@
   <project_license>GPL-3.0-or-later</project_license>
   <name>QLog</name>
   <developer_name>Ladislav Foldyna</developer_name>
+  <developer id="io.github.foldynl">
+    <name>Ladislav Foldyna</name>
+  </developer>
   <summary>Amateur radio logbook</summary>
   <description>
     <p>
@@ -47,6 +50,28 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.42.0" date="2025-02-14">
+      <description>
+        <ul>
+          <li>[NEW] - Awards - Added Slots - total over each band (issue #538)</li>
+          <li>[NEW] - Awards - Added Grid Award - 2/4/6 Chars grid (issue #564)</li>
+          <li>[NEW] - Settings - Added options to switch 12/24 time and date format (issue #573)</li>
+          <li>[NEW] - Activity Manager - Added new dynamic fields - Rig (issue #575)</li>
+          <li>[NEW] - LoTW Import - Fill missing information also for confirmed QSOs (@aa5sh)</li>
+          <li>[NEW] - Added CW macro QTH</li>
+          <li>[NEW] - DXC - Added 15min Trend</li>
+          <li>[CHANGED] - Changed IOTA LOV Source, the official web is used</li>
+          <li>[CHANGED] - CSV Export: Time and Date formats use ISO8601 format (issue #562)</li>
+          <li>[CHANGED] - Settings - Renamed Shortcuts to GUI tab</li>
+          <li>[CHANGED] - LOV - Improved LOV download performance (PR #582 @aa5sh)</li>
+          <li>Partial fix Windows State/Size does not save in case of fullscreen (issue #418)</li>
+          <li>Fixing TCI error when you change Rig (issue #526)</li>
+          <li>Fixed DXCC Award total worked confirmed counts included deleted entities (PR #588 @aa5sh)</li>
+          <li>Fixed Raspberry PI Flatpak - Import Select file dialog crashes (issue #589)</li>
+          <li>Suppressed the ability to edit Contest fields after the start (issue #590)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.41.1" date="2025-01-21">
       <description>
         <ul>

@@ -666,6 +666,12 @@ double Data::MHz2UserFriendlyFreq(double freqMHz,
     return freqMHz;
 }
 
+const QStringList &Data::getContinentList()
+{
+    static const QStringList continents{"AF", "AN", "AS", "EU", "NA", "OC", "SA"};
+    return continents;
+}
+
 QPair<QString, QString> Data::legacyMode(const QString &mode)
 {
     FCT_IDENTIFICATION;

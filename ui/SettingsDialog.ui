@@ -1057,6 +1057,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -1126,6 +1127,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -1153,6 +1155,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -1180,6 +1183,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -1207,6 +1211,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -1234,6 +1239,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -1261,6 +1267,7 @@
 &lt;RST&gt; = Report 599
 &lt;RSTN&gt; = Report 5NN
 &lt;GREETING&gt; = Greenting GM/GA/GE
+&lt;QTH&gt; = QTH
 &lt;MYCALL&gt; = My Callsign
 &lt;MYNAME&gt; = My Name
 &lt;MYQTH&gt; = My QTH
@@ -4205,11 +4212,162 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="shortcutsTab">
+     <widget class="QWidget" name="guiTab">
       <attribute name="title">
-       <string>Shortcuts</string>
+       <string>GUI</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_14">
+       <item>
+        <layout class="QFormLayout" name="dateTimeFormatLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="timeFormatLabel">
+           <property name="text">
+            <string>Time Format</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_35">
+           <item>
+            <widget class="QRadioButton" name="timeFormat24RadioButton">
+             <property name="text">
+              <string>24-hour</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="timeFormat12RadioButton">
+             <property name="text">
+              <string>AM/PM</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="dateFormatLabel">
+           <property name="text">
+            <string>Date Format</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_36">
+           <item>
+            <widget class="QRadioButton" name="dateFormatSystemRadioButton">
+             <property name="text">
+              <string>System</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">buttonGroup_2</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="dateFormatCustomRadioButton">
+             <property name="text">
+              <string>Custom</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">buttonGroup_2</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="dateFormatStringEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="dateFormatResultLabel">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="dateFormatDocLabel">
+             <property name="text">
+              <string>&lt;a href=&quot;https://doc.qt.io/qt-6/qdate.html#fromString-1&quot;&gt;Time Format Documentation&lt;/a&gt;</string>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
        <item>
         <widget class="QLabel" name="shortcutInfoLabel">
          <property name="text">
@@ -4411,6 +4569,11 @@
   <tabstop>tabWidget_3</tabstop>
   <tabstop>kstUsernameEdit</tabstop>
   <tabstop>kstPasswordEdit</tabstop>
+  <tabstop>timeFormat24RadioButton</tabstop>
+  <tabstop>timeFormat12RadioButton</tabstop>
+  <tabstop>dateFormatSystemRadioButton</tabstop>
+  <tabstop>dateFormatCustomRadioButton</tabstop>
+  <tabstop>dateFormatStringEdit</tabstop>
   <tabstop>shortcutsTableView</tabstop>
  </tabstops>
  <resources/>
@@ -5391,6 +5554,70 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>dateFormatCustomRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dateFormatStringEdit</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>358</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateFormatCustomRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dateFormatResultLabel</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateFormatStringEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>updateDateFormatResult()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>358</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateFormatCustomRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dateFormatDocLabel</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>609</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>save()</slot>
@@ -5454,5 +5681,10 @@
   <slot>rotInterfaceChanged(int)</slot>
   <slot>rigPTTTypeChanged(int)</slot>
   <slot>adjustOperatorTextColor()</slot>
+  <slot>updateDateFormatResult()</slot>
  </slots>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
+ </buttongroups>
 </ui>

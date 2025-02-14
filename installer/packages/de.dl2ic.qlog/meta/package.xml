@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>QLog</DisplayName>
     <Description>The QLog main application.</Description>
-    <Version>0.41.1-1</Version>
-    <ReleaseDate>2025-01-21</ReleaseDate>
+    <Version>0.42.0-1</Version>
+    <ReleaseDate>2025-02-14</ReleaseDate>
     <Default>true</Default>
     <Required>true</Required>
     <Script>installscript.qs</Script>

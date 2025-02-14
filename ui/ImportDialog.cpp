@@ -61,12 +61,13 @@ void ImportDialog::browse()
                                                     lastPath,
                                                     ui->typeSelect->currentText().toUpper() + "(*." + ui->typeSelect->currentText().toLower() + ")",
                                                     nullptr,
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) && !(defined(QLOG_FLATPAK) && defined(Q_PROCESSOR_ARM_64))
                                                     // Do not use the Native Dialog under Linux because the dialog is case-sensitive.
                                                     // QT variant looks different but it is case-insensitive.
                                                     // More information:
                                                     // https://stackoverflow.com/questions/34858220/qt-how-to-set-a-case-insensitive-filter-on-qfiledialog
                                                     // https://bugreports.qt.io/browse/QTBUG-51712
+						    // But Raspberry pi crashes when DontUseNativeDialog is used therefore use the native for it.
                                                     QFileDialog::DontUseNativeDialog
 #else
                                                     QFileDialog::Options()

@@ -1,17 +1,36 @@
 #ifndef QLOG_CORE_LOGLOCALE_H
 #define QLOG_CORE_LOGLOCALE_H
 
+#include <QSettings>
 #include <QLocale>
+#include <QRegularExpression>
 
 class LogLocale : public QLocale
 {
 public:
     LogLocale();
-    QString formatTimeLongWithoutTZ() const;
-    QString formatTimeShort() const;
-    QString formatTimeLong() const;
-    QString formatDateShortWithYYYY() const;
-    QString formatDateTimeShortWithYYYY() const;
+
+    const QString formatTimeLongWithoutTZ() const;
+    const QString formatTimeShort() const;
+    const QString formatTimeLong() const;
+    const QString formatDateShortWithYYYY() const;
+    const QString formatDateTimeShortWithYYYY() const;
+    bool getSettingUse24hformat() const;
+    void setSettingUse24hformat(bool value);
+
+    bool getSettingUseSystemDateFormat() const;
+    void setSettingUseSystemDateFormat(bool value);
+
+    const QString getSettingDateFormat() const;
+    void setSettingDateFormat(const QString &value);
+
+private:
+    const QRegularExpression regexp;
+    bool is24hUsed;
+    QSettings settings;
+    QString systemDateFormat;
+
+    void changeTime12_24Format(QString &formatString) const;
 };
 
 #endif // QLOG_CORE_LOGLOCALE_H

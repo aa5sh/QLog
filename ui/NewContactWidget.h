@@ -128,6 +128,9 @@ public:
     QLabel *powerLabel;
     QDoubleSpinBox *powerEdit;
 
+    QLabel *rigLabel;
+    NewContactEditLine *rigEdit;
+
     explicit NewContactDynamicWidgets(bool allocateWidgets,
                                       QWidget *parent);
     QWidget* getRowWidget(int index);
@@ -172,6 +175,7 @@ public:
     QString getName() const;
     QString getRST() const;
     QString getGreeting() const;
+    QString getQTH() const;
     QString getMyCallsign() const;
     QString getMyName() const;
     QString getMyQTH() const;

@@ -129,6 +129,7 @@ public:
     static double MHz2UserFriendlyFreq(double,
                                        QString &unit,
                                        unsigned char &efectiveDecP);
+    static const QStringList& getContinentList();
 
     static qulonglong countDupe(const QString& callsign,
                                 const QString &band,

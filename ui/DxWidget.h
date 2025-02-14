@@ -6,6 +6,7 @@
 #include <QSortFilterProxyModel>
 #include <QRegularExpression>
 #include <QSqlRecord>
+#include <QLabel>
 
 #include "data/DxSpot.h"
 #include "data/WCYSpot.h"
@@ -14,6 +15,7 @@
 #include "core/LogLocale.h"
 #include "core/DxServerString.h"
 #include "models/SearchFilterProxyModel.h"
+#include "rig/Rig.h"
 
 // in sec
 #define DEDUPLICATION_TIME 3
@@ -136,6 +138,9 @@ public slots:
     void setSearchStatus(bool);
     void setSearchVisible();
     void setSearchClosed();
+    void setDxTrend(QHash<QString, QHash<QString, QHash<QString, int>>>);
+    void recalculateTrend();
+    void setTunedFrequency(VFOID vfoid, double vfoFreq, double ritFreq, double xitFreq);
 
 private slots:
     void actionCommandSpotQSO();
@@ -150,9 +155,11 @@ private slots:
     void actionClear();
 
     void displayedColumns();
+    void trendDoubleClicked(int row, int column);
 
 signals:
     void tuneDx(DxSpot);
+    void tuneBand(QString);
     void newSpot(DxSpot);
     void newWCYSpot(WCYSpot);
     void newWWVSpot(WWVSpot);
@@ -192,6 +199,11 @@ private:
     QTimer reconnectTimer;
     DXCConnectionState connectionState;
     DxServerString *connectedServerString;
+    QHash<QString, QHash<QString, QHash<QString, int>>> receivedTrendData;
+    QHash<QString, QHash<QString, int>> prevTrendDataForMyCont;
+    QHash<QString, QHash<QString, int>> trendDataForMyCont;
+    QStringList trendBandList;
+    QLabel *trendTableCornerLabel;
 
     void connectCluster();
     void disconnectCluster(bool tryReconnect = false);
@@ -234,6 +246,8 @@ private:
     void potaRefFromComment(DxSpot &spot) const;
     void sotaRefFromComment(DxSpot &spot) const;
     void iotaRefFromComment(DxSpot &spot) const;
+
+    QColor getHeatmapColor(int value, int maxValue);
 };
 
 #endif // QLOG_UI_DXWIDGET_H

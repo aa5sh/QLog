@@ -83,6 +83,10 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
 
     ui->setupUi(this);
 
+    ui->dateFormatResultLabel->setVisible(false);
+    ui->dateFormatStringEdit->setVisible(false);
+    ui->dateFormatDocLabel->setVisible(false);
+
     ui->rigPortTypeCombo->addItem(tr("Serial"));
     ui->rigPortTypeCombo->addItem(tr("Network"));
     ui->rigPortTypeCombo->addItem(tr("Special - Omnirig"));
@@ -2231,6 +2235,13 @@ void SettingsDialog::clublogSettingChanged()
     }
 }
 
+void SettingsDialog::updateDateFormatResult()
+{
+    FCT_IDENTIFICATION;
+
+    ui->dateFormatResultLabel->setText(QDate::currentDate().toString(ui->dateFormatStringEdit->text()));
+}
+
 void SettingsDialog::readSettings() {
     FCT_IDENTIFICATION;
 
@@ -2348,6 +2359,18 @@ void SettingsDialog::readSettings() {
     ui->notifSpotAlertEdit->setText(NetworkNotification::getNotifSpotAlertAddrs());
     ui->notifRigEdit->setText(NetworkNotification::getNotifRigStateAddrs());
 
+    /*******/
+    /* GUI */
+    /*******/
+    bool timeformat24 = locale.getSettingUse24hformat();
+    ui->timeFormat24RadioButton->setChecked(timeformat24);
+    ui->timeFormat12RadioButton->setChecked(!timeformat24);
+
+    bool dateSystemFormat = locale.getSettingUseSystemDateFormat();
+    ui->dateFormatSystemRadioButton->setChecked(dateSystemFormat);
+    ui->dateFormatCustomRadioButton->setChecked(!dateSystemFormat);
+    ui->dateFormatStringEdit->setText(locale.getSettingDateFormat());
+
     /******************/
     /* END OF Reading */
     /******************/
@@ -2459,6 +2482,16 @@ void SettingsDialog::writeSettings() {
     NetworkNotification::saveNotifWSJTXCQSpotAddrs(ui->notifWSJTXCQSpotsEdit->text());
     NetworkNotification::saveNotifSpotAlertAddrs(ui->notifSpotAlertEdit->text());
     NetworkNotification::saveNotifRigStateAddrs(ui->notifRigEdit->text());
+
+    /*******/
+    /* GUI */
+    /*******/
+    locale.setSettingUse24hformat(ui->timeFormat24RadioButton->isChecked());
+
+    bool systemDateChecked = ui->dateFormatSystemRadioButton->isChecked();
+    locale.setSettingUseSystemDateFormat(systemDateChecked);
+    if ( !systemDateChecked )
+        locale.setSettingDateFormat(ui->dateFormatStringEdit->text());
 }
 
 /* this function is called when user modify rig progile

@@ -129,6 +129,21 @@ public:
         removeParamGroup("contest/seqnos/");
     }
 
+    static bool setDXCTrendContinent(const QString &cont)
+    {
+        return setParam("dxc/trendContinent", cont);
+    }
+
+    static QString getDXCTrendContinent(const QString &def)
+    {
+        return getParam("dxc/trendContinent", def).toString();
+    }
+
+    static void removeDXCTrendContinent()
+    {
+        removeParamGroup("dxc/trendContinent");
+    }
+
 private:
     static QCache<QString, QVariant> localCache;
     static QMutex cacheMutex;

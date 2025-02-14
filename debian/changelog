@@ -1,3 +1,23 @@
+qlog (0.42.0-1) UNRELEASED; urgency=low
+  * [NEW] - Awards - Added Slots - total over each band (issue #538)
+  * [NEW] - Awards - Added Grid Award - 2/4/6 Chars grid (issue #564)
+  * [NEW] - Settings - Added options to switch 12/24 time and date format (issue #573)
+  * [NEW] - Activity Manager - Added new dynamic fields - Rig (issue #575)
+  * [NEW] - LoTW Import - Fill missing information also for confirmed QSOs (@aa5sh)
+  * [NEW] - Added CW macro QTH
+  * [NEW] - DXC - Added 15min Trend
+  * [CHANGED] - Changed IOTA LOV Source, the official web is used
+  * [CHANGED] - CSV Export: Time and Date formats use ISO8601 format (issue #562)
+  * [CHANGED] - Settings - Renamed Shortcuts to GUI tab
+  * [CHANGED] - LOV - Improved LOV download performance (PR #582 @aa5sh)
+  * Partial fix Windows State/Size does not save in case of fullscreen (issue #418)
+  * Fixing TCI error when you change Rig (issue #526)
+  * Fixed DXCC Award total worked confirmed counts included deleted entities (PR #588 @aa5sh)
+  * Fixed Raspberry PI Flatpak - Import Select file dialog crashes (issue #589)
+  * Suppressed the ability to edit Contest fields after the start (issue #590)
+
+ -- foldynl <foldyna@gmail.com>  Fri, 14 Feb 2025 18:45:25 +0100
+
 qlog (0.41.1-1) UNRELEASED; urgency=low
   * Fixed compilation issue under Debian 12 (issue #571)
   * Fixed Incorrect GPL version in rpm/deb packages (issue #572)

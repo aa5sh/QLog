@@ -23,6 +23,9 @@ protected:
                             bool presenceCondition,
                             const QString &value,
                             const QString &type="") override;
+    const QString toDate(const QVariant &) override;
+    const QString toTime(const QVariant &) override;
+
 private:
     QMap<QString, int> header;
     QList<QHash<QString, QString>> exportedRecords;

@@ -34,14 +34,14 @@ public:
 };
 
 class DateFormatDelegate : public QStyledItemDelegate {
+private:
+    LogLocale locale;
 public:
     DateFormatDelegate(QObject* parent = 0) :
         QStyledItemDelegate(parent) { }
 
     QString displayText(const QVariant& value, const QLocale&) const
     {
-        // use own Locale Class
-        LogLocale locale;
         return value.toDate().toString(locale.formatDateShortWithYYYY());
     }
 
@@ -57,6 +57,7 @@ public:
 #endif
         editor->setMinimumDate(QDate(1900, 1, 1));
         editor->setSpecialValueText(tr("Blank"));
+        editor->setDisplayFormat(locale.formatDateShortWithYYYY());
         return editor;
     }
 
@@ -88,6 +89,8 @@ public:
 };
 
 class TimeFormatDelegate : public QStyledItemDelegate {
+private:
+    LogLocale locale;
 public:
     TimeFormatDelegate(QObject* parent = 0) :
         QStyledItemDelegate(parent) { }
@@ -95,12 +98,14 @@ public:
     QString displayText(const QVariant& value, const QLocale&) const
     {
         // own Locale
-        LogLocale locale;
+
         return value.toTime().toString(locale.formatTimeLongWithoutTZ());
     }
 };
 
 class TimestampFormatDelegate : public QStyledItemDelegate {
+private:
+    LogLocale locale;
 public:
     TimestampFormatDelegate(QObject* parent = 0) :
         QStyledItemDelegate(parent) { }
@@ -108,7 +113,6 @@ public:
     QString displayText(const QVariant& value, const QLocale&) const
     {
         // own Locale
-        LogLocale locale;
         return value.toDateTime().toTimeZone(QTimeZone::utc()).toString(locale.formatDateShortWithYYYY() + " " + locale.formatTimeLongWithoutTZ());
     }
 
@@ -125,6 +129,7 @@ public:
 #endif
         editor->setDateTime(QDateTime(QDate(1900, 1, 1), QTime(0, 0, 0)));
         editor->setSpecialValueText(tr("Blank"));
+        editor->setDisplayFormat(locale.formatDateShortWithYYYY() + " " + locale.formatTimeLongWithoutTZ());
         return editor;
     }
 

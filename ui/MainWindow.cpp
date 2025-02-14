@@ -97,8 +97,6 @@ MainWindow::MainWindow(QWidget* parent) :
             dockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
     }
 
-    setLayoutGeometry();
-
     const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
 
     activityButton = new QPushButton("", ui->statusBar);
@@ -172,8 +170,6 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->rigWidget, &RigWidget::refreshRigProfileCombo);
 
     connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
-            this, &MainWindow::setSimplyLayoutGeometry);
-    connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::setupCustomUi);
 
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
@@ -188,6 +184,8 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->chatWidget, &ChatWidget::reloadStationProfile);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->clockWidget, &ClockWidget::updateSun);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->dxWidget, &DxWidget::recalculateTrend);
 
     connect(this, &MainWindow::themeChanged, ui->bandmapWidget, &BandmapWidget::update);
     connect(this, &MainWindow::themeChanged, ui->clockWidget, &ClockWidget::updateClock);
@@ -205,6 +203,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->rigWidget, &RigWidget::updateFrequency);
+    connect(Rig::instance(), &Rig::frequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(Rig::instance(), &Rig::modeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(Rig::instance(), &Rig::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
     connect(Rig::instance(), &Rig::modeChanged, ui->rigWidget, &RigWidget::updateMode);
@@ -251,6 +250,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
+    connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(ui->wsjtxWidget, &WsjtxWidget::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
 
     connect(this, &MainWindow::settingsChanged, wsjtx, &Wsjtx::reloadSetting);
@@ -264,6 +264,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->bandmapWidget, &BandmapWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
+    connect(this, &MainWindow::settingsChanged, ui->newContactWidget, &NewContactWidget::readGlobalSettings);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
     connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);
@@ -311,6 +312,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::filterCallsign, ui->logbookWidget, &LogbookWidget::filterCallsign);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->bandmapWidget, &BandmapWidget::updateTunedFrequency);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
+    connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(ui->newContactWidget, &NewContactWidget::userModeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(ui->newContactWidget, &NewContactWidget::markQSO, ui->bandmapWidget, &BandmapWidget::addSpot);
     connect(ui->newContactWidget, &NewContactWidget::callboolImageUrl, ui->profileImageWidget, &ProfileImageWidget::loadImageFromUrl);
@@ -324,6 +326,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->dxWidget, &DxWidget::newWWVSpot, &networknotification, &NetworkNotification::wwvSpot);
     connect(ui->dxWidget, &DxWidget::newToAllSpot, &networknotification, &NetworkNotification::toAllSpot);
     connect(ui->dxWidget, &DxWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
+    connect(ui->dxWidget, &DxWidget::tuneBand, ui->rigWidget, &RigWidget::setBand);
 
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, this, &MainWindow::processSpotAlert);
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, &networknotification, &NetworkNotification::spotAlert);
@@ -350,6 +353,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(conditions, &PropConditions::conditionsUpdated, this, &MainWindow::conditionsUpdated);
     connect(conditions, &PropConditions::auroraMapUpdated, ui->onlineMapWidget, &OnlineMapWidget::auroraDataUpdate);
     connect(conditions, &PropConditions::mufMapUpdated, ui->onlineMapWidget, &OnlineMapWidget::mufDataUpdate);
+    connect(conditions, &PropConditions::dxTrendFinalized, ui->dxWidget, &DxWidget::setDxTrend);
 
     ui->onlineMapWidget->assignPropConditions(conditions);
     ui->newContactWidget->assignPropConditions(conditions);
@@ -677,35 +681,50 @@ void MainWindow::setLayoutGeometry()
     // restore the window geometry and state
     const MainLayoutProfile &layoutProfile = MainLayoutProfilesManager::instance()->getCurProfile1();
 
+    QByteArray newGeometry;
+    QByteArray newState;
+    bool darkMode = false;
+
     if ( layoutProfile.mainGeometry != QByteArray()
-         || layoutProfile.mainState != QByteArray() )
+        || layoutProfile.mainState != QByteArray() )
     {
-        restoreGeometry(layoutProfile.mainGeometry);
-#if (QT_VERSION < QT_VERSION_CHECK(6, 3, 0))
-        // workaround for QTBUG-46620
-        if ( isMaximized() )
-        {
-            const QList<QScreen *> &screens = QGuiApplication::screens();
-            setGeometry( screens[0]->availableGeometry() );
-        }
-#endif
-        restoreState(layoutProfile.mainState);
-        darkLightModeSwith->setChecked(layoutProfile.darkMode);
+        newGeometry = layoutProfile.mainGeometry;
+        newState = layoutProfile.mainState;
+        darkMode = layoutProfile.darkMode;
     }
     else
     {
-        restoreGeometry(settings.value("geometry").toByteArray());
-#if (QT_VERSION < QT_VERSION_CHECK(6, 3, 0))
-        // workaround for QTBUG-46620
-        if ( isMaximized() )
-        {
-            const QList<QScreen *> &screens = QGuiApplication::screens();
-            setGeometry( screens[0]->availableGeometry() );
-        }
-#endif
-        restoreState(settings.value("windowState").toByteArray());
-        // leave dark mode as is
+        newGeometry = settings.value("geometry").toByteArray();
+        newState = settings.value("windowState").toByteArray();
+        darkMode = settings.value("darkmode", false).toBool();
     }
+
+    restoreGeometry(newGeometry);
+
+#ifdef Q_OS_LINUX
+    // workaround for QTBUG-46620
+    // side-effet - sometime it sets fullscreen mode
+    if ( isMaximized() )
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+        setGeometry(screen()->availableGeometry());
+#else
+        setGeometry(QApplication::desktop()->availableGeometry(this));
+#endif
+#endif
+
+    // workaround for QTBUG-46620
+    QTimer* nt = new QTimer(this);
+    nt->setSingleShot(true);
+    nt->setInterval(500);
+    connect(nt, &QTimer::timeout, this, [this, darkMode, newState]()
+    {
+        restoreState(newState);
+        darkLightModeSwith->setChecked(isFusionStyle && darkMode);
+        connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
+                this, &MainWindow::setSimplyLayoutGeometry);
+    });
+    nt->connect(nt, &QTimer::timeout, nt, &QTimer::deleteLater);
+    nt->start();
 }
 
 void MainWindow::setSimplyLayoutGeometry()
@@ -720,8 +739,28 @@ void MainWindow::setSimplyLayoutGeometry()
         || layoutProfile.mainState != QByteArray() )
     {
         restoreGeometry(layoutProfile.mainGeometry);
-        restoreState(layoutProfile.mainState);
-        darkLightModeSwith->setChecked(isFusionStyle && layoutProfile.darkMode);
+
+#ifdef Q_OS_LINUX
+        if ( isMaximized() )
+        {
+            // workaround for QTBUG-46620
+            // side-effect: screen is flashing
+            QApplication::processEvents(); showNormal();
+            QApplication::processEvents(); showMaximized();
+        }
+#endif
+
+        // workaround for QTBUG-46620
+        QTimer* nt = new QTimer(this);
+        nt->setSingleShot(true);
+        nt->setInterval(500);
+        connect(nt, &QTimer::timeout, this, [this, layoutProfile]()
+        {
+            restoreState(layoutProfile.mainState);
+            darkLightModeSwith->setChecked(isFusionStyle && layoutProfile.darkMode);
+        });
+        nt->connect(nt, &QTimer::timeout, nt, &QTimer::deleteLater);
+        nt->start();
     }
 }
 
@@ -738,7 +777,9 @@ void MainWindow::saveProfileLayoutGeometry()
         layoutProfile.darkMode = darkLightModeSwith->isChecked();
         layoutProfile.tabsexpanded =  ui->newContactWidget->getTabCollapseState();
         MainLayoutProfilesManager::instance()->addProfile(layoutProfile.profileName, layoutProfile);
+        MainLayoutProfilesManager::instance()->blockSignals(true); // prevent screen flashing
         MainLayoutProfilesManager::instance()->save();
+        MainLayoutProfilesManager::instance()->blockSignals(false);
     }
 }
 
