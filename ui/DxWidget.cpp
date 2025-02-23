@@ -59,7 +59,7 @@ QVariant DxTableModel::data(const QModelIndex& index, int role) const
         switch ( index.column() )
         {
         case 0:
-            return spot.dateTime.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.dateTime, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.callsign;
         case 2:
@@ -174,7 +174,7 @@ QVariant WCYTableModel::data(const QModelIndex& index, int role) const
         switch ( index.column() )
         {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.time, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.KIndex;
         case 2:
@@ -252,7 +252,7 @@ QVariant WWVTableModel::data(const QModelIndex& index, int role) const
         switch ( index.column() )
         {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.time, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.SFI;
         case 2:
@@ -317,7 +317,7 @@ QVariant ToAllTableModel::data(const QModelIndex& index, int role) const
 
         switch (index.column()) {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.time, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.spotter;
         case 2:

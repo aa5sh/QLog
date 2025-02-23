@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QDateTime>
-#include <QVector>
+#include <QSet>
 #include <QTimer>
 
 class QNetworkAccessManager;
@@ -104,7 +104,7 @@ private:
     GenericValueMap<double> auroraMap;
     GenericValueMap<double> mufMap;
     QHash<QUrl, int> failedRequests;
-    QList<QNetworkReply *> dxTrendPendingConnections;
+    QSet<QNetworkReply *> dxTrendPendingConnections;
     QTimer dxTrendTimeoutTimer;
     QHash<QString, QHash<QString, QHash<QString, int>>> dxTrendResult;
     QByteArray agentString;

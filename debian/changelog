@@ -1,3 +1,10 @@
+qlog (0.42.1-1) UNRELEASED; urgency=low
+  * Fixed Unexpected timezone info (issue #600)
+  * Fixed DXCC Statistics picks more entities (issue #601)
+  * Fixed a crash when no internet connection
+
+ -- foldynl <foldyna@gmail.com>  Sat, 22 Feb 2025 11:45:02 +0100
+
 qlog (0.42.0-1) UNRELEASED; urgency=low
   * [NEW] - Awards - Added Slots - total over each band (issue #538)
   * [NEW] - Awards - Added Grid Award - 2/4/6 Chars grid (issue #564)

@@ -42,6 +42,11 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Sat Feb 22 2025 Ladislav Foldyna - 0.42.1-1
+- Fixed Unexpected timezone info (issue #600)
+- Fixed DXCC Statistics picks more entities (issue #601)
+- Fixed a crash when no internet connection
+
 * Fri Feb 14 2025 Ladislav Foldyna - 0.42.0-1
 - [NEW] - Awards - Added Slots - total over each band (issue #538)
 - [NEW] - Awards - Added Grid Award - 2/4/6 Chars grid (issue #564)

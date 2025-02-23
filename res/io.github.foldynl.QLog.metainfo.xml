@@ -50,6 +50,15 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.42.1" date="2025-02-22">
+      <description>
+        <ul>
+          <li>Fixed Unexpected timezone info (issue #600)</li>
+          <li>Fixed DXCC Statistics picks more entities (issue #601)</li>
+          <li>Fixed a crash when no internet connection</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.42.0" date="2025-02-14">
       <description>
         <ul>

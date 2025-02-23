@@ -1,3 +1,8 @@
+2025/02/22 - 0.42.1
+- Fixed Unexpected timezone info (issue #600)
+- Fixed DXCC Statistics picks more entities (issue #601)
+- Fixed a crash when no internet connection
+
 2025/02/14 - 0.42.0
 - [NEW] - Awards - Added Slots - total over each band (issue #538)
 - [NEW] - Awards - Added Grid Award - 2/4/6 Chars grid (issue #564)

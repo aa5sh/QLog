@@ -88,21 +88,6 @@ public:
     }
 };
 
-class TimeFormatDelegate : public QStyledItemDelegate {
-private:
-    LogLocale locale;
-public:
-    TimeFormatDelegate(QObject* parent = 0) :
-        QStyledItemDelegate(parent) { }
-
-    QString displayText(const QVariant& value, const QLocale&) const
-    {
-        // own Locale
-
-        return value.toTime().toString(locale.formatTimeLongWithoutTZ());
-    }
-};
-
 class TimestampFormatDelegate : public QStyledItemDelegate {
 private:
     LogLocale locale;
@@ -112,8 +97,9 @@ public:
 
     QString displayText(const QVariant& value, const QLocale&) const
     {
-        // own Locale
-        return value.toDateTime().toTimeZone(QTimeZone::utc()).toString(locale.formatDateShortWithYYYY() + " " + locale.formatTimeLongWithoutTZ());
+        return locale.toString(value.toDateTime().toTimeZone(QTimeZone::utc()), locale.formatDateShortWithYYYY()
+                                                                                + " "
+                                                                                + locale.formatTimeLongWithoutTZ());
     }
 
     QWidget* createEditor(QWidget* parent,

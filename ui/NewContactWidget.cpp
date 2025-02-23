@@ -2199,7 +2199,7 @@ void NewContactWidget::updatePartnerLocTime()
 
     if ( partnerTimeZone.isValid() )
     {
-        ui->partnerLocTimeInfo->setText(QDateTime::currentDateTime().toTimeZone(partnerTimeZone).toString(locale.formatTimeLong())
+        ui->partnerLocTimeInfo->setText(locale.toString(QDateTime::currentDateTime().toTimeZone(partnerTimeZone), locale.formatTimeLong())
                                         + " (" + getGreeting() +")");
     }
 }

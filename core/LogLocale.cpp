@@ -4,12 +4,14 @@
 MODULE_IDENTIFICATION("qlog.core.loglocale");
 
 LogLocale::LogLocale() :
-    regexp(QRegularExpression(R"(, tttt|\(t\)|\bt\b)")),
+    regexp(QRegularExpression(R"(, tttt|\(t\)|\(tttt\)|\[tttt\]|\btttt\b|\btt\b|\bt\b)")),
     is24hUsed(!timeFormat(QLocale::ShortFormat).contains("ap", Qt::CaseInsensitive))
 {
     FCT_IDENTIFICATION;
 
     systemDateFormat = dateFormat(QLocale::ShortFormat);
+    qCDebug(runtime) << systemDateFormat;
+
     if ( systemDateFormat.contains("yy") && !systemDateFormat.contains("yyyy") )
         systemDateFormat.replace("yy", "yyyy");
 }
@@ -29,7 +31,9 @@ const QString LogLocale::formatTimeLongWithoutTZ() const
 {
     FCT_IDENTIFICATION;
 
-    QString ret = timeFormat(QLocale::LongFormat).remove(regexp);
+    qCDebug(runtime) << timeFormat(QLocale::LongFormat);
+
+    QString ret = timeFormat(QLocale::LongFormat).remove(regexp).trimmed();
 
     changeTime12_24Format(ret);
     qCDebug(runtime) << "format:" << ret;
@@ -39,6 +43,8 @@ const QString LogLocale::formatTimeLongWithoutTZ() const
 const QString LogLocale::formatTimeShort() const
 {
     FCT_IDENTIFICATION;
+
+    qCDebug(runtime) << timeFormat(QLocale::ShortFormat);
 
     QString ret = timeFormat(QLocale::ShortFormat);
 

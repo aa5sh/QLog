@@ -29,7 +29,7 @@ QVariant AlertTableModel::data(const QModelIndex& index, int role) const
         case COLUMN_FREQ: return QSTRING_FREQ(selectedRecord.alert.spot.freq);
         case COLUMN_MODE: return selectedRecord.alert.spot.modeGroupString;
         case COLUMN_UPDATED: return selectedRecord.counter;
-        case COLUMN_LAST_UPDATE: return selectedRecord.alert.spot.dateTime.toString(locale.formatTimeLongWithoutTZ());
+        case COLUMN_LAST_UPDATE: return locale.toString(selectedRecord.alert.spot.dateTime,locale.formatTimeLongWithoutTZ());
         case COLUMN_LAST_COMMENT: return selectedRecord.alert.spot.comment;
         case COLUMN_MEMBER: return selectedRecord.alert.spot.memberList2StringList().join(",");
         default: return QVariant();

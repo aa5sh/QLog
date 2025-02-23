@@ -49,7 +49,7 @@ void ClockWidget::updateClock()
     QDateTime now = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
     QColor textColor = qApp->palette().color(QPalette::Text);
     clockItem->setDefaultTextColor(textColor);
-    clockItem->setPlainText(now.toString(locale.formatTimeLongWithoutTZ()));
+    clockItem->setPlainText(locale.toString(now, locale.formatTimeLongWithoutTZ()));
 
     if (now.time().second() == 0)
     {
@@ -95,8 +95,8 @@ void ClockWidget::updateSun()
         sunrise = QTime::fromMSecsSinceStartOfDay(static_cast<int>(fmod(Jrise, 1.0) * MSECS_PER_DAY));
         sunset = QTime::fromMSecsSinceStartOfDay(static_cast<int>(fmod(Jset, 1.0) * MSECS_PER_DAY));
 
-        ui->sunRiseLabel->setText(sunrise.toString(locale.formatTimeShort()));
-        ui->sunSetLabel->setText(sunset.toString(locale.formatTimeShort()));
+        ui->sunRiseLabel->setText(locale.toString(sunrise, locale.formatTimeShort()));
+        ui->sunSetLabel->setText(locale.toString(sunset, locale.formatTimeShort()));
     }
     else
     {
