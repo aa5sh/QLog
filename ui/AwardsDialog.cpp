@@ -73,7 +73,6 @@ void AwardsDialog::refreshTable(int)
     QStringList confirmed("1=2 ");
     QStringList modes("'NONE'");
     QString headersColumns;
-    QString uniqColumns;
     QString addWherePart;
     QString sourceContactsTable;
     QString sqlPartDetailTable;
@@ -84,6 +83,8 @@ void AwardsDialog::refreshTable(int)
     QStringList stmt_sum_total;
     QStringList stmt_having;
     QStringList addlCTEs;
+    QStringList stmt_total_band_condition_work;
+    QStringList stmt_total_band_condition_confirmed;
 
     const QString &awardSelected = getSelectedAward();
 
@@ -118,6 +119,8 @@ void AwardsDialog::refreshTable(int)
         stmt_sum_worked << QString("SUM(CASE WHEN a.'%1' > 0 THEN 1 ELSE 0 END) '%2'").arg(band.name, band.name);
         stmt_sum_total << QString("SUM(d.'%1') '%2'").arg(band.name, band.name);
         stmt_having << QString("SUM(d.'%1') = 0").arg(band.name);
+        stmt_total_band_condition_work << QString("e.'%0' > 0").arg(band.name);
+        stmt_total_band_condition_confirmed << QString("e.'%0' > 1").arg(band.name);
     }
 
     stmt_max_part << QString(" MAX(CASE WHEN prop_mode = 'SAT' AND m.dxcc IN (%1) THEN %2 ELSE 0 END) as 'SAT' ").arg(modes.join(","), innerConfirmedCase)
@@ -132,6 +135,10 @@ void AwardsDialog::refreshTable(int)
                    << " SUM(d.'EME') 'EME' ";
     stmt_having << " SUM(d.'SAT') = 0"
                 << " SUM(d.'EME') = 0";
+    stmt_total_band_condition_work << "e.'SAT' > 0"
+                                   << "e.'EME' > 0";
+    stmt_total_band_condition_confirmed << "e.'SAT' > 1"
+                                        << "e.'EME' > 1";
 
     sourceContactsTable = " source_contacts AS ("
                           "  SELECT * "
@@ -143,8 +150,8 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(true);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "translate_to_locale(d.name) col1, d.prefix col2 ";
-        uniqColumns = "c.dxcc";
-        sqlPartDetailTable = " FROM dxcc_entities d"
+        sqlPartDetailTable = " FROM (SELECT id, name, prefix FROM dxcc_entities "
+                             "       UNION SELECT DISTINCT dxcc, dxcc, '" + tr("Unknown") + "' as prefix FROM source_contacts a LEFT JOIN dxcc_entities b ON a.dxcc = b.id WHERE b.id IS NULL) d "
                              "   LEFT OUTER JOIN source_contacts c ON d.id = c.dxcc"
                              "   LEFT OUTER JOIN modes m on c.mode = m.name"
                              " WHERE (c.id is NULL or c.my_dxcc = '" + entitySelected + "') ";
@@ -156,7 +163,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(true);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "d.n col1, null col2 ";
-        uniqColumns = "c.cqz";
         addlCTEs<< " cqzCTE AS ( "
                    "   SELECT 1 AS n, 1 AS value"
                    "   UNION ALL"
@@ -175,7 +181,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(true);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "d.n col1, null col2 ";
-        uniqColumns = "c.ituz";
         addlCTEs << " ituzCTE AS ("
                     "   SELECT 1 AS n, 1 AS value"
                     "   UNION ALL"
@@ -195,7 +200,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(true);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "d.column2 col1, d.column1 col2 ";
-        uniqColumns = "c.cont";
         addlCTEs << "  continents as "
                     "     (values ('NA', '" + tr("North America") + "'),"
                     "             ('SA', '" + tr("South America") + "'),"
@@ -217,7 +221,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(true);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "d.subdivision_name col1, d.code col2 ";
-        uniqColumns = "c.state";
         sqlPartDetailTable = " FROM adif_enum_primary_subdivision d"
                              "   LEFT OUTER JOIN source_contacts c ON d.dxcc = c.dxcc AND d.code = c.state"
                              "   LEFT OUTER JOIN modes m on c.mode = m.name"
@@ -230,7 +233,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(false);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "c.pfx col1, null col2 ";
-        uniqColumns = "c.pfx";
         sqlPartDetailTable = " FROM source_contacts c"
                              "      INNER JOIN modes m ON c.mode = m.name"
                              " WHERE c.pfx is not null"
@@ -243,7 +245,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(false);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = "c.iota col1, NULL col2 ";
-        uniqColumns = "c.iota";
         sqlPartDetailTable = " FROM source_contacts c"
                              "      INNER JOIN modes m ON c.mode = m.name"
                              " WHERE c.my_dxcc = '" + entitySelected + "' ";
@@ -260,7 +261,6 @@ void AwardsDialog::refreshTable(int)
         setNotWorkedEnabled(false);
         const QString &entitySelected = getSelectedEntity();
         headersColumns = QString("substr(c.gridsquare, 1, %0) col1, NULL col2 ").arg(number);
-        uniqColumns = QString("substr(c.gridsquare, 1, %0)").arg(number);
         sqlPartDetailTable = " FROM source_contacts c"
                              "      INNER JOIN modes m ON c.mode = m.name"
                              " WHERE c.my_dxcc = '" + entitySelected + "' ";
@@ -271,7 +271,6 @@ void AwardsDialog::refreshTable(int)
         setEntityInputEnabled(false);
         setNotWorkedEnabled(false);
         headersColumns = "p.reference col1, p.name col2 ";
-        uniqColumns = "c.pota";
         sqlPartDetailTable = " FROM pota_directory p "
                              "      INNER JOIN source_contacts c ON SUBSTR(c.pota, 1, COALESCE(NULLIF(INSTR(c.pota, '@'), 0) - 1, LENGTH(c.pota))) = p.reference"
                              "      INNER JOIN modes m on c.mode = m.name ";
@@ -297,7 +296,6 @@ void AwardsDialog::refreshTable(int)
         setEntityInputEnabled(false);
         setNotWorkedEnabled(false);
         headersColumns = "p.reference col1, p.name col2 ";
-        uniqColumns = "c.my_pota_ref_str";
         sqlPartDetailTable = " FROM pota_directory p "
                              "      INNER JOIN source_contacts c ON SUBSTR(c.my_pota_ref_str, 1, COALESCE(NULLIF(INSTR(c.my_pota_ref_str, '@'), 0) - 1, LENGTH(c.my_pota_ref_str))) = p.reference"
                              "      INNER JOIN modes m on c.mode = m.name ";
@@ -323,7 +321,6 @@ void AwardsDialog::refreshTable(int)
         setEntityInputEnabled(false);
         setNotWorkedEnabled(false);
         headersColumns = "s.summit_code col1, NULL col2 ";
-        uniqColumns = "c.sota_ref";
 
         sqlPartDetailTable = " FROM sota_summits s "
                           "     INNER JOIN source_contacts c ON c.sota_ref = s.summit_code "
@@ -334,24 +331,12 @@ void AwardsDialog::refreshTable(int)
         setEntityInputEnabled(false);
         setNotWorkedEnabled(false);
         headersColumns = "w.reference col1, w.name col2 ";
-        uniqColumns = "c.wwff_ref";
         sqlPartDetailTable = " FROM wwff_directory w "
                           "     INNER JOIN source_contacts c ON c.wwff_ref = w.reference "
                           "     INNER JOIN modes m on c.mode = m.name ";
     }
 
     addlCTEs.append(sourceContactsTable);
-
-    QString totalTable;
-
-    if (awardSelected == "dxcc")
-    {
-        totalTable = "dxcc_entities d   LEFT OUTER JOIN source_contacts c ON d.id = c.dxcc";
-    }
-    else
-    {
-        totalTable = "source_contacts c";
-    }
 
     QString finalSQL(QString(
               "WITH "
@@ -360,64 +345,63 @@ void AwardsDialog::refreshTable(int)
               "     SELECT %2, %3 "
               "     %4"
               "     %5"
-              "     GROUP BY  1,2) "
+              "     GROUP BY  1,2), "
+              "   unique_worked AS ("
+              "     SELECT DISTINCT col1"
+              "     FROM detail_table e"
+              "      WHERE %6), "
+              "   unique_confirmed AS ("
+              "     SELECT DISTINCT col1"
+              "     FROM detail_table e"
+              "      WHERE %7) "
               "SELECT * FROM ( "
-              "     SELECT 0 column_idx, '%6', COUNT(DISTINCT %7), %8"
-              "     FROM %23 INNER JOIN modes m ON c.mode = m.name"
-              "     WHERE m.dxcc IN (%9)"
-              "           %10"
+              "     SELECT 0 column_idx, '%8', COUNT(*), %9"
+              "     FROM unique_worked"
               "   UNION ALL "
-              "     SELECT 0 column_idx, '%11', COUNT(DISTINCT %12), %13"
-              "     FROM %23 INNER JOIN modes m ON c.mode = m.name "
-              "     WHERE (%14)"
-              "           AND m.dxcc IN (%15)"
-              "           %16"
+              "     SELECT 0 column_idx, '%10', COUNT(*), %11"
+              "     FROM unique_confirmed"
               "   UNION ALL "
-              "     SELECT 1 column_idx, '%17', NULL prefix, %18"
+              "     SELECT 1 column_idx, '%12', NULL prefix, %13"
               "     FROM detail_table a "
               "     GROUP BY 1 "
               "   UNION ALL "
-              "     SELECT 2 column_idx, '%19', NULL prefix, %20"
+              "     SELECT 2 column_idx, '%14', NULL prefix, %15"
               "     FROM detail_table a "
               "     GROUP BY 1 "
               "   UNION ALL "
-              "     SELECT 3 column_idx, col1, col2, %21"
+              "     SELECT 3 column_idx, col1, col2, %16"
               "     FROM detail_table d "
               "     GROUP BY 2,3 "
-              "     %22"
+              "     %17"
               ") "
-              "ORDER BY 1,2 COLLATE LOCALEAWARE ASC ").arg(addlCTEs.join(","),
-                                                           headersColumns,
-                                                           stmt_max_part.join(","),
-                                                           sqlPartDetailTable,
-                                                           addWherePart,
-                                                           tr("TOTAL Worked"),
-                                                           uniqColumns,
-                                                           stmt_total_padding.join(","),
-                                                           modes.join(",")
+              "ORDER BY 1,2 COLLATE LOCALEAWARE ASC ").arg(addlCTEs.join(","), // 1
+                                                           headersColumns, // 2
+                                                           stmt_max_part.join(","), // 3
+                                                           sqlPartDetailTable, // 4
+                                                           addWherePart, // 5
+                                                           stmt_total_band_condition_work.join(" OR "), // 6
+                                                           stmt_total_band_condition_confirmed.join(" OR "), // 7
+                                                           tr("TOTAL Worked"), // 8
+                                                           stmt_total_padding.join(",") // 9
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
                                                            ,
 #else
                                                            ).arg(
 #endif
-                                                           addWherePart,
-                                                           tr("TOTAL Confirmed"),
-                                                           uniqColumns,
-                                                           stmt_total_padding.join(","),
-                                                           confirmed.join("or"),
-                                                           modes.join(","),
-                                                           addWherePart,
-                                                           tr("Confirmed"),
-                                                           stmt_sum_confirmed.join(",")
+                                                           tr("TOTAL Confirmed"), // 10
+                                                           stmt_total_padding.join(","), // 11
+                                                           tr("Confirmed"), // 12
+                                                           stmt_sum_confirmed.join(",") // 13
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
                          ,
 #else
                                                            ).arg(
 #endif
-                                                           tr("Worked")).arg(
-                                                           stmt_sum_worked.join(","),
-                                                           stmt_sum_total.join(","),
-                                                           ui->notWorkedCheckBox->isChecked() ? QString("HAVING %1").arg(stmt_having.join(" AND ")) : QString(),totalTable ));
+                                                           tr("Worked")).arg(  // 14
+                                                           stmt_sum_worked.join(","), // 15
+                                                           stmt_sum_total.join(","), // 16
+                                                           ui->notWorkedCheckBox->isChecked() ? QString("HAVING %1").arg(stmt_having.join(" AND ")) : QString()) // 17
+                                                           );
     qDebug(runtime) << finalSQL;
 
     detailedViewModel->setQuery(finalSQL);

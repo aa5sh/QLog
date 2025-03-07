@@ -1,3 +1,12 @@
+2025/03/07 - 0.42.2
+- Fixed Logbook country translations (issue #608)
+- Fixed Unexpected dialog when QSO after contest (issue #614)
+- Fixed Statistics Widget does not display NULL continents (@aa5sh)
+- Fixed Statistics Widget does not display NULL Band, Mode
+- Fixed Statistics Widget TOP10 does not display removed DXCCs
+- Fixed Statistics Widget TOP10 does not display translated country names
+- Fixed Awards Widget does not display removed DXCCs
+
 2025/02/22 - 0.42.1
 - Fixed Unexpected timezone info (issue #600)
 - Fixed DXCC Statistics picks more entities (issue #601)

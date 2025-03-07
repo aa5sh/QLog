@@ -207,14 +207,33 @@ static bool createSQLFunctions()
                                     SQLITE_UTF8 | SQLITE_DETERMINISTIC,
                                     nullptr,
                                     [](sqlite3_context *ctx, int argc, sqlite3_value **argv) {
-                                        if (argc != 1 || sqlite3_value_type(argv[0]) != SQLITE_TEXT)
+                                        if ( argc != 1 )
                                         {
                                             sqlite3_result_error(ctx, "Invalid arguments", -1);
                                             return;
                                         }
-                                        const char *text = reinterpret_cast<const char*>(sqlite3_value_text(argv[0]));
-                                        const QString &translatedText = QCoreApplication::translate("DBStrings", text);
-                                        sqlite3_result_text(ctx, translatedText.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+
+                                        switch ( sqlite3_value_type(argv[0]) )
+                                        {
+                                        case SQLITE_TEXT:
+                                        {
+                                            const char *text = reinterpret_cast<const char*>(sqlite3_value_text(argv[0]));
+                                            const QString &translatedText = QCoreApplication::translate("DBStrings", text);
+                                            sqlite3_result_text(ctx, translatedText.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                                        }
+                                            break;
+                                        case SQLITE_NULL:
+                                            sqlite3_result_null(ctx);
+                                            break;
+                                        case SQLITE_INTEGER:
+                                            sqlite3_result_int(ctx, sqlite3_value_int(argv[0]));
+                                            break;
+                                        case SQLITE_FLOAT:
+                                            sqlite3_result_double(ctx, sqlite3_value_double(argv[0]));
+                                            break;
+                                        default:
+                                            sqlite3_result_error(ctx, "Invalid arguments", -1);
+                                        }
                                     }, nullptr, nullptr);
             sqlite3_create_collation(db_handle,
                                      "LOCALEAWARE",

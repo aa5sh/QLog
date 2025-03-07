@@ -42,6 +42,15 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Fri Mar 7 2025 Ladislav Foldyna - 0.42.2-1
+- Fixed Logbook country translations (issue #608)
+- Fixed Unexpected dialog when QSO after contest (issue #614)
+- Fixed Statistics Widget does not display NULL continents (@aa5sh)
+- Fixed Statistics Widget does not display NULL Band, Mode
+- Fixed Statistics Widget TOP10 does not display removed DXCCs
+- Fixed Statistics Widget TOP10 does not display translated country names
+- Fixed Awards Widget does not display removed DXCCs
+
 * Sat Feb 22 2025 Ladislav Foldyna - 0.42.1-1
 - Fixed Unexpected timezone info (issue #600)
 - Fixed DXCC Statistics picks more entities (issue #601)

@@ -1368,10 +1368,10 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
             setSTXSeq(uiDynamic->stxEdit->text().toInt() + 1);
         }
     }
-    else if ( !uiDynamic->srxStringEdit->text().isEmpty()
-               || !uiDynamic->stxStringEdit->text().isEmpty()
+    else if ( (uiDynamic->srxStringEdit->isVisible() && !uiDynamic->srxStringEdit->text().isEmpty() )
+               || (uiDynamic->stxStringEdit->isVisible() && !uiDynamic->stxStringEdit->text().isEmpty() )
                || uiDynamic->stxEdit->isVisible()
-               || !uiDynamic->srxEdit->text().isEmpty() )
+               || (uiDynamic->srxEdit->isVisible() && !uiDynamic->srxEdit->text().isEmpty() ) )
     {
         QStringList fieldsTranslation
         ({
