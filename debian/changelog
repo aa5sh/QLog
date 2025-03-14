@@ -1,3 +1,14 @@
+qlog (0.42.2-1) UNRELEASED; urgency=low
+  * Fixed Logbook country translations (issue #608)
+  * Fixed Unexpected dialog when QSO after contest (issue #614)
+  * Fixed Statistics Widget does not display NULL continents (@aa5sh)
+  * Fixed Statistics Widget does not display NULL Band, Mode
+  * Fixed Statistics Widget TOP10 does not display removed DXCCs
+  * Fixed Statistics Widget TOP10 does not display translated country names
+  * Fixed Awards Widget does not display removed DXCCs
+
+ -- foldynl <foldyna@gmail.com>  Fri, 7 Mar 2025 15:19:11 +0100
+
 qlog (0.42.1-1) UNRELEASED; urgency=low
   * Fixed Unexpected timezone info (issue #600)
   * Fixed DXCC Statistics picks more entities (issue #601)

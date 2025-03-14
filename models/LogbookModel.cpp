@@ -125,6 +125,11 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
     {
         return QSqlTableModel::data(index, Qt::DisplayRole);
     }
+    else if ( role == Qt::DisplayRole && (index.column() == COLUMN_COUNTRY_INTL
+                                          || index.column() == COLUMN_MY_COUNTRY_INTL) )
+    {
+        return QCoreApplication::translate("DBStrings", QSqlTableModel::data(index, Qt::DisplayRole).toString().toUtf8().constData());
+    }
 
     return QSqlTableModel::data(index, role);
 }
@@ -336,6 +341,7 @@ bool LogbookModel::setData(const QModelIndex &index, const QVariant &value, int 
         case COLUMN_ID: /* it is the primary key, do not update */
         case COLUMN_COUNTRY:  /* it is a computed value, do not update */
         case COLUMN_DISTANCE: /* it is a computed value, do not update */
+        case COLUMN_MY_COUNTRY:
         {
             /* Do not allow to edit them */
             depend_update_result = false;

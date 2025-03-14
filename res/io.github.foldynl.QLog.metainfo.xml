@@ -50,6 +50,19 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.42.2" date="2025-03-07">
+      <description>
+        <ul>
+          <li>Fixed Logbook country translations (issue #608)</li>
+          <li>Fixed Unexpected dialog when QSO after contest (issue #614)</li>
+          <li>Fixed Statistics Widget does not display NULL continents (@aa5sh)</li>
+          <li>Fixed Statistics Widget does not display NULL Band, Mode</li>
+          <li>Fixed Statistics Widget TOP10 does not display removed DXCCs</li>
+          <li>Fixed Statistics Widget TOP10 does not display translated country names</li>
+          <li>Fixed Awards Widget does not display removed DXCCs</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.42.1" date="2025-02-22">
       <description>
         <ul>
