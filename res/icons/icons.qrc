@@ -32,5 +32,8 @@
         <file>search-globe_red.svg</file>
         <file>search-globe_green.svg</file>
         <file>search-globe_orange.svg</file>
+        <file>delete-button.svg</file>
+        <file>new-window.svg</file>
+        <file>clear-button.svg</file>
     </qresource>
 </RCC>

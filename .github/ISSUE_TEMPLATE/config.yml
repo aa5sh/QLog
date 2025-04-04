@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+- name: "📖 Find documentation"
+  url: https://github.com/foldynl/QLog/wiki
+  about: "Most documentation is on the QLog wiki"
+- name: "📨 Ask a question	— Discussions"
+  url: https://github.com/foldynl/QLog/discussions
+  about: "Please use GitHub Discussions for general questions"

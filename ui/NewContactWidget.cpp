@@ -1044,6 +1044,7 @@ void NewContactWidget::resetContact()
     uiDynamic->srxEdit->clear();
     uiDynamic->rxPWREdit->clear();
     uiDynamic->rigEdit->clear();
+    uiDynamic->qslMsgSEdit->clear();
     ui->dupeLabel->setVisible(false);
     clearCallbookQueryFields();
     clearMemberQueryFields();
@@ -1603,6 +1604,9 @@ void NewContactWidget::connectFieldChanged()
     connect(uiDynamic->rigEdit, &QLineEdit::textChanged,
             this, &NewContactWidget::formFieldChangedString);
 
+    connect(uiDynamic->qslMsgSEdit, &QLineEdit::textChanged,
+            this, &NewContactWidget::formFieldChangedString);
+
     /* no other fields are currently considered
      * as an attempt to fill out the form */
 }
@@ -1796,6 +1800,11 @@ void NewContactWidget::saveContact()
     if ( ! uiDynamic->rigEdit->text().isEmpty() )
     {
         record.setValue("rig_intl", uiDynamic->rigEdit->text());
+    }
+
+    if ( ! uiDynamic->qslMsgSEdit->text().isEmpty() )
+    {
+        record.setValue("qslmsg_intl", uiDynamic->qslMsgSEdit->text());
     }
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
@@ -3192,6 +3201,8 @@ void NewContactWidget::setValuesFromActivity(const QString &name)
     setFieldValueCombo(LogbookModel::LogbookModel::COLUMN_PROP_MODE, ui->propagationModeEdit);
     setFieldValueCombo(LogbookModel::LogbookModel::COLUMN_SAT_MODE, uiDynamic->satModeEdit);
     setFieldValue(LogbookModel::COLUMN_SAT_NAME, uiDynamic->satNameEdit);
+
+    setContestFieldsState();
 }
 
 void NewContactWidget::rigProfileComboChanged(const QString &profileName)
@@ -3736,6 +3747,7 @@ NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,
     initializeWidgets(LogbookModel::COLUMN_RX_PWR, "rx_pwr", rxPWRLabel, rxPWREdit);
     initializeWidgets(LogbookModel::COLUMN_TX_POWER, "power", powerLabel, powerEdit);
     initializeWidgets(LogbookModel::COLUMN_RIG_INTL, "rigDX", rigLabel, rigEdit);
+    initializeWidgets(LogbookModel::COLUMN_QSLMSG_INTL, "qslMsgS", qslMsgSLabel, qslMsgSEdit);
 
     if ( allocateWidgets )
     {

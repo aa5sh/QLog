@@ -466,6 +466,7 @@ int main(int argc, char* argv[])
     qRegisterMetaType<BandPlan::BandPlanMode>();
     qRegisterMetaType<SpotAlert>();
     qRegisterMetaType<Rig::Status>();
+    qRegisterMetaType<Band>();
 
     set_debug_level(LEVEL_PRODUCTION); // you can set more verbose rules via
                                        // environment variable QT_LOGGING_RULES (project setting/debug)

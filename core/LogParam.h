@@ -144,6 +144,57 @@ public:
         removeParamGroup("dxc/trendContinent");
     }
 
+    static QStringList bandmapsWidgets()
+    {
+        return getKeys("bandmap/");
+    }
+
+    static void removeBandmapWidgetGroup(const QString &group)
+    {
+        removeParamGroup("bandmap/" + group);
+    }
+
+    static double getBandmapScrollFreq(const QString& widgetID, const QString &bandName)
+    {
+        return getParam("bandmap/" + widgetID + "/" + bandName + "/scrollfreq" , 0.0).toDouble();
+    }
+
+    static bool setBandmapScrollFreq(const QString& widgetID, const QString &bandName, double scroll)
+    {
+        return setParam("bandmap/" + widgetID + "/" + bandName + "/scrollfreq", scroll);
+    }
+
+    static QVariant getBandmapZoom(const QString& widgetID, const QString &bandName, const QVariant &defaultValue)
+    {
+        return getParam("bandmap/" + widgetID + "/" + bandName + "/zoom", defaultValue);
+    }
+
+    static bool setBandmapZoom(const QString& widgetID, const QString &bandName, const QVariant &zoom)
+    {
+        return setParam("bandmap/" + widgetID + "/" + bandName + "/zoom", zoom);
+    }
+
+    static bool setBandmapAging(const QString& widgetID, int aging)
+    {
+        return setParam("bandmap/" + widgetID + "/spotaging", aging);
+    }
+
+    static int getBandmapAging(const QString& widgetID)
+    {
+        return getParam("bandmap/" + widgetID + "/spotaging", 0).toInt();
+    }
+
+    static bool setBandmapCenterRX(const QString& widgetID, bool centerRX)
+    {
+        return setParam("bandmap/" + widgetID + "/centerrx", centerRX);
+    }
+
+    static bool getBandmapCenterRX(const QString& widgetID)
+    {
+        return getParam("bandmap/" + widgetID + "/centerrx", true).toBool();
+    }
+
+
 private:
     static QCache<QString, QVariant> localCache;
     static QMutex cacheMutex;
@@ -151,6 +202,7 @@ private:
     static bool setParam(const QString&, const QVariant &);
     static QVariant getParam(const QString&, const QVariant &defaultValue = QVariant());
     static void removeParamGroup(const QString&);
+    static QStringList getKeys(const QString &);
 };
 
 #endif // QLOG_CORE_LOGPARAM_H

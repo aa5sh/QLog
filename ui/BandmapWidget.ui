@@ -33,6 +33,87 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="QWidget" name="bottomRow" native="true">
+     <layout class="QHBoxLayout" name="bottomRow2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="newBandmapButton">
+        <property name="toolTip">
+         <string>Create an additional Bandmap Window</string>
+        </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
+        <property name="icon">
+         <iconset resource="../res/icons/icons.qrc">
+          <normaloff>:/icons/new-window.svg</normaloff>:/icons/new-window.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="clearSpotOlderLabel">
+        <property name="text">
+         <string>Clear older than</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="clearSpotOlderSpin">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="specialValueText">
+         <string>Never</string>
+        </property>
+        <property name="suffix">
+         <string> min(s)</string>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearAllButton">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="text">
+         <string>Clear All</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
@@ -55,7 +136,7 @@
         <x>0</x>
         <y>0</y>
         <width>451</width>
-        <height>595</height>
+        <height>591</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -118,75 +199,30 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="clearButton">
-       <property name="focusPolicy">
-        <enum>Qt::ClickFocus</enum>
-       </property>
-       <property name="text">
-        <string>Clear All</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="zoomInButton">
-       <property name="focusPolicy">
-        <enum>Qt::ClickFocus</enum>
-       </property>
-       <property name="text">
-        <string>In</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../res/icons/icons.qrc">
-         <normaloff>:/icons/zoom_in-24px.svg</normaloff>:/icons/zoom_in-24px.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="zoomOutButton">
-       <property name="focusPolicy">
-        <enum>Qt::ClickFocus</enum>
-       </property>
-       <property name="text">
-        <string>Out</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../res/icons/icons.qrc">
-         <normaloff>:/icons/zoom_out-24px.svg</normaloff>:/icons/zoom_out-24px.svg</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="clearSpotOlderLabel">
-       <property name="text">
-        <string>Clear older than</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="clearSpotOlderSpin">
+      <widget class="QPushButton" name="clearBandButton">
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
        <property name="toolTip">
+        <string>Clear the current band</string>
+       </property>
+       <property name="text">
         <string/>
        </property>
-       <property name="specialValueText">
-        <string>Never</string>
+       <property name="icon">
+        <iconset resource="../res/icons/icons.qrc">
+         <normaloff>:/icons/clear-button.svg</normaloff>:/icons/clear-button.svg</iconset>
        </property>
-       <property name="suffix">
-        <string> min(s)</string>
-       </property>
-       <property name="maximum">
-        <number>9999</number>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -198,6 +234,59 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QSlider" name="zoomSlider">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>6</number>
+       </property>
+       <property name="pageStep">
+        <number>1</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="zoomLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../res/icons/icons.qrc">:/icons/zoom_in-24px.svg</pixmap>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::NoTextInteraction</set>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -206,70 +295,6 @@
   <include location="../res/icons/icons.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>clearButton</sender>
-   <signal>clicked()</signal>
-   <receiver>BandmapWidget</receiver>
-   <slot>clearSpots()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>149</x>
-     <y>617</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>155</x>
-     <y>281</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoomInButton</sender>
-   <signal>clicked()</signal>
-   <receiver>BandmapWidget</receiver>
-   <slot>zoomIn()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>294</x>
-     <y>617</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>155</x>
-     <y>281</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>zoomOutButton</sender>
-   <signal>clicked()</signal>
-   <receiver>BandmapWidget</receiver>
-   <slot>zoomOut()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>440</x>
-     <y>617</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>155</x>
-     <y>281</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>clearSpotOlderSpin</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>BandmapWidget</receiver>
-   <slot>spotAgingChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>333</x>
-     <y>632</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>225</x>
-     <y>330</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>graphicsView</sender>
    <signal>customContextMenuRequested(QPoint)</signal>
@@ -286,12 +311,93 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>clearAllButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BandmapWidget</receiver>
+   <slot>clearSpots()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>149</x>
+     <y>617</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>newBandmapButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BandmapWidget</receiver>
+   <slot>clickNewBandmapWindow()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>426</x>
+     <y>638</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>BandmapWidget</receiver>
+   <slot>setZoom(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>377</x>
+     <y>612</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearBandButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BandmapWidget</receiver>
+   <slot>clearWidgetBand()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>14</x>
+     <y>613</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearSpotOlderSpin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>BandmapWidget</receiver>
+   <slot>spotAgingChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>clearSpots()</slot>
-  <slot>zoomIn()</slot>
-  <slot>zoomOut()</slot>
   <slot>spotAgingChanged(int)</slot>
   <slot>showContextMenu(QPoint)</slot>
+  <slot>clickNewBandmapWindow()</slot>
+  <slot>setZoom(int)</slot>
+  <slot>clearWidgetBand()</slot>
  </slots>
 </ui>

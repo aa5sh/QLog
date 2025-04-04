@@ -293,7 +293,14 @@ DxccStatus Data::dxccNewStatusWhenQSOAdded(const DxccStatus &oldStatus,
     if ( oldBand == newBand
          && oldMode == newMode )
     {
-        RETURNCODE(DxccStatus::Worked);
+        if ( oldStatus < DxccStatus::Worked )
+        {
+            RETURNCODE(DxccStatus::Worked);
+        }
+        else
+        {
+            RETURNCODE(oldStatus);
+        }
     }
 
     /*************/

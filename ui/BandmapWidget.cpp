@@ -14,6 +14,7 @@
 #include "data/BandPlan.h"
 #include "core/debug.h"
 #include "rig/macros.h"
+#include "core/LogParam.h"
 
 MODULE_IDENTIFICATION("qlog.ui.bandmapwidget");
 
@@ -28,30 +29,62 @@ MODULE_IDENTIFICATION("qlog.ui.bandmapwidget");
 
 #define WIDGET_CENTER ( height()/2 - 50 )
 
-BandmapWidget::BandmapWidget(QWidget *parent) :
+#define MAIN_WIDGET_OBJECT_NAME "bandmapWidget"
+
+QMap<double, DxSpot> BandmapWidget::spots;
+QList<BandmapWidget *> BandmapWidget::nonVfoWidgets;
+double BandmapWidget::lastSeenVFOFreq = 0.0;
+BandmapWidget *BandmapWidget::vfoWidget = nullptr;
+
+BandmapWidget::BandmapWidget(const QString &widgetID,
+                             const Band &widgetBand,
+                             QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BandmapWidget),
+    rx_freq(0.0),
+    tx_freq(0.0),
+    bandmapScene(new GraphicsScene(this)),
+    update_timer(new QTimer(this)),
     rxMark(nullptr),
     txMark(nullptr),
     keepRXCenter(true),
     pendingSpots(0),
     lastStationUpdate(0),
-    bandmapAnimation(true)
+    bandmapAnimation(true),
+    isNonVfo(!widgetID.isEmpty()),
+    isActive(false)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    setObjectName((isNonVfo) ? widgetID : MAIN_WIDGET_OBJECT_NAME);
 
-    double newContactFreq = settings.value("newcontact/frequency", 3.5).toDouble();
+    QSettings settings;
+    double newContactFreq = (lastSeenVFOFreq == 0.0 ) ? settings.value("newcontact/frequency", 3.5).toDouble()
+                                                      : lastSeenVFOFreq;
     double ritFreq = newContactFreq + RigProfilesManager::instance()->getCurProfile1().ritOffset;
     double xitFreq = newContactFreq + RigProfilesManager::instance()->getCurProfile1().xitOffset;
     const QString &mode = settings.value("newcontact/mode", "CW").toString();
     const QString &submode = settings.value("newcontact/submode").toString();
-    keepRXCenter = settings.value("bandmap/centerrx", true).toBool();
 
-    setBand(BandPlan::freq2Band(ritFreq), false);
+    keepRXCenter = LogParam::getBandmapCenterRX(objectName());
 
-    bandmapScene = new GraphicsScene(this);
+    if ( isNonVfo )
+    {
+        ui->bottomRow->setVisible(false);
+        ui->clearAllButton->setVisible(false);
+        nonVfoWidgets.append(this);
+    }
+    else
+    {
+        vfoWidget = this;
+        ui->clearSpotOlderSpin->setValue(LogParam::getBandmapAging(objectName()));
+    }
+
+    setBand((widgetBand == Band()) ? BandPlan::freq2Band(ritFreq)
+                                   : widgetBand,
+            false);
+
     bandmapScene->setFocusOnTouch(false);
 
     connect(bandmapScene, &GraphicsScene::spotClicked,
@@ -63,14 +96,13 @@ BandmapWidget::BandmapWidget(QWidget *parent) :
     ui->graphicsView->installEventFilter(this);
     //ui->scrollArea->verticalScrollBar()->setSingleStep(5);
 
-    ui->clearSpotOlderSpin->setValue(settings.value("bandmap/spot_aging", 0).toInt());
-
-    update_timer = new QTimer;
     connect(update_timer, &QTimer::timeout, this, &BandmapWidget::updateStationTimer);
     update_timer->start(BANDMAP_MAX_REFRESH_TIME);
 
     updateMode(VFO1, QString(), mode, submode, 0);
     updateTunedFrequency(VFO1, newContactFreq, ritFreq, xitFreq);
+
+    ui->zoomSlider->setSliderPosition(zoom);
 }
 
 void BandmapWidget::update()
@@ -140,7 +172,7 @@ void BandmapWidget::update()
     bandmapScene->setSceneRect(160 - (endFreqDigits.size() * PIXELSPERSTEP),
                                0,
                                0,
-                               steps * PIXELSPERSTEP + 20);
+                               steps * PIXELSPERSTEP + 10);
 
     /************************/
     /* Draw TX and RX Marks */
@@ -156,6 +188,13 @@ void BandmapWidget::update()
 void BandmapWidget::spotAging()
 {
     FCT_IDENTIFICATION;
+
+    // only master Widget removes spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
 
     int clear_interval_sec = ui->clearSpotOlderSpin->value() * 60;
 
@@ -251,6 +290,34 @@ void BandmapWidget::updateStations()
 
     pendingSpots = 0;
     lastStationUpdate = QDateTime::currentMSecsSinceEpoch();
+    if ( !isNonVfo )
+    {
+        // signal to the non-vfo bandmaps that the spots should be redrawn
+        emit spotsUpdated();
+    }
+}
+
+void BandmapWidget::clearWidgetBand()
+{
+    FCT_IDENTIFICATION;
+
+    auto begin = spots.lowerBound(currentBand.start);
+    auto end = spots.upperBound(currentBand.end);
+
+    while (begin != end)
+        begin = spots.erase(begin);
+
+    if ( vfoWidget )
+        vfoWidget->updateStations(); // this causes that all bandmap will be updated
+    updateNearestSpot();
+}
+
+void BandmapWidget::saveState()
+{
+    FCT_IDENTIFICATION;
+
+    saveCurrentZoom();
+    saveCurrentScrollFreq();
 }
 
 void BandmapWidget::determineStepDigits(double &step, int &digits) const
@@ -360,7 +427,7 @@ void BandmapWidget::drawTXRXMarks(double step)
     FCT_IDENTIFICATION;
 
     // do not show bandmap for submm bands
-    if ( rx_freq > 250000.0 || currentBand.start >= 300000.0 )
+    if ( !isActive || rx_freq > 250000.0 || currentBand.start >= 300000.0 )
     {
         return;
     }
@@ -409,6 +476,13 @@ void BandmapWidget::addSpot(DxSpot spot)
 {
     FCT_IDENTIFICATION;
 
+    // only master Widget adds spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
+
     qCDebug(function_parameters) << spot.freq << spot.callsign;
 
     this->removeDuplicates(spot);
@@ -423,15 +497,16 @@ void BandmapWidget::addSpot(DxSpot spot)
          * QLog does not have to wait for the timer to tick to update the stations.
          */
         if ( currTime -  BANDMAP_MAX_REFRESH_TIME >= lastStationUpdate )
-        {
             updateStations();
-        }
         else
-        {
             /* If the spot are received quickly then store them and wait for QTimer tick */
-            pendingSpots++;
-        }
+            increasePendingSpots();
     }
+
+    //update NonVFO Pending spot counters
+    for ( BandmapWidget *nonVfoWidget : static_cast<const QList<BandmapWidget *>>(nonVfoWidgets) )
+        if ( nonVfoWidget->getBand().name == spot.band )
+            nonVfoWidget->increasePendingSpots();
 }
 
 void BandmapWidget::updateStationTimer()
@@ -490,6 +565,13 @@ void BandmapWidget::updateNearestSpot(bool force)
 {
     FCT_IDENTIFICATION;
 
+    // only master Widget updates spot
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
+
     DxSpot currNearestSpot;
 
     currNearestSpot = nearestSpot(rx_freq);
@@ -515,28 +597,35 @@ void BandmapWidget::setBand(const Band &newBand, bool savePrevBandZoom)
     FCT_IDENTIFICATION;
 
     if ( savePrevBandZoom )
-    {
-        saveCurrentZoom();
-        saveCurrentScrollFreq();
-    }
+        saveState();
+
     currentBand = newBand;
     zoom = getSavedZoom(newBand);
     zoomFreq = getSavedScrollFreq(newBand);
     zoomWidgetYOffset = WIDGET_CENTER;
+    ui->zoomSlider->blockSignals(true);
+    ui->zoomSlider->setSliderPosition(zoom);
+    ui->zoomSlider->blockSignals(false);
+
+    QWidget *dock = parentWidget();
+    if ( dock )
+        dock->setWindowTitle(tr("Bandmap") + " " + newBand.name);
 }
 
 void BandmapWidget::saveCurrentZoom()
 {
     FCT_IDENTIFICATION;
 
-    settings.setValue("bandmap/zoom/" + currentBand.name, zoom);
+    LogParam::setBandmapZoom(objectName(), currentBand.name, zoom);
 }
 
 BandmapWidget::BandmapZoom BandmapWidget::getSavedZoom(Band band)
 {
     FCT_IDENTIFICATION;
 
-    QVariant zoomVariant = settings.value("bandmap/zoom/" + band.name, ZOOM_10KHZ);
+    // if a zoom is not set, try to get it from the main Bandmap widget
+    const QVariant &zoomVariantMain = LogParam::getBandmapZoom(MAIN_WIDGET_OBJECT_NAME, band.name, ZOOM_10KHZ);
+    QVariant zoomVariant = LogParam::getBandmapZoom(objectName(), band.name, zoomVariantMain);
     return zoomVariant.value<BandmapWidget::BandmapZoom>();
 }
 
@@ -544,14 +633,14 @@ void BandmapWidget::saveCurrentScrollFreq()
 {
     FCT_IDENTIFICATION;
 
-    settings.setValue("bandmap/scroll/" + currentBand.name, visibleCentreFreq());
+    LogParam::setBandmapScrollFreq(objectName(), currentBand.name, visibleCentreFreq());
 }
 
 double BandmapWidget::getSavedScrollFreq(Band band)
 {
     FCT_IDENTIFICATION;
 
-    return settings.value("bandmap/scroll/" + band.name, 0.0).toDouble();
+    return LogParam::getBandmapScrollFreq(objectName(), band.name);
 }
 
 double BandmapWidget::visibleCentreFreq() const
@@ -564,11 +653,23 @@ double BandmapWidget::visibleCentreFreq() const
     return ret;
 }
 
+bool BandmapWidget::isAlreadyOpened(const Band &band) const
+{
+    FCT_IDENTIFICATION;
+
+    for ( const BandmapWidget *widget : static_cast<const QList<BandmapWidget *>>(nonVfoWidgets))
+    {
+        if ( widget && widget->isVisible() && widget->getBand() == band )
+            return true;
+    }
+    return false;
+}
+
 void BandmapWidget::spotAgingChanged(int)
 {
     FCT_IDENTIFICATION;
 
-    settings.setValue("bandmap/spot_aging", ui->clearSpotOlderSpin->value());
+    LogParam::setBandmapAging(objectName(), ui->clearSpotOlderSpin->value());
 }
 
 void BandmapWidget::clearSpots()
@@ -580,42 +681,15 @@ void BandmapWidget::clearSpots()
     updateNearestSpot();
 }
 
-void BandmapWidget::zoomIn()
+void BandmapWidget::setZoom(int zoomParam)
 {
     FCT_IDENTIFICATION;
 
-    if ( zoomFreq == 0.0 )
-    {
-        zoomWidgetYOffset = WIDGET_CENTER;
-        zoomFreq = ( keepRXCenter ) ? rx_freq
-                                    : visibleCentreFreq();
-    }
+    zoomWidgetYOffset = WIDGET_CENTER;
+    zoomFreq = ( keepRXCenter ) ? rx_freq
+                              : visibleCentreFreq();
 
-    if ( zoom > ZOOM_100HZ )
-    {
-        zoom = static_cast<BandmapZoom>(static_cast<int>(zoom) - 1);
-    }
-    setBandmapAnimation(false);
-    update();
-    scrollToFreq(zoomFreq);
-    setBandmapAnimation(true);
-}
-
-void BandmapWidget::zoomOut()
-{
-    FCT_IDENTIFICATION;
-
-    if ( zoomFreq == 0.0 )
-    {
-        zoomWidgetYOffset = WIDGET_CENTER;
-        zoomFreq = ( keepRXCenter ) ? rx_freq
-                                    : visibleCentreFreq();
-    }
-
-    if ( zoom < ZOOM_10KHZ )
-    {
-        zoom = static_cast<BandmapZoom>(static_cast<int>(zoom) + 1);
-    }
+    zoom = static_cast<BandmapZoom>(static_cast<int>(zoomParam));
     setBandmapAnimation(false);
     update();
     scrollToFreq(zoomFreq);
@@ -625,6 +699,13 @@ void BandmapWidget::zoomOut()
 void BandmapWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
 {
     FCT_IDENTIFICATION;
+
+    // only master Widget modifies spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
 
     qint32 dxcc = record.value("dxcc").toInt();
     const QString &band = record.value("band").toString();
@@ -674,6 +755,13 @@ void BandmapWidget::updateSpotsDupeWhenQSODeleted(const QSqlRecord &record)
 {
     FCT_IDENTIFICATION;
 
+    // only master Widget updates spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
+
     // Pay attention: this method is called before the QSO is deleted from contacts
     const QString &callsign = record.value("callsign").toString();
     const QString &band = record.value("band").toString();
@@ -698,6 +786,13 @@ void BandmapWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entiti
 {
     FCT_IDENTIFICATION;
 
+    // only master Widget updates spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
+
     // this method is called at the end of QSO Delete (after commit).
 
     if ( entities.isEmpty() )
@@ -720,6 +815,13 @@ void BandmapWidget::recalculateDxccStatus()
 {
     FCT_IDENTIFICATION;
 
+    // only master Widget updates spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
+
     for ( auto it = spots.begin(); it != spots.end(); ++it )
     {
         DxSpot &spot = it.value();
@@ -733,6 +835,13 @@ void BandmapWidget::resetDupe()
 {
     FCT_IDENTIFICATION;
 
+    // only master Widget updates spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
+
     for ( auto it = spots.begin(); it != spots.end(); ++it )
         it.value().dupeCount = 0;
 
@@ -742,6 +851,13 @@ void BandmapWidget::resetDupe()
 void BandmapWidget::recalculateDupe()
 {
     FCT_IDENTIFICATION;
+
+    // only master Widget updates spots
+    if ( isNonVfo )
+    {
+        qCDebug(runtime) << "NonVFO widget - skipping";
+        return;
+    }
 
     for ( auto it = spots.begin(); it != spots.end(); ++it )
     {
@@ -764,6 +880,15 @@ void BandmapWidget::focusZoomFreq(int, int)
         ui->scrollArea->verticalScrollBar()->setValue(newScrollValue);
         zoomFreq = 0.0;
     }
+}
+
+void BandmapWidget::clickNewBandmapWindow()
+{
+    FCT_IDENTIFICATION;
+
+    const QString widgetID = QString("bandmap%1").arg(QDateTime::currentMSecsSinceEpoch());
+    saveCurrentZoom();
+    emit requestNewNonVfoBandmapWindow(widgetID, currentBand.name);
 }
 
 void BandmapWidget::spotClicked(const QString &call,
@@ -817,6 +942,11 @@ void BandmapWidget::showContextMenu(const QPoint &point)
             setBand(enabledBand);
             update();
         });
+        if ( enabledBand == currentBand )
+        {
+            action->setCheckable(true);
+            action->setChecked(true);
+        }
         bandsMenu.addAction(action);
     }
 
@@ -837,41 +967,79 @@ void BandmapWidget::updateTunedFrequency(VFOID, double vfoFreq, double ritFreq, 
 
     qCDebug(function_parameters) << vfoFreq << ritFreq << xitFreq;
 
-    /* always show the bandmap for RIT Freq */
-    rx_freq = ritFreq;
-    tx_freq = xitFreq;
+    lastSeenVFOFreq = vfoFreq;
 
-    if ( rx_freq < currentBand.start || rx_freq > currentBand.end )
+    isActive = (ritFreq >= currentBand.start && ritFreq <= currentBand.end);
+
+    if ( isNonVfo )
     {
-        /* Operator switched a band */
-        const Band& newBand = BandPlan::freq2Band(rx_freq);
-        if ( !newBand.name.isEmpty() )
+        if ( isActive )
         {
-            setBand(newBand);
+            rx_freq = ritFreq;
+            tx_freq = xitFreq;
+            // bandmap is showing the tuned frequency, so show the marker
+            drawMarkers(rx_freq);
         }
-        /**********************/
-        /* Redraw all bandmap */
-        /**********************/
-        update();
+        else
+        {
+            rx_freq = (rx_freq == 0.0) ? getSavedScrollFreq(currentBand) : rx_freq;
+            tx_freq = (tx_freq == 0.0) ? getSavedScrollFreq(currentBand) : tx_freq;
+        }
     }
     else
     {
-        /* Operator does not change a band */
-        double step;
-        int digits;
-
-        determineStepDigits(step, digits);
-
-        /************************/
-        /* Draw TX and RX Marks */
-        /************************/
-        drawTXRXMarks(step);
-        scrollToFreq(rx_freq);
+        if ( !isActive )
+        {
+            /* Operator switched a band */
+            const Band& newBand = BandPlan::freq2Band(ritFreq);
+            if ( !newBand.name.isEmpty() && !isAlreadyOpened(newBand) )
+            {
+                rx_freq = ritFreq;
+                tx_freq = xitFreq;
+                isActive = true;
+                setBand(newBand);
+                /**********************/
+                /* Redraw all bandmap */
+                /**********************/
+                update();
+            }
+            else
+            {
+                rx_freq = (rx_freq == 0.0) ? getSavedScrollFreq(currentBand) : rx_freq;
+                tx_freq = (tx_freq == 0.0) ? getSavedScrollFreq(currentBand) : tx_freq;
+            }
+        }
+        else
+        {
+            rx_freq = ritFreq;
+            tx_freq = xitFreq;
+            drawMarkers(rx_freq);
+        }
+        updateNearestSpot();
     }
 
-    updateNearestSpot();
+    if ( !isActive )
+    {
+        clearFreqMark(&txMark);
+        clearFreqMark(&rxMark);
+    }
 }
 
+void BandmapWidget::drawMarkers(double frequency)
+{
+    FCT_IDENTIFICATION;
+
+    double step;
+    int digits;
+
+    determineStepDigits(step, digits);
+
+    /************************/
+    /* Draw TX and RX Marks */
+    /************************/
+    drawTXRXMarks(step);
+    scrollToFreq(frequency);
+}
 void BandmapWidget::updateMode(VFOID, const QString &, const QString &mode,
                                const QString &subMode, qint32 width)
 {
@@ -898,7 +1066,7 @@ BandmapWidget::~BandmapWidget()
         update_timer->deleteLater();
     }
 
-    saveCurrentZoom();
+    nonVfoWidgets.removeAll(this);
 
     delete ui;
 }
@@ -935,16 +1103,8 @@ bool BandmapWidget::eventFilter(QObject *, QEvent *event)
                 zoomFreq = ScenePos2Freq(ui->graphicsView->mapToScene(zoomViewPoint));
 
                 QPoint wheelDelta(wheelEvent->angleDelta());
-
-                if ( wheelDelta.y() > 0 )
-                {
-                    zoomIn();
-                }
-
-                if ( wheelDelta.y() < 0 )
-                {
-                    zoomOut();
-                }
+                int delta = (wheelDelta.y() > 0) ? 1 : -1;
+                ui->zoomSlider->setValue(ui->zoomSlider->value() + delta * ui->zoomSlider->singleStep());
 
                 /*
                  * DO NOT focus zoomed Freq here because the scrollbar
@@ -1056,7 +1216,7 @@ void BandmapWidget::centerRXActionChecked(bool state)
 
     keepRXCenter = state;
     zoomFreq = 0.0;
-    settings.setValue("bandmap/centerrx", keepRXCenter);
+    LogParam::setBandmapCenterRX(objectName(), keepRXCenter);
 
     if ( keepRXCenter )
         scrollToFreq(rx_freq);

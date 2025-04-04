@@ -107,13 +107,21 @@ RigCaps HamlibRigDrv::getCaps(int model)
         ret.canGetPTT = ( caps->get_ptt );
         ret.canSendMorse = ( caps->send_morse != nullptr );
 
-        /* due to a hamlib issue #855 (https://github.com/Hamlib/Hamlib/issues/855)
+        if ( ret.isNetworkOnly )
+        {
+#if ( HAMLIBVERSION_MAJOR == 4 && ( HAMLIBVERSION_MINOR == 2 || HAMLIBVERSION_MINOR == 3 ) )
+         /* due to a hamlib issue #855 (https://github.com/Hamlib/Hamlib/issues/855)
          * the PWR will be disabled for 4.2.x and 4.3.x for NETRIG
          */
-#if ( HAMLIBVERSION_MAJOR == 4 && ( HAMLIBVERSION_MINOR == 2 || HAMLIBVERSION_MINOR == 3 ) )
-        if ( caps->rig_model == RIG_MODEL_NETRIGCTL )
             ret.canGetPWR = false;
+#else
+            // this feature is known after connection to RIG what is too late for QLog, Let's try to enable it.
+            ret.canGetPWR = true;
+            ret.canGetRIT = true;
+            ret.canGetXIT = true;
+            ret.canGetKeySpeed = true;
 #endif
+        }
 
         ret.serialDataBits = caps->serial_data_bits;
         ret.serialStopBits = caps->serial_stop_bits;

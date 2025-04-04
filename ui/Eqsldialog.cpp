@@ -140,7 +140,11 @@ void EqslDialog::upload()
 
     saveDialogState();
 
-    if ( ui->uploadcommentCheck->isChecked() )
+    if ( ui->uploadQSLsMsgCheck->isChecked() )
+    {
+        query_string.append(", substr(qslmsg, 1, 240) as qslmsg ");
+    }
+    else if ( ui->uploadcommentCheck->isChecked() )
     {
         query_string.append(", substr(comment,1,240) as qslmsg ");
     }
@@ -261,6 +265,7 @@ void EqslDialog::saveDialogState()
     settings.setValue("eqsl/last_mycallsign", ui->myCallsignCombo->currentText());
     settings.setValue("eqsl/last_mygrid", ui->myGridCombo->currentText());
     settings.setValue("eqsl/last_checkcomment", ui->uploadcommentCheck->isChecked());
+    settings.setValue("eqsl/last_checkqslsmsg", ui->uploadQSLsMsgCheck->isChecked());
     settings.setValue("eqsl/last_qsoqsl", ui->qslRadioButton->isChecked());
 }
 
@@ -288,7 +293,7 @@ void EqslDialog::loadDialogState()
 
     ui->qthProfileUploadEdit->setText(settings.value("eqsl/last_QTHProfile").toString());
     ui->uploadcommentCheck->setChecked(settings.value("eqsl/last_checkcomment",false).toBool());
-
+    ui->uploadQSLsMsgCheck->setChecked(settings.value("eqsl/last_checkqslsmsg",false).toBool());
     ui->qthProfileEdit->setText(settings.value("eqsl/last_QTHProfile").toString());
 
     ui->dateEdit->setDate(settings.value("eqsl/last_update", QDate(1900, 1, 1)).toDate());

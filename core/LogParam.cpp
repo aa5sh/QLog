@@ -1,5 +1,6 @@
 #include <QSqlQuery>
 #include <QCache>
+#include <QSqlError>
 
 #include "LogParam.h"
 #include "debug.h"
@@ -122,6 +123,43 @@ void LogParam::removeParamGroup(const QString &paramGroup)
         qWarning() << "Cannot execute removeParamGroup statement for" << paramGroup;
 
     return;
+}
+
+QStringList LogParam::getKeys(const QString &group)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << group;
+
+    PARAMMUTEXLOCKER;
+
+    QSet<QString> keys; // unique values;
+
+    QSqlQuery query;
+
+    if ( ! query.prepare("SELECT name FROM log_param WHERE name LIKE :group ") )
+    {
+        qWarning()<< "Cannot prepare select parameter statement for" << group << query.lastError().text();
+        return QStringList();
+    }
+
+    query.bindValue(":group", group + "%");
+
+    if ( ! query.exec() )
+        qWarning() << "Cannot execute removeParamGroup statement for" << group;
+
+    while ( query.next() )
+    {
+        const QString &param = query.value(0).toString();
+        QString subKey = param.mid(group.length()).section("/", 0, 0);
+        if ( !subKey.isEmpty() )
+            keys.insert(subKey);
+    }
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    return QStringList(keys.begin(), keys.end());
+#else
+    return keys.toList();
+#endif
 }
 
 QCache<QString, QVariant> LogParam::localCache(30);

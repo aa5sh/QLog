@@ -283,7 +283,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
 ;
     ui->cwModelSelect->addItem(tr("Dummy"), CWKey::DUMMY_KEYER);
     ui->cwModelSelect->addItem(tr("Morse Over CAT"), CWKey::MORSEOVERCAT);
-    ui->cwModelSelect->addItem(tr("WinKey v2"), CWKey::WINKEY2_KEYER);
+    ui->cwModelSelect->addItem(tr("WinKey"), CWKey::WINKEY_KEYER);
     ui->cwModelSelect->addItem(tr("CWDaemon"), CWKey::CWDAEMON_KEYER);
     ui->cwModelSelect->addItem(tr("FLDigi"), CWKey::FLDIGI_KEYER);
     ui->cwModelSelect->setCurrentIndex(ui->cwModelSelect->findData(DEFAULT_CWKEY_MODEL));
@@ -1834,7 +1834,7 @@ void SettingsDialog::cwKeyChanged(int)
         ui->cwDefaulSpeed->setEnabled(true);
     }
 
-    if ( currentType == CWKey::WINKEY2_KEYER )
+    if ( currentType == CWKey::WINKEY_KEYER )
     {
         ui->cwBaudSelect->setCurrentText("1200");
     }

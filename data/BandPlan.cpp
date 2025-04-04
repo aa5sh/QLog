@@ -273,6 +273,43 @@ const Band BandPlan::freq2Band(double freq)
     return Band();
 }
 
+const Band BandPlan::bandName2Band(const QString &name)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << name;
+
+    QSqlQuery query;
+
+    if ( ! query.prepare("SELECT name, start_freq, end_freq, sat_designator "
+                       "FROM bands "
+                       "WHERE name = :name LIMIT 1") )
+    {
+        qWarning() << "Cannot prepare Select statement";
+        return Band();
+    }
+
+    query.bindValue(0, name);
+
+    if ( ! query.exec() )
+    {
+        qWarning() << "Cannot execute select statement" << query.lastError();
+        return Band();
+    }
+
+    if ( query.next() )
+    {
+        Band band;
+        band.name = query.value(0).toString();
+        band.start = query.value(1).toDouble();
+        band.end = query.value(2).toDouble();
+        band.satDesignator  = query.value(3).toString();
+        return band;
+    }
+
+    return Band();
+}
+
 const QList<Band> BandPlan::bandsList(const bool onlyDXCCBands,
                                       const bool onlyEnabled)
 {

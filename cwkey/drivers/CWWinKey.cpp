@@ -3,11 +3,13 @@
 #include "CWWinKey.h"
 #include "core/debug.h"
 
-/* Based on WinKey v2 Spec: https://k1el.tripod.com/WinkeyUSBman.pdf */
+/* Based on WinKey Spec
+ * https://k1el.tripod.com/files/Winkey10.pdf
+ * https://k1el.tripod.com/WinkeyUSBman.pdf */
 
 MODULE_IDENTIFICATION("qlog.cwkey.driver.cwwinkey");
 
-CWWinKey2::CWWinKey2(const QString &portName,
+CWWinKey::CWWinKey(const QString &portName,
                      const qint32 baudrate,
                      const CWKey::CWKeyModeID mode,
                      const qint32 defaultSpeed,
@@ -29,12 +31,12 @@ CWWinKey2::CWWinKey2(const QString &portName,
     canSetKeySpeed = true;
 }
 
-CWWinKey2::~CWWinKey2()
+CWWinKey::~CWWinKey()
 {
     FCT_IDENTIFICATION;
 }
 
-bool CWWinKey2::open()
+bool CWWinKey::open()
 {
     FCT_IDENTIFICATION;
 
@@ -140,7 +142,7 @@ bool CWWinKey2::open()
 
     /* Based on the WinKey Spec, it is needed to call read:
           The host must wait for this return code before
-          any other commands or data can be sent to Winkeyer2
+          any other commands or data can be sent to Winkeyer
     */
     if ( receiveDataAndWait(cmd) < 1 )
     {
@@ -150,13 +152,7 @@ bool CWWinKey2::open()
         return false;
     }
 
-    if ( (unsigned char)cmd.at(0) < 20 )
-    {
-        qWarning() << "Winkey version < 2.0 is not supported";
-        lastLogicalError = tr("Connected device is not WinKey v2 or newer");
-        __close();
-        return false;
-    }
+    qCDebug(runtime) << "Winkey version" << (unsigned char)cmd.at(0);
 
     lastLogicalError = QString();
 
@@ -187,9 +183,9 @@ bool CWWinKey2::open()
 
     /* Starting Async Flow for WinKey */
     /* From this point, all Serial port functions must be Async */
-    connect(&serial, &QSerialPort::readyRead, this, &CWWinKey2::handleReadyRead);
-    connect(&serial, &QSerialPort::bytesWritten, this, &CWWinKey2::handleBytesWritten);
-    connect(&serial, &QSerialPort::errorOccurred, this, &CWWinKey2::handleError);
+    connect(&serial, &QSerialPort::readyRead, this, &CWWinKey::handleReadyRead);
+    connect(&serial, &QSerialPort::bytesWritten, this, &CWWinKey::handleBytesWritten);
+    connect(&serial, &QSerialPort::errorOccurred, this, &CWWinKey::handleError);
 
     isInHostMode = true;
 
@@ -206,7 +202,7 @@ bool CWWinKey2::open()
     return true;
 }
 
-bool CWWinKey2::close()
+bool CWWinKey::close()
 {
     FCT_IDENTIFICATION;
 
@@ -217,7 +213,7 @@ bool CWWinKey2::close()
     return true;
 }
 
-bool CWWinKey2::sendText(const QString &text)
+bool CWWinKey::sendText(const QString &text)
 {
     FCT_IDENTIFICATION;
 
@@ -246,7 +242,7 @@ bool CWWinKey2::sendText(const QString &text)
     return true;
 }
 
-void CWWinKey2::tryAsyncWrite()
+void CWWinKey::tryAsyncWrite()
 {
     FCT_IDENTIFICATION;
 
@@ -275,7 +271,7 @@ void CWWinKey2::tryAsyncWrite()
     QCoreApplication::processEvents();
 }
 
-void CWWinKey2::handleBytesWritten(qint64 bytes)
+void CWWinKey::handleBytesWritten(qint64 bytes)
 {
     FCT_IDENTIFICATION;
 
@@ -284,7 +280,7 @@ void CWWinKey2::handleBytesWritten(qint64 bytes)
     tryAsyncWrite();
 }
 
-void CWWinKey2::handleReadyRead()
+void CWWinKey::handleReadyRead()
 {
     FCT_IDENTIFICATION;
 
@@ -337,7 +333,7 @@ void CWWinKey2::handleReadyRead()
         qint32 potValue = (rcvByte & 0x7F);
         qint32 currentWPM = minWPMRange + potValue;
         qCDebug(runtime) << "\tPot: " << potValue << "; WPM=" << currentWPM;
-        emit keyChangedWPMSpeed(currentWPM);
+        setWPM(currentWPM);
     }
     else
     {
@@ -348,7 +344,7 @@ void CWWinKey2::handleReadyRead()
     tryAsyncWrite();
 }
 
-void CWWinKey2::handleError(QSerialPort::SerialPortError serialPortError)
+void CWWinKey::handleError(QSerialPort::SerialPortError serialPortError)
 {
     FCT_IDENTIFICATION;
 
@@ -371,9 +367,11 @@ void CWWinKey2::handleError(QSerialPort::SerialPortError serialPortError)
     emit keyError(tr("Communication Error"), detail);
 }
 
-bool CWWinKey2::setWPM(const qint16 wpm)
+bool CWWinKey::setWPM(const qint16 wpm)
 {
     FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << wpm;
 
     qCDebug(runtime) << "Waiting for Command Mutex";
     QMutexLocker locker(&commandMutex);
@@ -387,9 +385,11 @@ bool CWWinKey2::setWPM(const qint16 wpm)
     return ret;
 }
 
-bool CWWinKey2::__setWPM(const qint16 wpm)
+bool CWWinKey::__setWPM(const qint16 wpm)
 {
     FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << wpm;
 
     if ( !isInHostMode )
     {
@@ -414,7 +414,7 @@ bool CWWinKey2::__setWPM(const qint16 wpm)
     return true;
 }
 
-QString CWWinKey2::lastError()
+QString CWWinKey::lastError()
 {
     FCT_IDENTIFICATION;
 
@@ -423,7 +423,7 @@ QString CWWinKey2::lastError()
     return (lastLogicalError.isEmpty()) ? serial.errorString() : lastLogicalError;
 }
 
-bool CWWinKey2::imediatellyStop()
+bool CWWinKey::imediatellyStop()
 {
     FCT_IDENTIFICATION;
 
@@ -459,7 +459,7 @@ bool CWWinKey2::imediatellyStop()
     return true;
 }
 
-void CWWinKey2::__close()
+void CWWinKey::__close()
 {
     FCT_IDENTIFICATION;
 
@@ -472,9 +472,9 @@ void CWWinKey2::__close()
     if ( serial.isOpen() )
     {
         /* Switch to Sync Mode */
-        disconnect(&serial, &QSerialPort::bytesWritten, this, &CWWinKey2::handleBytesWritten);
-        disconnect(&serial, &QSerialPort::errorOccurred, this, &CWWinKey2::handleError);
-        disconnect(&serial, &QSerialPort::readyRead, this, &CWWinKey2::handleReadyRead);
+        disconnect(&serial, &QSerialPort::bytesWritten, this, &CWWinKey::handleBytesWritten);
+        disconnect(&serial, &QSerialPort::errorOccurred, this, &CWWinKey::handleError);
+        disconnect(&serial, &QSerialPort::readyRead, this, &CWWinKey::handleReadyRead);
 
         if ( isInHostMode )
         {
@@ -531,7 +531,7 @@ void CWWinKey2::__close()
     lastLogicalError = QString();
 }
 
-unsigned char CWWinKey2::buildWKModeByte() const
+unsigned char CWWinKey::buildWKModeByte() const
 {
     FCT_IDENTIFICATION;
 
@@ -551,7 +551,7 @@ unsigned char CWWinKey2::buildWKModeByte() const
     unsigned char settingByte = 0;
 
     settingByte |= 1 << 7;  // Disabled Paddle Watchdog
-    settingByte |= 1 << 6;  // Paddle Echoback Enabled
+    settingByte |= 0 << 6;  // Paddle Echoback - Even Disable, characters are sent - K3NG Keyer
 
     switch (keyMode)        // Key Mode
     {
@@ -579,7 +579,7 @@ unsigned char CWWinKey2::buildWKModeByte() const
     return settingByte;
 }
 
-bool CWWinKey2::__sendStatusRequest()
+bool CWWinKey::__sendStatusRequest()
 {
     FCT_IDENTIFICATION;
 
@@ -603,7 +603,7 @@ bool CWWinKey2::__sendStatusRequest()
     return true;
 }
 
-bool CWWinKey2::__setPOTRange()
+bool CWWinKey::__setPOTRange()
 {
     FCT_IDENTIFICATION;
 

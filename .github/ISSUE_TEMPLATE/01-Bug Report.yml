@@ -1,0 +1,58 @@
+name: Bug Report
+description: File a bug report
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please reserve the issue tracker for reporting presumed bugs in QLog. If you have a question about usage or installation, please use the [QLog Discussions](https://github.com/foldynl/QLog/discussions)
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened? How can it be reproduced? Provide as much information as possible.
+      description: Also, what did you expect to happen?
+    validations:
+      required: true
+
+  - type: input
+    id: specific-version
+    attributes:
+      label: QLog Version
+      description: "Version reported in **Main Menu → Help → About**"
+      value: "0.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ostype
+    attributes:
+      label: Which OS are you using?
+      options:
+        - Linux
+        - macOS
+        - Windows
+    validations:
+      required: true
+
+  - type: dropdown
+    id: osinstallation
+    attributes:
+      label: 'QLog Installation Method'
+      description: 'Select the installation method'
+      options:
+        - DEB/RPM
+        - Flatpak
+        - EXE
+        - DMG
+        - Self-Compiled
+        - I don't know
+    validations:
+      required: true
+
+  - type: textarea
+    id: system-information
+    attributes:
+      label: Installation Details
+      description: |
+        If you're not familiar with the QLog Installation Method mentioned above, please attach a screenshot of Main Menu → Help → About or provide more details about your OS.

@@ -111,6 +111,7 @@ void ActivityEditor::save()
     profile.detailColC = getFieldIndexes(detailColCFieldsModel);
     profile.mainGeometry = mainGeometry;
     profile.mainState = mainState;
+    profile.addlBandmaps = addlBandmaps;
     profile.darkMode = darkMode;
     MainLayoutProfilesManager::instance()->addProfile(profile.profileName, profile);
     MainLayoutProfilesManager::instance()->save();
@@ -181,6 +182,7 @@ void ActivityEditor::clearMainLayoutClick()
 
     mainGeometry = QByteArray();
     mainState = QByteArray();
+    addlBandmaps = QList<QPair<QString, QString>>();
     darkMode = false;
     ui->mainLayoutStateLabel->setText(statusUnSavedText);
     ui->mainLayoutClearButton->setEnabled(false);
@@ -511,6 +513,7 @@ void ActivityEditor::fillWidgets(const MainLayoutProfile &profile)
 
     mainGeometry = profile.mainGeometry;
     mainState = profile.mainState;
+    addlBandmaps = profile.addlBandmaps;
     darkMode = profile.darkMode;
 
     if ( mainGeometry == QByteArray()

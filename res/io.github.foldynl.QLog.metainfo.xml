@@ -50,6 +50,25 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.43.0" date="2025-04-04">
+      <description>
+        <ul>
+          <li>[NEW] - Added support to receive QSOs from CSN SAT Device (PR #610 @aa5sh)</li>
+          <li>[NEW] - Bandmap - Multiple independent bandmap windows (PR #593 @kyleboyle @foldynl)</li>
+          <li>[NEW] - Winkey Keyer driver currently supports v1 and v2 hardware</li>
+          <li>[NEW] - QSO Detail - QSLs QSLr Msg is editable</li>
+          <li>[NEW] - Activity Manager - Added new dynamic field - QSL Message Send</li>
+          <li>[CHANGED] - HamlibDrv - Enabled Power, RIT, XIT, Morse for RIG Netctl</li>
+          <li>[CHANGED] - QSO Detail - QSLMSG replaced by QSLMSG_RCVD (issue #633)</li>
+          <li>[CHANGED] - eQSL Upload - Added an option to choose a QSLMsg field</li>
+          <li>[CHANGED] - eQSL Download - eQSL QSLMSG is stored to QLog QSLMSG_RCVD</li>
+          <li>[CHANGED] - eQSL Download - Added QSLMSG_RCVD merging - eQSL message is appended</li>
+          <li>Fixed Speed pot doesn't seem to work with a WinKeyer; double chars (issue #618)</li>
+          <li>Fixed BandMap Spots colour change after a QSO (issue #632)</li>
+          <li>Fixed Incorrect Field Mapping for Received eQSL Messages (issue #633)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.42.2" date="2025-03-07">
       <description>
         <ul>

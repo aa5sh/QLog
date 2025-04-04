@@ -333,6 +333,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->bandmapWidget, &BandmapWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
     connect(ui->bandmapWidget, &BandmapWidget::nearestSpotFound, ui->newContactWidget, &NewContactWidget::setNearestSpot);
+    connect(ui->bandmapWidget, &BandmapWidget::requestNewNonVfoBandmapWindow, this, &MainWindow::openNonVfoBandmap);
 
     connect(ui->wsjtxWidget, &WsjtxWidget::callsignSelected, ui->newContactWidget, &NewContactWidget::prepareWSJTXQSO);
 
@@ -414,6 +415,58 @@ MainWindow::MainWindow(QWidget* parent) :
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     FCT_IDENTIFICATION;
+
+    const QString &currActivityProfile = ActivityProfilesManager::instance()->getCurProfile1().profileName;
+
+    if ( currActivityProfile == QString() )
+    {
+        // save dynamic Bandmap Widgets
+        const QList<QPair<QString, QString>> &bandmapList = getNonVfoBandmapsParams();
+
+        if ( bandmapList.isEmpty() )
+            settings.remove("bandmapwidgets");
+        else
+            settings.setValue("bandmapwidgets", MainLayoutProfilesManager::toDBStringList(bandmapList));
+    }
+    else
+        settings.remove("bandmapwidgets");
+
+    // cleanup Bandmap config
+    const QStringList configBandmapList = LogParam::bandmapsWidgets();
+
+    QSet<QString> configBandmapSet;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    configBandmapSet = QSet<QString>(configBandmapList.begin(), configBandmapList.end());
+#else
+    configBandmapSet = QSet<QString>::fromList(configBandmapList);
+#endif
+
+    MainLayoutProfilesManager *layoutManager = MainLayoutProfilesManager::instance();
+    QSet<QString> layoutBandmapSet;
+    const QStringList &profiles = layoutManager->profileNameList();
+
+    for (const auto &addBandmapClassic : MainLayoutProfilesManager::toPairStringList(settings.value("bandmapwidgets").toString()))
+        layoutBandmapSet.insert(addBandmapClassic.first);
+
+    for ( const QString &profile: profiles )
+        for ( const auto &addlProfileBandmap : layoutManager->getProfile(profile).addlBandmaps )
+            layoutBandmapSet.insert(addlProfileBandmap.first);
+
+    QSet<QString> orphanConfigurations = configBandmapSet.subtract(layoutBandmapSet);
+    orphanConfigurations.remove(ui->bandmapWidget->objectName()); // removed the main window name
+
+    for ( const QString &orphanConfig : static_cast<const QSet<QString>&>(orphanConfigurations) )
+    {
+        qCDebug(runtime) << "Removing orphan configuration" << orphanConfig;
+        LogParam::removeBandmapWidgetGroup(orphanConfig);
+    }
+
+    // Save unsaved bandmap states
+    for ( BandmapWidget *widget : static_cast<const QList<BandmapWidget *>&>(findChildren<BandmapWidget *>()) )
+    {
+        if ( widget )
+            widget->saveState();
+    }
 
     // save the window geometry
     settings.setValue("geometry", saveGeometry());
@@ -574,6 +627,109 @@ QString MainWindow::stationCallsignStatus(const StationProfile &profile) const
     return profile.callsign.toLower() + " [" + tr("op: ") + profile.operatorCallsign.toLower() + "]";
 }
 
+void MainWindow::openNonVfoBandmap(const QString &widgetID, const QString &bandName)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << widgetID << bandName;
+
+    const Band &band = BandPlan::bandName2Band(bandName);
+    QDockWidget *dock = nullptr;
+
+    // bandmap docks stay open. Therefore it is necessary to decide whether
+    // to reuse the dock or create a new one.
+    dock = findChild<QDockWidget*>(widgetID + "-dock");
+
+    if ( dock == nullptr )
+    {
+        qCDebug(runtime) << "Creating a new Bandmap dock";
+        dock = new QDockWidget(this);
+        dock->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+        dock->setObjectName(widgetID + "-dock");
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        dock->setFloating(true);
+        const QRect &mainGeometry = geometry();
+        const QSize &dockSize = dock->sizeHint();
+
+        // middle
+        int x = mainGeometry.x() + (mainGeometry.width() - dockSize.width()) / 2;
+        int y = mainGeometry.y() + (mainGeometry.height() - dockSize.height()) / 2;
+        dock->move(x, y);
+        dock->resize(ui->bandmapDockWidget->size());
+    }
+
+    BandmapWidget *bandmap = new BandmapWidget(widgetID, band, dock);
+    dock->setWidget(bandmap);
+
+    if ( !dock->isVisible() ) // show reused docks
+        dock->show();
+
+    // the vfo bandmap takes care of managing the spot map, which is shared with the non vfo bandmaps. spotsUpdated
+    // is triggered when spot map is dirty and the bandmaps should re-render.
+    connect(ui->bandmapWidget, &BandmapWidget::spotsUpdated, bandmap, &BandmapWidget::updateStations);
+
+    // connect selected signals as a common Bandmap widget
+    connect(this, &MainWindow::themeChanged, bandmap, &BandmapWidget::update);
+    connect(Rig::instance(), &Rig::frequencyChanged, bandmap, &BandmapWidget::updateTunedFrequency);
+    connect(Rig::instance(), &Rig::modeChanged, bandmap, &BandmapWidget::updateMode);
+    connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, bandmap, &BandmapWidget::updateTunedFrequency);
+    connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, bandmap, &BandmapWidget::updateTunedFrequency);
+    connect(ui->newContactWidget, &NewContactWidget::userModeChanged, bandmap, &BandmapWidget::updateMode);
+    connect(bandmap, &BandmapWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
+}
+
+void MainWindow::openNonVfoBandmaps(const QList<QPair<QString, QString> > &list)
+{
+    FCT_IDENTIFICATION;
+
+    // create additional bandmap widgets
+    for ( const QPair<QString, QString> &widget : list )
+        openNonVfoBandmap(widget.first, widget.second);
+}
+
+void MainWindow::clearNonVfoBandmaps()
+{
+    FCT_IDENTIFICATION;
+
+    const QList<BandmapWidget *> bandmapWidgets = ui->bandmapWidget->getNonVfoWidgetList();
+    BandmapWidget *widget = nullptr;
+    QDockWidget *widgetDock = nullptr;
+    for (auto it = bandmapWidgets.begin(); it != bandmapWidgets.end(); ++it)
+    {
+        widget = *it;
+        if ( widget )
+        {
+            widgetDock = findChild<QDockWidget*>(widget->objectName() + "-dock");
+            widget->saveState();
+            widget->setParent(nullptr);
+            widget->close();
+            widget->deleteLater();
+
+            if ( widgetDock )
+            {
+                widgetDock->close();
+                addDockWidget(Qt::RightDockWidgetArea, widgetDock); // without this, sometime is does not close the dock if it is floating
+                //widgetDock->deleteLater(); // Do not delete the dock – Qlog will reuse it. This is a more reliable method when switching layouts.
+            }
+        }
+    }
+}
+
+QList<QPair<QString, QString>> MainWindow::getNonVfoBandmapsParams() const
+{
+    FCT_IDENTIFICATION;
+
+    QList<QPair<QString, QString>> bandmapList;
+    const QList<BandmapWidget *> bandmapWidgets = ui->bandmapWidget->getNonVfoWidgetList();
+
+    for ( BandmapWidget *widget : bandmapWidgets )
+        if ( widget && widget->isVisible() )
+            bandmapList << QPair<QString, QString>(widget->objectName(), widget->getBand().name);
+
+    qCDebug(runtime) << bandmapList;
+    return  bandmapList;
+}
+
 void MainWindow::darkModeToggle(int mode)
 {
     FCT_IDENTIFICATION;
@@ -684,33 +840,34 @@ void MainWindow::setLayoutGeometry()
     QByteArray newGeometry;
     QByteArray newState;
     bool darkMode = false;
+    QList<QPair<QString, QString>> bandmapWidgets;
 
+    bandmapWidgets = (layoutProfile.profileName.isEmpty()) ? MainLayoutProfilesManager::toPairStringList(settings.value("bandmapwidgets").toString())
+                                                           : layoutProfile.addlBandmaps;
     if ( layoutProfile.mainGeometry != QByteArray()
         || layoutProfile.mainState != QByteArray() )
     {
+        // layout from config
         newGeometry = layoutProfile.mainGeometry;
         newState = layoutProfile.mainState;
         darkMode = layoutProfile.darkMode;
     }
     else
     {
+        // Classic Layout
         newGeometry = settings.value("geometry").toByteArray();
         newState = settings.value("windowState").toByteArray();
         darkMode = settings.value("darkmode", false).toBool();
     }
 
-    restoreGeometry(newGeometry);
+    openNonVfoBandmaps(bandmapWidgets);
 
 #ifdef Q_OS_LINUX
     // workaround for QTBUG-46620
-    // side-effet - sometime it sets fullscreen mode
-    if ( isMaximized() )
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-        setGeometry(screen()->availableGeometry());
-#else
-        setGeometry(QApplication::desktop()->availableGeometry(this));
+    showNormal();
+    QApplication::processEvents();
 #endif
-#endif
+    restoreGeometry(newGeometry);
 
     // workaround for QTBUG-46620
     QTimer* nt = new QTimer(this);
@@ -735,20 +892,23 @@ void MainWindow::setSimplyLayoutGeometry()
     FCT_IDENTIFICATION;
 
     const MainLayoutProfile &layoutProfile = MainLayoutProfilesManager::instance()->getCurProfile1();
+
+    if ( !layoutProfile.profileName.isEmpty() )
+        clearNonVfoBandmaps();
+
+    openNonVfoBandmaps(layoutProfile.addlBandmaps);
+
     if ( layoutProfile.mainGeometry != QByteArray()
         || layoutProfile.mainState != QByteArray() )
     {
-        restoreGeometry(layoutProfile.mainGeometry);
 
 #ifdef Q_OS_LINUX
-        if ( isMaximized() )
-        {
-            // workaround for QTBUG-46620
-            // side-effect: screen is flashing
-            QApplication::processEvents(); showNormal();
-            QApplication::processEvents(); showMaximized();
-        }
+        // workaround for QTBUG-46620
+        showNormal();
+        QApplication::processEvents();
 #endif
+        restoreGeometry(layoutProfile.mainGeometry);
+        QApplication::processEvents();
 
         // workaround for QTBUG-46620
         QTimer* nt = new QTimer(this);
@@ -772,6 +932,7 @@ void MainWindow::saveProfileLayoutGeometry()
 
     if ( layoutProfile != MainLayoutProfile() )
     {
+        layoutProfile.addlBandmaps = getNonVfoBandmapsParams();
         layoutProfile.mainGeometry = saveGeometry();
         layoutProfile.mainState = saveState();
         layoutProfile.darkMode = darkLightModeSwith->isChecked();
@@ -1447,12 +1608,15 @@ void MainWindow::showAwards()
     dialog.exec();
 }
 
-void MainWindow::showAbout() {
+void MainWindow::showAbout()
+{
     FCT_IDENTIFICATION;
 
     QString aboutText = tr("<h1>QLog %1</h1>"
                            "<p>&copy; 2019 Thomas Gatzweiler DL2IC<br/>"
-                           "&copy; 2021-2025 Ladislav Foldyna OK1MLG</p>"
+                           "&copy; 2021-2025 Ladislav Foldyna OK1MLG<br/>"
+                           "&copy; 2025 Michael Morgan AA5SH<br/>"
+                           "&copy; 2025 Kyle Boyle VE9KZ</p>"
                            "<p>Based on Qt %2<br/>"
                            "%3<br/>"
                            "%4<br/>"
@@ -1472,12 +1636,12 @@ void MainWindow::showAbout() {
 #endif
 
     QString OSName = QString("%1 %2 (%3)").arg(QSysInfo::prettyProductName(), QSysInfo::currentCpuArchitecture(), QGuiApplication::platformName() );
-    aboutText = aboutText.arg(version)
-                         .arg(qVersion())
-                         .arg(hamlibVersion)
-                         .arg(QSslSocket::sslLibraryVersionString())
-                         .arg(OSName);
 
+#ifdef QLOG_FLATPAK
+    OSName.append(" Flatpak");
+#endif
+
+    aboutText = aboutText.arg(version, qVersion(), hamlibVersion, QSslSocket::sslLibraryVersionString(), OSName);
 
     QMessageBox::about(this, tr("About"), aboutText);
 }
