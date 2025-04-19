@@ -2748,6 +2748,13 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         return;
     }
 
+    frequency = ( frequency > 0.0 ) ? frequency : ui->freqRXEdit->value();
+
+    // Fix #453
+    // it is necessary to have the sequence of Set Freq and Set Mode.
+    // Otherwise  it may happen that the mode is not set correctly on the Rig
+    ui->freqRXEdit->setValue(frequency);
+
     if ( frequency > 0.0 )
     {
         QString subMode;
@@ -2782,12 +2789,7 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
             emit userModeChanged(VFO1, QString(), mode, subMode, bandwidthFilter);
         }
     }
-    else
-    {
-        frequency = ui->freqRXEdit->value();
-    }
 
-    ui->freqRXEdit->setValue(frequency);
     resetContact();
     changeCallsignManually(spot.callsign, frequency);
 

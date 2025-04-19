@@ -42,6 +42,10 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Sat Apr 19 2025 Ladislav Foldyna - 0.43.1-1
+- Fixed Click on PHONE DX Spots sets wrong mode (issue #453)
+- Fixed No freq via Omnirig for IC7400 (issue #639)
+
 * Fri Apr 4 2025 Ladislav Foldyna - 0.43.0-1
 - [NEW] - Added support to receive QSOs from CSN SAT Device (PR #610 @aa5sh)
 - [NEW] - Bandmap - Multiple independent bandmap windows (PR #593 @kyleboyle @foldynl)

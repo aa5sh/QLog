@@ -1,3 +1,9 @@
+qlog (0.43.1-1) UNRELEASED; urgency=low
+  * Fixed Click on PHONE DX Spots sets wrong mode (issue #453)
+  * Fixed No freq via Omnirig for IC7400 (issue #639)
+
+ -- foldynl <foldyna@gmail.com>  Sat, 19 Apr 2025 10:05:24 +0200
+
 qlog (0.43.0-1) UNRELEASED; urgency=low
   * [NEW] - Added support to receive QSOs from CSN SAT Device (PR #610 @aa5sh)
   * [NEW] - Bandmap - Multiple independent bandmap windows (PR #593 @kyleboyle @foldynl)

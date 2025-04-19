@@ -50,6 +50,14 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.43.1" date="2025-04-19">
+      <description>
+        <ul>
+          <li>Fixed Click on PHONE DX Spots sets wrong mode (issue #453)</li>
+          <li>Fixed No freq via Omnirig for IC7400 (issue #639)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.43.0" date="2025-04-04">
       <description>
         <ul>

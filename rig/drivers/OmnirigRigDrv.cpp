@@ -559,7 +559,7 @@ bool OmnirigRigDrv::checkFreqChange(int params, bool force)
         else
         {
             qCDebug(runtime) << "Getting Generic VFO Freq";
-            rig->Freq();
+            vfo_freq = rig->Freq();
         };
 
         qCDebug(runtime) << "Rig Freq: "<< vfo_freq;

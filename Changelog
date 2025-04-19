@@ -1,3 +1,7 @@
+2025/04/19 - 0.43.1
+- Fixed Click on PHONE DX Spots sets wrong mode (issue #453)
+- Fixed No freq via Omnirig for IC7400 (issue #639)
+
 2025/04/04 - 0.43.0
 - [NEW] - Added support to receive QSOs from CSN SAT Device (PR #610 @aa5sh)
 - [NEW] - Bandmap - Multiple independent bandmap windows (PR #593 @kyleboyle @foldynl)
