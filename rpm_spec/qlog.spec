@@ -42,6 +42,9 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Sun May 11 2025 Ladislav Foldyna - 0.44.1-1
+- Fixed Rotator Widget Seg Fault for new users (issue #666)
+
 * Fri May 9 2025 Ladislav Foldyna - 0.44.0-1
 - [NEW] - Activity Manager - Added SKCC, UKSMG and FISTS as Dynamic Fields
 - [NEW] - QSO - FISTS, SKCC, and UKSMG are auto-filled from MembershipQE (issue #628)

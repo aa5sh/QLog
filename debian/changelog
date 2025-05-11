@@ -1,3 +1,8 @@
+qlog (0.44.1-1) UNRELEASED; urgency=low
+  * Fixed Rotator Widget Seg Fault for new users (issue #666)
+
+ -- foldynl <foldyna@gmail.com>  Sun, 11 May 2025 07:30:56 +0200
+
 qlog (0.44.0-1) UNRELEASED; urgency=low
   * [NEW] - Activity Manager - Added SKCC, UKSMG and FISTS as Dynamic Fields
   * [NEW] - QSO - FISTS, SKCC, and UKSMG are auto-filled from MembershipQE (issue #628)

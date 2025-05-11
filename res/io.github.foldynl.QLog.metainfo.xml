@@ -51,6 +51,13 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.44.1" date="2025-05-11">
+      <description>
+        <ul>
+          <li>Fixed Rotator Widget Seg Fault for new users (issue #666)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.44.0" date="2025-05-09">
       <description>
         <ul>

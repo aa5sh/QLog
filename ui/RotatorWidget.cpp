@@ -15,6 +15,9 @@ MODULE_IDENTIFICATION("qlog.ui.rotatorwidget");
 
 RotatorWidget::RotatorWidget(QWidget *parent) :
     QWidget(parent),
+    antennaNeedle(nullptr),
+    requestedAzimuthNeedle(nullptr),
+    QSOAzimuthNeedle(nullptr),
     waitingFirstValue(true),
     compassScene(nullptr),
     ui(new Ui::RotatorWidget),
@@ -105,8 +108,11 @@ void RotatorWidget::setRequestedAz(double requestedAz)
         return;
 
     requestedAzimuth = requestedAz;
-    requestedAzimuthNeedle->show();
-    requestedAzimuthNeedle->setRotation(requestedAz);
+    if ( requestedAzimuthNeedle )
+    {
+        requestedAzimuthNeedle->show();
+        requestedAzimuthNeedle->setRotation(requestedAz);
+    }
 }
 
 void RotatorWidget::setBearing(double in_azimuth)
@@ -129,22 +135,26 @@ void RotatorWidget::positionChanged(double in_azimuth, double in_elevation)
     qCDebug(function_parameters) << in_azimuth <<in_elevation;
 
     antennaAzimuth = (in_azimuth < 0.0 ) ? 360.0 + in_azimuth : in_azimuth;
-    antennaNeedle->setRotation(antennaAzimuth);
+    if ( antennaNeedle) antennaNeedle->setRotation(antennaAzimuth);
     if ( waitingFirstValue )
     {
         waitingFirstValue = false;
-        requestedAzimuthNeedle->setRotation(in_azimuth);
+        if ( requestedAzimuthNeedle) requestedAzimuthNeedle->setRotation(in_azimuth);
     }
     ui->gotoDoubleSpinBox->blockSignals(true);
     ui->gotoDoubleSpinBox->setValue(antennaAzimuth);
     ui->gotoDoubleSpinBox->blockSignals(false);
-    if ( qAbs(qRound(requestedAzimuth) - qRound(in_azimuth)) <= AZIMUTH_DEAD_BAND )
+    if ( qAbs(qRound(requestedAzimuth) - qRound(in_azimuth)) <= AZIMUTH_DEAD_BAND
+         && requestedAzimuthNeedle )
         requestedAzimuthNeedle->hide();
 }
 
 void RotatorWidget::setQSOBearing(double , double )
 {
     FCT_IDENTIFICATION;
+
+    if ( !QSOAzimuthNeedle )
+        return;
 
     qsoAzimuth = getQSOBearing();
 
@@ -492,7 +502,7 @@ void RotatorWidget::rotConnected()
     ui->userButtonsProfileCombo->setEnabled(true);
     refreshRotUserButtons();
     waitingFirstValue = true;
-    antennaNeedle->show();
+    if ( antennaNeedle ) antennaNeedle->show();
 }
 
 void RotatorWidget::rotDisconnected()
@@ -508,8 +518,8 @@ void RotatorWidget::rotDisconnected()
     ui->userButton_2->setEnabled(false);
     ui->userButton_3->setEnabled(false);
     ui->userButton_4->setEnabled(false);
-    antennaNeedle->hide();
-    requestedAzimuthNeedle->hide();
+    if ( antennaNeedle ) antennaNeedle->hide();
+    if ( requestedAzimuthNeedle) requestedAzimuthNeedle->hide();
     requestedAzimuth = qQNaN();
 }
 
