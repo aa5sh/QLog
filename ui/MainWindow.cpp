@@ -91,7 +91,11 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
     ui->chatWidget->registerContactWidget(ui->newContactWidget);
 
-    setLayoutGeometry();
+    const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
+    for (QDockWidget *dockWidget : dockWidgets) {
+        if (dockWidget)
+            dockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+    }
 
     const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
 
@@ -141,7 +145,7 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->statusBar->addPermanentWidget(darkLightModeSwith);
     ui->statusBar->addPermanentWidget(darkIconLabel);
 
-    setContestMode(LogParam::getParam("contest/contestid", QString()).toString());
+    setContestMode(LogParam::getContestID());
 
     connect(seqGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuSeqnoType);
     connect(dupeGroup, &QActionGroup::triggered, this, &MainWindow::saveContestMenuDupeType);
@@ -166,8 +170,6 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->rigWidget, &RigWidget::refreshRigProfileCombo);
 
     connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
-            this, &MainWindow::setSimplyLayoutGeometry);
-    connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::setupCustomUi);
 
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
@@ -182,6 +184,8 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->chatWidget, &ChatWidget::reloadStationProfile);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->clockWidget, &ClockWidget::updateSun);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->dxWidget, &DxWidget::recalculateTrend);
 
     connect(this, &MainWindow::themeChanged, ui->bandmapWidget, &BandmapWidget::update);
     connect(this, &MainWindow::themeChanged, ui->clockWidget, &ClockWidget::updateClock);
@@ -199,6 +203,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->rigWidget, &RigWidget::updateFrequency);
+    connect(Rig::instance(), &Rig::frequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(Rig::instance(), &Rig::modeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(Rig::instance(), &Rig::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
     connect(Rig::instance(), &Rig::modeChanged, ui->rigWidget, &RigWidget::updateMode);
@@ -214,6 +219,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::xitChanged, ui->rigWidget, &RigWidget::updateXIT);
     connect(Rig::instance(), &Rig::ritChanged, ui->rigWidget, &RigWidget::updateRIT);
     connect(Rig::instance(), &Rig::pttChanged, ui->rigWidget, &RigWidget::updatePTT);
+    connect(Rig::instance(), &Rig::rigStatusChanged, &networknotification, &NetworkNotification::rigStatus);
 
     connect(Rotator::instance(), &Rotator::rotErrorPresent, this, &MainWindow::rotErrorHandler);
     connect(Rotator::instance(), &Rotator::positionChanged, ui->onlineMapWidget, &OnlineMapWidget::antPositionChanged);
@@ -244,6 +250,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
+    connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(ui->wsjtxWidget, &WsjtxWidget::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
 
     connect(this, &MainWindow::settingsChanged, wsjtx, &Wsjtx::reloadSetting);
@@ -254,6 +261,10 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(this, &MainWindow::settingsChanged, ui->logbookWidget, &LogbookWidget::reloadSetting);
     connect(this, &MainWindow::settingsChanged, ui->dxWidget, &DxWidget::reloadSetting);
+    connect(this, &MainWindow::settingsChanged, ui->bandmapWidget, &BandmapWidget::recalculateDxccStatus);
+    connect(this, &MainWindow::settingsChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
+    connect(this, &MainWindow::settingsChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
+    connect(this, &MainWindow::settingsChanged, ui->newContactWidget, &NewContactWidget::readGlobalSettings);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
     connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);
@@ -287,6 +298,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, Data::instance(), &Data::invalidateDXCCStatusCache); // must be the first delete signal
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::updateTable);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::setDefaultSort);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, &networknotification, &NetworkNotification::QSOInserted);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->bandmapWidget, &BandmapWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->alertsWidget, &AlertWidget::updateSpotsStatusWhenQSOAdded);
@@ -297,9 +309,11 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::contestStarted, this, &MainWindow::startContest);
     connect(ui->newContactWidget, &NewContactWidget::newTarget, ui->mapWidget, &MapWidget::setTarget);
     connect(ui->newContactWidget, &NewContactWidget::newTarget, ui->onlineMapWidget, &OnlineMapWidget::setTarget);
+    connect(ui->newContactWidget, &NewContactWidget::newTarget, ui->rotatorWidget, &RotatorWidget::setQSOBearing);
     connect(ui->newContactWidget, &NewContactWidget::filterCallsign, ui->logbookWidget, &LogbookWidget::filterCallsign);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->bandmapWidget, &BandmapWidget::updateTunedFrequency);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
+    connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(ui->newContactWidget, &NewContactWidget::userModeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(ui->newContactWidget, &NewContactWidget::markQSO, ui->bandmapWidget, &BandmapWidget::addSpot);
     connect(ui->newContactWidget, &NewContactWidget::callboolImageUrl, ui->profileImageWidget, &ProfileImageWidget::loadImageFromUrl);
@@ -313,12 +327,14 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->dxWidget, &DxWidget::newWWVSpot, &networknotification, &NetworkNotification::wwvSpot);
     connect(ui->dxWidget, &DxWidget::newToAllSpot, &networknotification, &NetworkNotification::toAllSpot);
     connect(ui->dxWidget, &DxWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
+    connect(ui->dxWidget, &DxWidget::tuneBand, ui->rigWidget, &RigWidget::setBand);
 
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, this, &MainWindow::processSpotAlert);
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, &networknotification, &NetworkNotification::spotAlert);
 
     connect(ui->bandmapWidget, &BandmapWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
     connect(ui->bandmapWidget, &BandmapWidget::nearestSpotFound, ui->newContactWidget, &NewContactWidget::setNearestSpot);
+    connect(ui->bandmapWidget, &BandmapWidget::requestNewNonVfoBandmapWindow, this, &MainWindow::openNonVfoBandmap);
 
     connect(ui->wsjtxWidget, &WsjtxWidget::callsignSelected, ui->newContactWidget, &NewContactWidget::prepareWSJTXQSO);
 
@@ -339,6 +355,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(conditions, &PropConditions::conditionsUpdated, this, &MainWindow::conditionsUpdated);
     connect(conditions, &PropConditions::auroraMapUpdated, ui->onlineMapWidget, &OnlineMapWidget::auroraDataUpdate);
     connect(conditions, &PropConditions::mufMapUpdated, ui->onlineMapWidget, &OnlineMapWidget::mufDataUpdate);
+    connect(conditions, &PropConditions::dxTrendFinalized, ui->dxWidget, &DxWidget::setDxTrend);
 
     ui->onlineMapWidget->assignPropConditions(conditions);
     ui->newContactWidget->assignPropConditions(conditions);
@@ -400,6 +417,58 @@ void MainWindow::closeEvent(QCloseEvent* event)
 {
     FCT_IDENTIFICATION;
 
+    const QString &currActivityProfile = ActivityProfilesManager::instance()->getCurProfile1().profileName;
+
+    if ( currActivityProfile == QString() )
+    {
+        // save dynamic Bandmap Widgets
+        const QList<QPair<QString, QString>> &bandmapList = getNonVfoBandmapsParams();
+
+        if ( bandmapList.isEmpty() )
+            settings.remove("bandmapwidgets");
+        else
+            settings.setValue("bandmapwidgets", MainLayoutProfilesManager::toDBStringList(bandmapList));
+    }
+    else
+        settings.remove("bandmapwidgets");
+
+    // cleanup Bandmap config
+    const QStringList configBandmapList = LogParam::bandmapsWidgets();
+
+    QSet<QString> configBandmapSet;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    configBandmapSet = QSet<QString>(configBandmapList.begin(), configBandmapList.end());
+#else
+    configBandmapSet = QSet<QString>::fromList(configBandmapList);
+#endif
+
+    MainLayoutProfilesManager *layoutManager = MainLayoutProfilesManager::instance();
+    QSet<QString> layoutBandmapSet;
+    const QStringList &profiles = layoutManager->profileNameList();
+
+    for (const auto &addBandmapClassic : MainLayoutProfilesManager::toPairStringList(settings.value("bandmapwidgets").toString()))
+        layoutBandmapSet.insert(addBandmapClassic.first);
+
+    for ( const QString &profile: profiles )
+        for ( const auto &addlProfileBandmap : layoutManager->getProfile(profile).addlBandmaps )
+            layoutBandmapSet.insert(addlProfileBandmap.first);
+
+    QSet<QString> orphanConfigurations = configBandmapSet.subtract(layoutBandmapSet);
+    orphanConfigurations.remove(ui->bandmapWidget->objectName()); // removed the main window name
+
+    for ( const QString &orphanConfig : static_cast<const QSet<QString>&>(orphanConfigurations) )
+    {
+        qCDebug(runtime) << "Removing orphan configuration" << orphanConfig;
+        LogParam::removeBandmapWidgetGroup(orphanConfig);
+    }
+
+    // Save unsaved bandmap states
+    for ( BandmapWidget *widget : static_cast<const QList<BandmapWidget *>&>(findChildren<BandmapWidget *>()) )
+    {
+        if ( widget )
+            widget->saveState();
+    }
+
     // save the window geometry
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
@@ -410,6 +479,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
         stats->deleteLater();
         stats = nullptr;
     }
+
+     const QList<QDockWidget*> docks = findChildren<QDockWidget*>();
+     for (QDockWidget* dock : docks)
+         dock->close();  // Ensure they are closed
 
     QMainWindow::closeEvent(event);
 }
@@ -555,6 +628,109 @@ QString MainWindow::stationCallsignStatus(const StationProfile &profile) const
     return profile.callsign.toLower() + " [" + tr("op: ") + profile.operatorCallsign.toLower() + "]";
 }
 
+void MainWindow::openNonVfoBandmap(const QString &widgetID, const QString &bandName)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << widgetID << bandName;
+
+    const Band &band = BandPlan::bandName2Band(bandName);
+    QDockWidget *dock = nullptr;
+
+    // bandmap docks stay open. Therefore it is necessary to decide whether
+    // to reuse the dock or create a new one.
+    dock = findChild<QDockWidget*>(widgetID + "-dock");
+
+    if ( dock == nullptr )
+    {
+        qCDebug(runtime) << "Creating a new Bandmap dock";
+        dock = new QDockWidget(this);
+        dock->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+        dock->setObjectName(widgetID + "-dock");
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        dock->setFloating(true);
+        const QRect &mainGeometry = geometry();
+        const QSize &dockSize = dock->sizeHint();
+
+        // middle
+        int x = mainGeometry.x() + (mainGeometry.width() - dockSize.width()) / 2;
+        int y = mainGeometry.y() + (mainGeometry.height() - dockSize.height()) / 2;
+        dock->move(x, y);
+        dock->resize(ui->bandmapDockWidget->size());
+    }
+
+    BandmapWidget *bandmap = new BandmapWidget(widgetID, band, dock);
+    dock->setWidget(bandmap);
+
+    if ( !dock->isVisible() ) // show reused docks
+        dock->show();
+
+    // the vfo bandmap takes care of managing the spot map, which is shared with the non vfo bandmaps. spotsUpdated
+    // is triggered when spot map is dirty and the bandmaps should re-render.
+    connect(ui->bandmapWidget, &BandmapWidget::spotsUpdated, bandmap, &BandmapWidget::updateStations);
+
+    // connect selected signals as a common Bandmap widget
+    connect(this, &MainWindow::themeChanged, bandmap, &BandmapWidget::update);
+    connect(Rig::instance(), &Rig::frequencyChanged, bandmap, &BandmapWidget::updateTunedFrequency);
+    connect(Rig::instance(), &Rig::modeChanged, bandmap, &BandmapWidget::updateMode);
+    connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, bandmap, &BandmapWidget::updateTunedFrequency);
+    connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, bandmap, &BandmapWidget::updateTunedFrequency);
+    connect(ui->newContactWidget, &NewContactWidget::userModeChanged, bandmap, &BandmapWidget::updateMode);
+    connect(bandmap, &BandmapWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
+}
+
+void MainWindow::openNonVfoBandmaps(const QList<QPair<QString, QString> > &list)
+{
+    FCT_IDENTIFICATION;
+
+    // create additional bandmap widgets
+    for ( const QPair<QString, QString> &widget : list )
+        openNonVfoBandmap(widget.first, widget.second);
+}
+
+void MainWindow::clearNonVfoBandmaps()
+{
+    FCT_IDENTIFICATION;
+
+    const QList<BandmapWidget *> bandmapWidgets = ui->bandmapWidget->getNonVfoWidgetList();
+    BandmapWidget *widget = nullptr;
+    QDockWidget *widgetDock = nullptr;
+    for (auto it = bandmapWidgets.begin(); it != bandmapWidgets.end(); ++it)
+    {
+        widget = *it;
+        if ( widget )
+        {
+            widgetDock = findChild<QDockWidget*>(widget->objectName() + "-dock");
+            widget->saveState();
+            widget->setParent(nullptr);
+            widget->close();
+            widget->deleteLater();
+
+            if ( widgetDock )
+            {
+                widgetDock->close();
+                addDockWidget(Qt::RightDockWidgetArea, widgetDock); // without this, sometime is does not close the dock if it is floating
+                //widgetDock->deleteLater(); // Do not delete the dock – Qlog will reuse it. This is a more reliable method when switching layouts.
+            }
+        }
+    }
+}
+
+QList<QPair<QString, QString>> MainWindow::getNonVfoBandmapsParams() const
+{
+    FCT_IDENTIFICATION;
+
+    QList<QPair<QString, QString>> bandmapList;
+    const QList<BandmapWidget *> bandmapWidgets = ui->bandmapWidget->getNonVfoWidgetList();
+
+    for ( BandmapWidget *widget : bandmapWidgets )
+        if ( widget && widget->isVisible() )
+            bandmapList << QPair<QString, QString>(widget->objectName(), widget->getBand().name);
+
+    qCDebug(runtime) << bandmapList;
+    return  bandmapList;
+}
+
 void MainWindow::darkModeToggle(int mode)
 {
     FCT_IDENTIFICATION;
@@ -588,17 +764,15 @@ void MainWindow::processSpotAlert(SpotAlert alert)
 
     ui->alertsWidget->addAlert(alert);
     alertButton->setText(QString::number(ui->alertsWidget->alertCount()));
-    alertTextButton->setText(alert.ruleName.join(", ") + ": " + alert.callsign + ", " + alert.band + ", " + alert.modeGroupString);
+    alertTextButton->setText(alert.ruleNameList.join(", ") + ": " + alert.spot.callsign + ", " + alert.spot.band + ", " + alert.spot.modeGroupString);
     alertTextButton->disconnect();
 
     connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
     {
         if ( alert.source == SpotAlert::WSJTXCQSPOT )
-            this->wsjtx->startReply(alert.wsjtxDecode);
+            wsjtx->startReply(alert.spot.decode);
         else
-            ui->newContactWidget->tuneDx(alert.callsign,
-                                         alert.freq,
-                                         alert.bandPlanMode);
+            ui->newContactWidget->tuneDx(alert.getDxSpot());
     });
 
     if ( ui->actionBeepSettingAlert->isChecked() )
@@ -664,35 +838,51 @@ void MainWindow::setLayoutGeometry()
     // restore the window geometry and state
     const MainLayoutProfile &layoutProfile = MainLayoutProfilesManager::instance()->getCurProfile1();
 
+    QByteArray newGeometry;
+    QByteArray newState;
+    bool darkMode = false;
+    QList<QPair<QString, QString>> bandmapWidgets;
+
+    bandmapWidgets = (layoutProfile.profileName.isEmpty()) ? MainLayoutProfilesManager::toPairStringList(settings.value("bandmapwidgets").toString())
+                                                           : layoutProfile.addlBandmaps;
     if ( layoutProfile.mainGeometry != QByteArray()
-         || layoutProfile.mainState != QByteArray() )
+        || layoutProfile.mainState != QByteArray() )
     {
-        restoreGeometry(layoutProfile.mainGeometry);
-#if (QT_VERSION < QT_VERSION_CHECK(6, 3, 0))
-        // workaround for QTBUG-46620
-        if ( isMaximized() )
-        {
-            const QList<QScreen *> &screens = QGuiApplication::screens();
-            setGeometry( screens[0]->availableGeometry() );
-        }
-#endif
-        restoreState(layoutProfile.mainState);
-        darkLightModeSwith->setChecked(layoutProfile.darkMode);
+        // layout from config
+        newGeometry = layoutProfile.mainGeometry;
+        newState = layoutProfile.mainState;
+        darkMode = layoutProfile.darkMode;
     }
     else
     {
-        restoreGeometry(settings.value("geometry").toByteArray());
-#if (QT_VERSION < QT_VERSION_CHECK(6, 3, 0))
-        // workaround for QTBUG-46620
-        if ( isMaximized() )
-        {
-            const QList<QScreen *> &screens = QGuiApplication::screens();
-            setGeometry( screens[0]->availableGeometry() );
-        }
-#endif
-        restoreState(settings.value("windowState").toByteArray());
-        // leave dark mode as is
+        // Classic Layout
+        newGeometry = settings.value("geometry").toByteArray();
+        newState = settings.value("windowState").toByteArray();
+        darkMode = settings.value("darkmode", false).toBool();
     }
+
+    openNonVfoBandmaps(bandmapWidgets);
+
+#ifdef Q_OS_LINUX
+    // workaround for QTBUG-46620
+    showNormal();
+    QApplication::processEvents();
+#endif
+    restoreGeometry(newGeometry);
+
+    // workaround for QTBUG-46620
+    QTimer* nt = new QTimer(this);
+    nt->setSingleShot(true);
+    nt->setInterval(500);
+    connect(nt, &QTimer::timeout, this, [this, darkMode, newState]()
+    {
+        restoreState(newState);
+        darkLightModeSwith->setChecked(isFusionStyle && darkMode);
+        connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
+                this, &MainWindow::setSimplyLayoutGeometry);
+    });
+    nt->connect(nt, &QTimer::timeout, nt, &QTimer::deleteLater);
+    nt->start();
 }
 
 void MainWindow::setSimplyLayoutGeometry()
@@ -703,12 +893,35 @@ void MainWindow::setSimplyLayoutGeometry()
     FCT_IDENTIFICATION;
 
     const MainLayoutProfile &layoutProfile = MainLayoutProfilesManager::instance()->getCurProfile1();
+
+    if ( !layoutProfile.profileName.isEmpty() )
+        clearNonVfoBandmaps();
+
+    openNonVfoBandmaps(layoutProfile.addlBandmaps);
+
     if ( layoutProfile.mainGeometry != QByteArray()
         || layoutProfile.mainState != QByteArray() )
     {
+
+#ifdef Q_OS_LINUX
+        // workaround for QTBUG-46620
+        showNormal();
+        QApplication::processEvents();
+#endif
         restoreGeometry(layoutProfile.mainGeometry);
-        restoreState(layoutProfile.mainState);
-        darkLightModeSwith->setChecked(isFusionStyle && layoutProfile.darkMode);
+        QApplication::processEvents();
+
+        // workaround for QTBUG-46620
+        QTimer* nt = new QTimer(this);
+        nt->setSingleShot(true);
+        nt->setInterval(500);
+        connect(nt, &QTimer::timeout, this, [this, layoutProfile]()
+        {
+            restoreState(layoutProfile.mainState);
+            darkLightModeSwith->setChecked(isFusionStyle && layoutProfile.darkMode);
+        });
+        nt->connect(nt, &QTimer::timeout, nt, &QTimer::deleteLater);
+        nt->start();
     }
 }
 
@@ -720,12 +933,15 @@ void MainWindow::saveProfileLayoutGeometry()
 
     if ( layoutProfile != MainLayoutProfile() )
     {
+        layoutProfile.addlBandmaps = getNonVfoBandmapsParams();
         layoutProfile.mainGeometry = saveGeometry();
         layoutProfile.mainState = saveState();
         layoutProfile.darkMode = darkLightModeSwith->isChecked();
         layoutProfile.tabsexpanded =  ui->newContactWidget->getTabCollapseState();
         MainLayoutProfilesManager::instance()->addProfile(layoutProfile.profileName, layoutProfile);
+        MainLayoutProfilesManager::instance()->blockSignals(true); // prevent screen flashing
         MainLayoutProfilesManager::instance()->save();
+        MainLayoutProfilesManager::instance()->blockSignals(false);
     }
 }
 
@@ -961,7 +1177,7 @@ void MainWindow::saveContestMenuSeqnoType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/seqnotype", action->data());
+    LogParam::setContestSeqnoType(action->data());
     // this function is called only if contest is not active
     // therefore it is not needed to somehow recalculate seq
 }
@@ -976,7 +1192,7 @@ void MainWindow::restoreContestMenuSeqnoType()
     seqGroup->addAction(ui->actionSeqSingle);
     seqGroup->addAction(ui->actionSeqPerBand);
 
-    int seqnoType = LogParam::getParam("contest/seqnotype", Data::SeqType::SINGLE).toInt();
+    int seqnoType = LogParam::getContestSeqnoType();
 
     const QList<QAction *> seqActions = seqGroup->actions();
     for ( QAction *action : seqActions)
@@ -993,7 +1209,7 @@ void MainWindow::saveContestMenuDupeType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/dupetype", action->data());
+    LogParam::setContestManuDupeType(action->data());
     emit dupeTypeChanged();
 }
 
@@ -1001,7 +1217,7 @@ void MainWindow::saveContestMenuLinkExchangeType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setParam("contest/linkexchangetype", action->data());
+    LogParam::setContestLinkExchange(action->data());
     ui->newContactWidget->changeSRXStringLink(action->data().toInt());
 }
 
@@ -1019,7 +1235,7 @@ void MainWindow::restoreContestMenuDupeType()
     dupeGroup->addAction(ui->actionDupeEachBandMode);
     dupeGroup->addAction(ui->actionDupeNoCheck);
 
-    int dupeType = LogParam::getParam("contest/dupetype", Data::DupeType::ALL_BANDS).toInt();
+    int dupeType = LogParam::getContestDupeType();
 
     const QList<QAction *> seqActions = dupeGroup->actions();
     for ( QAction *action : seqActions)
@@ -1038,7 +1254,7 @@ void MainWindow::restoreContestMenuLinkExchange()
 
     linkExchangeGroup = new QActionGroup(ui->menuLinkExchange);
 
-    int linkExchangeType = LogParam::getParam("contest/linkexchangetype", LogbookModel::COLUMN_INVALID).toInt();
+    int linkExchangeType = LogParam::getContestLinkExchange();
 
     ui->actionLinkExchangeNone->setData(LogbookModel::COLUMN_INVALID);
     linkExchangeGroup->addAction(ui->actionLinkExchangeNone);
@@ -1081,16 +1297,16 @@ void MainWindow::restoreContestMenuLinkExchange()
     ui->newContactWidget->changeSRXStringLink(linkExchangeType);
 }
 
-void MainWindow::startContest(const QString contestID, const QDateTime)
+void MainWindow::startContest(const QString contestID, const QDateTime dateTime)
 {
     FCT_IDENTIFICATION;
 
     // Contest's start signal is sent from NewContact
-    const QSOFilter &contestFilter = QSOFilter::createFromNowContestFilter(contestID);
+    const QSOFilter &contestFilter = QSOFilter::createFromDateContestFilter(contestID, dateTime);
     QSOFilterManager::instance()->save(contestFilter);
     ui->logbookWidget->refreshUserFilter();
     ui->logbookWidget->setUserFilter(contestFilter.filterName);
-    LogParam::setParam("contest/filter", contestFilter.filterName);
+    LogParam::setContestFilter(contestFilter.filterName);
     setContestMode(contestID);
 }
 
@@ -1098,7 +1314,7 @@ void MainWindow::stopContest()
 {
     FCT_IDENTIFICATION;
 
-    const QString &contestFilterName = LogParam::getParam("contest/filter").toString();
+    const QString &contestFilterName = LogParam::getContestFilter();
 
     if ( !contestFilterName.isEmpty() )
     {
@@ -1120,7 +1336,7 @@ void MainWindow::stopContest()
             QSOFilterManager::instance()->save(contestFilter);
         }
     }
-    LogParam::setParam("contest/filter", QString());
+    LogParam::setContestFilter(QString());
     setContestMode(QString());
 
     emit contestStopped();
@@ -1259,6 +1475,7 @@ void MainWindow::showSettings()
 
     if ( sw.exec() == QDialog::Accepted )
     {
+        Data::instance()->clearDXCCStatusCache();
         rigConnect();
         rotConnect();
         stationProfileChanged();
@@ -1392,12 +1609,15 @@ void MainWindow::showAwards()
     dialog.exec();
 }
 
-void MainWindow::showAbout() {
+void MainWindow::showAbout()
+{
     FCT_IDENTIFICATION;
 
     QString aboutText = tr("<h1>QLog %1</h1>"
                            "<p>&copy; 2019 Thomas Gatzweiler DL2IC<br/>"
-                           "&copy; 2021-2024 Ladislav Foldyna OK1MLG</p>"
+                           "&copy; 2021-2025 Ladislav Foldyna OK1MLG<br/>"
+                           "&copy; 2025 Michael Morgan AA5SH<br/>"
+                           "&copy; 2025 Kyle Boyle VE9KZ</p>"
                            "<p>Based on Qt %2<br/>"
                            "%3<br/>"
                            "%4<br/>"
@@ -1417,12 +1637,12 @@ void MainWindow::showAbout() {
 #endif
 
     QString OSName = QString("%1 %2 (%3)").arg(QSysInfo::prettyProductName(), QSysInfo::currentCpuArchitecture(), QGuiApplication::platformName() );
-    aboutText = aboutText.arg(version)
-                         .arg(qVersion())
-                         .arg(hamlibVersion)
-                         .arg(QSslSocket::sslLibraryVersionString())
-                         .arg(OSName);
 
+#ifdef QLOG_FLATPAK
+    OSName.append(" Flatpak");
+#endif
+
+    aboutText = aboutText.arg(version, qVersion(), hamlibVersion, QSslSocket::sslLibraryVersionString(), OSName);
 
     QMessageBox::about(this, tr("About"), aboutText);
 }

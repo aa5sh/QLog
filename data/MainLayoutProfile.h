@@ -23,6 +23,7 @@ public:
     QByteArray mainState;
     bool darkMode;
     bool tabsexpanded;
+    QList<QPair<QString, QString>> addlBandmaps;
 
     bool operator== (const MainLayoutProfile &profile);
     bool operator!= (const MainLayoutProfile &profile);
@@ -52,8 +53,10 @@ public:
     };
     void save();
 
-    QString toDBStringList(const QList<int> &list) const;
+    static QString toDBStringList(const QList<int> &list);
+    static QString toDBStringList(const QList<QPair<QString, QString>> &list);
     QList<int> toIntList(const QString &list) const;
+    static QList<QPair<QString, QString>> toPairStringList(const QString &list);
 };
 
 

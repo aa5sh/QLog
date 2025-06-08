@@ -13,7 +13,7 @@ QDataStream& operator<<(QDataStream& out, const StationProfile& v)
     out << v.profileName << v.callsign << v.locator
         << v.operatorName << v.operatorCallsign << v.qthName << v.iota
         << v.sota << v.sig << v.sigInfo << v.vucc
-        << v.wwff << v.pota << v.ituz << v.cqz << v.dxcc << v.country << v.county;
+        << v.wwff << v.pota << v.ituz << v.cqz << v.dxcc << v.country << v.county << v.darcDOK;
     return out;
 }
 
@@ -37,6 +37,7 @@ QDataStream& operator>>(QDataStream& in, StationProfile& v)
     in >> v.dxcc;
     in >> v.country;
     in >> v.county;
+    in >> v.darcDOK;
 
     return in;
 }
@@ -52,7 +53,7 @@ StationProfilesManager::StationProfilesManager() :
 
     if ( ! profileQuery.prepare("SELECT profile_name, callsign, locator, "
                                 "operator_name, qth_name, iota, sota, sig, sig_info, vucc, pota, "
-                                "ituz, cqz, dxcc, country, county, operator_callsign "
+                                "ituz, cqz, dxcc, country, county, operator_callsign, darc_dok "
                                 "FROM station_profiles") )
     {
         qWarning()<< "Cannot prepare select";
@@ -80,6 +81,7 @@ StationProfilesManager::StationProfilesManager() :
             profileDB.country = profileQuery.value(14).toString();
             profileDB.county = profileQuery.value(15).toString();
             profileDB.operatorCallsign = profileQuery.value(16).toString();
+            profileDB.darcDOK = profileQuery.value(17).toString();
 
             addProfile(profileDB.profileName, profileDB);
         }
@@ -104,8 +106,8 @@ void StationProfilesManager::save()
         return;
     }
 
-    if ( ! insertQuery.prepare("INSERT INTO station_profiles(profile_name, callsign, locator, operator_name, qth_name, iota, sota, sig, sig_info, vucc, wwff, pota, ituz, cqz, dxcc, country, county, operator_callsign) "
-                        "VALUES (:profile_name, :callsign, :locator, :operator_name, :qth_name, :iota, :sota, :sig, :sig_info, :vucc, :wwff, :pota, :ituz, :cqz, :dxcc, :country, :county, :operator_callsign)") )
+    if ( ! insertQuery.prepare("INSERT INTO station_profiles(profile_name, callsign, locator, operator_name, qth_name, iota, sota, sig, sig_info, vucc, wwff, pota, ituz, cqz, dxcc, country, county, operator_callsign, darc_dok) "
+                        "VALUES (:profile_name, :callsign, :locator, :operator_name, :qth_name, :iota, :sota, :sig, :sig_info, :vucc, :wwff, :pota, :ituz, :cqz, :dxcc, :country, :county, :operator_callsign, :darc_dok)") )
     {
         qWarning() << "cannot prepare Insert statement";
         return;
@@ -136,6 +138,7 @@ void StationProfilesManager::save()
             insertQuery.bindValue(":country", stationProfile.country);
             insertQuery.bindValue(":county", stationProfile.county);
             insertQuery.bindValue(":operator_callsign", stationProfile.operatorCallsign);
+            insertQuery.bindValue(":darc_dok", stationProfile.darcDOK);
 
             if ( ! insertQuery.exec() )
             {
@@ -171,6 +174,7 @@ bool StationProfile::operator==(const StationProfile &profile)
             && profile.country == this->country
             && profile.county == this->county
             && profile.operatorCallsign == this->operatorCallsign
+            && profile.darcDOK == this->darcDOK
             );
 }
 
@@ -195,6 +199,7 @@ QString StationProfile::toHTMLString() const
                   ((!vucc.isEmpty()) ? "<b>" + QObject::tr("My VUCC Grids") + ":</b> " + vucc + "<br/>" : "") +
                   ((!wwff.isEmpty()) ? "<b>" + QObject::tr("My WWFF") + ":</b> " + wwff + "<br/>" : "") +
                   ((!pota.isEmpty()) ? "<b>" + QObject::tr("My POTA Ref") + ":</b> " + pota : "") +
+                  ((!pota.isEmpty()) ? "<b>" + QObject::tr("My DARC DOK") + ":</b> " + darcDOK : "") +
                   ((ituz != 0) ? "<b>" + QObject::tr("My ITU") + ":</b> " + QString::number(ituz) : "") + " " +
                   ((cqz != 0) ? "<b>" + QObject::tr("My CQZ") + ":</b> " + QString::number(cqz) : "") + " " +
                   ((dxcc != 0) ? "<b>" + QObject::tr("My DXCC") + ":</b> " + QString::number(dxcc) : "");

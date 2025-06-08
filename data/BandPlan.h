@@ -32,6 +32,7 @@ public:
     static const QString freq2ExpectedMode(const double freq,
                                      QString &submode);
     static const Band freq2Band(double freq);
+    static const Band bandName2Band(const QString& name);
     static const QList<Band> bandsList(const bool onlyDXCCBands = false,
                                        const bool onlyEnabled = false);
     static const QString modeToDXCCModeGroup(const QString &mode);

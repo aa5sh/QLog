@@ -19,7 +19,9 @@ QDataStream& operator<<(QDataStream& out, const MainLayoutProfile& v)
         << v.mainGeometry
         << v.mainState
         << v.darkMode
-        << v.tabsexpanded;
+        << v.tabsexpanded
+        << v.addlBandmaps;
+
 
     return out;
 }
@@ -36,6 +38,7 @@ QDataStream& operator>>(QDataStream& in, MainLayoutProfile& v)
     in >> v.mainState;
     in >> v.darkMode;
     in >> v.tabsexpanded;
+    in >> v.addlBandmaps;
 
     return in;
 }
@@ -47,7 +50,10 @@ MainLayoutProfilesManager::MainLayoutProfilesManager() :
 
     QSqlQuery profileQuery;
 
-    if ( ! profileQuery.prepare("SELECT profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode, tabsexpanded FROM main_layout_profiles") )
+    if ( ! profileQuery.prepare("SELECT profile_name, row_A, row_B, detail_col_A, "
+                                "detail_col_B, detail_col_C, main_geometry, main_state, "
+                                "dark_mode, tabsexpanded, addlbandmaps "
+                                "FROM main_layout_profiles") )
     {
         qWarning()<< "Cannot prepare select";
     }
@@ -67,6 +73,7 @@ MainLayoutProfilesManager::MainLayoutProfilesManager() :
             profileDB.mainState = QByteArray::fromBase64(profileQuery.value(7).toString().toUtf8());
             profileDB.darkMode = profileQuery.value(8).toBool();
             profileDB.tabsexpanded = profileQuery.value(9).toBool();
+            profileDB.addlBandmaps = toPairStringList(profileQuery.value(10).toString());
             addProfile(profileDB.profileName, profileDB);
         }
     }
@@ -89,8 +96,8 @@ void MainLayoutProfilesManager::save()
         return;
     }
 
-    if ( ! insertQuery.prepare("INSERT INTO main_layout_profiles(profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode, tabsexpanded) "
-                               "VALUES (:profile_name, :row_A, :row_B, :detail_col_A, :detail_col_B, :detail_col_C, :main_geometry, :main_state, :dark_mode, :tabsexpanded)") )
+    if ( ! insertQuery.prepare("INSERT INTO main_layout_profiles(profile_name, row_A, row_B, detail_col_A, detail_col_B, detail_col_C, main_geometry, main_state, dark_mode, tabsexpanded, addlbandmaps) "
+                               "VALUES (:profile_name, :row_A, :row_B, :detail_col_A, :detail_col_B, :detail_col_C, :main_geometry, :main_state, :dark_mode, :tabsexpanded, :addlbandmaps)") )
     {
         qWarning() << "Cannot prepare Insert statement";
         return;
@@ -113,6 +120,7 @@ void MainLayoutProfilesManager::save()
             insertQuery.bindValue(":main_state", layoutProfile.mainState.toBase64());
             insertQuery.bindValue(":dark_mode", layoutProfile.darkMode);
             insertQuery.bindValue(":tabsexpanded", layoutProfile.tabsexpanded);
+            insertQuery.bindValue(":addlbandmaps", toDBStringList(layoutProfile.addlBandmaps));
 
             if ( ! insertQuery.exec() )
             {
@@ -128,7 +136,7 @@ void MainLayoutProfilesManager::save()
     saveCurProfile1();
 }
 
-QString MainLayoutProfilesManager::toDBStringList(const QList<int> &list) const
+QString MainLayoutProfilesManager::toDBStringList(const QList<int> &list)
 {
     FCT_IDENTIFICATION;
 
@@ -139,6 +147,20 @@ QString MainLayoutProfilesManager::toDBStringList(const QList<int> &list) const
     {
         stringsList << QString::number(item);
     }
+    qCDebug(runtime) << "return:" << stringsList;
+    return stringsList.join(",");
+}
+
+QString MainLayoutProfilesManager::toDBStringList(const QList<QPair<QString, QString> > &list)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << list;
+
+    QStringList stringsList;
+    for ( const QPair<QString, QString> &item : list)
+        stringsList << item.first + "/" + item.second;
+
     qCDebug(runtime) << "return:" << stringsList;
     return stringsList.join(",");
 }
@@ -164,6 +186,31 @@ QList<int> MainLayoutProfilesManager::toIntList(const QString &list) const
     return retList;
 }
 
+QList<QPair<QString, QString> > MainLayoutProfilesManager::toPairStringList(const QString &list)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << list;
+
+    QList<QPair<QString, QString>> retList;
+
+    if ( list.isEmpty() )
+        return retList;
+
+    const QStringList &elements = list.split(",");
+
+    for ( const QString &elementParams : elements )
+    {
+        const QStringList &params = elementParams.split("/");
+        if ( params.size() == 2 )
+            retList << QPair<QString, QString>(params.at(0), params.at(1));
+        else
+            qWarning() << "Unexpected number of Bandmap widget params" << elementParams;
+    }
+
+    return retList;
+}
+
 bool MainLayoutProfile::operator==(const MainLayoutProfile &profile)
 {
     return (profile.profileName == this->profileName
@@ -175,7 +222,8 @@ bool MainLayoutProfile::operator==(const MainLayoutProfile &profile)
             && profile.mainGeometry == this->mainGeometry
             && profile.mainState == this->mainState
             && profile.darkMode == this->darkMode
-            && profile.tabsexpanded == this->tabsexpanded);
+            && profile.tabsexpanded == this->tabsexpanded
+            && profile.addlBandmaps == this->addlBandmaps);
 }
 
 bool MainLayoutProfile::operator!=(const MainLayoutProfile &profile)

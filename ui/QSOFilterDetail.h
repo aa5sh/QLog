@@ -43,6 +43,8 @@ private:
     bool isAntPathField(int index);
     bool isBoolField(int index);
     bool isQSOCompleteField(int index);
+    bool isDownloadStatusField(int index);
+    bool isMorseKeyTypeField(int index);
     QComboBox* createComboBox(const QMap<QString, QString>&, const QString&,
                               const int identifier, const QSizePolicy&);
     QDateEdit* createDateEdit(const QString&, const int, const QSizePolicy&);

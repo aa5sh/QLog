@@ -980,6 +980,144 @@
           <number>4</number>
          </property>
          <item row="0" column="0">
+          <widget class="QLabel" name="iotaLabel">
+           <property name="text">
+            <string>IOTA</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="NewContactEditLine" name="iotaEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="potaLabel">
+           <property name="text">
+            <string>POTA</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="NewContactEditLine" name="potaEdit"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="sotaLabel">
+           <property name="text">
+            <string>SOTA</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="NewContactEditLine" name="sotaEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="wwffLabel">
+           <property name="text">
+            <string>WWFF</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="NewContactEditLine" name="wwffEdit"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="sigLabel">
+           <property name="text">
+            <string>SIG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="NewContactEditLine" name="sigEdit">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="sigInfoLabel">
+           <property name="text">
+            <string>SIG Info</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="NewContactEditLine" name="sigInfoEdit">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_7">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="fistsLabel">
+           <property name="text">
+            <string>FISTS</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="NewContactEditLine" name="fistsEdit"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="skccLabel">
+           <property name="text">
+            <string>SKCC</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="tentenLabel">
+           <property name="text">
+            <string>Ten-Ten</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="uksmgLabel">
+           <property name="text">
+            <string>UKSMG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="NewContactEditLine" name="skccEdit"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="NewContactEditLine" name="tentenEdit"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="NewContactEditLine" name="uksmgEdit"/>
+         </item>
+         <item row="0" column="0">
           <widget class="QLabel" name="dokLabel">
            <property name="text">
             <string>DOK</string>
@@ -996,99 +1134,15 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="iotaLabel">
-           <property name="text">
-            <string>IOTA</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="NewContactEditLine" name="iotaEdit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="potaLabel">
+          <widget class="QLabel" name="fistsCCLabel">
            <property name="text">
-            <string>POTA</string>
+            <string>FISTS CC</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="NewContactEditLine" name="potaEdit"/>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="sotaLabel">
-           <property name="text">
-            <string>SOTA</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="NewContactEditLine" name="sotaEdit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="wwffLabel">
-           <property name="text">
-            <string>WWFF</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="NewContactEditLine" name="wwffEdit"/>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="sigLabel">
-           <property name="text">
-            <string>SIG</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="NewContactEditLine" name="sigEdit">
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="sigInfoLabel">
-           <property name="text">
-            <string>SIG Info</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="NewContactEditLine" name="sigInfoEdit">
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="fistsCCEdit"/>
          </item>
         </layout>
        </item>
@@ -1220,19 +1274,6 @@
          </item>
         </layout>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="dxStatTab">
@@ -1259,7 +1300,7 @@
           <number>20</number>
          </attribute>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>65</number>
+          <number>45</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
           <number>22</number>
@@ -1285,7 +1326,7 @@
           <number>20</number>
          </attribute>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>65</number>
+          <number>45</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
           <number>22</number>
@@ -1450,75 +1491,85 @@
          <property name="rightMargin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="myIOTALabel">
            <property name="text">
             <string>IOTA</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="NewContactEditLine" name="myIOTAEdit"/>
          </item>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="myPOTALabel">
            <property name="text">
             <string>POTA</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="NewContactEditLine" name="myPOTAEdit"/>
          </item>
-         <item row="2" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="mySOTALabel">
            <property name="text">
             <string>SOTA</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="NewContactEditLine" name="mySOTAEdit"/>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="myWWFFLabel">
            <property name="text">
             <string>WWFF</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="NewContactEditLine" name="myWWFFEdit"/>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="mySIGLabel">
            <property name="text">
             <string>SIG</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="NewContactEditLine" name="mySIGEdit"/>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="mySIGInfoLabel">
            <property name="text">
             <string>Sig Info</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="NewContactEditLine" name="mySIGInfoEdit"/>
          </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="NewContactEditLine" name="myVUCCEdit"/>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="myVUCCLabel">
            <property name="text">
             <string>VUCC</string>
            </property>
           </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="myDOKLabel">
+           <property name="text">
+            <string>DOK</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="NewContactEditLine" name="myDOKEdit"/>
          </item>
         </layout>
        </item>
@@ -1596,274 +1647,21 @@
          <property name="verticalSpacing">
           <number>4</number>
          </property>
-         <item row="2" column="0">
-          <widget class="QLabel" name="qslSentLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="text">
-            <string>Sent</string>
+           <property name="sizeType">
+            <enum>QSizePolicy::Maximum</enum>
            </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <layout class="QHBoxLayout" name="horizontalLayout_8">
-           <item>
-            <widget class="QLabel" name="qslLotwReceiveDateLabel">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="qslLotwReceiveStatusLabel">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string notr="true"/>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="4">
-          <layout class="QHBoxLayout" name="horizontalLayout_9">
-           <item>
-            <widget class="QLabel" name="qslEqslReceiveDateLabel">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="qslEqslReceiveStatusLabel">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="5" column="1">
-          <widget class="QPushButton" name="qslPaperPicButton">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Manage QSL Card</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="qslReceiveStatusLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1" colspan="5">
-          <widget class="QLabel" name="qslReceivedMsgEdit">
-           <property name="text">
-            <string>-</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="padding">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="qslSentViaLabel">
-           <property name="text">
-            <string>QSL Sent via</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
-           <item>
-            <widget class="QDateEdit" name="qslPaperSentDateEdit">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="specialValueText">
-              <string>Blank</string>
-             </property>
-             <property name="dateTime">
-              <datetime>
-               <hour>0</hour>
-               <minute>0</minute>
-               <second>0</second>
-               <year>1900</year>
-               <month>1</month>
-               <day>1</day>
-              </datetime>
-             </property>
-             <property name="minimumDate">
-              <date>
-               <year>1900</year>
-               <month>1</month>
-               <day>1</day>
-              </date>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="qslPaperSentStatusBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>105</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::WheelFocus</enum>
-             </property>
-             <property name="toolTip">
-              <string>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="3" column="1">
-          <widget class="QComboBox" name="qslSentViaBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
+           <property name="sizeHint" stdset="0">
             <size>
-             <width>105</width>
-             <height>0</height>
+             <width>20</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="focusPolicy">
-            <enum>Qt::WheelFocus</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="paperHeaderLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Paper</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="4">
-          <layout class="QHBoxLayout" name="horizontalLayout_11">
-           <item>
-            <widget class="QDateEdit" name="qslEqslSentDateEdit">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="specialValueText">
-              <string>Blank</string>
-             </property>
-             <property name="minimumDate">
-              <date>
-               <year>1900</year>
-               <month>1</month>
-               <day>1</day>
-              </date>
-             </property>
-             <property name="date">
-              <date>
-               <year>1900</year>
-               <month>1</month>
-               <day>1</day>
-              </date>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="qslEqslSentStatusBox">
-             <property name="toolTip">
-              <string>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="2" column="3">
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QDateEdit" name="qslLotwSentDateEdit">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="specialValueText">
-              <string>Blank</string>
-             </property>
-             <property name="minimumDate">
-              <date>
-               <year>1900</year>
-               <month>1</month>
-               <day>1</day>
-              </date>
-             </property>
-             <property name="date">
-              <date>
-               <year>1900</year>
-               <month>1</month>
-               <day>1</day>
-              </date>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="qslLotwSentStatusBox">
-             <property name="toolTip">
-              <string>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          </spacer>
          </item>
          <item row="5" column="4">
           <widget class="QPushButton" name="qslEqslPicButton">
@@ -1928,82 +1726,54 @@
            </item>
           </layout>
          </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="qslReceivedMsgLabel">
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Received Message: </string>
+            <string notr="true"/>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="qslReceiveLabel">
+         <item row="1" column="3">
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QLabel" name="qslLotwReceiveDateLabel">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="qslLotwReceiveStatusLabel">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="qslSentViaBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
-            <string>Received</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Maximum</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+           <property name="minimumSize">
             <size>
-             <width>20</width>
-             <height>20</height>
+             <width>105</width>
+             <height>0</height>
             </size>
            </property>
-          </spacer>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="qslViaLabel">
-           <property name="text">
-            <string>QSL via</string>
+           <property name="focusPolicy">
+            <enum>Qt::WheelFocus</enum>
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QLabel" name="lotwHeaderLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
+         <item row="3" column="0">
+          <widget class="QLabel" name="qslSentViaLabel">
            <property name="text">
-            <string>LoTW</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QLabel" name="eqslHeaderLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>eQSL</string>
+            <string>QSL Sent via</string>
            </property>
           </widget>
          </item>
@@ -2028,6 +1798,293 @@
             <number>25</number>
            </property>
           </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="qslViaLabel">
+           <property name="text">
+            <string>QSL via</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1" colspan="4">
+          <widget class="QLineEdit" name="qslReceivedMsgEdit"/>
+         </item>
+         <item row="2" column="4">
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QDateEdit" name="qslEqslSentDateEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="specialValueText">
+              <string>Blank</string>
+             </property>
+             <property name="minimumDate">
+              <date>
+               <year>1900</year>
+               <month>1</month>
+               <day>1</day>
+              </date>
+             </property>
+             <property name="date">
+              <date>
+               <year>1900</year>
+               <month>1</month>
+               <day>1</day>
+              </date>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="qslEqslSentStatusBox">
+             <property name="toolTip">
+              <string>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QDateEdit" name="qslPaperSentDateEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="specialValueText">
+              <string>Blank</string>
+             </property>
+             <property name="dateTime">
+              <datetime>
+               <hour>0</hour>
+               <minute>0</minute>
+               <second>0</second>
+               <year>1900</year>
+               <month>1</month>
+               <day>1</day>
+              </datetime>
+             </property>
+             <property name="minimumDate">
+              <date>
+               <year>1900</year>
+               <month>1</month>
+               <day>1</day>
+              </date>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="qslPaperSentStatusBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>105</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="toolTip">
+              <string>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="qslReceiveLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Received</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QLabel" name="eqslHeaderLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>eQSL</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QPushButton" name="qslPaperPicButton">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Manage QSL Card</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <widget class="QLabel" name="qslEqslReceiveDateLabel">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="qslEqslReceiveStatusLabel">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="padding">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="paperHeaderLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Paper</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="qslReceiveStatusLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="qslSentLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Sent</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QDateEdit" name="qslLotwSentDateEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="specialValueText">
+              <string>Blank</string>
+             </property>
+             <property name="minimumDate">
+              <date>
+               <year>1900</year>
+               <month>1</month>
+               <day>1</day>
+              </date>
+             </property>
+             <property name="date">
+              <date>
+               <year>1900</year>
+               <month>1</month>
+               <day>1</day>
+              </date>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="qslLotwSentStatusBox">
+             <property name="toolTip">
+              <string>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="qslReceivedMsgLabel">
+           <property name="text">
+            <string>QSLr Message</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="lotwHeaderLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>LoTW</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="qslSentMsgLabel">
+           <property name="text">
+            <string>QSLs Message</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" colspan="4">
+          <widget class="QLineEdit" name="qslSentMsgEdit"/>
          </item>
         </layout>
        </item>
@@ -2252,13 +2309,18 @@
   <tabstop>countyEdit</tabstop>
   <tabstop>ageEdit</tabstop>
   <tabstop>vuccEdit</tabstop>
-  <tabstop>dokEdit</tabstop>
   <tabstop>iotaEdit</tabstop>
   <tabstop>potaEdit</tabstop>
   <tabstop>sotaEdit</tabstop>
   <tabstop>wwffEdit</tabstop>
   <tabstop>sigEdit</tabstop>
   <tabstop>sigInfoEdit</tabstop>
+  <tabstop>dokEdit</tabstop>
+  <tabstop>fistsEdit</tabstop>
+  <tabstop>fistsCCEdit</tabstop>
+  <tabstop>skccEdit</tabstop>
+  <tabstop>tentenEdit</tabstop>
+  <tabstop>uksmgEdit</tabstop>
   <tabstop>emailEdit</tabstop>
   <tabstop>urlEdit</tabstop>
   <tabstop>propagationModeEdit</tabstop>
@@ -2274,6 +2336,7 @@
   <tabstop>myGridEdit</tabstop>
   <tabstop>myQTHEdit</tabstop>
   <tabstop>myCountyEdit</tabstop>
+  <tabstop>myDOKEdit</tabstop>
   <tabstop>myIOTAEdit</tabstop>
   <tabstop>myPOTAEdit</tabstop>
   <tabstop>mySOTAEdit</tabstop>
@@ -2283,7 +2346,6 @@
   <tabstop>myVUCCEdit</tabstop>
   <tabstop>myRigEdit</tabstop>
   <tabstop>myAntEdit</tabstop>
-  <tabstop>powerEdit</tabstop>
   <tabstop>qslPaperReceiveDateEdit</tabstop>
   <tabstop>qslPaperReceiveStatusBox</tabstop>
   <tabstop>qslPaperSentDateEdit</tabstop>
@@ -2301,6 +2363,9 @@
   <tabstop>srxStringEdit</tabstop>
   <tabstop>stxEdit</tabstop>
   <tabstop>stxStringEdit</tabstop>
+  <tabstop>stationTableWidget</tabstop>
+  <tabstop>qslReceivedMsgEdit</tabstop>
+  <tabstop>qslSentMsgEdit</tabstop>
  </tabstops>
  <resources>
   <include location="../res/icons/icons.qrc"/>

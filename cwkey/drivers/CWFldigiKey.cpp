@@ -309,6 +309,7 @@ bool CWFldigiKey::sendXMLRPCCall(const QString & methodName,
          || replyStatusCode >= 300 )
     {
         qWarning() << "XMLRPC Call Reply Error" << reply->errorString();
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
         lastLogicalError = tr("FLDigi connection error");
         reply->deleteLater();
         return false;

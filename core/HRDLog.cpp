@@ -232,6 +232,7 @@ void HRDLog::processReply(QNetworkReply *reply)
     {
         qCDebug(runtime) << "HDRLog.com error URL " << reply->request().url().toString();
         qCDebug(runtime) << "HDRLog.com error" << reply->errorString();
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
 
         if ( reply->error() != QNetworkReply::OperationCanceledError )
         {

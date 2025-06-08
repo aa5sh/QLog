@@ -6,6 +6,7 @@
 #include <QSortFilterProxyModel>
 #include <QRegularExpression>
 #include <QSqlRecord>
+#include <QLabel>
 
 #include "data/DxSpot.h"
 #include "data/WCYSpot.h"
@@ -14,6 +15,7 @@
 #include "core/LogLocale.h"
 #include "core/DxServerString.h"
 #include "models/SearchFilterProxyModel.h"
+#include "rig/Rig.h"
 
 // in sec
 #define DEDUPLICATION_TIME 3
@@ -39,9 +41,7 @@ public:
                   bool deduplicate = false,
                   qint16 dedup_interval = DEDUPLICATION_TIME,
                   double freq_tolerance = DEDUPLICATION_FREQ_TOLERANCE);
-    QString getCallsign(const QModelIndex& index);
-    double getFrequency(const QModelIndex& index);
-    BandPlan::BandPlanMode getBandPlanode(const QModelIndex& index);
+    const DxSpot getSpot(const QModelIndex& index) const {return dxData.at(index.row());};
     void clear();
 
 private:
@@ -138,6 +138,9 @@ public slots:
     void setSearchStatus(bool);
     void setSearchVisible();
     void setSearchClosed();
+    void setDxTrend(QHash<QString, QHash<QString, QHash<QString, int>>>);
+    void recalculateTrend();
+    void setTunedFrequency(VFOID vfoid, double vfoFreq, double ritFreq, double xitFreq);
 
 private slots:
     void actionCommandSpotQSO();
@@ -152,9 +155,11 @@ private slots:
     void actionClear();
 
     void displayedColumns();
+    void trendDoubleClicked(int row, int column);
 
 signals:
-    void tuneDx(QString, double, BandPlan::BandPlanMode);
+    void tuneDx(DxSpot);
+    void tuneBand(QString);
     void newSpot(DxSpot);
     void newWCYSpot(WCYSpot);
     void newWWVSpot(WWVSpot);
@@ -194,6 +199,11 @@ private:
     QTimer reconnectTimer;
     DXCConnectionState connectionState;
     DxServerString *connectedServerString;
+    QHash<QString, QHash<QString, QHash<QString, int>>> receivedTrendData;
+    QHash<QString, QHash<QString, int>> prevTrendDataForMyCont;
+    QHash<QString, QHash<QString, int>> trendDataForMyCont;
+    QStringList trendBandList;
+    QLabel *trendTableCornerLabel;
 
     void connectCluster();
     void disconnectCluster(bool tryReconnect = false);
@@ -229,6 +239,15 @@ private:
 
     QVector<int> dxcListHiddenCols() const;
     BandPlan::BandPlanMode modeGroupFromComment(const QString &comment) const;
+    QString refFromComment(const QString &comment, bool &flag,
+                           const QRegularExpression &regEx,
+                           const QString &refType, int justified) const;
+    void wwffRefFromComment(DxSpot &spot) const;
+    void potaRefFromComment(DxSpot &spot) const;
+    void sotaRefFromComment(DxSpot &spot) const;
+    void iotaRefFromComment(DxSpot &spot) const;
+
+    QColor getHeatmapColor(int value, int maxValue);
 };
 
 #endif // QLOG_UI_DXWIDGET_H

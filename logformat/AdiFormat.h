@@ -2,8 +2,6 @@
 #define QLOG_LOGFORMAT_ADIFORMAT_H
 
 #include "LogFormat.h"
-#define ADIF_VERSION_STRING "3.1.4"
-#define PROGRAMID_STRING "QLog"
 
 class AdiFormat : public LogFormat
 {
@@ -41,10 +39,24 @@ protected:
     void contactFields2SQLRecord(QMap<QString, QVariant> &contact,
                               QSqlRecord &record);
 
-    static const QString toString(const QVariant &);
-    static const QString toLower(const QVariant &);
-    static const QString toUpper(const QVariant &);
-    static const QString toYYYYMMDD(const QVariant &);
+    enum OutputFieldFormatter
+    {
+        TOSTRING,
+        TOLOWER,
+        TOUPPER,
+        TODATE,
+        TOTIME,
+        REMOVEDEFAULTVALUEN
+    };
+
+    const QString formatOuput(OutputFieldFormatter formatter, const QVariant &in);
+
+    virtual const QString toString(const QVariant &);
+    virtual const QString toLower(const QVariant &);
+    virtual const QString toUpper(const QVariant &);
+    virtual const QString toDate(const QVariant &);
+    virtual const QString toTime(const QVariant &);
+    virtual const QString removeDefaulValueN(const QVariant &);
 
     class ExportParams
     {
@@ -52,22 +64,25 @@ protected:
         ExportParams() :
             ADIFName(QString()),
             outputType(QString()),
-            formatFct(nullptr),
+            formatter(TOSTRING),
             isValid(false) {};
         ExportParams(const QString &inADIFName,
-                         const QString (*inFct)(const QVariant &) = &AdiFormat::toString,
-                         const QString &inType = QString()) :
+                     const OutputFieldFormatter formatter = OutputFieldFormatter::TOSTRING,
+                     const QString &inType = QString()) :
             ADIFName(inADIFName),
             outputType(inType),
-            formatFct(inFct),
+            formatter(formatter),
             isValid(true) {};
         QString ADIFName;
         QString outputType;
-        const QString (*formatFct)(const QVariant &);
+        OutputFieldFormatter formatter;
         bool isValid;
     };
 
     static QHash<QString, AdiFormat::ExportParams> DB2ADIFExportParams;
+
+    const QString ADIF_VERSION_STRING = "3.1.5";
+    const QString PROGRAMID_STRING = "QLog";
 
 private:
 
@@ -78,6 +93,8 @@ private:
     QString parseQslRcvd(const QString &value);
     QString parseQslSent(const QString &value);
     QString parseUploadStatus(const QString &value);
+    QString parseDownloadStatus(const QString &value);
+    QString parseMorseKeyType(const QString &value);
     enum ParserState {
         START,
         FIELD,

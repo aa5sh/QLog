@@ -24,7 +24,7 @@ public:
 
     virtual void setFrequency(double) override;
     virtual void setRawMode(const QString &) override;
-    virtual void setMode(const QString &, const QString &) override;
+    virtual void setMode(const QString &, const QString &, bool) override;
     virtual void setPTT(bool) override;
     virtual void setKeySpeed(qint16 wpm) override;
     virtual void syncKeySpeed(qint16 wpm) override;
@@ -46,7 +46,7 @@ private:
                  bool addRigID,
                  const QStringList &args = QStringList());
     const QString getModeNormalizedText(const QString& rawMode, QString &submode);
-    const QString mode2RawMode(const QString &mode, const QString &submode);
+    const QString mode2RawMode(const QString &mode, const QString &submode, bool digiVariant);
 
     // commands functions
     void rspPROTOCOL(const QStringList &);

@@ -18,4 +18,6 @@ public:
     }
 };
 
+Q_DECLARE_METATYPE(Band);
+
 #endif // QLOG_DATA_BAND_H

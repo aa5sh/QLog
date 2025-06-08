@@ -42,6 +42,7 @@ void CallbookManager::queryCallsign(const QString &callsign)
     }
     else
     {
+        queryCache.remove(callsign);
         emit callsignNotFound(callsign);
     }
 }
@@ -135,6 +136,7 @@ void CallbookManager::abortQuery()
 {
     FCT_IDENTIFICATION;
 
+    queryCache.remove(currentQueryCallsign);
     if ( ! primaryCallbook.isNull() ) primaryCallbook->abortQuery();
     if ( ! secondaryCallbook.isNull() ) secondaryCallbook->abortQuery();
 }
@@ -144,6 +146,8 @@ void CallbookManager::primaryCallbookCallsignNotFound(const QString &notFoundCal
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << notFoundCallsign;
+
+    queryCache.remove(notFoundCallsign);
 
     if ( notFoundCallsign != currentQueryCallsign ) return ;
 
@@ -163,6 +167,8 @@ void CallbookManager::secondaryCallbookCallsignNotFound(const QString &notFoundC
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << notFoundCallsign;
+
+    queryCache.remove(notFoundCallsign);
 
     if ( notFoundCallsign != currentQueryCallsign ) return ;
 
@@ -220,4 +226,4 @@ void CallbookManager::processCallsignResult(const QMap<QString, QString> &data)
     }
 }
 
-QCache<QString, QMap<QString, QString>> CallbookManager::queryCache(10);
+QCache<QString, QMap<QString, QString>> CallbookManager::queryCache(100);

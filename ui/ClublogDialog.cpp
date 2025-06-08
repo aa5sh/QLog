@@ -95,7 +95,7 @@ void ClublogDialog::upload()
         const QSqlRecord &record = query.record();
 
         QSOList.append(" "
-                       + record.value("start_time").toDateTime().toTimeSpec(Qt::UTC).toString(locale.formatDateTimeShortWithYYYY())
+                       + record.value("start_time").toDateTime().toTimeZone(QTimeZone::utc()).toString(locale.formatDateTimeShortWithYYYY())
                        + "\t" + record.value("callsign").toString()
                        + "\t" + record.value("mode").toString()
                        + "\n");

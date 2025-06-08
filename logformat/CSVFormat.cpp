@@ -80,6 +80,16 @@ void CSVFormat::writeField(const QString &name,
     currectRecord[name] = csvStringValue(value);
 }
 
+const QString CSVFormat::toDate(const QVariant &var)
+{
+    return var.toDate().toString("yyyy-MM-dd");
+}
+
+const QString CSVFormat::toTime(const QVariant &var)
+{
+    return var.toTime().toString("hh:mm:ss");
+}
+
 QString CSVFormat::csvStringValue(const QString &value)
 {
     FCT_IDENTIFICATION;

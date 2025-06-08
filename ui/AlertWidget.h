@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "data/SpotAlert.h"
 #include "models/AlertTableModel.h"
+#include "data/DxSpot.h"
 
 namespace Ui {
 class AlertWidget;
@@ -31,13 +32,14 @@ public slots:
     void updateSpotsDupeWhenQSODeleted(const QSqlRecord &record);
     void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);
     void recalculateDupe();
+    void recalculateDxccStatus();
 
 private slots:
     void showColumnVisibility();
 
 signals:
     void alertsCleared();
-    void tuneDx(QString, double, BandPlan::BandPlanMode);
+    void tuneDx(DxSpot);
     void tuneWsjtx(WsjtxDecode);
     void rulesChanged();
 

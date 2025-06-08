@@ -4,18 +4,18 @@
 #include <QMutex>
 #include "CWKey.h"
 
-class CWWinKey2 : public CWKey,
+class CWWinKey : public CWKey,
                   protected CWKeySerialInterface
 {
     Q_OBJECT
 
 public:
-    explicit CWWinKey2(const QString &portName,
+    explicit CWWinKey(const QString &portName,
                        const qint32 baudrate,
                        const CWKey::CWKeyModeID mode,
                        const qint32 defaultSpeed,
                        QObject *parent = nullptr);
-    virtual ~CWWinKey2();
+    virtual ~CWWinKey();
 
     virtual bool open() override;
     virtual bool close() override;

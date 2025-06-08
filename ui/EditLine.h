@@ -37,4 +37,15 @@ protected:
     int focusInSelectionBackwardOffset;
 };
 
+class SerialPortEditLine : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    explicit SerialPortEditLine(QWidget *parent = nullptr);
+
+protected:
+    void focusInEvent(QFocusEvent* event) override;
+};
+
 #endif // QLOG_UI_EDITLINE_H

@@ -144,6 +144,11 @@
          <string>Console</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>15-min Trend</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
@@ -308,7 +313,7 @@
           <enum>QAbstractItemView::ScrollPerPixel</enum>
          </property>
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+          <enum>QAbstractItemView::ScrollPerItem</enum>
          </property>
          <attribute name="horizontalHeaderMinimumSectionSize">
           <number>40</number>
@@ -486,6 +491,50 @@
          </property>
          <property name="plainText">
           <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="trendPage">
+      <layout class="QGridLayout" name="gridLayout_6">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QTableWidget" name="trendTable">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="tabKeyNavigation">
+          <bool>false</bool>
+         </property>
+         <property name="showDropIndicator" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="dragDropOverwriteMode">
+          <bool>false</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
          </property>
         </widget>
        </item>
@@ -985,6 +1034,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>trendTable</sender>
+   <signal>cellDoubleClicked(int,int)</signal>
+   <receiver>DxWidget</receiver>
+   <slot>trendDoubleClicked(int,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>170</x>
+     <y>255</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>170</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>send()</slot>
@@ -1011,5 +1076,6 @@
   <slot>setSearch(QString)</slot>
   <slot>setSearchVisible()</slot>
   <slot>setSearchClosed()</slot>
+  <slot>trendDoubleClicked(int,int)</slot>
  </slots>
 </ui>

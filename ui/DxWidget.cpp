@@ -3,6 +3,8 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QFontMetrics>
+#include <QActionGroup>
+
 #ifdef Q_OS_WIN
 #include <Ws2tcpip.h>
 #include <winsock2.h>
@@ -31,6 +33,7 @@
 #include "core/DxServerString.h"
 #include "rig/macros.h"
 #include "core/Callsign.h"
+#include "core/LogParam.h"
 
 #define CONSOLE_VIEW 4
 #define NUM_OF_RECONNECT_ATTEMPTS 3
@@ -56,7 +59,7 @@ QVariant DxTableModel::data(const QModelIndex& index, int role) const
         switch ( index.column() )
         {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.dateTime, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.callsign;
         case 2:
@@ -122,7 +125,7 @@ bool DxTableModel::addEntry(DxSpot entry, bool deduplicate,
     {
         for (const DxSpot &record : static_cast<const QList<DxSpot>&>(dxData))
         {
-            if ( record.time.secsTo(entry.time) > dedup_interval )
+            if ( record.dateTime.secsTo(entry.dateTime) > dedup_interval )
                 break;
 
             if ( record.callsign == entry.callsign
@@ -143,21 +146,6 @@ bool DxTableModel::addEntry(DxSpot entry, bool deduplicate,
     }
 
     return shouldInsert;
-}
-
-QString DxTableModel::getCallsign(const QModelIndex& index)
-{
-    return dxData.at(index.row()).callsign;
-}
-
-double DxTableModel::getFrequency(const QModelIndex& index)
-{
-    return dxData.at(index.row()).freq;
-}
-
-BandPlan::BandPlanMode DxTableModel::getBandPlanode(const QModelIndex &index)
-{
-    return dxData.at(index.row()).bandPlanMode;
 }
 
 void DxTableModel::clear()
@@ -186,7 +174,7 @@ QVariant WCYTableModel::data(const QModelIndex& index, int role) const
         switch ( index.column() )
         {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.time, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.KIndex;
         case 2:
@@ -264,7 +252,7 @@ QVariant WWVTableModel::data(const QModelIndex& index, int role) const
         switch ( index.column() )
         {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.time, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.SFI;
         case 2:
@@ -329,7 +317,7 @@ QVariant ToAllTableModel::data(const QModelIndex& index, int role) const
 
         switch (index.column()) {
         case 0:
-            return spot.time.toString(locale.formatTimeLongWithoutTZ());
+            return locale.toString(spot.time, locale.formatTimeLongWithoutTZ());
         case 1:
             return spot.spotter;
         case 2:
@@ -395,7 +383,9 @@ DxWidget::DxWidget(QWidget *parent) :
     deduplicateSpots(false),
     reconnectAttempts(0),
     connectionState(DISCONNECTED),
-    connectedServerString(nullptr)
+    connectedServerString(nullptr),
+    trendBandList({"6m", "10m", "12m", "15m", "17m", "20m", "30m", "40m", "60m", "80m", "160m"}),
+    trendTableCornerLabel(nullptr)
 {
     FCT_IDENTIFICATION;
 
@@ -445,6 +435,13 @@ DxWidget::DxWidget(QWidget *parent) :
     ui->toAllTable->addAction(ui->actionClear);
     ui->toAllTable->horizontalHeader()->setSectionsMovable(true);
 
+    ui->trendTable->setRowCount(trendBandList.size());
+    ui->trendTable->setColumnCount(Data::getContinentList().size());
+    ui->trendTable->setHorizontalHeaderLabels(Data::getContinentList());
+    ui->trendTable->setVerticalHeaderLabels(trendBandList);
+    ui->trendTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->trendTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     moderegexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
     contregexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
     spottercontregexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
@@ -469,6 +466,35 @@ DxWidget::DxWidget(QWidget *parent) :
     mainWidgetMenu->addAction(ui->actionForgetPassword);
     mainWidgetMenu->addSeparator();
     mainWidgetMenu->addAction(ui->actionConnectOnStartup);
+    QMenu *trendContinentMenu = new QMenu(tr("My Continent"), mainWidgetMenu);
+    QActionGroup *continentMenuGroup = new QActionGroup(trendContinentMenu);
+    continentMenuGroup->setExclusive(true);
+    const QString &myContinent = LogParam::getDXCTrendContinent(QString());
+
+    QAction *actionAuto = new QAction(tr("Auto"), continentMenuGroup);
+    actionAuto->setCheckable(true);
+    actionAuto->setChecked(true);
+    connect(actionAuto, &QAction::triggered, this, [this]()
+    {
+        LogParam::removeDXCTrendContinent();
+        recalculateTrend();
+    });
+    trendContinentMenu->addAction(actionAuto);
+    trendContinentMenu->addSeparator();
+
+    for ( const QString &name : Data::getContinentList() )
+    {
+        QAction* action = new QAction(name, continentMenuGroup);
+        action->setCheckable(true);
+        action->setChecked((myContinent == name));
+        connect(action, &QAction::triggered, this, [this, name]()
+        {
+            LogParam::setDXCTrendContinent(name);
+            recalculateTrend();
+        });
+        trendContinentMenu->addAction(action);
+    }
+    mainWidgetMenu->addMenu(trendContinentMenu);
     ui->menuButton->setMenu(mainWidgetMenu);
 
     reconnectTimer.setInterval(RECONNECT_TIMEOUT);
@@ -674,7 +700,7 @@ QString DxWidget::bandFilterRegExp()
         QString band_name = bands->data(bands->index(band_index,0)).toString();
         if ( settings.value("dxc/filter_band_" + band_name,true).toBool() )
         {
-            regexp.append("|" + band_name);
+            regexp.append("|^" + band_name);
         }
         band_index++;
     }
@@ -866,6 +892,10 @@ void DxWidget::receive()
     static QRegularExpression loginRE(QStringLiteral("enter your call(sign)?:"));
 
     reconnectAttempts = 0;
+
+    if ( !socket )
+        return;
+
     const QStringList &lines = QString::fromUtf8(socket->readAll()).split(splitLineRE);
 
     for ( const QString &line : lines )
@@ -994,7 +1024,7 @@ void DxWidget::receive()
             {
                 WCYSpot spot;
 
-                spot.time = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
+                spot.time = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
                 spot.KIndex = wcySpotMatch.captured(4).toUInt();
                 spot.expK = wcySpotMatch.captured(5).toUInt();
                 spot.AIndex = wcySpotMatch.captured(6).toUInt();
@@ -1019,7 +1049,7 @@ void DxWidget::receive()
             {
                 WWVSpot spot;
 
-                spot.time = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
+                spot.time = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
                 spot.SFI = wwvSpotMatch.captured(4).toUInt();
                 spot.AIndex = wwvSpotMatch.captured(5).toUInt();
                 spot.KIndex = wwvSpotMatch.captured(6).toUInt();
@@ -1041,7 +1071,7 @@ void DxWidget::receive()
             {
                 ToAllSpot spot;
 
-                spot.time = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
+                spot.time = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
                 spot.spotter = toAllSpotMatch.captured(2);
                 DxccEntity spotter_info = Data::instance()->lookupDxcc(spot.spotter);
                 spot.dxcc_spotter = spotter_info;
@@ -1205,10 +1235,7 @@ void DxWidget::entryDoubleClicked(QModelIndex index)
     FCT_IDENTIFICATION;
 
     const QModelIndex &source_index = dxTableProxyModel->mapToSource(index);
-
-    emit tuneDx(dxTableModel->getCallsign(source_index),
-                dxTableModel->getFrequency(source_index),
-                dxTableModel->getBandPlanode(source_index));
+    emit tuneDx(dxTableModel->getSpot(source_index));
 }
 
 void DxWidget::actionFilter()
@@ -1337,6 +1364,146 @@ void DxWidget::setSearchClosed()
 {
     FCT_IDENTIFICATION;
     setSearchStatus(false);
+}
+
+void DxWidget::trendDoubleClicked(int row, int column)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << row << column;
+    emit tuneBand(trendBandList[row]);
+}
+
+void DxWidget::setTunedFrequency(VFOID, double vfoFreq, double ritFreq, double xitFreq)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << vfoFreq << ritFreq << xitFreq;
+
+    const QString& newBand = BandPlan::freq2Band(xitFreq).name;
+    const QBrush &defaultBrush = ui->trendTable->horizontalHeaderItem(0)->background();
+
+    for ( int i = 0; i < ui->trendTable->rowCount(); i++ )
+    {
+        QTableWidgetItem *bandItem = ui->trendTable->verticalHeaderItem(i);
+        if (!bandItem) continue;
+        bandItem->setBackground(((bandItem->text() == newBand) ? QBrush(Qt::darkGray)
+                                                               : defaultBrush));
+    }
+}
+
+void DxWidget::setDxTrend(QHash<QString, QHash<QString, QHash<QString, int>>> trend)
+{
+    FCT_IDENTIFICATION;
+
+    receivedTrendData = trend;
+    recalculateTrend();
+}
+
+QColor DxWidget::getHeatmapColor(int value, int maxValue)
+{
+    if (maxValue == 0)
+        return QColor(0,0,0,0);
+
+    //double normalized = static_cast<double>(value) / maxValue;
+    double normalized = log(1 + value) / log(1 + maxValue);
+
+    int g = 255;
+    int r =  static_cast<int>(255 * normalized);
+    int b = 0;
+    int a = ( value == 0 ? 0 : 255);
+
+    return QColor(r, g, b, a);
+}
+
+void DxWidget::recalculateTrend()
+{
+    FCT_IDENTIFICATION;
+
+    const DxccEntity &myDxccEntity = Data::instance()->lookupDxcc(StationProfilesManager::instance()->getCurProfile1().callsign);
+    const QString &myContinent = LogParam::getDXCTrendContinent(myDxccEntity.cont);
+    bool myContinentChanged = false;
+
+    // Create Left Top Corner Label
+    if ( ! trendTableCornerLabel )
+    {
+        // this part must not be called in the class constructor. Geometry is not determined in QT
+        trendTableCornerLabel = new QLabel(myContinent + " →", ui->trendTable);
+        trendTableCornerLabel->setAlignment(Qt::AlignCenter);
+        trendTableCornerLabel->setGeometry(0, 0,
+                                           ui->trendTable->verticalHeader()->width(),
+                                           ui->trendTable->horizontalHeader()->height());
+        trendTableCornerLabel->show();
+    }
+    else
+    {
+        myContinentChanged = !trendTableCornerLabel->text().contains(myContinent);
+        trendTableCornerLabel->setText(myContinent + " →");
+    }
+
+    //Clear Table
+    for (int row = 0; row < ui->trendTable->rowCount(); ++row)
+    {
+        for (int col = 0; col < ui->trendTable->columnCount(); ++col)
+        {
+            QTableWidgetItem *item = ui->trendTable->takeItem(row, col);
+            if (item) delete item;
+        }
+    }
+    ui->trendTable->clearContents();
+
+    // get my continent data
+    trendDataForMyCont = receivedTrendData.value(myContinent);
+
+    // update bidirections EU->OC and OC->EU
+    for ( auto continentData = receivedTrendData.cbegin(); continentData != receivedTrendData.cend(); ++continentData )
+    {
+        if (continentData.key() == myContinent )
+            continue;
+
+        for ( auto band = continentData.value()[myContinent].cbegin(); band != continentData.value()[myContinent].cend(); ++band )
+            trendDataForMyCont[continentData.key()][band.key()] += band.value();
+    }
+
+    int maxValue = 0;
+
+    // find the max value for heatmap
+    for ( const auto &outer : static_cast<const QHash<QString, QHash<QString, int>>&>(trendDataForMyCont) )
+        for ( const auto &inner : outer )
+            if ( inner > maxValue )
+                maxValue = inner;
+
+    // fill the table
+    for ( int row = 0; row < trendBandList.size(); ++row )
+    {
+        const QString &band = trendBandList[row];
+
+        for ( int col = 0; col < Data::getContinentList().size(); ++col )
+        {
+            const QString &toContinent = Data::getContinentList()[col];
+            int currentSpots = trendDataForMyCont.value(toContinent).value(band);
+            int prevSpots = prevTrendDataForMyCont.value(toContinent).value(band);
+            int diff = currentSpots - prevSpots;
+
+            QString displayText = ( currentSpots == 0 ) ? "" : QString::number(currentSpots);
+
+            if ( !prevTrendDataForMyCont.isEmpty() && !myContinentChanged )
+            {
+                if (diff > 0)
+                    displayText += " (\u2197)";
+                else if (diff < 0)
+                    displayText += " (\u2198)";
+            }
+
+            QTableWidgetItem *item = new QTableWidgetItem(displayText);
+            item->setBackground(getHeatmapColor(currentSpots, maxValue));
+            item->setForeground(QColor(Qt::black));
+            item->setTextAlignment(Qt::AlignCenter);
+            ui->trendTable->setItem(row, col, item);
+        }
+    }
+
+    prevTrendDataForMyCont = trendDataForMyCont;
 }
 
 void DxWidget::actionCommandSpotQSO()
@@ -1543,7 +1710,7 @@ void DxWidget::processDxSpot(const QString &spotter,
 
     DxSpot spot;
 
-    spot.time = (!dateTime.isValid()) ? QDateTime::currentDateTime().toTimeSpec(Qt::UTC)
+    spot.dateTime = (!dateTime.isValid()) ? QDateTime::currentDateTime().toTimeZone(QTimeZone::utc())
                                     : dateTime;
     spot.callsign = call;
     spot.freq = freq.toDouble() / 1000;
@@ -1566,6 +1733,24 @@ void DxWidget::processDxSpot(const QString &spotter,
     spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
     spot.callsign_member = MembershipQE::instance()->query(spot.callsign);
     spot.dupeCount = Data::countDupe(spot.callsign, spot.band, spot.modeGroupString);
+    wwffRefFromComment(spot);
+    potaRefFromComment(spot);
+    sotaRefFromComment(spot);
+    iotaRefFromComment(spot);
+
+#if 0
+    if ( !spot.sotaRef.isEmpty() )
+        qInfo() << "SOTA" << spot.sotaRef << spot.comment;
+
+    if ( !spot.wwffRef.isEmpty() )
+        qInfo() << "WWFF" << spot.wwffRef << spot.comment;
+
+    if ( !spot.potaRef.isEmpty() )
+        qInfo() << "POTA" << spot.potaRef << spot.comment;
+
+    if ( !spot.iotaRef.isEmpty() )
+        qInfo() << "IOTA" << spot.iotaRef << spot.comment;
+#endif
 
     emit newSpot(spot);
 
@@ -1610,10 +1795,14 @@ BandPlan::BandPlanMode DxWidget::modeGroupFromComment(const QString &comment) co
     const QStringList &tokenizedComment = comment.split(" ", QString::SkipEmptyParts);
 #endif
 
-    if ( tokenizedComment.contains("CW", Qt::CaseInsensitive) )
+    if ( tokenizedComment.contains("CW", Qt::CaseInsensitive)
+         || tokenizedComment.contains("<CW>", Qt::CaseInsensitive)
+        )
         return BandPlan::BAND_MODE_CW;
 
-    if ( tokenizedComment.contains("FT8", Qt::CaseInsensitive) )
+    if ( tokenizedComment.contains("FT8", Qt::CaseInsensitive)
+         || tokenizedComment.contains("<FT8>", Qt::CaseInsensitive)
+        )
         return BandPlan::BAND_MODE_FT8;
 
     if ( tokenizedComment.contains("FT4", Qt::CaseInsensitive) )
@@ -1631,7 +1820,9 @@ BandPlan::BandPlanMode DxWidget::modeGroupFromComment(const QString &comment) co
     if ( tokenizedComment.contains("PACKET", Qt::CaseInsensitive) )
         return BandPlan::BAND_MODE_DIGITAL;
 
-    if ( tokenizedComment.contains("SSB", Qt::CaseInsensitive) )
+    if ( tokenizedComment.contains("SSB", Qt::CaseInsensitive)
+         || tokenizedComment.contains("<SSB>", Qt::CaseInsensitive)
+        )
         return BandPlan::BAND_MODE_PHONE;
 
     if ( tokenizedComment.contains("USB", Qt::CaseInsensitive) )
@@ -1640,7 +1831,97 @@ BandPlan::BandPlanMode DxWidget::modeGroupFromComment(const QString &comment) co
     if ( tokenizedComment.contains("LSB", Qt::CaseInsensitive) )
         return BandPlan::BAND_MODE_LSB;
 
+    if ( tokenizedComment.contains("<FM>", Qt::CaseInsensitive) )
+        return BandPlan::BAND_MODE_PHONE;
+
     return BandPlan::BAND_MODE_UNKNOWN;
+}
+
+QString DxWidget::refFromComment(const QString &comment,
+                                 bool &flag,
+                                 const QRegularExpression &regEx,
+                                 const QString &refType,
+                                 int justified = 0) const
+{
+    FCT_IDENTIFICATION;
+
+    QRegularExpressionMatch stringMatch = regEx.match(comment);
+    QString ref;
+
+    if (stringMatch.hasMatch())
+    {
+        flag = true;
+        ref = stringMatch.captured(1).toUpper() + "-" + stringMatch.captured(2).rightJustified(justified, '0');
+        qCDebug(runtime) << refType << ":" << ref << "in comment:" << comment;
+    }
+
+    return ref;
+}
+
+void DxWidget::wwffRefFromComment(DxSpot &spot) const
+{
+    FCT_IDENTIFICATION;
+
+    static QRegularExpression wwffRegEx(QStringLiteral("(?:^|\\s)([A-Za-z0-9]{1,3}[Ff]{2})[- ]?(\\d{1,4})(?:\\s|$)"),
+                                        QRegularExpression::CaseInsensitiveOption);
+
+    spot.containsWWFF = spot.comment.contains("WWFF", Qt::CaseInsensitive);
+    spot.wwffRef = refFromComment(spot.comment, spot.containsWWFF,
+                                  wwffRegEx, QStringLiteral("WWFF"), 4);
+}
+
+void DxWidget::potaRefFromComment(DxSpot &spot) const
+{
+    FCT_IDENTIFICATION;
+
+    spot.containsPOTA = spot.comment.contains("POTA", Qt::CaseInsensitive);
+
+    if ( spot.dxcc.dxcc == 0 )
+        return;
+
+    QString flagA2Code = Data::instance()->dxccFlag(spot.dxcc.dxcc);
+
+    if ( flagA2Code == "england" || flagA2Code == "scotland"
+         || flagA2Code == "wales")
+        flagA2Code = "GB";
+
+    QRegularExpression potaCountryRE(QString("(?:^|\\s)(%0)-(\\d{1,5})(?:\\s|@|$)").arg(flagA2Code),
+                                     QRegularExpression::CaseInsensitiveOption);
+
+    spot.potaRef = refFromComment(spot.comment, spot.containsPOTA,
+                                  potaCountryRE, QStringLiteral("POTA_alternative"), 4);
+}
+
+void DxWidget::sotaRefFromComment(DxSpot &spot) const
+{
+    FCT_IDENTIFICATION;
+
+    static QRegularExpression sotaRefRegEx(QStringLiteral("(?:^|\\s)([A-Za-z0-9]{1,3}/[A-Za-z]{2})-?(\\d{1,3})(?:\\s|$)"),
+                                           QRegularExpression::CaseInsensitiveOption);
+
+    spot.containsSOTA = spot.comment.contains("SOTA", Qt::CaseInsensitive);
+
+    if ( spot.comment.contains("FT8", Qt::CaseInsensitive)  // a false detection in case of TNX/FT8 comments
+        || spot.comment.contains("FT4",Qt::CaseInsensitive) )
+        return;
+
+    spot.sotaRef = refFromComment(spot.comment, spot.containsSOTA,
+                                  sotaRefRegEx, QStringLiteral("SOTA"), 3);
+}
+
+void DxWidget::iotaRefFromComment(DxSpot &spot) const
+{
+    FCT_IDENTIFICATION;
+
+    spot.containsIOTA = spot.comment.contains("IOTA", Qt::CaseInsensitive);
+
+    if ( spot.dxcc.cont.isEmpty() )
+        return;
+
+    QRegularExpression iotaRegEx(QString("(?:^|\\s)(%0)[- ]?(\\d{1,3})(?:\\s|$)").arg(spot.dxcc.cont),
+                                 QRegularExpression::CaseInsensitiveOption);
+    spot.iotaRef = refFromComment(spot.comment, spot.containsIOTA,
+                                  iotaRegEx, QStringLiteral("IOTA"), 3);
 }
 
 DxWidget::~DxWidget()
@@ -1650,5 +1931,3 @@ DxWidget::~DxWidget()
     saveWidgetSetting();
     delete ui;
 }
-
-

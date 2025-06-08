@@ -8,7 +8,6 @@ AwardsTableModel::AwardsTableModel(QObject* parent) :
 
 }
 
-
 QVariant AwardsTableModel::data(const QModelIndex &index, int role) const
 {
     /* using hiden column 0 to identify type of information */
@@ -17,64 +16,60 @@ QVariant AwardsTableModel::data(const QModelIndex &index, int role) const
      * 2 - Worked row
      * 3 - Per DXCC Entity row
      */
-
-    QVariant originRowType = QSqlQueryModel::data(this->index(index.row(),0), Qt::DisplayRole);
+    int originRowType = QSqlQueryModel::data(this->index(index.row(), 0), Qt::DisplayRole).toInt();
     QVariant originCellValue = QSqlQueryModel::data(index, Qt::DisplayRole);
+    int cellIntValue = originCellValue.toInt();
 
-    if ( index.column() >= 3
-         && role == Qt::BackgroundRole
-         &&  originRowType.toInt() >= 3 )
+    if ( role == Qt::DisplayRole
+         && (originRowType == 1 || originRowType == 2)
+         && index.column() == 2 )
     {
-        if ( originCellValue.toInt() > 1 )
+        unsigned int count = 0;
+        for ( int i = 3; i <= columnCount(); i++ )
+            count += QSqlQueryModel::data(this->index(index.row(), i),
+                                          Qt::DisplayRole).toInt();
+        return tr("Slots: ") + QString::number(count) + "  ";
+    }
+
+    if ( index.column() >= 3 )
+    {
+        switch (role)
         {
-            return QColor(Qt::green);
-        }
-        else if ( originCellValue.toInt() == 1 )
-        {
-            return QColor(QColor(255,165,0));
+        case Qt::BackgroundRole:
+            if ( originRowType >= 3 )
+            {
+                if ( cellIntValue > 1 )
+                    return QColor(Qt::green);
+                else if ( cellIntValue == 1 )
+                    return QColor(255, 165, 0);
+            }
+            break;
+
+        case Qt::ToolTipRole:
+            if ( originRowType >= 3 )
+            {
+                return ( cellIntValue > 1 ) ? tr("Confirmed")
+                                            : (cellIntValue == 1) ? tr("Worked")
+                                                                  : tr("Still Waiting");
+            }
+            break;
+
+        case Qt::DisplayRole:
+            if ( originRowType >= 3 )
+                return QString();
+            break;
+
+        case Qt::ForegroundRole:
+            if ( originRowType >= 3 )
+                return QColor(Qt::transparent);
+            break;
         }
     }
-    else if ( role == Qt::FontRole
-             &&  originRowType.toInt() <= 2 )
+    else if ( role == Qt::FontRole && originRowType <= 2 )
     {
         QFont font;
         font.setBold(true);
         return font;
-    }
-    else if ( index.column() >= 3
-              && role == Qt::ToolTipRole
-              && originRowType.toInt() >= 3 )
-    {
-        if ( originCellValue.toInt() > 1 )
-        {
-            return QString(tr("Confirmed"));
-        }
-        else if ( originCellValue.toInt() == 1 )
-        {
-            return QString(tr("Worked"));
-        }
-        else
-        {
-            return QString(tr("Still Waiting"));
-        }
-    }
-    else if ( index.column() >= 3
-              && role == Qt::DisplayRole )
-    {
-        if ( originRowType.toInt() >= 3 )
-        {
-            return QString();
-        }
-        else
-        {
-            return originCellValue.toString();
-        }
-    }
-    else if ( index.column() >=  3
-              && role == Qt::ForegroundRole
-              && originRowType.toInt() >= 3 )
-    {
-        return QColor(Qt::transparent);
     }
 
     return QSqlQueryModel::data(index, role);

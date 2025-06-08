@@ -71,7 +71,11 @@ void ColumnSettingDialog::setupDialog()
                                              : !table->isColumnHidden(columnIndex)));
         columnCheckbox->setText(columnNameString);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 7, 0))
+        connect(columnCheckbox, &QCheckBox::checkStateChanged, this, [columnIndex, this](Qt::CheckState state)
+#else
         connect(columnCheckbox, &QCheckBox::stateChanged, this, [columnIndex, this](int state)
+#endif
         {
             emit columnChanged(columnIndex, state);
             if ( table ) table->setColumnHidden(columnIndex, !table->isColumnHidden(columnIndex));
@@ -116,6 +120,10 @@ void ColumnSettingDialog::setupDialog()
         case LogbookModel::COLUMN_MY_USACA_COUNTIES:
         case LogbookModel::COLUMN_MY_VUCC_GRIDS:
         case LogbookModel::COLUMN_MY_WWFF_REF:
+        case LogbookModel::COLUMN_MY_CNTY_ALT:
+        case LogbookModel::COLUMN_MY_DARC_DOK:
+        case LogbookModel::COLUMN_MY_MORSE_KEY_INFO:
+        case LogbookModel::COLUMN_MY_MORSE_KEY_TYPE:
 
             myInfoCheckboxList.append(columnCheckbox);
             break;
@@ -147,6 +155,13 @@ void ColumnSettingDialog::setupDialog()
         case LogbookModel::COLUMN_HAMLOGEU_QSO_UPLOAD_STATUS:
         case LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_DATE:
         case LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_STATUS:
+        case LogbookModel::COLUMN_DCL_QSLRDATE:
+        case LogbookModel::COLUMN_DCL_QSLSDATE:
+        case LogbookModel::COLUMN_DCL_QSL_RCVD:
+        case LogbookModel::COLUMN_DCL_QSL_SENT:
+        case LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_DATE:
+        case LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_STATUS:
+        case LogbookModel::COLUMN_QSLMSG_RCVD:
             qslInfoCheckboxList.append(columnCheckbox);
             break;
 
@@ -197,7 +212,7 @@ void ColumnSettingDialog::setupDialog()
         case LogbookModel::COLUMN_RX_PWR:
         case LogbookModel::COLUMN_GRID_EXT:
         case LogbookModel::COLUMN_SIG:
-        case LogbookModel::COLUMN_SIG_INFO:
+        case LogbookModel::COLUMN_SIG_INFO:  
 
             otherInfoCheckboxList.append(columnCheckbox);
             break;
@@ -351,10 +366,14 @@ ColumnSettingSimpleDialog::ColumnSettingSimpleDialog(QTableView *table, QWidget 
         columnCheckbox->setChecked(!table->isColumnHidden(columnIndex));
         columnCheckbox->setText(columnNameString);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 7, 0))
+        connect(columnCheckbox, &QCheckBox::checkStateChanged, this, [columnIndex, table, this](Qt::CheckState state)
+#else
         connect(columnCheckbox, &QCheckBox::stateChanged, this, [columnIndex, table, this](int state)
+#endif
         {
             emit columnChanged(columnIndex, state);
-            table->setColumnHidden(columnIndex, !table->isColumnHidden(columnIndex));
+            if ( table) table->setColumnHidden(columnIndex, !table->isColumnHidden(columnIndex));
         });
 
         checkboxList.append(columnCheckbox);

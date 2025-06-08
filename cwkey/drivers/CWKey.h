@@ -61,7 +61,7 @@ public:
     enum CWKeyTypeID
     {
         DUMMY_KEYER = 0,
-        WINKEY2_KEYER = 1,
+        WINKEY_KEYER = 1,
         MORSEOVERCAT = 2,
         CWDAEMON_KEYER = 3,
         FLDIGI_KEYER = 4,

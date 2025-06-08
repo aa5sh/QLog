@@ -86,6 +86,7 @@ private:
     StringListModel *detailColCFieldsModel;
     QByteArray mainGeometry;
     QByteArray mainState;
+    QList<QPair<QString, QString>> addlBandmaps;
     bool darkMode;
 
     NewContactDynamicWidgets *dynamicWidgets;

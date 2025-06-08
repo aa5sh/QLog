@@ -120,7 +120,8 @@ const QRegularExpression Gridsquare::gridVUCCRegEx()
 {
     FCT_IDENTIFICATION;
 
-    return QRegularExpression("^[A-Ra-r]{2}[0-9]{2},[ ]*[A-Ra-r]{2}[0-9]{2}$|^[A-Ra-r]{2}[0-9]{2},[ ]*[A-Ra-r]{2}[0-9]{2},[ ]*[A-Ra-r]{2}[0-9]{2},[ ]*[A-Ra-r]{2}[0-9]{2}$");
+    return QRegularExpression("^[A-Ra-r]{2}(?:[0-9]{2}|[0-9]{2}[A-Xa-x]{2}),[ ]*[A-Ra-r]{2}(?:[0-9]{2}|[0-9]{2}[A-Xa-x]{2})$|"
+                              "^[A-Ra-r]{2}(?:[0-9]{2}|[0-9]{2}[A-Xa-x]{2}),[ ]*[A-Ra-r]{2}(?:[0-9]{2}|[0-9]{2}[A-Xa-x]{2}),[ ]*[A-Ra-r]{2}(?:[0-9]{2}|[0-9]{2}[A-Xa-x]{2}),[ ]*[A-Ra-r]{2}(?:[0-9]{2}|[0-9]{2}[A-Xa-x]{2})$");
 }
 
 const QRegularExpression Gridsquare::gridExtRegEx()

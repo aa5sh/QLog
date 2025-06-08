@@ -1,0 +1,19 @@
+name: Feature Request
+description: Request a new feature or enhancement for QLog
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the feature you would like to see and why it would be beneficial.  
+
+        Before submitting a request, check if a similar feature has already been suggested in the [existing issues](https://github.com/foldynl/QLog/issues).  
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Describe the feature or enhancement in detail. How should it work? Why is this feature useful?
+    validations:
+      required: true
+

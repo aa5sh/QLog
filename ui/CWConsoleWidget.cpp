@@ -36,6 +36,8 @@ CWConsoleWidget::CWConsoleWidget(QWidget *parent) :
     sendWord = getSendWordConfig();
     ui->modeSwitch->setChecked(sendWord);
 
+    addAction(ui->actionHaltCW);
+
     cwKeyDisconnected();
 }
 
@@ -429,6 +431,9 @@ void CWConsoleWidget::haltButtonPressed()
 {
     FCT_IDENTIFICATION;
 
+    if ( !ui->haltButton->isEnabled() )
+        return;
+
     CWKeyer::instance()->imediatellyStop();
 }
 
@@ -491,6 +496,7 @@ void CWConsoleWidget::expandMacros(QString &text)
     static QRegularExpression rstRE("<RST>");
     static QRegularExpression rstnRE("<RSTN>");
     static QRegularExpression greetingRE("<GREETING>");
+    static QRegularExpression qthRE("<QTH>");
 
     static QRegularExpression myCallRE("<MYCALL>");
     static QRegularExpression myNameRE("<MYNAME>");
@@ -515,6 +521,7 @@ void CWConsoleWidget::expandMacros(QString &text)
         text.replace(rstRE, contact->getRST().toUpper());
         text.replace(rstnRE, contact->getRST().replace('9', 'N'));
         text.replace(greetingRE, contact->getGreeting().toUpper());
+        text.replace(qthRE, contact->getQTH());
 
         text.replace(myCallRE, contact->getMyCallsign().toUpper());
         text.replace(myNameRE, contact->getMyName().toUpper());

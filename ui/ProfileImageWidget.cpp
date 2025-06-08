@@ -77,6 +77,7 @@ void ProfileImageWidget::processReply(QNetworkReply *reply)
     {
         qCDebug(runtime) << "Download Image error: URL " << reply->request().url().toString();
         qCDebug(runtime) << "Download Image error:" << reply->errorString();
+        qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
 
         if ( reply->error() != QNetworkReply::OperationCanceledError )
         {

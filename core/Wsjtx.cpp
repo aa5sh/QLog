@@ -382,7 +382,20 @@ void Wsjtx::readPendingDatagrams()
             QByteArray id, adif_text;
             WsjtxLogADIF log;
 
-            stream >> id >> adif_text;
+            const QString data = datagram.data();
+            bool isCSNSat = data.contains("<programid:6>CSN Sat");
+
+            if ( isCSNSat )
+            {
+                id = "CSN Sat";
+                int index = data.indexOf("<adif_ver:");
+                if ( index != -1 )
+                    adif_text = data.mid(index).toUtf8();
+                else
+                    adif_text.clear();
+            }
+            else
+                stream >> id >> adif_text;
 
             log.id = QString(id);
             log.log_adif = QString(adif_text);

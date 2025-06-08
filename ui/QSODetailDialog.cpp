@@ -296,6 +296,10 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     ui->myGridEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridRegEx(), this));
     ui->vuccEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridVUCCRegEx(), this));
     ui->myVUCCEdit->setValidator(new QRegularExpressionValidator(Gridsquare::gridVUCCRegEx(), this));
+    ui->fistsEdit->setValidator(new QIntValidator(0, INT_MAX, ui->fistsEdit));
+    ui->fistsCCEdit->setValidator(new QIntValidator(0, INT_MAX, ui->fistsCCEdit));
+    ui->tentenEdit->setValidator(new QIntValidator(0, INT_MAX, ui->tentenEdit));
+    ui->uksmgEdit->setValidator(new QIntValidator(0, INT_MAX, ui->uksmgEdit));
 
     /***********/
     /* Mapping */
@@ -337,6 +341,11 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     mapper->addMapping(ui->propagationModeEdit, LogbookModel::COLUMN_PROP_MODE);
     mapper->addMapping(ui->satNameEdit, LogbookModel::COLUMN_SAT_NAME);
     mapper->addMapping(ui->satModeEdit,LogbookModel::COLUMN_SAT_MODE);
+    mapper->addMapping(ui->fistsEdit,LogbookModel::COLUMN_FISTS);
+    mapper->addMapping(ui->fistsCCEdit,LogbookModel::COLUMN_FISTS_CC);
+    mapper->addMapping(ui->skccEdit,LogbookModel::COLUMN_SKCC);
+    mapper->addMapping(ui->tentenEdit,LogbookModel::COLUMN_TEN_TEN);
+    mapper->addMapping(ui->uksmgEdit,LogbookModel::COLUMN_UKSMG);
 
     /* My Station */
     mapper->addMapping(ui->myCallsignEdit, LogbookModel::COLUMN_STATION_CALLSIGN);
@@ -358,6 +367,7 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     mapper->addMapping(ui->powerEdit, LogbookModel::COLUMN_TX_POWER);
     mapper->addMapping(ui->myCountyEdit, LogbookModel::COLUMN_MY_CNTY);
     mapper->addMapping(ui->myOperatorCallsignEdit, LogbookModel::COLUMN_OPERATOR);
+    mapper->addMapping(ui->myDOKEdit, LogbookModel::COLUMN_MY_DARC_DOK);
 
     /* Notes */
     mapper->addMapping(ui->noteEdit, LogbookModel::COLUMN_NOTES_INTL);
@@ -373,7 +383,8 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     mapper->addMapping(ui->qslEqslSentStatusBox, LogbookModel::COLUMN_EQSL_QSL_SENT);
     mapper->addMapping(ui->qslLotwReceiveStatusLabel, LogbookModel::COLUMN_LOTW_RCVD);
     mapper->addMapping(ui->qslLotwSentStatusBox, LogbookModel::COLUMN_LOTW_SENT);
-    mapper->addMapping(ui->qslReceivedMsgEdit, LogbookModel::COLUMN_QSLMSG, "text");
+    mapper->addMapping(ui->qslReceivedMsgEdit, LogbookModel::COLUMN_QSLMSG_RCVD, "text");
+    mapper->addMapping(ui->qslSentMsgEdit, LogbookModel::COLUMN_QSLMSG_INTL, "text");
     mapper->addMapping(ui->qslSentViaBox, LogbookModel::COLUMN_QSL_SENT_VIA);
     mapper->addMapping(ui->qslViaEdit, LogbookModel::COLUMN_QSL_VIA);
     mapper->addMapping(ui->qslPaperReceiveDateEdit, LogbookModel::COLUMN_QSL_RCVD_DATE);
@@ -399,7 +410,7 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
 
     drawDXOnMap(ui->callsignEdit->text(), Gridsquare(ui->gridEdit->text()));
     drawMyQTHOnMap(ui->myCallsignEdit->text(), Gridsquare(ui->myGridEdit->text()));
-
+    setStaticMapTime(ui->dateTimeOnEdit->dateTime());
     refreshDXStatTabs();
 
     queryMemberList();
@@ -1096,7 +1107,15 @@ void QSODetailDialog::mapLoaded(bool)
     isMainPageLoaded = true;
 
     /* which layers will be active */
-    postponedScripts += layerControlHandler.generateMapMenuJS();
+    postponedScripts += layerControlHandler.generateMapMenuJS(true,
+                                                              true,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              false,
+                                                              true);
 
     main_page->runJavaScript(postponedScripts);
 
@@ -1304,7 +1323,7 @@ void QSODetailDialog::myWWFFChanged(const QString &newWWFF)
 }
 
 void QSODetailDialog::clubQueryResult(const QString &in_callsign,
-                                      QMap<QString, ClubStatusQuery::ClubStatus> data)
+                                      QMap<QString, ClubStatusQuery::ClubInfo> data)
 {
     FCT_IDENTIFICATION;
 
@@ -1316,7 +1335,7 @@ void QSODetailDialog::clubQueryResult(const QString &in_callsign,
 
     QString memberText;
 
-    QMapIterator<QString, ClubStatusQuery::ClubStatus> clubs(data);
+    QMapIterator<QString, ClubStatusQuery::ClubInfo> clubs(data);
 
     QPalette palette;
 
@@ -1324,7 +1343,7 @@ void QSODetailDialog::clubQueryResult(const QString &in_callsign,
     while ( clubs.hasNext() )
     {
         clubs.next();
-        QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value()), false, palette.color(QPalette::Text));
+        QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value().status), false, palette.color(QPalette::Text));
         memberText.append(QString("<font color='%1'>%2</font>&nbsp;&nbsp;&nbsp;").arg(Data::colorToHTMLColor(color), clubs.key()));
     }
     ui->memberListLabel->setText(memberText);
@@ -1398,10 +1417,10 @@ void QSODetailDialog::drawDXOnMap(const QString &label, const Gridsquare &dxGrid
     QString stationString;
     QString popupString = label;
     QString unit;
+    Gridsquare myGrid = Gridsquare(ui->myGridEdit->text());
     double distance = 0;
 
-    if ( dxGrid.distanceTo(Gridsquare(ui->myGridEdit->text()), distance) )
-    {
+    if (dxGrid.distanceTo(myGrid, distance)) {
         distance = Gridsquare::distance2localeUnitDistance(distance, unit);
         popupString.append(QString("</br> %1 %2").arg(QString::number(distance, 'f', 0), unit));
     }
@@ -1410,11 +1429,19 @@ void QSODetailDialog::drawDXOnMap(const QString &label, const Gridsquare &dxGrid
     double lon = dxGrid.getLongitude();
     stationString.append(QString("[[\"%1\", %2, %3, yellowIcon]]").arg(popupString).arg(lat).arg(lon));
 
+    QString shortPath = QString("[%1, %2, %3, %4]")
+                            .arg(myGrid.getLatitude())
+                            .arg(myGrid.getLongitude())
+                            .arg(lat)
+                            .arg(lon);
+
     QString javaScript = QString("grids_confirmed = [];"
                                  "grids_worked = [];"
                                  "drawPoints(%1);"
+                                 "drawShortPaths([%2]);"
                                  "maidenheadConfWorked.redraw();"
-                                 "flyToPoint(%2[0], 6);").arg(stationString, stationString);
+                                 "flyToPoint(%3[0], 6);")
+                             .arg(stationString, shortPath, stationString);
 
     qCDebug(runtime) << javaScript;
 
@@ -1457,6 +1484,23 @@ void QSODetailDialog::drawMyQTHOnMap(const QString &label, const Gridsquare &myG
     }
     else
     {
+        main_page->runJavaScript(javaScript);
+    }
+}
+
+void QSODetailDialog::setStaticMapTime(const QDateTime &dateTime)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << dateTime;
+
+    QString javaScript = QString("setStaticMapTime(new Date(%1));").arg(dateTime.toMSecsSinceEpoch());
+
+    qCDebug(runtime) << javaScript;
+
+    if (!isMainPageLoaded) {
+        postponedScripts.append(javaScript);
+    } else {
         main_page->runJavaScript(javaScript);
     }
 }
@@ -1584,12 +1628,11 @@ void QSODetailDialog::refreshDXStatTabs()
 {
     FCT_IDENTIFICATION;
 
-    const QString &currCallsign = ui->callsignEdit->text();
-    const DxccEntity &dxccEntity = Data::instance()->lookupDxcc(currCallsign);
+    const DxccEntity &dxccEntity = Data::instance()->lookupDxccID(editedRecord->field("dxcc").value().toInt());
     const Band &currBand = BandPlan::freq2Band(ui->freqTXEdit->value());
 
     ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, currBand);
-    ui->stationTableWidget->setDxCallsign(currCallsign, currBand);
+    ui->stationTableWidget->setDxCallsign(ui->callsignEdit->text(), currBand);
 }
 
 const QString QSODetailDialog::getButtonText(int index) const
@@ -1838,7 +1881,6 @@ void QSOEditMapperDelegate::setModelData(QWidget *editor,
               || editor->objectName() == "qslEqslReceiveStatusLabel"
               || editor->objectName() == "qslLotwReceiveDateLabel"
               || editor->objectName() == "qslLotwReceiveStatusLabel"
-              || editor->objectName() == "qslReceivedMsgEdit"
             )
     {
         /* do not save */
@@ -2158,6 +2200,8 @@ bool QSODetailDialog::LogbookModelPrivate::setData(const QModelIndex &index, con
            case COLUMN_WWFF_REF:
            case COLUMN_STATION_CALLSIGN:
            case COLUMN_OPERATOR:
+           case COLUMN_DARC_DOK:
+           case COLUMN_MY_DARC_DOK:
                main_update_result = QSqlTableModel::setData(index, ( !value.toString().isEmpty() ) ? value.toString().toUpper() // clazy:exclude=skipped-base-method
                                                                                                    : QVariant(), role);
                break;

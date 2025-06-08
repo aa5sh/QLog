@@ -24,6 +24,7 @@ public slots:
     void reloadStationProfile();
     void resetDupe();
     void recalculateDupe();
+    void recalculateDxccStatus();
     void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
     void updateSpotsDupeWhenQSODeleted(const QSqlRecord &record);
     void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);

@@ -13,7 +13,6 @@ void AdiFormat::exportStart()
 {
     FCT_IDENTIFICATION;
 
-    stream << "### QLog ADIF Export\n";
     writeField("ADIF_VER", ALWAYS_PRESENT, ADIF_VERSION_STRING);
     writeField("PROGRAMID", ALWAYS_PRESENT, PROGRAMID_STRING);
     writeField("PROGRAMVERSION", ALWAYS_PRESENT, VERSION);
@@ -73,7 +72,7 @@ void AdiFormat::writeSQLRecord(const QSqlRecord &record,
         if ( ExportParams.isValid )
             writeField(ExportParams.ADIFName,
                        tmpField.isValid(),
-                       ExportParams.formatFct(tmpField.value()),
+                       formatOuput(ExportParams.formatter, tmpField.value()),
                        ExportParams.outputType );
     }
 
@@ -81,22 +80,22 @@ void AdiFormat::writeSQLRecord(const QSqlRecord &record,
 
     if ( startVariant.isValid() )
     {
-        const QDateTime &time_start = startVariant.toDateTime().toTimeSpec(Qt::UTC);
+        const QDateTime &time_start = startVariant.toDateTime().toTimeZone(QTimeZone::utc());
         writeField("qso_date", startVariant.isValid(),
-                   time_start.toString("yyyyMMdd"), "D");
+                   formatOuput(OutputFieldFormatter::TODATE, time_start));
         writeField("time_on", startVariant.isValid(),
-                   time_start.toString("hhmmss"), "T");
+                   formatOuput(OutputFieldFormatter::TOTIME, time_start));
     }
 
     const QVariant &endVariant = record.value("end_time");
 
     if ( endVariant.isValid() )
     {
-        const QDateTime &time_end = record.value("end_time").toDateTime().toTimeSpec(Qt::UTC);
+        const QDateTime &time_end = record.value("end_time").toDateTime().toTimeZone(QTimeZone::utc());
         writeField("qso_date_off", endVariant.isValid(),
-                   time_end.toString("yyyyMMdd"), "D");
+                   formatOuput(OutputFieldFormatter::TODATE, time_end));
         writeField("time_off", endVariant.isValid(),
-                   time_end.toString("hhmmss"), "T");
+                   formatOuput(OutputFieldFormatter::TOTIME, time_end));
     }
 
     const QJsonObject &fields = QJsonDocument::fromJson(record.value("fields").toByteArray()).object();
@@ -287,6 +286,7 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("pfx", contact.take("pfx").toString().toUpper());
     record.setValue("state", contact.take("state"));
     record.setValue("cnty", contact.take("cnty"));
+    record.setValue("cnty_alt", contact.take("cnty_alt"));
     record.setValue("iota", contact.take("iota").toString().toUpper());
     record.setValue("qsl_rcvd", parseQslRcvd(contact.take("qsl_rcvd").toString()));
     record.setValue("qsl_rdate", parseDate(contact.take("qslrdate").toString()));  //TODO: DIFF MAPPING
@@ -321,7 +321,11 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("country_intl",contact.take("country_intl"));
     record.setValue("credit_submitted",contact.take("credit_submitted"));
     record.setValue("credit_granted",contact.take("credit_granted"));
-    record.setValue("darc_dok",contact.take("darc_dok"));
+    record.setValue("darc_dok",contact.take("darc_dok").toString().toUpper());
+    record.setValue("dcl_qslrdate",parseDate(contact.take("dcl_qslrdate").toString()));
+    record.setValue("dcl_qslsdate",parseDate(contact.take("dcl_qslsdate").toString()));
+    record.setValue("dcl_qsl_rcvd",parseQslRcvd(contact.take("dcl_qsl_rcvd").toString()));
+    record.setValue("dcl_qsl_sent",parseQslSent(contact.take("dcl_qsl_sent").toString()));
     record.setValue("distance",contact.take("distance"));
     record.setValue("email",contact.take("email"));
     record.setValue("eq_call",contact.take("eq_call"));
@@ -346,6 +350,8 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("lat",contact.take("lat"));
     record.setValue("lon",contact.take("lon"));
     record.setValue("max_bursts",contact.take("max_bursts"));
+    record.setValue("morse_key_info",contact.take("morse_key_info"));
+    record.setValue("morse_key_type", parseMorseKeyType(contact.take("morse_key_type").toString()));
     record.setValue("ms_shower",contact.take("ms_shower"));
     record.setValue("my_antenna",contact.take("my_antenna"));
     record.setValue("my_antenna_intl",contact.take("my_antenna_intl"));
@@ -356,7 +362,9 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("my_country",contact.take("my_country"));
     record.setValue("my_country_intl",contact.take("my_country_intl"));
     record.setValue("my_cnty",contact.take("my_cnty"));
+    record.setValue("my_cnty_alt",contact.take("my_cnty_alt"));
     record.setValue("my_cq_zone",contact.take("my_cq_zone"));
+    record.setValue("my_darc_dok",contact.take("my_darc_dok").toString().toUpper());
     record.setValue("my_dxcc",contact.take("my_dxcc"));
     record.setValue("my_fists",contact.take("my_fists"));
     record.setValue("my_gridsquare",contact.take("my_gridsquare").toString().toUpper());
@@ -366,6 +374,8 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("my_itu_zone",contact.take("my_itu_zone"));
     record.setValue("my_lat",contact.take("my_lat"));
     record.setValue("my_lon",contact.take("my_lon"));
+    record.setValue("my_morse_key_info",contact.take("my_morse_key_info"));
+    record.setValue("my_morse_key_type", parseMorseKeyType(contact.take("my_morse_key_type").toString()));
     record.setValue("my_name",contact.take("my_name"));
     record.setValue("my_name_intl",contact.take("my_name_intl"));
     record.setValue("my_postal_code",contact.take("my_postal_code"));
@@ -396,6 +406,8 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("precedence",contact.take("precedence"));
     record.setValue("prop_mode",contact.take("prop_mode"));
     record.setValue("public_key",contact.take("public_key"));
+    record.setValue("qrzcom_qso_download_date",parseDate(contact.take("qrzcom_qso_download_date").toString()));
+    record.setValue("qrzcom_qso_download_status",parseDownloadStatus(contact.take("qrzcom_qso_download_status").toString()));
     record.setValue("qrzcom_qso_upload_date",parseDate(contact.take("qrzcom_qso_upload_date").toString()));
     record.setValue("qrzcom_qso_upload_status",parseUploadStatus(contact.take("qrzcom_qso_upload_status").toString()));
     record.setValue("qsl_rcvd_via",contact.take("qsl_rcvd_via").toString().toUpper());
@@ -405,6 +417,7 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("qso_random",contact.take("qso_random").toString().toUpper());
     record.setValue("qslmsg",contact.take("qslmsg"));
     record.setValue("qslmsg_intl",contact.take("qslmsg_intl"));
+    record.setValue("qslmsg_rcvd",contact.take("qslmsg_rcvd"));
     record.setValue("qth",contact.take("qth"));
     record.setValue("qth_intl",contact.take("qth_intl"));
     record.setValue("region",contact.take("region"));
@@ -470,8 +483,8 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
         time_on = time_off;
     }
 
-    QDateTime start_time(date_on, time_on, Qt::UTC);
-    QDateTime end_time(date_off, time_off, Qt::UTC);
+    QDateTime start_time(date_on, time_on, QTimeZone::utc());
+    QDateTime end_time(date_off, time_off, QTimeZone::utc());
 
     if ( end_time < start_time )
     {
@@ -480,6 +493,35 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
 
     record.setValue("start_time", start_time);
     record.setValue("end_time", end_time);
+}
+
+const QString AdiFormat::formatOuput(OutputFieldFormatter formatter, const QVariant &in)
+{
+    QString ret;
+
+    switch (formatter)
+    {
+    case TOLOWER:
+        ret = toLower(in);
+        break;
+    case TOUPPER:
+        ret = toUpper(in);
+        break;
+    case TODATE:
+        ret = toDate(in);
+        break;
+    case TOTIME:
+        ret = toTime(in);
+        break;
+    case REMOVEDEFAULTVALUEN:
+        ret = removeDefaulValueN(in);
+        break;
+    case TOSTRING:
+    default:
+        ret = toString(in);
+    }
+
+    return ret;
 }
 
 const QString AdiFormat::toString(const QVariant &var)
@@ -497,9 +539,26 @@ const QString AdiFormat::toUpper(const QVariant &var)
     return var.toString().toUpper();
 }
 
-const QString AdiFormat::toYYYYMMDD(const QVariant &var)
+const QString AdiFormat::toDate(const QVariant &var)
 {
     return var.toDate().toString("yyyyMMdd");
+}
+
+const QString AdiFormat::toTime(const QVariant &var)
+{
+    return var.toTime().toString("hhmmss");
+}
+
+// There are fields with a default value of 'N'.
+// Therefore, it is not necessary to explicitly export them when
+// the local database also has the value 'N'. This approach can be
+// helpful, for example, in the case of new fields in ADIF, where
+// external systems are not yet prepared, and QLog would generate ADIF
+// with the default value 'N'.
+const QString AdiFormat::removeDefaulValueN(const QVariant &var)
+{
+    const QString value = var.toString();
+    return (value == "N") ? QString() : value;
 }
 
 void AdiFormat::preprocessINTLField(const QString &fieldName,
@@ -725,6 +784,29 @@ QString AdiFormat::parseUploadStatus(const QString &value)
     return QString();
 }
 
+QString AdiFormat::parseDownloadStatus(const QString &value)
+{
+    FCT_IDENTIFICATION;
+
+    if ( value.isEmpty() )
+        return QString();
+
+    char firstChar = value.toUpper().at(0).toLatin1();
+
+    return ( firstChar == 'Y' || firstChar == 'N' || firstChar == 'I' ) ? QString(firstChar)
+                                                                        : QString();
+}
+
+QString AdiFormat::parseMorseKeyType(const QString &value)
+{
+    FCT_IDENTIFICATION;
+
+    static QList<QString> allowedValues({"SK", "SS", "BUG", "FAB", "SP", "DP", "CPU"});
+    const QString &inValue = value.toUpper();
+
+    return (allowedValues.contains(inValue)) ? inValue : QString();
+}
+
 
 QMap<QString, QString> AdiFormat::fieldname2INTLNameMapping =
 {
@@ -763,8 +845,8 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "gridsquare", ExportParams("gridsquare")},
     { "cqz", ExportParams("cqz")},
     { "ituz", ExportParams("ituz")},
-    { "freq", ExportParams("freq", &AdiFormat::toString, "N")},
-    { "band", ExportParams("band", &AdiFormat::toLower)},
+    { "freq", ExportParams("freq", OutputFieldFormatter::TOSTRING)},
+    { "band", ExportParams("band", OutputFieldFormatter::TOLOWER)},
     { "mode", ExportParams("mode")},
     { "submode", ExportParams("submode")},
     { "cont", ExportParams("cont")},
@@ -773,15 +855,16 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "pfx", ExportParams("pfx")},
     { "state", ExportParams("state")},
     { "cnty", ExportParams("cnty")},
-    { "iota", ExportParams("iota", &AdiFormat::toUpper)},
-    { "qsl_rcvd", ExportParams("qsl_rcvd")},
-    { "qsl_rdate", ExportParams("qslrdate", &AdiFormat::toYYYYMMDD)},
-    { "qsl_sent", ExportParams("qsl_sent")},
-    { "qsl_sdate", ExportParams("qslsdate", &AdiFormat::toYYYYMMDD)},
-    { "lotw_qsl_rcvd", ExportParams("lotw_qsl_rcvd")},
-    { "lotw_qslrdate", ExportParams("lotw_qslrdate", &AdiFormat::toYYYYMMDD)},
-    { "lotw_qsl_sent", ExportParams("lotw_qsl_sent")},
-    { "lotw_qslsdate", ExportParams("lotw_qslsdate", &AdiFormat::toYYYYMMDD)},
+    { "cnty_alt", ExportParams("cnty_alt")},
+    { "iota", ExportParams("iota", OutputFieldFormatter::TOUPPER)},
+    { "qsl_rcvd", ExportParams("qsl_rcvd", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
+    { "qsl_rdate", ExportParams("qslrdate", OutputFieldFormatter::TODATE)},
+    { "qsl_sent", ExportParams("qsl_sent", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
+    { "qsl_sdate", ExportParams("qslsdate", OutputFieldFormatter::TODATE)},
+    { "lotw_qsl_rcvd", ExportParams("lotw_qsl_rcvd", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
+    { "lotw_qslrdate", ExportParams("lotw_qslrdate", OutputFieldFormatter::TODATE)},
+    { "lotw_qsl_sent", ExportParams("lotw_qsl_sent", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
+    { "lotw_qslsdate", ExportParams("lotw_qslsdate", OutputFieldFormatter::TODATE)},
     { "tx_pwr", ExportParams("tx_pwr")},
     { "address", ExportParams("address")},
     { "age", ExportParams("age")},
@@ -793,10 +876,10 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "arrl_sect", ExportParams("arrl_sect")},
     { "award_submitted", ExportParams("award_submitted")},
     { "award_granted", ExportParams("award_granted")},
-    { "band_rx", ExportParams("band_rx", &AdiFormat::toLower)},
+    { "band_rx", ExportParams("band_rx", OutputFieldFormatter::TOLOWER)},
     { "check", ExportParams("check")},
     { "class", ExportParams("class")},
-    { "clublog_qso_upload_date", ExportParams("clublog_qso_upload_date", &AdiFormat::toYYYYMMDD)},
+    { "clublog_qso_upload_date", ExportParams("clublog_qso_upload_date", OutputFieldFormatter::TODATE)},
     { "clublog_qso_upload_status", ExportParams("clublog_qso_upload_status")},
     { "comment", ExportParams("comment")},
     { "contacted_op", ExportParams("contacted_op")},
@@ -804,71 +887,84 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "credit_submitted", ExportParams("credit_submitted")},
     { "credit_granted", ExportParams("credit_granted")},
     { "darc_dok", ExportParams("darc_dok")},
+    { "dcl_qslrdate", ExportParams("dcl_qslrdate", OutputFieldFormatter::TODATE)},
+    { "dcl_qslsdate", ExportParams("dcl_qslsdate", OutputFieldFormatter::TODATE)},
+    { "dcl_qsl_rcvd", ExportParams("dcl_qsl_rcvd", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
+    { "dcl_qsl_sent", ExportParams("dcl_qsl_sent", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
     { "distance", ExportParams("distance")},
     { "email", ExportParams("email")},
     { "eq_call", ExportParams("eq_call")},
-    { "eqsl_qslrdate", ExportParams("eqsl_qslrdate", &AdiFormat::toYYYYMMDD)},
-    { "eqsl_qslsdate", ExportParams("eqsl_qslsdate", &AdiFormat::toYYYYMMDD)},
-    { "eqsl_qsl_rcvd", ExportParams("eqsl_qsl_rcvd")},
-    { "eqsl_qsl_sent", ExportParams("eqsl_qsl_sent")},
+    { "eqsl_qslrdate", ExportParams("eqsl_qslrdate", OutputFieldFormatter::TODATE)},
+    { "eqsl_qslsdate", ExportParams("eqsl_qslsdate", OutputFieldFormatter::TODATE)},
+    { "eqsl_qsl_rcvd", ExportParams("eqsl_qsl_rcvd", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
+    { "eqsl_qsl_sent", ExportParams("eqsl_qsl_sent", OutputFieldFormatter::REMOVEDEFAULTVALUEN)},
     { "fists", ExportParams("fists")},
     { "fists_cc", ExportParams("fists_cc")},
     { "force_init", ExportParams("force_init")},
     { "freq_rx", ExportParams("freq_rx")},
     { "gridsquare_ext", ExportParams("gridsquare_ext")},
     { "guest_op", ExportParams("guest_op")},
-    { "hamlogeu_qso_upload_date", ExportParams("hamlogeu_qso_upload_date", &AdiFormat::toYYYYMMDD)},
+    { "hamlogeu_qso_upload_date", ExportParams("hamlogeu_qso_upload_date", OutputFieldFormatter::TODATE)},
     { "hamlogeu_qso_upload_status", ExportParams("hamlogeu_qso_upload_status")},
-    { "hamqth_qso_upload_date", ExportParams("hamqth_qso_upload_date", &AdiFormat::toYYYYMMDD)},
+    { "hamqth_qso_upload_date", ExportParams("hamqth_qso_upload_date", OutputFieldFormatter::TODATE)},
     { "hamqth_qso_upload_status", ExportParams("hamqth_qso_upload_status")},
-    { "hrdlog_qso_upload_date", ExportParams("hrdlog_qso_upload_date", &AdiFormat::toYYYYMMDD)},
+    { "hrdlog_qso_upload_date", ExportParams("hrdlog_qso_upload_date", OutputFieldFormatter::TODATE)},
     { "hrdlog_qso_upload_status", ExportParams("hrdlog_qso_upload_status")},
-    { "iota_island_id", ExportParams("iota_island_id", &AdiFormat::toUpper)},
+    { "iota_island_id", ExportParams("iota_island_id", OutputFieldFormatter::TOUPPER)},
     { "k_index", ExportParams("k_index")},
     { "lat", ExportParams("lat")},
     { "lon", ExportParams("lon")},
     { "max_bursts", ExportParams("max_bursts")},
+    { "morse_key_info", ExportParams("morse_key_info")},
+    { "morse_key_type", ExportParams("morse_key_type", OutputFieldFormatter::TOUPPER)},
     { "ms_shower", ExportParams("ms_shower")},
     { "my_altitude", ExportParams("my_altitude")},
     { "my_arrl_sect", ExportParams("my_arrl_sect")},
     { "my_antenna", ExportParams("my_antenna")},
     { "my_city", ExportParams("my_city")},
     { "my_cnty", ExportParams("my_cnty")},
+    { "my_cnty_alt", ExportParams("my_cnty_alt")},
     { "my_country", ExportParams("my_country")},
     { "my_cq_zone", ExportParams("my_cq_zone")},
+    { "my_darc_dok", ExportParams("my_darc_dok")},
     { "my_dxcc", ExportParams("my_dxcc")},
     { "my_fists", ExportParams("my_fists")},
     { "my_gridsquare", ExportParams("my_gridsquare")},
     { "my_gridsquare_ext", ExportParams("my_gridsquare_ext")},
-    { "my_iota", ExportParams("my_iota", &AdiFormat::toUpper)},
-    { "my_iota_island_id", ExportParams("my_iota_island_id", &AdiFormat::toUpper)},
+    { "my_iota", ExportParams("my_iota", OutputFieldFormatter::TOUPPER)},
+    { "my_iota_island_id", ExportParams("my_iota_island_id", OutputFieldFormatter::TOUPPER)},
     { "my_itu_zone", ExportParams("my_itu_zone")},
     { "my_lat", ExportParams("my_lat")},
     { "my_lon", ExportParams("my_lon")},
+    { "my_morse_key_info", ExportParams("my_morse_key_info")},
+    { "my_morse_key_type", ExportParams("my_morse_key_type", OutputFieldFormatter::TOUPPER)},
     { "my_name", ExportParams("my_name")},
     { "my_postal_code", ExportParams("my_postal_code")},
-    { "my_pota_ref", ExportParams("my_pota_ref", &AdiFormat::toUpper)},
+    { "my_pota_ref", ExportParams("my_pota_ref", OutputFieldFormatter::TOUPPER)},
     { "my_rig", ExportParams("my_rig")},
     { "my_sig", ExportParams("my_sig")},
     { "my_sig_info", ExportParams("my_sig_info")},
-    { "my_sota_ref", ExportParams("my_sota_ref", &AdiFormat::toUpper)},
+    { "my_sota_ref", ExportParams("my_sota_ref", OutputFieldFormatter::TOUPPER)},
     { "my_state", ExportParams("my_state")},
     { "my_street", ExportParams("my_street")},
     { "my_usaca_counties", ExportParams("my_usaca_counties")},
-    { "my_vucc_grids", ExportParams("my_vucc_grids", &AdiFormat::toUpper)},
-    { "my_wwff_ref", ExportParams("my_wwff_ref", &AdiFormat::toUpper)},
+    { "my_vucc_grids", ExportParams("my_vucc_grids", OutputFieldFormatter::TOUPPER)},
+    { "my_wwff_ref", ExportParams("my_wwff_ref", OutputFieldFormatter::TOUPPER)},
     { "notes", ExportParams("notes")},
     { "nr_bursts", ExportParams("nr_bursts")},
     { "nr_pings", ExportParams("nr_pings")},
     { "operator", ExportParams("operator")},
     { "owner_callsign", ExportParams("owner_callsign")},
-    { "pota_ref", ExportParams("pota_ref", &AdiFormat::toUpper)},
+    { "pota_ref", ExportParams("pota_ref", OutputFieldFormatter::TOUPPER)},
     { "precedence", ExportParams("precedence")},
     { "prop_mode", ExportParams("prop_mode")},
     { "public_key", ExportParams("public_key")},
-    { "qrzcom_qso_upload_date", ExportParams("qrzcom_qso_upload_date", &AdiFormat::toYYYYMMDD)},
+    { "qrzcom_qso_download_date", ExportParams("qrzcom_qso_download_date", OutputFieldFormatter::TODATE)},
+    { "qrzcom_qso_download_status", ExportParams("qrzcom_qso_download_status")},
+    { "qrzcom_qso_upload_date", ExportParams("qrzcom_qso_upload_date", OutputFieldFormatter::TODATE)},
     { "qrzcom_qso_upload_status", ExportParams("qrzcom_qso_upload_status")},
     { "qslmsg", ExportParams("qslmsg")},
+    { "qslmsg_rcvd", ExportParams("qslmsg_rcvd")},
     { "qsl_rcvd_via", ExportParams("qsl_rcvd_via")},
     { "qsl_sent_via", ExportParams("qsl_sent_via")},
     { "qsl_via", ExportParams("qsl_via")},
@@ -884,7 +980,7 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "sig_info", ExportParams("sig_info")},
     { "silent_key", ExportParams("silent_key")},
     { "skcc", ExportParams("skcc")},
-    { "sota_ref", ExportParams("sota_ref", &AdiFormat::toUpper)},
+    { "sota_ref", ExportParams("sota_ref", OutputFieldFormatter::TOUPPER)},
     { "srx", ExportParams("srx")},
     { "srx_string", ExportParams("srx_string")},
     { "station_callsign", ExportParams("station_callsign")},
@@ -895,7 +991,9 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "uksmg", ExportParams("uksmg")},
     { "usaca_counties", ExportParams("usaca_counties")},
     { "ve_prov", ExportParams("ve_prov")},
-    { "vucc_grids", ExportParams("vucc_grids", &AdiFormat::toUpper)},
+    { "vucc_grids", ExportParams("vucc_grids", OutputFieldFormatter::TOUPPER)},
     { "web", ExportParams("web")},
-    { "wwff_ref", ExportParams("wwff_ref", &AdiFormat::toUpper)}
+    { "wwff_ref", ExportParams("wwff_ref", OutputFieldFormatter::TOUPPER)}
 };
+
+#undef ALWAYS_PRESENT

@@ -12,11 +12,10 @@ class QSqlRecord;
 
 struct QSLMergeStat {
     QStringList newQSLs;
+    QStringList updatedQSOs;
     QStringList unmatchedQSLs;
-    int qsos_updated;
-    int qsos_checked;
-    int qsos_unmatched;
-    int qsos_errors;
+    QStringList errorQSLs;
+    int qsosDownloaded;
 };
 
 class LogFormat : public QObject {
@@ -28,7 +27,8 @@ public:
         ADX,
         CABRILLO,
         JSON,
-        CSV
+        CSV,
+        POTA
     };
 
     enum QSLFrom {
@@ -66,6 +66,7 @@ public:
     void setFilterSentPaperQSL(bool includeNo, bool includeIgnore, bool includeAlreadySent);
     void setFilterSendVia(const QString &value);
     void setUserFilter(const QString&value);
+    void setPotaOnly(bool only);
     QString getWhereClause();
     void bindWhereClause(QSqlQuery &);
     void setExportedFields(const QStringList& fieldsList);
@@ -121,6 +122,7 @@ private:
     QStringList whereClause;
     QStringList exportedFields;
     QString userFilter;
+    bool filterPOTAOnly = false;
     bool updateDxcc = false;
     duplicateQSOBehaviour (*duplicateQSOFunc)(QSqlRecord *, QSqlRecord *);
     LogLocale locale;

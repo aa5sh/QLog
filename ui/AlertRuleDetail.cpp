@@ -379,6 +379,26 @@ void AlertRuleDetail::save()
      ***********/
     rule.ituz = (ui->ituEdit->text().isEmpty() ? 0 : ui->ituEdit->text().toInt());
 
+    /***********
+     * POTA
+     **********/
+    rule.pota = ui->potaCheckbox->isChecked();
+
+    /***********
+     * SOTA
+     **********/
+    rule.sota = ui->sotaCheckbox->isChecked();
+
+    /***********
+     * IOTA
+     **********/
+    rule.iota = ui->iotaCheckbox->isChecked();
+
+    /***********
+     * WWFF
+     **********/
+    rule.wwff = ui->wwffCheckbox->isChecked();
+
     qCDebug(runtime) << rule;
 
     if ( ! rule.save() )
@@ -642,6 +662,26 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
          * ITU Zones
          **********/
         ui->ituEdit->setText(( rule.ituz != 0) ? QString::number(rule.ituz) : QString());
+
+        /***********
+         * POTA
+         **********/
+        ui->potaCheckbox->setChecked(rule.pota);
+
+        /***********
+         * SOTA
+         **********/
+        ui->sotaCheckbox->setChecked(rule.sota);
+
+        /***********
+         * IOTA
+         **********/
+        ui->iotaCheckbox->setChecked(rule.iota);
+
+        /***********
+         * WWFF
+         **********/
+        ui->wwffCheckbox->setChecked(rule.wwff);
     }
     else
     {

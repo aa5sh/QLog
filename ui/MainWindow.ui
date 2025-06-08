@@ -1099,22 +1099,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>MainWindow</sender>
-   <signal>settingsChanged()</signal>
-   <receiver>newContactWidget</receiver>
-   <slot>readGlobalSettings()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>404</x>
-     <y>264</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>607</x>
-     <y>500</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionConnectRig</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>

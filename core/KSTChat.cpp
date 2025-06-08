@@ -200,6 +200,23 @@ void KSTChat::recalculateDupe()
     emit usersListUpdated();
 }
 
+void KSTChat::recalculateDxccStatus()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !contact )
+        return;
+
+    const QString &currBand = contact->getBand();
+    const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+
+    for ( KSTUsersInfo &user: userList )
+        user.status = Data::instance()->dxccStatus(user.dxcc.dxcc, currBand, modeGroupString);
+
+    emit usersListUpdated();
+
+}
+
 void KSTChat::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
 {
     FCT_IDENTIFICATION;

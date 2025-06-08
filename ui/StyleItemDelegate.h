@@ -17,6 +17,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QApplication>
+#include <QTimeZone>
 
 #include "core/LogLocale.h"
 #include "core/Gridsquare.h"
@@ -33,14 +34,14 @@ public:
 };
 
 class DateFormatDelegate : public QStyledItemDelegate {
+private:
+    LogLocale locale;
 public:
     DateFormatDelegate(QObject* parent = 0) :
         QStyledItemDelegate(parent) { }
 
     QString displayText(const QVariant& value, const QLocale&) const
     {
-        // use own Locale Class
-        LogLocale locale;
         return value.toDate().toString(locale.formatDateShortWithYYYY());
     }
 
@@ -49,9 +50,14 @@ public:
                           const QModelIndex&) const
     {
         QDateEdit* editor = new QDateEdit(parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+        editor->setTimeZone(QTimeZone::UTC);
+#else
         editor->setTimeSpec(Qt::UTC);
+#endif
         editor->setMinimumDate(QDate(1900, 1, 1));
         editor->setSpecialValueText(tr("Blank"));
+        editor->setDisplayFormat(locale.formatDateShortWithYYYY());
         return editor;
     }
 
@@ -82,29 +88,18 @@ public:
     }
 };
 
-class TimeFormatDelegate : public QStyledItemDelegate {
-public:
-    TimeFormatDelegate(QObject* parent = 0) :
-        QStyledItemDelegate(parent) { }
-
-    QString displayText(const QVariant& value, const QLocale&) const
-    {
-        // own Locale
-        LogLocale locale;
-        return value.toTime().toString(locale.formatTimeLongWithoutTZ());
-    }
-};
-
 class TimestampFormatDelegate : public QStyledItemDelegate {
+private:
+    LogLocale locale;
 public:
     TimestampFormatDelegate(QObject* parent = 0) :
         QStyledItemDelegate(parent) { }
 
     QString displayText(const QVariant& value, const QLocale&) const
     {
-        // own Locale
-        LogLocale locale;
-        return value.toDateTime().toTimeSpec(Qt::UTC).toString(locale.formatDateShortWithYYYY() + " " + locale.formatTimeLongWithoutTZ());
+        return locale.toString(value.toDateTime().toTimeZone(QTimeZone::utc()), locale.formatDateShortWithYYYY()
+                                                                                + " "
+                                                                                + locale.formatTimeLongWithoutTZ());
     }
 
     QWidget* createEditor(QWidget* parent,
@@ -112,9 +107,15 @@ public:
                           const QModelIndex&) const
     {
         QDateTimeEdit* editor = new QDateTimeEdit(parent);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+        editor->setTimeZone(QTimeZone::UTC);
+#else
         editor->setTimeSpec(Qt::UTC);
+#endif
         editor->setDateTime(QDateTime(QDate(1900, 1, 1), QTime(0, 0, 0)));
         editor->setSpecialValueText(tr("Blank"));
+        editor->setDisplayFormat(locale.formatDateShortWithYYYY() + " " + locale.formatTimeLongWithoutTZ());
         return editor;
     }
 
@@ -590,6 +591,18 @@ private slots:
         KeySequenceEdit *editor = static_cast<KeySequenceEdit *>(sender());
         emit commitData(editor);
         emit closeEditor(editor);
+    }
+};
+
+class ReadOnlyDelegate : public QStyledItemDelegate {
+    Q_OBJECT
+
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    QWidget *createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const override
+    {
+            return nullptr;
     }
 };
 

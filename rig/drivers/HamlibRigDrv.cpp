@@ -34,7 +34,12 @@ QList<QPair<int, QString>> HamlibRigDrv::getModelList()
     QList<QPair<int, QString>> ret;
 
     rig_load_all_backends();
+
+#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+    rig_list_foreach_model(addRig, &ret);
+#else
     rig_list_foreach(addRig, &ret);
+#endif
 
     return ret;
 }
@@ -53,11 +58,20 @@ QList<QPair<QString, QString> > HamlibRigDrv::getPTTTypeList()
     return ret;
 }
 
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 6 )
-int HamlibRigDrv::addRig(rig_caps *caps, void* data)
+#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+int HamlibRigDrv::addRig (const rig_model_t rigModel, void *data)
+{
+    QList<QPair<int, QString>> *list = static_cast<QList<QPair<int, QString>>*>(data);
+
+    QString name = QString("%1 %2 (%3)").arg(QString::fromLatin1(rig_get_caps_cptr(rigModel, RIG_CAPS_MFG_NAME_CPTR)).trimmed(),
+                                             QString::fromLatin1(rig_get_caps_cptr(rigModel, RIG_CAPS_MODEL_NAME_CPTR)).trimmed(),
+                                             QString::fromLatin1(rig_get_caps_cptr(rigModel, RIG_CAPS_VERSION_CPTR)).trimmed());
+
+    list->append(QPair<int, QString>(rigModel, name));
+    return -1;
+}
 #else
 int HamlibRigDrv::addRig(const rig_caps *caps, void* data)
-#endif
 {
     QList<QPair<int, QString>> *list = static_cast<QList<QPair<int, QString>>*>(data);
 
@@ -68,6 +82,7 @@ int HamlibRigDrv::addRig(const rig_caps *caps, void* data)
     list->append(QPair<int, QString>(caps->rig_model, name));
     return -1;
 }
+#endif
 
 RigCaps HamlibRigDrv::getCaps(int model)
 {
@@ -92,13 +107,21 @@ RigCaps HamlibRigDrv::getCaps(int model)
         ret.canGetPTT = ( caps->get_ptt );
         ret.canSendMorse = ( caps->send_morse != nullptr );
 
-        /* due to a hamlib issue #855 (https://github.com/Hamlib/Hamlib/issues/855)
+        if ( ret.isNetworkOnly )
+        {
+#if ( HAMLIBVERSION_MAJOR == 4 && ( HAMLIBVERSION_MINOR == 2 || HAMLIBVERSION_MINOR == 3 ) )
+         /* due to a hamlib issue #855 (https://github.com/Hamlib/Hamlib/issues/855)
          * the PWR will be disabled for 4.2.x and 4.3.x for NETRIG
          */
-#if ( HAMLIBVERSION_MAJOR == 4 && ( HAMLIBVERSION_MINOR == 2 || HAMLIBVERSION_MINOR == 3 ) )
-        if ( caps->rig_model == RIG_MODEL_NETRIGCTL )
             ret.canGetPWR = false;
+#else
+            // this feature is known after connection to RIG what is too late for QLog, Let's try to enable it.
+            ret.canGetPWR = true;
+            ret.canGetRIT = true;
+            ret.canGetXIT = true;
+            ret.canGetKeySpeed = true;
 #endif
+        }
 
         ret.serialDataBits = caps->serial_data_bits;
         ret.serialStopBits = caps->serial_stop_bits;
@@ -137,7 +160,7 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
     rig_set_debug(RIG_DEBUG_BUG);
 
     connect(&errorTimer, &QTimer::timeout,
-            this, &HamlibRigDrv::checkErrorCounter);
+            this, &HamlibRigDrv::checkErrorCounter);    
 }
 
 HamlibRigDrv::~HamlibRigDrv()
@@ -233,6 +256,21 @@ bool HamlibRigDrv::open()
     currXIT = MHz(rigProfile.xitOffset);
     morseOverCatSupported = ( rig->caps->send_morse != nullptr );
 
+    rmode_t localRigModes = RIG_MODE_NONE;
+    localRigModes = static_cast<rmode_t>(rig->state.mode_list); // static_cast is due to the old Hamlib versions
+                                                                // where mode_list is defined as INT
+    /* hamlib 3.x and 4.x are very different - workaround */
+    for ( unsigned char i = 0; i < (sizeof(rmode_t)*8)-1; i++ )
+    {
+        /* hamlib 3.x and 4.x are very different - workaround */
+        const char *ms = rig_strrmode(static_cast<rmode_t>(localRigModes & rig_idx2setting(i)));
+
+        if (!ms || !ms[0]) continue;
+
+        qCDebug(runtime) << "Supported Mode :" << ms;
+        modeList.append(QString(ms));
+    }
+
     connect(&timer, &QTimer::timeout, this, &HamlibRigDrv::checkRigStateChange);
     timer.start(rigProfile.pollInterval);
     emit rigIsReady();
@@ -253,40 +291,6 @@ QStringList HamlibRigDrv::getAvailableModes()
     FCT_IDENTIFICATION;
 
     MUTEXLOCKER;
-
-    if ( !rig )
-    {
-        qCWarning(runtime) << "Rig is not active";
-        return QStringList();
-    }
-
-    rmode_t localRigModes = RIG_MODE_NONE;
-    QStringList modeList;
-
-    if ( rig->caps->rig_model == RIG_MODEL_NETRIGCTL )
-    {
-        /* Limit a set of modes for network rig */
-        localRigModes = static_cast<rmode_t>(RIG_MODE_CW|RIG_MODE_SSB|RIG_MODE_FM|RIG_MODE_AM);
-    }
-    else if ( rig->state.mode_list != RIG_MODE_NONE )
-    {
-        localRigModes = static_cast<rmode_t>(rig->state.mode_list);
-    }
-
-    /* hamlib 3.x and 4.x are very different - workaround */
-    for ( unsigned char i = 0; i < (sizeof(rmode_t)*8)-1; i++ )
-    {
-        /* hamlib 3.x and 4.x are very different - workaround */
-        const char *ms = rig_strrmode(static_cast<rmode_t>(localRigModes & rig_idx2setting(i)));
-
-        if (!ms || !ms[0])
-        {
-            continue;
-        }
-        qCDebug(runtime) << "Supported Mode :" << ms;
-
-        modeList.append(QString(ms));
-    }
 
     return modeList;
 }
@@ -337,13 +341,19 @@ void HamlibRigDrv::setRawMode(const QString &rawMode)
     __setMode(rig_parse_mode(rawMode.toLatin1()));
 }
 
-void HamlibRigDrv::setMode(const QString &mode, const QString &subMode)
+void HamlibRigDrv::setMode(const QString &mode, const QString &subMode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << mode << subMode;
+    qCDebug(function_parameters) << mode << subMode << digiVariant;
+    QString innerSubmode(subMode);
 
-    setRawMode((subMode.isEmpty()) ? mode : subMode);
+    if ( digiVariant
+        && (innerSubmode == "USB" || innerSubmode == "LSB")
+        && modeList.contains("PKT" + subMode) )
+        innerSubmode.prepend("PKT");
+
+    setRawMode((innerSubmode.isEmpty()) ? mode : innerSubmode);
 }
 
 void HamlibRigDrv::__setMode(rmode_t newModeID)

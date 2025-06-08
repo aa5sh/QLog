@@ -21,7 +21,7 @@
 #include "core/LogLocale.h"
 #include "models/LogbookModel.h"
 #include "ui/EditLine.h"
-#include "data/BandPlan.h"
+#include "data/DxSpot.h"
 #include "core/MultiselectCompleter.h"
 #include "data/POTAEntity.h"
 #include "data/SOTAEntity.h"
@@ -128,6 +128,24 @@ public:
     QLabel *powerLabel;
     QDoubleSpinBox *powerEdit;
 
+    QLabel *rigLabel;
+    NewContactEditLine *rigEdit;
+
+    QLabel *qslMsgSLabel;
+    NewContactEditLine *qslMsgSEdit;
+
+    QLabel *skccLabel;
+    NewContactEditLine *skccEdit;
+
+    QLabel *uksmgLabel;
+    NewContactEditLine *uksmgEdit;
+
+    QLabel *fistsLabel;
+    NewContactEditLine *fistsEdit;
+
+    QLabel *fistsCCLabel;
+    NewContactEditLine *fistsCCEdit;
+
     explicit NewContactDynamicWidgets(bool allocateWidgets,
                                       QWidget *parent);
     QWidget* getRowWidget(int index);
@@ -172,6 +190,7 @@ public:
     QString getName() const;
     QString getRST() const;
     QString getGreeting() const;
+    QString getQTH() const;
     QString getMyCallsign() const;
     QString getMyName() const;
     QString getMyQTH() const;
@@ -211,9 +230,7 @@ public slots:
     void refreshRigProfileCombo();
     void saveExternalContact(QSqlRecord record);
     void readGlobalSettings();
-    void tuneDx(const QString &callsign,
-                double frequency,
-                const BandPlan::BandPlanMode mode);
+    void tuneDx(const DxSpot &spot);
     void fillCallsignGrid(const QString &callsign, const QString& grid);
     void prepareWSJTXQSO(const QString &callsign, const QString &grid);
     void resetContact();
@@ -260,7 +277,7 @@ private slots:
     void stopContactTimer();
     void finalizeCallsignEdit();
     void setCallbookFields(const QMap<QString, QString>& data);
-    void setMembershipList(const QString&, QMap<QString, ClubStatusQuery::ClubStatus>);
+    void setMembershipList(const QString&, QMap<QString, ClubStatusQuery::ClubInfo>);
     void propModeChanged(const QString&);
     void sotaChanged(const QString&);
     void sotaEditFinished();
