@@ -5,6 +5,8 @@
 #include "core/debug.h"
 #include "rig/macros.h"
 #include "core/SerialPort.h"
+#include "data/Data.h"
+#include "data/BandPlan.h"
 
 #ifndef HAMLIB_FILPATHLEN
 #define HAMLIB_FILPATHLEN FILPATHLEN
@@ -122,7 +124,10 @@ RigCaps HamlibRigDrv::getCaps(int model)
             ret.canGetKeySpeed = true;
 #endif
         }
-
+        if(model >= 23005 and model <= 23012)
+        {
+            ret.canProcessDXSpot = true;
+        }
         ret.serialDataBits = caps->serial_data_bits;
         ret.serialStopBits = caps->serial_stop_bits;
     }
@@ -493,12 +498,62 @@ void HamlibRigDrv::stopTimers()
     errorTimer.stop();
 }
 
-void HamlibRigDrv::sendDXSpot(const DxSpot &)
+void HamlibRigDrv::sendDXSpot(const DxSpot &spot)
 {
     FCT_IDENTIFICATION;
 
-    // no action
+    if (!rigProfile.dxSpot2Rig)
+        return;
+
+    MUTEXLOCKER;
+
+    if (!rig)
+    {
+        qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    const QColor &spotColor = Data::statusToColor(spot.status, spot.dupeCount, QColor(187, 194, 195));
+
+    // Convert frequency to MHz
+    double freqMHz = spot.freq;
+
+    // Build command string
+    QString spotCmdStr = QString::asprintf(
+        "C1|spot add rx_freq=%.6f callsign=%s color=%s source=QLog lifetime_seconds=3600\n",
+        freqMHz,
+        qPrintable(spot.callsign),
+        qPrintable(spotColor.name())
+        );
+
+    // Convert to UTF-8 byte array
+    QByteArray cmdBytes = spotCmdStr.toUtf8();
+    if (cmdBytes.size() >= 512) {
+        qCWarning(runtime) << "DX Spot command too long!";
+        return;
+    }
+
+    // Send via rig_send_raw
+    unsigned char reply_buf[512] = {0};
+    int result = rig_send_raw(
+        rig,
+        reinterpret_cast<const unsigned char *>(cmdBytes.constData()),
+        cmdBytes.size(),
+        reply_buf,
+        sizeof(reply_buf) - 1,
+        nullptr
+        );
+
+    if (result > 0) {
+        reply_buf[result] = '\0';
+        qCDebug(runtime) << "DX Spot reply:" << reinterpret_cast<const char *>(reply_buf);
+    }
+
+    isRigRespOK(result, tr("Cannot send DX Spot"), false);
+    commandSleep();
 }
+
+
 
 void HamlibRigDrv::checkChanges()
 {

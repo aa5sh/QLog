@@ -475,9 +475,15 @@ macx: {
       target.path = $$PREFIX
       INSTALLS += target
    }
+<<<<<<< Updated upstream
 
    INCLUDEPATH += /usr/local/include /opt/homebrew/include
    LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3
+=======
+   QMAKE_TARGET_BUNDLE_PREFIX = com.aa5sh
+   INCLUDEPATH += /usr/local/include /opt/homebrew/include /opt/local/include
+   LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3 -L/opt/local/lib
+>>>>>>> Stashed changes
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
    DISTFILES +=
