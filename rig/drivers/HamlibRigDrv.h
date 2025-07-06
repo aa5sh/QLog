@@ -56,7 +56,8 @@ private:
     void checkXITChange();
     void checkKeySpeedChange();
     void checkChanges();
-
+    QTime rigStartTime;
+    int SmartSDRSpotCounter;
     double getRITFreq();
     void setRITFreq(double);
     double getXITFreq();
