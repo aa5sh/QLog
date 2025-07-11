@@ -14,6 +14,7 @@
 #include "data/Band.h"
 #include "rig/Rig.h"
 #include "core/LogLocale.h"
+#include "component/ShutdownAwareWidget.h"
 
 namespace Ui {
 class BandmapWidget;
@@ -33,10 +34,10 @@ signals:
 
 protected:
     void mousePressEvent (QGraphicsSceneMouseEvent *evt) override;
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *evt) override;
 };
 
-class BandmapWidget : public QWidget
+class BandmapWidget : public QWidget, public ShutdownAwareWidget
 {
     Q_OBJECT
 
@@ -75,7 +76,7 @@ public slots:
     void recalculateDupe();
     void updateStations();
     void clearWidgetBand();
-    void saveState();
+    virtual void finalizeBeforeAppExit() override;
     void increasePendingSpots() {pendingSpots++;};
 
 signals:
@@ -88,7 +89,7 @@ private:
     void removeDuplicates(DxSpot &spot);
     void spotAging();
 
-    void determineStepDigits(double &steps, int &digits) const;
+    void determineStepDigits(double &step, int &digits) const;
     void clearAllCallsignFromScene();
     void clearFreqMark(QGraphicsPolygonItem **);
     void drawFreqMark(const double, const double, const QColor&, QGraphicsPolygonItem **);
@@ -104,11 +105,12 @@ private:
     void setBandmapAnimation(bool);
     void setBand(const Band &newBand, bool savePrevBandZoom = true);
     void saveCurrentZoom();
-    BandmapWidget::BandmapZoom getSavedZoom(Band);
+    BandmapWidget::BandmapZoom getSavedZoom(const Band &);
     void saveCurrentScrollFreq();
-    double getSavedScrollFreq(Band);
+    double getSavedScrollFreq(const Band &);
     double visibleCentreFreq() const;
     bool isAlreadyOpened(const Band &band) const;
+    void saveState();
 
 private slots:
     void centerRXActionChecked(bool);

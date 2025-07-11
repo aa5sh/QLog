@@ -11,6 +11,7 @@
 #include "data/StationProfile.h"
 #include "ui/ColumnSettingDialog.h"
 #include "data/Data.h"
+#include "core/LogParam.h"
 
 MODULE_IDENTIFICATION("qlog.ui.exportdialog");
 
@@ -21,11 +22,11 @@ ExportDialog::ExportDialog(QWidget *parent) :
 
     this->setWindowTitle(tr("Export QSOs"));
 
-    ui->myCallsignComboBox->setModel(new SqlListModel("SELECT DISTINCT UPPER(station_callsign) FROM contacts ORDER BY station_callsign", ""));
+    ui->myCallsignComboBox->setModel(new SqlListModel("SELECT DISTINCT UPPER(station_callsign) FROM contacts ORDER BY station_callsign", "", ui->myCallsignComboBox));
     ui->myCallsignComboBox->setCurrentText(StationProfilesManager::instance()->getCurProfile1().callsign.toUpper());
     ui->myGridComboBox->setModel(new SqlListModel("SELECT DISTINCT UPPER(my_gridsquare) FROM contacts WHERE station_callsign ='"
                                                 + ui->myCallsignComboBox->currentText()
-                                                + "' ORDER BY my_gridsquare", ""));
+                                                + "' ORDER BY my_gridsquare", "", ui->myGridComboBox));
     ui->startDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
     ui->startDateEdit->setDate(QDate::currentDate());
     ui->endDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
@@ -34,7 +35,7 @@ ExportDialog::ExportDialog(QWidget *parent) :
     ui->userFilterComboBox->setModel(new SqlListModel("SELECT filter_name "
                                                       "FROM qso_filters "
                                                       "ORDER BY filter_name COLLATE LOCALEAWARE ASC",
-                                                      "", this));
+                                                      "", ui->userFilterComboBox));
     ui->userFilterCheckBox->setEnabled(ui->userFilterComboBox->count() > 0);
 }
 
@@ -69,6 +70,7 @@ void ExportDialog::browse()
 {
     FCT_IDENTIFICATION;
 
+    QSettings settings; //platform-dependent, must be present
     const QString &lastPath = ( ui->fileEdit->text().isEmpty() ) ? settings.value("export/last_path", QDir::homePath()).toString()
                                                                  : ui->fileEdit->text();
 
@@ -261,7 +263,7 @@ void ExportDialog::myCallsignChanged(const QString &myCallsign)
     FCT_IDENTIFICATION;
 
     ui->myGridComboBox->setModel(new SqlListModel("SELECT DISTINCT UPPER(my_gridsquare) FROM contacts WHERE station_callsign ='"
-                                                  + myCallsign + "' ORDER BY my_gridsquare", ""));
+                                                  + myCallsign + "' ORDER BY my_gridsquare", "", ui->myGridComboBox));
 }
 
 void ExportDialog::showColumnsSetting()
@@ -287,15 +289,12 @@ void ExportDialog::exportedColumnStateChanged(int index, bool state)
     qCDebug(function_parameters) << index << state;
 
     if ( state )
-    {
         exportedColumns.insert(index);
-    }
     else
-    {
         exportedColumns.remove(index);
-    }
-    QString comboValue = ui->exportedColumnsCombo->itemData(ui->exportedColumnsCombo->currentIndex()).toString();
-    settings.setValue("export/" + comboValue, QVariant::fromValue(exportedColumns));
+
+    const QString &comboValue = ui->exportedColumnsCombo->itemData(ui->exportedColumnsCombo->currentIndex()).toString();
+    LogParam::setExportColumnSet(comboValue, exportedColumns);
 }
 void ExportDialog::fillExportTypeCombo()
 {
@@ -393,7 +392,7 @@ void ExportDialog::exportedColumnsComboChanged(int index)
 {
     FCT_IDENTIFICATION;
 
-    QString comboValue = ui->exportedColumnsCombo->itemData(index).toString();
+    const QString &comboValue = ui->exportedColumnsCombo->itemData(index).toString();
 
     //empty set means all values exported
     exportedColumns = QSet<int>();
@@ -411,11 +410,11 @@ void ExportDialog::exportedColumnsComboChanged(int index)
              || comboValue == "c2"
              || comboValue == "c3" )
         {
-            exportedColumns = settings.value("export/" + comboValue, QVariant::fromValue(minColumns)).value<QSet<int>>();
+            exportedColumns = LogParam::getExportColumnSet(comboValue, minColumns);
         }
         else if ( comboValue == "qsl" )
         {
-            exportedColumns = settings.value("export/" + comboValue, QVariant::fromValue(qslColumns)).value<QSet<int>>();
+            exportedColumns = LogParam::getExportColumnSet(comboValue, qslColumns);
         }
         else if ( comboValue == "pota" )
         {

@@ -3,11 +3,11 @@
 
 #include <QMainWindow>
 #include "ui/StatisticsWidget.h"
-#include "ui/SwitchButton.h"
+#include "ui/component/SwitchButton.h"
 #include "core/NetworkNotification.h"
 #include "core/AlertEvaluator.h"
 #include "core/PropConditions.h"
-#include "core/ClubLog.h"
+#include "service/clublog/ClubLog.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,6 +42,7 @@ public slots:
     void stationProfileChanged();
     void setLayoutGeometry();
     void setSimplyLayoutGeometry();
+    void checkNewVersion();
 
 private slots:
     void rigConnect();
@@ -53,11 +54,6 @@ private slots:
     void showStatistics();
     void importLog();
     void exportLog();
-    void showLotw();
-    void showeQSL();
-    void showClublog();
-    void showHRDLog();
-    void showQRZ();
     void showAwards();
     void showAbout();
     void showWikiHelp();
@@ -75,6 +71,8 @@ private slots:
     void shortcutALTBackslash();
     void setManualContact(bool);
     void showEditLayout();
+    void showServiceUpload();
+    void showServiceDownloadQSL();
 
     void saveProfileLayoutGeometry();
     void setEquipmentKeepOptions(bool);
@@ -89,6 +87,8 @@ private slots:
     void handleActivityChange(const QString name);
 
     void openNonVfoBandmap(const QString &widgetID, const QString& bandName);
+
+    void showUpdateDialog(const QString &newVersion, const QString &repoName);
 
 private:
     Ui::MainWindow* ui;
@@ -105,10 +105,9 @@ private:
     NetworkNotification networknotification;
     AlertEvaluator alertEvaluator;
     PropConditions *conditions;
-    QSettings settings;
     bool isFusionStyle;
-    ClubLog* clublogRT;
-    Wsjtx* wsjtx;
+    ClubLogUploader* clublogRT;
+    WsjtxUDPReceiver* wsjtx;
     QActionGroup *seqGroup;
     QActionGroup *dupeGroup;
     QActionGroup *linkExchangeGroup;
@@ -118,9 +117,6 @@ private:
     void setLightMode();
 
     void setupActivitiesMenu();
-    void saveEquipmentConnOptions();
-    void restoreConnectionStates();
-    void restoreEquipmentConnOptions();
 
     void restoreUserDefinedShortcuts();
     void saveUserDefinedShortcuts();

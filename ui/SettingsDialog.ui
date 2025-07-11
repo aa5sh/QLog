@@ -703,24 +703,38 @@
                   <widget class="QComboBox" name="cwModelSelect"/>
                  </item>
                  <item row="2" column="0">
-                  <widget class="QLabel" name="label_3">
+                  <widget class="QLabel" name="cwKeyModeLabel">
                    <property name="text">
                     <string>Keyer Mode</string>
                    </property>
                   </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="QComboBox" name="cwKeyModeSelect">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
+                  <layout class="QHBoxLayout" name="horizontalLayout_37">
+                   <property name="spacing">
+                    <number>20</number>
                    </property>
-                  </widget>
+                   <item>
+                    <widget class="QComboBox" name="cwKeyModeSelect">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="cwSwapPaddlesCheckbox">
+                     <property name="text">
+                      <string>Swap Paddles</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item row="3" column="0">
-                  <widget class="QLabel" name="label_4">
+                  <widget class="QLabel" name="cwDefaultSpeedLabel">
                    <property name="text">
                     <string>Default Speed</string>
                    </property>
@@ -750,6 +764,19 @@
                     <number>20</number>
                    </property>
                   </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <spacer name="verticalSpacer_5">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                  <item row="5" column="0" colspan="2">
                   <widget class="QStackedWidget" name="cwStackedWidget">
@@ -896,19 +923,6 @@
                     </layout>
                    </widget>
                   </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <spacer name="verticalSpacer_5">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </widget>
@@ -3651,20 +3665,6 @@
            <string>QRZ.com</string>
           </attribute>
           <layout class="QFormLayout" name="formLayout_4">
-           <item row="1" column="0">
-            <widget class="QLabel" name="qrzApiKeyLabel">
-             <property name="text">
-              <string>Log API Key  </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="qrzApiKeyEdit">
-             <property name="echoMode">
-              <enum>QLineEdit::Password</enum>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
             <spacer name="verticalSpacer_9">
              <property name="orientation">
@@ -3681,7 +3681,21 @@
              </property>
             </spacer>
            </item>
-           <item row="2" column="1">
+           <item row="1" column="0">
+            <widget class="QLabel" name="qrzApiKeyLabel">
+             <property name="text">
+              <string>Default API Key</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="qrzApiKeyEdit">
+             <property name="echoMode">
+              <enum>QLineEdit::Password</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
             <spacer name="verticalSpacer_11">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -3690,6 +3704,144 @@
               <size>
                <width>20</width>
                <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="title">
+              <string>Callsign-specific API Keys</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_16">
+              <item>
+               <widget class="QTableView" name="qrzCallsignApiKeyTableView">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::SingleSelection</enum>
+                </property>
+                <property name="verticalScrollMode">
+                 <enum>QAbstractItemView::ScrollPerPixel</enum>
+                </property>
+                <property name="horizontalScrollMode">
+                 <enum>QAbstractItemView::ScrollPerPixel</enum>
+                </property>
+                <attribute name="horizontalHeaderMinimumSectionSize">
+                 <number>300</number>
+                </attribute>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+                <attribute name="verticalHeaderVisible">
+                 <bool>false</bool>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_34">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="qrzCallsignApiKeyAddButton">
+                  <property name="text">
+                   <string>Add</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_7">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Maximum</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qrzCallsignApiKeyDelButton">
+                  <property name="text">
+                   <string>Delete</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <spacer name="verticalSpacer_20">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="wavelog">
+          <attribute name="title">
+           <string>Wavelog</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_13">
+           <item row="2" column="0">
+            <widget class="QLabel" name="wavelogApiKeyLabel">
+             <property name="text">
+              <string>API Key</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="wavelogAddQSOEndpointLabel">
+             <property name="text">
+              <string>Endpoint</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="wavelogAddQSOEndpointEdit">
+             <property name="text">
+              <string notr="true">https://localhost/index.php/api/qso</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="wavelogApiKeyEdit">
+             <property name="echoMode">
+              <enum>QLineEdit::Password</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <spacer name="verticalSpacer_21">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
               </size>
              </property>
             </spacer>
@@ -4410,7 +4562,7 @@
   <customwidget>
    <class>SerialPortEditLine</class>
    <extends>QLineEdit</extends>
-   <header>ui/EditLine.h</header>
+   <header>ui/component/EditLine.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -4443,6 +4595,7 @@
   <tabstop>cwProfileNameEdit</tabstop>
   <tabstop>cwModelSelect</tabstop>
   <tabstop>cwKeyModeSelect</tabstop>
+  <tabstop>cwSwapPaddlesCheckbox</tabstop>
   <tabstop>cwDefaulSpeed</tabstop>
   <tabstop>cwPortEdit</tabstop>
   <tabstop>cwBaudSelect</tabstop>
@@ -4546,6 +4699,11 @@
   <tabstop>tqslPathEdit</tabstop>
   <tabstop>tqslPathButton</tabstop>
   <tabstop>qrzApiKeyEdit</tabstop>
+  <tabstop>qrzCallsignApiKeyTableView</tabstop>
+  <tabstop>qrzCallsignApiKeyAddButton</tabstop>
+  <tabstop>qrzCallsignApiKeyDelButton</tabstop>
+  <tabstop>wavelogAddQSOEndpointEdit</tabstop>
+  <tabstop>wavelogApiKeyEdit</tabstop>
   <tabstop>dxccConfirmedByLotwCheckBox</tabstop>
   <tabstop>dxccConfirmedByPaperCheckBox</tabstop>
   <tabstop>dxccConfirmedByEqslCheckBox</tabstop>
@@ -5618,6 +5776,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>qrzCallsignApiKeyAddButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>qrzAddCallsignAPIKey()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>412</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qrzCallsignApiKeyDelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>qrzDelCallsignAPIKey()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>575</x>
+     <y>412</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwKeyModeSelect</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>cwModeChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>496</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>save()</slot>
@@ -5682,6 +5888,9 @@
   <slot>rigPTTTypeChanged(int)</slot>
   <slot>adjustOperatorTextColor()</slot>
   <slot>updateDateFormatResult()</slot>
+  <slot>qrzAddCallsignAPIKey()</slot>
+  <slot>qrzDelCallsignAPIKey()</slot>
+  <slot>cwModeChanged(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

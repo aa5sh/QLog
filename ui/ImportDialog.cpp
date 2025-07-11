@@ -52,7 +52,7 @@ void ImportDialog::browse()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
+    QSettings settings; //platform-dependent, must be present
 
     const QString &lastPath = ( ui->fileEdit->text().isEmpty() ) ? settings.value("import/last_path", QDir::homePath()).toString()
                                                                  : ui->fileEdit->text();
@@ -196,7 +196,7 @@ void ImportDialog::saveImportDetails(const QString &importDetail, const QString 
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
+    QSettings settings; //platform-dependent, must be present
 
     const QString &lastPath = settings.value("import/last_path_importdetails", QDir::homePath()).toString();
 
@@ -318,22 +318,27 @@ void ImportDialog::runImport()
     msgBox.setDefaultButton(QMessageBox::Ok);
 
     if ( !s.isEmpty() )
-    {
          pButtonYes = msgBox.addButton(tr("Save Details..."), QMessageBox::ActionRole);
-    }
 
     QSpacerItem* horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    QGridLayout* layout = (QGridLayout*)msgBox.layout();
+    QGridLayout* layout = qobject_cast<QGridLayout*>(msgBox.layout());
+    if ( !layout )
+    {
+        qWarning() << "Layout is null";
+        delete horizontalSpacer;
+        return;
+    }
     layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
 
     msgBox.exec();
 
-    if ( pButtonYes
-         && msgBox.clickedButton() == pButtonYes )
+    if ( pButtonYes && msgBox.clickedButton() == pButtonYes )
     {
         saveImportDetails(s, ui->fileEdit->text(),
                           count, warnings, errors);
     }
+
+    delete format;
 
     qCDebug(runtime).noquote() << s;
 

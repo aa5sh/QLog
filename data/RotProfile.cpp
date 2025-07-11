@@ -1,4 +1,3 @@
-#include <QSettings>
 #include <QSqlQuery>
 #include <QSqlError>
 
@@ -39,8 +38,6 @@ RotProfilesManager::RotProfilesManager() :
     ProfileManagerSQL<RotProfile>("rot_profiles")
 {
     FCT_IDENTIFICATION;
-
-    QSettings settings;
 
     QSqlQuery profileQuery;
 
@@ -106,7 +103,7 @@ void RotProfilesManager::save()
     if ( deleteQuery.exec() )
     {
         const QStringList &keys = profileNameList();
-        for ( auto &key: keys )
+        for ( const QString &key: keys )
         {
             const RotProfile &rigProfile = getProfile(key);
 

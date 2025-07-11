@@ -2,7 +2,6 @@
 #include <QTableView>
 #include <QVBoxLayout>
 #include <QDate>
-#include <QSettings>
 #include <QSqlError>
 #include <QSqlQuery>
 #include "models/DxccTableModel.h"
@@ -17,7 +16,7 @@ DxccTableWidget::DxccTableWidget(QWidget *parent) : QTableView(parent)
 {
     FCT_IDENTIFICATION;
 
-    dxccTableModel = new DxccTableModel;
+    dxccTableModel = new DxccTableModel(parent);
 
     this->setObjectName("dxccTableView");
     this->setModel(dxccTableModel);
@@ -100,7 +99,7 @@ void DxccTableWidget::updateDxTable(const QString &condition,
     show();
 }
 
-void DxccTableWidget::setDxCallsign(const QString &dxCallsign, Band band)
+void DxccTableWidget::setDxCallsign(const QString &dxCallsign, const Band &band)
 {
     FCT_IDENTIFICATION;
 
@@ -113,7 +112,7 @@ void DxccTableWidget::setDxCallsign(const QString &dxCallsign, Band band)
 
 }
 
-void DxccTableWidget::setDxcc(int dxcc, Band highlightedBand)
+void DxccTableWidget::setDxcc(int dxcc, const Band &highlightedBand)
 {
     FCT_IDENTIFICATION;
 

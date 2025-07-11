@@ -16,13 +16,13 @@
 #include "NewContactWidget.h"
 #include "ui_NewContactWidget.h"
 #include "core/debug.h"
-#include "core/Gridsquare.h"
+#include "data/Gridsquare.h"
 #include "data/StationProfile.h"
 #include "data/RigProfile.h"
 #include "data/AntProfile.h"
 #include "data/CWKeyProfile.h"
 #include "data/Data.h"
-#include "core/Callsign.h"
+#include "data/Callsign.h"
 #include "core/PropConditions.h"
 #include "core/MembershipQE.h"
 #include "logformat/AdiFormat.h"
@@ -31,6 +31,7 @@
 #include "data/BandPlan.h"
 #include "core/LogParam.h"
 #include "data/ActivityProfile.h"
+#include "core/LogParam.h"
 
 MODULE_IDENTIFICATION("qlog.ui.newcontactwidget");
 
@@ -52,11 +53,11 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
 
     ui->setupUi(this);
     // tab pane with QSO fields - expand & collapse
-    tabCollapseBtn = new QToolButton();
-    QIcon *toggleIcon = new QIcon();
-    toggleIcon->addPixmap(QPixmap(":/icons/baseline-play_down-24px.svg"), QIcon::Normal, QIcon::On);
-    toggleIcon->addPixmap(QPixmap(":/icons/baseline-play_arrow-24px.svg"), QIcon::Normal, QIcon::Off);
-    tabCollapseBtn->setIcon(*toggleIcon);
+    tabCollapseBtn = new QToolButton(this);
+    QIcon toggleIcon;
+    toggleIcon.addPixmap(QPixmap(":/icons/baseline-play_down-24px.svg"), QIcon::Normal, QIcon::On);
+    toggleIcon.addPixmap(QPixmap(":/icons/baseline-play_arrow-24px.svg"), QIcon::Normal, QIcon::Off);
+    tabCollapseBtn->setIcon(toggleIcon);
     tabCollapseBtn->setCheckable(true);
     tabCollapseBtn->setToolTip(tr("Expand/Collapse"));
     tabCollapseBtn->setFocusPolicy(Qt::NoFocus);
@@ -161,7 +162,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     /****************/
     /* Modes Combo  */
     /****************/
-    QSqlTableModel* modeModel = new QSqlTableModel();
+    QSqlTableModel* modeModel = new QSqlTableModel(this);
     modeModel->setTable("modes");
     modeModel->setFilter("enabled = true");
     modeModel->setSort(modeModel->fieldIndex("name"), Qt::AscendingOrder);
@@ -345,17 +346,17 @@ void NewContactWidget::readWidgetSettings()
 {
     FCT_IDENTIFICATION;
 
-    realRigFreq = settings.value("newcontact/frequency", 3.5).toDouble();
-    ui->modeEdit->setCurrentText(settings.value("newcontact/mode", "CW").toString());
-    ui->submodeEdit->setCurrentText(settings.value("newcontact/submode").toString());
-    uiDynamic->powerEdit->setValue(settings.value("newcontact/power", 100).toDouble());
-    ui->qsoTabs->setCurrentIndex(settings.value("newcontact/tabindex", 0).toInt());
-    setComboBaseData(ui->qslSentBox, settings.value("newcontact/qslsent", "Q").toString());
-    setComboBaseData(ui->lotwQslSentBox, settings.value("newcontact/lotwqslsent", "Q").toString());
-    setComboBaseData(ui->eQSLSentBox, settings.value("newcontact/eqslqslsent", "Q").toString());
-    setComboBaseData(ui->qslSentViaBox, settings.value("newcontact/qslsentvia", "").toString());
-    ui->propagationModeEdit->setCurrentText(Data::instance()->propagationModeIDToText(settings.value("newcontact/propmode", QString()).toString()));    
-    tabCollapseBtn->setChecked(settings.value("newcontact/tabsexpanded", "1").toBool());
+    realRigFreq = LogParam::getNewContactFreq();
+    ui->modeEdit->setCurrentText(LogParam::getNewContactMode());
+    ui->submodeEdit->setCurrentText(LogParam::getNewContactSubMode());
+    uiDynamic->powerEdit->setValue(LogParam::getNewContactPower());
+    ui->qsoTabs->setCurrentIndex(LogParam::getNewContactTabIndex());
+    setComboBaseData(ui->qslSentBox, LogParam::getNewContactQSLSent());
+    setComboBaseData(ui->lotwQslSentBox, LogParam::getNewContactLoTWQSLSent());
+    setComboBaseData(ui->eQSLSentBox, LogParam::getNewContactEQSLWQSLSent());
+    setComboBaseData(ui->qslSentViaBox, LogParam::getNewContactQSLVia());
+    ui->propagationModeEdit->setCurrentText(Data::instance()->propagationModeIDToText(LogParam::getNewContactPropMode()));
+    tabCollapseBtn->setChecked(LogParam::getNewContactTabsExpanded());
     tabsExpandCollapse();
 }
 
@@ -363,18 +364,17 @@ void NewContactWidget::writeWidgetSetting()
 {
     FCT_IDENTIFICATION;
 
-    settings.setValue("newcontact/mode", ui->modeEdit->currentText());
-    settings.setValue("newcontact/submode", ui->submodeEdit->currentText());
-    settings.setValue("newcontact/frequency", realRigFreq);
-    settings.setValue("newcontact/power", uiDynamic->powerEdit->value());
-    settings.setValue("newcontact/tabindex", ui->qsoTabs->currentIndex());
-    settings.setValue("newcontact/qslsent", ui->qslSentBox->itemData(ui->qslSentBox->currentIndex()));
-    settings.setValue("newcontact/eqslqslsent", ui->eQSLSentBox->itemData(ui->eQSLSentBox->currentIndex()));
-    settings.setValue("newcontact/eqslqslsent", ui->lotwQslSentBox->itemData(ui->lotwQslSentBox->currentIndex()));
-    settings.setValue("newcontact/qslsentvia", ui->qslSentViaBox->itemData(ui->qslSentViaBox->currentIndex()));
-    settings.setValue("newcontact/propmode", Data::instance()->propagationModeTextToID(ui->propagationModeEdit->currentText()));
-    settings.setValue("newcontact/tabsexpanded", tabCollapseBtn->isChecked());
-
+    LogParam::setNewContactFreq(realRigFreq);
+    LogParam::setNewContactMode(ui->modeEdit->currentText());
+    LogParam::setNewContactSubMode(ui->submodeEdit->currentText());
+    LogParam::setNewContactPower(uiDynamic->powerEdit->value());
+    LogParam::setNewContactTabIndex(ui->qsoTabs->currentIndex());
+    LogParam::setNewContactQSLSent(ui->qslSentBox->itemData(ui->qslSentBox->currentIndex()).toString());
+    LogParam::setNewContactLoTWQSLSent(ui->lotwQslSentBox->itemData(ui->lotwQslSentBox->currentIndex()).toString());
+    LogParam::setNewContactEQSLQSLSent(ui->eQSLSentBox->itemData(ui->eQSLSentBox->currentIndex()).toString());
+    LogParam::setNewContactQSLVia(ui->qslSentViaBox->itemData(ui->qslSentViaBox->currentIndex()).toString());
+    LogParam::setNewContactPropMode(Data::instance()->propagationModeTextToID(ui->propagationModeEdit->currentText()));
+    LogParam::setNewContactTabsExpanded(tabCollapseBtn->isChecked());
 }
 
 /* function read global setting, called when starting or when Setting is reloaded */
@@ -607,108 +607,64 @@ void NewContactWidget::useFieldsFromPrevQSO(const QString &callsign, const QStri
 }
 
 /* function handles a response from Callbook classes */
-void NewContactWidget::setCallbookFields(const QMap<QString, QString>& data)
+void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
 {
     FCT_IDENTIFICATION;
 
-    if ( data.value("call") != callsign )
+    if ( data.call != callsign )
         return;
 
     /* not filled or not fully filled then update it */
-    const QString fnamelname = QString("%1 %2").arg(data.value("fname"),
-                                                    data.value("lname"));
+    const QString fnamelname = QString("%1 %2").arg(data.fname, data.lname);
+
     if ( uiDynamic->nameEdit->text().isEmpty()
-         || data.value("name_fmt").contains(uiDynamic->nameEdit->text())
+         || data.name_fmt.contains(uiDynamic->nameEdit->text())
          || fnamelname.contains(uiDynamic->nameEdit->text())
-         || data.value("nick").contains(uiDynamic->nameEdit->text()) )
+         || data.nick.contains(uiDynamic->nameEdit->text()) )
     {
-        QString name = data.value("name_fmt");
+        QString name = data.name_fmt;
 
         if ( name.isEmpty() )
-            name = ( data.value("fname").isEmpty() && data.value("lname").isEmpty() ) ? data.value("nick")
-                                                                                      : fnamelname;
+            name = ( data.fname.isEmpty() && data.lname.isEmpty() ) ? data.nick
+                                                                    : fnamelname;
         uiDynamic->nameEdit->setText(name);
     }
 
     if ( uiDynamic->gridEdit->text().isEmpty()
-         || data.value("gridsquare").contains(uiDynamic->gridEdit->text()) )
-    {
-        uiDynamic->gridEdit->setText(data.value("gridsquare"));
-    }
+         || data.gridsquare.contains(uiDynamic->gridEdit->text()) )
+        uiDynamic->gridEdit->setText(data.gridsquare);
 
     if ( uiDynamic->qthEdit->text().isEmpty()
-         || data.value("qth").contains(uiDynamic->qthEdit->text()))
-    {
-        uiDynamic->qthEdit->setText(data.value("qth"));
-    }
+         || data.qth.contains(uiDynamic->qthEdit->text()))
+        uiDynamic->qthEdit->setText(data.qth);
 
-    if ( uiDynamic->dokEdit->text().isEmpty() )
+    if ( uiDynamic->dokEdit->text().isEmpty() )    uiDynamic->dokEdit->setText(data.dok);
+    if ( uiDynamic->iotaEdit->text().isEmpty() )   uiDynamic->iotaEdit->setText(data.iota);
+    if ( uiDynamic->emailEdit->text().isEmpty() )  uiDynamic->emailEdit->setText(data.email);
+    if ( uiDynamic->countyEdit->text().isEmpty() ) uiDynamic->countyEdit->setText(data.county);
+    if ( ui->qslViaEdit->text().isEmpty() )        ui->qslViaEdit->setText(data.qsl_via);
+    if ( uiDynamic->urlEdit->text().isEmpty() )    uiDynamic->urlEdit->setText(data.url);
+    if ( uiDynamic->stateEdit->text().isEmpty() )  uiDynamic->stateEdit->setText(data.us_state);
+    if ( data.eqsl == "Y" )                        ui->eqslLabel->setText("eQSL");
+    if ( data.lotw == "Y" )                        ui->lotwLabel->setText("LoTW");
+    if ( !data.dxcc.isEmpty() )
     {
-        uiDynamic->dokEdit->setText(data.value("dok"));
-    }
-
-    if ( uiDynamic->iotaEdit->text().isEmpty() )
-    {
-        uiDynamic->iotaEdit->setText(data.value("iota"));
-    }
-
-    if ( uiDynamic->emailEdit->text().isEmpty() )
-    {
-        uiDynamic->emailEdit->setText(data.value("email"));
-    }
-
-    if ( uiDynamic->countyEdit->text().isEmpty() )
-    {
-        uiDynamic->countyEdit->setText(data.value("county"));
-    }
-
-    if ( ui->qslViaEdit->text().isEmpty() )
-    {
-        ui->qslViaEdit->setText(data.value("qsl_via"));
-    }
-
-    if ( uiDynamic->urlEdit->text().isEmpty() )
-    {
-        uiDynamic->urlEdit->setText(data.value("url"));
-    }
-
-    if ( uiDynamic->stateEdit->text().isEmpty() )
-    {
-        uiDynamic->stateEdit->setText(data.value("us_state"));
-    }
-
-    if ( data.value("eqsl") == "Y" )
-    {
-        ui->eqslLabel->setText("eQSL");
-    }
-
-    if ( data.value("lotw") == "Y" )
-    {
-        ui->lotwLabel->setText("LoTW");
-    }
-
-    if ( !data.value("dxcc").isEmpty() )
-    {
-        int callbookDXCC = data.value("dxcc").toInt();
+        int callbookDXCC = data.dxcc.toInt();
 
         if ( callbookDXCC != 0 && callbookDXCC != dxccEntity.dxcc )
         {
-            qCDebug(runtime) << "Received different DXCC Info" << data.value("dxcc")
+            qCDebug(runtime) << "Received different DXCC Info" << data.dxcc
                              << dxccEntity.dxcc;
             setDxccInfo(Data::instance()->lookupDxccID(callbookDXCC));
         }
     }
 
     // always replace cqz/itu
-    if ( !data.value("ituz").isEmpty() )
-        uiDynamic->ituEdit->setText(data.value("ituz"));
+    if ( !data.ituz.isEmpty() ) uiDynamic->ituEdit->setText(data.ituz);
+    if ( !data.cqz.isEmpty() )  uiDynamic->cqzEdit->setText(data.cqz);
 
-    if ( !data.value("cqz").isEmpty() )
-        uiDynamic->cqzEdit->setText(data.value("cqz"));
-
-    emit callboolImageUrl(data.value("image_url"));
-
-    lastCallbookQueryData = QMap<QString, QString>(data);
+    emit callboolImageUrl(data.image_url);
+    lastCallbookQueryData = data;
 }
 
 void NewContactWidget::setMembershipList(const QString &in_callsign,
@@ -3190,6 +3146,13 @@ bool NewContactWidget::getTabCollapseState() const
     return tabCollapseBtn->isChecked();
 }
 
+void NewContactWidget::finalizeBeforeAppExit()
+{
+    FCT_IDENTIFICATION;
+
+    writeWidgetSetting();
+}
+
 void NewContactWidget::propModeChanged(const QString &propModeText)
 {
     FCT_IDENTIFICATION;
@@ -3197,7 +3160,7 @@ void NewContactWidget::propModeChanged(const QString &propModeText)
     qCDebug(runtime) << "propModeText: " << propModeText << " mode: "<< Data::instance()->propagationModeIDToText("SAT");
     if ( propModeText == Data::instance()->propagationModeIDToText("SAT") )
     {
-        uiDynamic->satNameEdit->setText(settings.value("newcontact/satname", QString()).toString());
+        uiDynamic->satNameEdit->setText(LogParam::getNewContactSatName());
         updateSatMode();
         uiDynamic->satModeEdit->setEnabled(true);
         uiDynamic->satNameEdit->setEnabled(true);
@@ -3235,7 +3198,7 @@ void NewContactWidget::setValuesFromActivity(const QString &name)
 {
     FCT_IDENTIFICATION;
 
-    auto &variableHash = ActivityProfilesManager::instance()->getProfile(name).fieldValues;
+    const auto &variableHash = ActivityProfilesManager::instance()->getProfile(name).fieldValues;
 
     auto setFieldValue = [&](LogbookModel::ColumnID columnID, QLineEdit *edit)
     {
@@ -3704,14 +3667,15 @@ void NewContactWidget::satNameChanged()
     FCT_IDENTIFICATION;
 
     if ( Data::instance()->propagationModeTextToID(ui->propagationModeEdit->currentText()) == "SAT")
-        settings.setValue("newcontact/satname", uiDynamic->satNameEdit->text());
+        LogParam::setNewContactSatName(uiDynamic->satNameEdit->text());
 }
 
-NewContactWidget::~NewContactWidget() {
+NewContactWidget::~NewContactWidget()
+{
     FCT_IDENTIFICATION;
 
-    writeWidgetSetting();
     delete ui;
+    delete uiDynamic;
 }
 
 void NewContactWidget::assignPropConditions(PropConditions *cond)
@@ -3898,7 +3862,7 @@ NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,
         //satNameEdit->setMaximumSize(QSize(200, 16777215));
         satNameEdit->setFocusPolicy(Qt::ClickFocus);
         satNameEdit->setEnabled(false);
-        QSqlTableModel* satModel = new QSqlTableModel();
+        QSqlTableModel* satModel = new QSqlTableModel(satNameEdit);
         satModel->setTable("sat_info");
         QCompleter *satCompleter = new QCompleter(satNameEdit);
         satCompleter->setModel(satModel);
@@ -3922,7 +3886,7 @@ NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,
         stxEdit->setValidator(new QIntValidator(0,INT_MAX, stxEdit));
         stxEdit->setText("001");
 
-        rxPWREdit->setValidator(new QDoubleValidator(0, 100000.0, 9));
+        rxPWREdit->setValidator(new QDoubleValidator(0, 100000.0, 9, rxPWREdit));
 
         powerEdit->setMaximum(1000000.0);
         powerEdit->setValue(0.0);

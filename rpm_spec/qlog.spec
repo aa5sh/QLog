@@ -7,7 +7,6 @@ Release: 1%{?dist}
 License: GPLv3
 Group: Productivity/Hamradio/Logging
 Source: https://github.com/foldynl/QLog/archive/refs/tags/v%{version}.tar.gz#/qlog-%{version}.tar.gz
-Source1: https://github.com/foldynl/QLog-Flags/archive/refs/tags/v%{version}.tar.gz#/qlog-flags-%{version}.tar.gz
 URL: https://github.com/foldynl/QLog/wiki
 Packager: Ladislav Foldyna <ok1mlg@gmail.com>
 
@@ -19,7 +18,6 @@ is based on the Qt 5 framework and uses SQLite as database backend.
 %global debug_package %{nil}
 %setup
 %setup -T -D -b 1 
-cp -r ../QLog-Flags-%{version}/* res/flags/
 
 
 %build
@@ -42,6 +40,21 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Fri Jul 11 2025 Ladislav Foldyna - 0.45.0-1
+- [NEW] - Single Dialog for Upload/Download Online Services (issue #448)
+- [NEW] - Added option to swap paddles to Winkey settings (issue #676)
+- [NEW] - Added native support for the FLRig interface (issue #679)
+- [NEW] - Added New Version Notification - only for MacOS and Windows (PR #669 @aa5sh)
+- [NEW] - QRZ Upload - Added support for multiple API Keys
+- [NEW] - Logbook - Added highlighting to the filter button when a filter is active
+- [NEW] - WSJTX - Filtered label is shown when filter is enabled
+- [NEW] - DXC - Filtered label is shown when filter is enabled
+- [NEW] - Added support to Upload Cloudlog/Wavelog
+- [NEW] - Add JS8 to legacy_modes.json (issue #677)
+- [CHANGED] - Unification Settings storage
+- [CHANGED] - Calculate distances according to IARU rules
+- Fixed missing Wsjtx Spot values in the AlertWindow
+
 * Sun May 11 2025 Ladislav Foldyna - 0.44.1-1
 - Fixed Rotator Widget Seg Fault for new users (issue #666)
 

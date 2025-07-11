@@ -1,6 +1,5 @@
 ﻿#include <QDebug>
 #include <QColor>
-#include <QSettings>
 #include <QMessageBox>
 #include <QFontMetrics>
 #include <QActionGroup>
@@ -30,9 +29,8 @@
 #include "core/CredentialStore.h"
 #include "ui/InputPasswordDialog.h"
 #include "data/BandPlan.h"
-#include "core/DxServerString.h"
 #include "rig/macros.h"
-#include "core/Callsign.h"
+#include "data/Callsign.h"
 #include "core/LogParam.h"
 
 #define CONSOLE_VIEW 4
@@ -117,7 +115,7 @@ QVariant DxTableModel::headerData(int section, Qt::Orientation orientation, int 
     }
 }
 
-bool DxTableModel::addEntry(DxSpot entry, bool deduplicate,
+bool DxTableModel::addEntry(const DxSpot &entry, bool deduplicate,
                             qint16 dedup_interval, double dedup_freq_tolerance)
 {
     bool shouldInsert = true;
@@ -218,7 +216,7 @@ QVariant WCYTableModel::headerData(int section, Qt::Orientation orientation, int
     }
 }
 
-void WCYTableModel::addEntry(WCYSpot entry)
+void WCYTableModel::addEntry(const WCYSpot &entry)
 {
     beginInsertRows(QModelIndex(), 0, 0);
     wcyData.prepend(entry);
@@ -284,7 +282,7 @@ QVariant WWVTableModel::headerData(int section, Qt::Orientation orientation, int
     }
 }
 
-void WWVTableModel::addEntry(WWVSpot entry)
+void WWVTableModel::addEntry(const WWVSpot &entry)
 {
     beginInsertRows(QModelIndex(), 0, 0);
     wwvData.prepend(entry);
@@ -343,7 +341,7 @@ QVariant ToAllTableModel::headerData(int section, Qt::Orientation orientation, i
     }
 }
 
-void ToAllTableModel::addEntry(ToAllSpot entry)
+void ToAllTableModel::addEntry(const ToAllSpot &entry)
 {
     beginInsertRows(QModelIndex(), 0, 0);
     toAllData.prepend(entry);
@@ -634,8 +632,6 @@ void DxWidget::saveDXCServers()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-
     QStringList serversItems = getDXCServerList();
     const QString &curr_server = ui->serverSelect->currentText();
 
@@ -648,62 +644,44 @@ void DxWidget::saveDXCServers()
         ui->serverSelect->setCurrentIndex(0);
     }
 
-    settings.setValue("dxc/servers", serversItems);
-    settings.setValue("dxc/last_server", ui->serverSelect->currentText());
+    LogParam::setDXCServerlist(serversItems);
+    LogParam::setDXCLastServer(ui->serverSelect->currentText());
 }
 
 QString DxWidget::modeFilterRegExp()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    QString regexp("NOTHING");
-
-    if (settings.value("dxc/filter_mode_phone",true).toBool())   regexp = regexp + "|" + BandPlan::MODE_GROUP_STRING_PHONE;
-    if (settings.value("dxc/filter_mode_cw",true).toBool())      regexp = regexp + "|" + BandPlan::MODE_GROUP_STRING_CW;
-    if (settings.value("dxc/filter_mode_ft8",true).toBool())     regexp = regexp + "|" + BandPlan::MODE_GROUP_STRING_FT8;
-    if (settings.value("dxc/filter_mode_digital",true).toBool()) regexp = regexp + "|" + BandPlan::MODE_GROUP_STRING_DIGITAL;
-
-    return regexp;
+    return LogParam::getDXCFilterModeRE();
 }
 
 QString DxWidget::contFilterRegExp()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_cont_regexp","NOTHING|AF|AN|AS|EU|NA|OC|SA").toString();
+    return LogParam::getDXCFilterContRE();
 }
 
 QString DxWidget::spotterContFilterRegExp()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_spotter_cont_regexp","NOTHING|AF|AN|AS|EU|NA|OC|SA").toString();
+    return LogParam::getDXCFilterSpotterContRE();
 }
 
 QString DxWidget::bandFilterRegExp()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
     QString regexp("NOTHING");
 
+    const QList<Band> &bands = BandPlan::bandsList(false, true);
+    const QStringList exludedBandFilter = LogParam::getDXCExcludedBands();
 
-    SqlListModel *bands= new SqlListModel("SELECT name FROM bands WHERE enabled = 1 ORDER BY start_freq", "Band");
+    for ( const Band &band : bands )
+        if ( !exludedBandFilter.contains(band.name) )
+            regexp.append("|^" + band.name);
 
-    int band_index = 1; // the first record (0) is Header - skip it and start at position 1
-
-    while (band_index < bands->rowCount())
-    {
-        QString band_name = bands->data(bands->index(band_index,0)).toString();
-        if ( settings.value("dxc/filter_band_" + band_name,true).toBool() )
-        {
-            regexp.append("|^" + band_name);
-        }
-        band_index++;
-    }
     return regexp;
 }
 
@@ -711,72 +689,63 @@ uint DxWidget::dxccStatusFilterValue()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_dxcc_status", DxccStatus::All).toUInt();
+    return LogParam::getDXCFilterDxccStatus();
 }
 
 int DxWidget::getDedupTimeValue()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_duplicationtime", DEDUPLICATION_TIME).toInt();
+    return LogParam::getDXCFilterDedupTime(DEDUPLICATION_TIME);
 }
 
 int DxWidget::getDedupFreqValue()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_duplicationfreq", DEDUPLICATION_FREQ_TOLERANCE).toInt();
+    return LogParam::getDXCFilterDedupFreq(DEDUPLICATION_FREQ_TOLERANCE);
 }
 
 bool DxWidget::spotDedupValue()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_deduplication", false).toBool();
+    return LogParam::getDXCFilterDedup();
 }
 
 QStringList DxWidget::dxMemberList()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/filter_dx_member_list").toStringList();
+    return LogParam::getDXCFilterMemberlists();
 }
 
 bool DxWidget::getAutoconnectServer()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/autoconnect", false).toBool();
+    return LogParam::getDXCAutoconnectServer();
 }
 
 void DxWidget::saveAutoconnectServer(bool state)
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    settings.setValue("dxc/autoconnect", state);
+    LogParam::setDXCAutoconnectServer(state);
 }
 
 bool DxWidget::getKeepQSOs()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    return settings.value("dxc/keepqsos", false).toBool();
+    return LogParam::getDXCKeepQSOs();
 }
 
 void DxWidget::saveKeepQSOs(bool state)
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    settings.setValue("dxc/keepqsos", state);
+    LogParam::setDXCKeepQSOs(state);
 }
 
 void DxWidget::sendCommand(const QString & command,
@@ -804,55 +773,32 @@ void DxWidget::saveWidgetSetting()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-
-    settings.setValue("dxc/dxtablestate", ui->dxTable->horizontalHeader()->saveState());
-    settings.setValue("dxc/wcytablestate", ui->wcyTable->horizontalHeader()->saveState());
-    settings.setValue("dxc/wwvtablestate", ui->wwvTable->horizontalHeader()->saveState());
-    settings.setValue("dxc/toalltablestate", ui->toAllTable->horizontalHeader()->saveState());
-    settings.setValue("dxc/consolefontsize", ui->log->font().pointSize());
+    LogParam::setDXCDXTableState(ui->dxTable->horizontalHeader()->saveState());
+    LogParam::setDXCWCYTableState(ui->wcyTable->horizontalHeader()->saveState());
+    LogParam::setDXCWWVTableState(ui->wwvTable->horizontalHeader()->saveState());
+    LogParam::setDXCTOALLTableState(ui->toAllTable->horizontalHeader()->saveState());
+    LogParam::setDXCConsoleFontSize(ui->log->font().pointSize());
 }
 
 void DxWidget::restoreWidgetSetting()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    QByteArray state = settings.value("dxc/dxtablestate").toByteArray();
+    QByteArray state = LogParam::getDXCDXTableState();
+    if ( !state.isEmpty() ) ui->dxTable->horizontalHeader()->restoreState(state);
 
-    if (!state.isEmpty())
-    {
-        ui->dxTable->horizontalHeader()->restoreState(state);
-    }
+    state = LogParam::getDXCWCYTableState();
+    if ( !state.isEmpty() ) ui->wcyTable->horizontalHeader()->restoreState(state);
 
-    state = settings.value("dxc/wcytablestate").toByteArray();
+    state = LogParam::getDXCWWVTableState();
+    if ( !state.isEmpty() ) ui->wwvTable->horizontalHeader()->restoreState(state);
 
-    if (!state.isEmpty())
-    {
-        ui->wcyTable->horizontalHeader()->restoreState(state);
-    }
+    state = LogParam::getDXCTOALLTableState();
+    if ( !state.isEmpty() ) ui->toAllTable->horizontalHeader()->restoreState(state);
 
-    state = settings.value("dxc/wwvtablestate").toByteArray();
-
-    if (!state.isEmpty())
-    {
-        ui->wwvTable->horizontalHeader()->restoreState(state);
-    }
-
-    state = settings.value("dxc/toalltablestate").toByteArray();
-
-    if (!state.isEmpty())
-    {
-        ui->toAllTable->horizontalHeader()->restoreState(state);
-    }
-
-    int fontsize = settings.value("dxc/consolefontsize", -1).toInt();
-
+    int fontsize = LogParam::getDXCConsoleFontSize();
     QFont monospace(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    if ( fontsize > 0 )
-    {
-        monospace.setPointSize(fontsize);
-    }
+    if ( fontsize > 0 ) monospace.setPointSize(fontsize);
     ui->log->setFont(monospace);
 }
 
@@ -1305,6 +1251,8 @@ void DxWidget::reloadSetting()
 #else /* Due to ubuntu 20.04 where qt5.12 is present */
     dxMemberFilter = QSet<QString>(QSet<QString>::fromList(tmp));
 #endif
+
+    ui->filteredLabel->setHidden(!isFilterEnabled());
 }
 
 void DxWidget::prepareQSOSpot(QSqlRecord qso)
@@ -1414,6 +1362,21 @@ QColor DxWidget::getHeatmapColor(int value, int maxValue)
     int a = ( value == 0 ? 0 : 255);
 
     return QColor(r, g, b, a);
+}
+
+bool DxWidget::isFilterEnabled() const
+{
+    FCT_IDENTIFICATION;
+
+    return dxccStatusFilter != (DxccStatus::NewEntity | DxccStatus::NewBand |
+                                DxccStatus::NewMode   | DxccStatus::NewSlot |
+                                DxccStatus::Worked    | DxccStatus::Confirmed)
+        || contregexp.pattern().count("|") != 7
+        || !dxMemberFilter.isEmpty()
+        // || deduplicateSpots  // deduplication does not mean filtring.
+        || spottercontregexp.pattern().count("|") != 7
+        || moderegexp.pattern().count("|") != 4
+        || BandPlan::bandsList(false, true).size() != bandregexp.pattern().count("|");
 }
 
 void DxWidget::recalculateTrend()
@@ -1661,18 +1624,14 @@ void DxWidget::serverComboSetup()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
+    DeleteHighlightedDXServerWhenDelPressedEventFilter *deleteHandled = new DeleteHighlightedDXServerWhenDelPressedEventFilter(this);
 
-    QStringList DXCservers = settings.value("dxc/servers", QStringList("hamqth.com:7300")).toStringList();
-    DeleteHighlightedDXServerWhenDelPressedEventFilter *deleteHandled = new DeleteHighlightedDXServerWhenDelPressedEventFilter;
-
-    ui->serverSelect->addItems(DXCservers);
+    ui->serverSelect->addItems(LogParam::getDXCServerlist());
     ui->serverSelect->installEventFilter(deleteHandled);
     connect(deleteHandled, &DeleteHighlightedDXServerWhenDelPressedEventFilter::deleteServerItem,
             this, &DxWidget::actionDeleteServer);
 
-    QString lastUsedServer = settings.value("dxc/last_server").toString();
-    int index = ui->serverSelect->findText(lastUsedServer);
+    int index = ui->serverSelect->findText(LogParam::getDXCLastServer());
 
     // if last server still exists then set it otherwise use the first one
     if ( index >= 0 )
@@ -1928,6 +1887,13 @@ DxWidget::~DxWidget()
 {
     FCT_IDENTIFICATION;
 
-    saveWidgetSetting();
+    disconnectCluster(false);
     delete ui;
+}
+
+void DxWidget::finalizeBeforeAppExit()
+{
+    FCT_IDENTIFICATION;
+
+    saveWidgetSetting();
 }

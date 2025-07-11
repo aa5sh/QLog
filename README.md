@@ -10,11 +10,11 @@ QLogs aims to be as simple as possible, but to provide everything the operator e
 ## Features
 
 - Customizable GUI
-- Rig control via Hamlib, Omnirig v1 (Windows only), Omnirig v2 (Windows only), TCI
+- Rig control via Hamlib, Omnirig v1 (Windows only), Omnirig v2 (Windows only), TCI, FLRig
 - Rotator control via Hamlib, PSTRotator
 - HamQTH and QRZ.com callbook integration
 - DX cluster integration
-- **LoTW**, **eQSL**, **QRZ.com**, **Clublog**, **HRDLog.net**, **ON4KST Chat** integration (**eQSL includes QSL pictures download**)
+- **LoTW**, **eQSL**, **QRZ.com**, **Clublog**, **HRDLog.net**, **ON4KST Chat**, **Cloudlog/Wavelog** integration (**eQSL includes QSL pictures download**)
 - **Secure Password Storage** for all services with password or security token
 - **Online** and **Offline** map
 - Club Member lookup
@@ -32,7 +32,7 @@ QLogs aims to be as simple as possible, but to provide everything the operator e
 
 ### Supported OS
 * Linux
-* Windows 10 (64bit)
+* Windows 10/11 (64bit)
 * MacOS (experimental - only for developers)
 
 ### Supported Rigs
@@ -40,6 +40,7 @@ QLogs aims to be as simple as possible, but to provide everything the operator e
 * all supported by [Omnirig v1](https://www.dxatlas.com/omnirig/) (Windows only)
 * all supported by [Omnirig v2](https://www.hb9ryz.ch/omnirig/) (Windows only)
 * all supported by [TCI](https://eesdr.com/en/software-en/software-en)
+* all supported by [FLRig](http://www.w1hkj.com/flrig-help/supported_transceivers.html)
 
 ### Supported Rotators
 * all supported by [Hamlib](https://hamlib.github.io/)
@@ -91,6 +92,8 @@ Fedora **RPM packages** are available via GitHub [Releases](https://github.com/f
 <a href='https://flathub.org/apps/io.github.foldynl.QLog'>   <img width='120' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 **Flatpak** package is available via [Flathub](https://flathub.org/apps/io.github.foldynl.QLog). The package contains built-in TrustedQSL.
+
+The above packages are maintained by the application maintainer. However, there are many other unofficial packages available for other distributions — see the Unofficial Repositories on [QLog Wiki](https://github.com/foldynl/QLog/wiki).
 
 ### Windows
 
@@ -192,7 +195,7 @@ for Fedora:
 
 for both:
 
-`git clone --recurse-submodules https://github.com/foldynl/QLog.git`
+`git clone https://github.com/foldynl/QLog.git`
 
 `cd  QLog`
 

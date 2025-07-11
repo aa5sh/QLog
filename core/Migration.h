@@ -14,7 +14,6 @@ class Migration : public QObject
 
 public:
     Migration(QObject *parent = nullptr) : QObject(parent) {}
-
     bool run();
     static bool backupDatabase(bool force = false);
 
@@ -24,7 +23,7 @@ private:
     int getVersion();
     bool setVersion(int version);
     bool runSqlFile(QString filename);
-    int tableRows(QString name);
+    int tableRows(const QString &name);
     bool updateExternalResource();
     void updateExternalResourceProgress(QProgressDialog&,
                                         LOVDownloader&,
@@ -38,11 +37,12 @@ private:
     bool fillCQITUZStationProfiles();
     bool resetConfigs();
     bool profiles2DB();
+    bool settings2DB();
     bool setSelectedProfile(const QString &tablename, const QString &profileName);
     QString fixIntlField(QSqlQuery &query, const QString &columName, const QString &columnNameIntl);
     bool refreshUploadStatusTrigger();
 
-    static const int latestVersion = 33;
+    static const int latestVersion = 34;
 };
 
 #endif // QLOG_CORE_MIGRATION_H

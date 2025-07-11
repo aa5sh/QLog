@@ -18,7 +18,7 @@
 #include <QMargins>
 #include <QPainter>
 
-#include "core/KSTChat.h"
+#include "service/kstchat/KSTChat.h"
 #include "ui/NewContactWidget.h"
 
 namespace Ui {
@@ -60,8 +60,8 @@ public:
         QStyledItemDelegate(parent){};
 
 protected:
-    void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
-    QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+    void paint ( QPainter * painter, const QStyleOptionViewItem & inOption, const QModelIndex & index ) const;
+    QSize sizeHint ( const QStyleOptionViewItem & inOption, const QModelIndex & index ) const;
 };
 
 class MessageDelegate : public QStyledItemDelegate

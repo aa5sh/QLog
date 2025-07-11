@@ -119,6 +119,8 @@ AlertRule::AlertRule(QObject *parent) :
     dxCountry(-1),
     dxLogStatusMap(0),
     spotterCountry(-1),
+    ituz(0),
+    cqz(0),
     pota(false),
     sota(false),
     iota(false),
@@ -264,10 +266,10 @@ bool AlertRule::match(const WsjtxEntry &wsjtx) const
          && (dxCountry == 0 || dxCountry == wsjtx.dxcc.dxcc)
          && (ituz == 0 || ituz == wsjtx.dxcc.ituz)
          && (cqz == 0 || cqz == wsjtx.dxcc.cqz)
-         && (pota == false || ( pota == true && wsjtx.containsWWFF) )
-         && (sota == false || ( sota == true && wsjtx.containsSOTA) )
-         && (iota == false || ( iota == true && wsjtx.containsIOTA) )
-         && (wwff == false || ( wwff == true && wsjtx.containsWWFF) )
+         && (!pota || wsjtx.containsWWFF)
+         && (!sota || wsjtx.containsSOTA)
+         && (!iota || wsjtx.containsIOTA)
+         && (!wwff || wsjtx.containsWWFF)
          && (wsjtx.status & dxLogStatusMap)
          && (mode == "*" || mode.contains("|" + ((wsjtx.decodedMode == "FT8") ? BandPlan::MODE_GROUP_STRING_FT8
                                                                               : BandPlan::MODE_GROUP_STRING_DIGITAL )))
@@ -311,10 +313,10 @@ bool AlertRule::match(const DxSpot &spot) const
          && (dxCountry == 0 || dxCountry == spot.dxcc.dxcc)
          && (ituz == 0 || ituz == spot.dxcc.ituz)
          && (cqz == 0 || cqz == spot.dxcc.cqz)
-         && (pota == false || ( pota == true && spot.containsPOTA) )
-         && (sota == false || ( sota == true && spot.containsSOTA) )
-         && (iota == false || ( iota == true && spot.containsIOTA) )
-         && (wwff == false || ( wwff == true && spot.containsWWFF) )
+         && (!pota || spot.containsPOTA)
+         && (!sota || spot.containsSOTA)
+         && (!iota || spot.containsIOTA)
+         && (!wwff || spot.containsWWFF)
          && (spot.status & dxLogStatusMap)
          && (mode == "*" || (!spot.modeGroupString.isEmpty() && mode.contains("|" + spot.modeGroupString)))
          && (band == "*" || (!spot.band.isEmpty() && band.contains("|" + spot.band)))

@@ -13,9 +13,10 @@
 #include "data/WWVSpot.h"
 #include "data/ToAllSpot.h"
 #include "core/LogLocale.h"
-#include "core/DxServerString.h"
+#include "data/DxServerString.h"
 #include "models/SearchFilterProxyModel.h"
 #include "rig/Rig.h"
+#include "component/ShutdownAwareWidget.h"
 
 // in sec
 #define DEDUPLICATION_TIME 3
@@ -37,10 +38,10 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    bool addEntry(DxSpot entry,
+    bool addEntry(const DxSpot &entry,
                   bool deduplicate = false,
                   qint16 dedup_interval = DEDUPLICATION_TIME,
-                  double freq_tolerance = DEDUPLICATION_FREQ_TOLERANCE);
+                  double dedup_freq_tolerance = DEDUPLICATION_FREQ_TOLERANCE);
     const DxSpot getSpot(const QModelIndex& index) const {return dxData.at(index.row());};
     void clear();
 
@@ -59,7 +60,7 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    void addEntry(WCYSpot entry);
+    void addEntry(const WCYSpot &entry);
     void clear();
 
 private:
@@ -77,7 +78,7 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    void addEntry(WWVSpot entry);
+    void addEntry(const WWVSpot &entry);
     void clear();
 
 private:
@@ -95,7 +96,7 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    void addEntry(ToAllSpot entry);
+    void addEntry(const ToAllSpot &entry);
     void clear();
 
 private:
@@ -109,16 +110,22 @@ class DeleteHighlightedDXServerWhenDelPressedEventFilter : public QObject
 signals:
     void deleteServerItem();
 
+public:
+    DeleteHighlightedDXServerWhenDelPressedEventFilter(QObject *parent) :
+        QObject(parent) {};
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 };
 
-class DxWidget : public QWidget {
+class DxWidget : public QWidget, public ShutdownAwareWidget
+{
     Q_OBJECT
 
 public:
     explicit DxWidget(QWidget *parent = 0);
     ~DxWidget();
+    virtual void finalizeBeforeAppExit() override;
 
 public slots:
     void toggleConnect();
@@ -248,6 +255,8 @@ private:
     void iotaRefFromComment(DxSpot &spot) const;
 
     QColor getHeatmapColor(int value, int maxValue);
+
+    bool isFilterEnabled() const;
 };
 
 #endif // QLOG_UI_DXWIDGET_H

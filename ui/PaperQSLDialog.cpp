@@ -40,7 +40,7 @@ void PaperQSLDialog::addFileClick()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
+    QSettings settings; //platform-dependent, must be present
 
     const QString &lastPath = settings.value("paperqslimport/last_path", QDir::homePath()).toString();
 
@@ -92,10 +92,8 @@ void PaperQSLDialog::showAvailableFiles()
 
     const QStringList &files = qsl->getAvailableQSLNames(dialogQSORecord, QSLObject::QSLFILE);
 
-    for ( auto &file : files )
-    {
+    for ( const QString &file : files )
         addFileToDialog(file);
-    }
 }
 
 void PaperQSLDialog::addFileToDialog(const QString &inFile)

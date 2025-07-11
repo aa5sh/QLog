@@ -65,9 +65,9 @@ public:
     };
 
 public slots:
-    void getClubStatus(const QString &callsign,
-                       const QString &band,
-                       const QString &mode,
+    void getClubStatus(const QString &in_callsign,
+                       const QString &in_band,
+                       const QString &in_mode,
                        bool lowtConfirmed,
                        bool paperConfirmed,
                        bool eqslConfirmed);
@@ -99,7 +99,7 @@ public:
     static QStringList getEnabledClubLists();
 
     // return only list of clubs where callsign is a member.
-    QList<ClubInfo> query(const QString &callsign);
+    QList<ClubInfo> query(const QString &in_callsign);
 
     // return Status for each club
     // Membership status details can take a long time (depend on the number of records in the log and membership lists)
@@ -134,8 +134,6 @@ private:
     bool idClubQueryValid;
     QList<QPair<QString, QString>> updatePlan;
     QScopedPointer<QNetworkAccessManager> nam;
-
-    static QString CONFIG_MEMBERLIST_ENABLED;
 };
 
 #endif // QLOG_CORE_MEMBERSHIPQE_H

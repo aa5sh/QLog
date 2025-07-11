@@ -31,7 +31,7 @@ AlertRuleDetail::AlertRuleDetail(const QString &ruleName, QWidget *parent) :
     /*************/
     int row = 0;
     int band_index = 0;
-    SqlListModel *bands = new SqlListModel("SELECT name FROM bands WHERE enabled = 1 ORDER BY start_freq", "Band");
+    SqlListModel *bands = new SqlListModel("SELECT name FROM bands WHERE enabled = 1 ORDER BY start_freq", "Band", this);
 
     while ( band_index < bands->rowCount() )
     {
@@ -42,7 +42,7 @@ AlertRuleDetail::AlertRuleDetail(const QString &ruleName, QWidget *parent) :
             if ( band_index >= bands->rowCount() )
                 break;
 
-            QCheckBox *bandcheckbox=new QCheckBox();
+            QCheckBox *bandcheckbox=new QCheckBox(this);
             QString band_name = bands->data(bands->index(band_index,0)).toString();
             QString band_object_name = "band_" + band_name;
             bandcheckbox->setText(band_name);
@@ -446,13 +446,13 @@ void AlertRuleDetail::spotCommentChanged(const QString &enteredRE)
     ui->spotCommentEdit->setPalette(p);
 }
 
-bool AlertRuleDetail::ruleExists(const QString &filterName)
+bool AlertRuleDetail::ruleExists(const QString &ruleName)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << filterName;
+    qCDebug(function_parameters) << ruleName;
 
-    return ruleNamesList.contains(filterName);
+    return ruleNamesList.contains(ruleName);
 
 }
 
@@ -708,7 +708,7 @@ void AlertRuleDetail::generateMembershipCheckboxes(const AlertRule * rule)
 
     if ( memberListCheckBoxes.size() == 0 )
     {
-        ui->dxMemberGrid->addWidget(new QLabel(tr("No Club List is enabled")));
+        ui->dxMemberGrid->addWidget(new QLabel(tr("No Club List is enabled"), this));
     }
     else
     {

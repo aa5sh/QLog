@@ -13,22 +13,22 @@
 #include "logformat/AdiFormat.h"
 #include "models/LogbookModel.h"
 #include "models/SqlListModel.h"
-#include "core/ClubLog.h"
+#include "service/clublog/ClubLog.h"
 #include "LogbookWidget.h"
 #include "ui_LogbookWidget.h"
-#include "ui/StyleItemDelegate.h"
+#include "ui/component/StyleItemDelegate.h"
 #include "core/debug.h"
 #include "models/SqlListModel.h"
 #include "ui/ColumnSettingDialog.h"
 #include "data/Data.h"
 #include "ui/ExportDialog.h"
-#include "core/Eqsl.h"
+#include "service/eqsl/Eqsl.h"
 #include "ui/PaperQSLDialog.h"
 #include "ui/QSODetailDialog.h"
 #include "core/MembershipQE.h"
-#include "core/GenericCallbook.h"
-#include "core/ClubLog.h"
+#include "service/GenericCallbook.h"
 #include "core/QSOFilterManager.h"
+#include "core/LogParam.h"
 
 MODULE_IDENTIFICATION("qlog.ui.logbookwidget");
 
@@ -91,19 +91,19 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_TIME_OFF, new TimestampFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_CALL, new CallsignDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_FREQUENCY, new UnitFormatDelegate("", 6, 0.001, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_BAND, new ComboFormatDelegate(new SqlListModel("SELECT name FROM bands ORDER BY start_freq", " "), ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_MODE, new ComboFormatDelegate(new SqlListModel("SELECT name FROM modes", " "), ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_CONTINENT, new ComboFormatDelegate(QStringList() << " " << Data::getContinentList()));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_BAND, new ComboFormatDelegate(new SqlListModel("SELECT name FROM bands ORDER BY start_freq", " ", ui->contactTable), ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_MODE, new ComboFormatDelegate(new SqlListModel("SELECT name FROM modes", " ", ui->contactTable), ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_CONTINENT, new ComboFormatDelegate(QStringList() << " " << Data::getContinentList(), ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_SENT, new ComboFormatDelegate(Data::instance()->qslSentEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_SENT_VIA, new ComboFormatDelegate(Data::instance()->qslSentViaEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_RCVD, new ComboFormatDelegate(Data::instance()->qslRcvdEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_RCVD_VIA, new ComboFormatDelegate(Data::instance()->qslSentViaEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_SENT_DATE, new DateFormatDelegate());
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_RCVD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_SENT_DATE, new DateFormatDelegate(ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSL_RCVD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_LOTW_SENT, new ComboFormatDelegate(Data::instance()->qslSentEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_LOTW_RCVD, new ComboFormatDelegate(Data::instance()->qslRcvdEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_LOTW_RCVD_DATE, new DateFormatDelegate());
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_LOTW_SENT_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_LOTW_RCVD_DATE, new DateFormatDelegate(ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_LOTW_SENT_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_TX_POWER, new UnitFormatDelegate("W", 3, 0.1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_AGE, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_ALTITUDE, new UnitFormatDelegate("m", 2, 0.1, ui->contactTable));
@@ -111,27 +111,27 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_ANT_AZ, new UnitFormatDelegate("", 1, 0.1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_ANT_EL, new UnitFormatDelegate("", 1, 0.1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_ANT_PATH, new ComboFormatDelegate(Data::instance()->antPathEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_CLUBLOG_QSO_UPLOAD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_CLUBLOG_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_CLUBLOG_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DCL_QSLRDATE, new DateFormatDelegate());
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DCL_QSLSDATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DCL_QSLRDATE, new DateFormatDelegate(ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DCL_QSLSDATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DCL_QSL_RCVD, new ComboFormatDelegate(Data::instance()->qslRcvdEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DCL_QSL_SENT, new ComboFormatDelegate(Data::instance()->qslSentEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_DISTANCE, new DistanceFormatDelegate(1, 0.1, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_EQSL_QSLRDATE, new DateFormatDelegate());
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_EQSL_QSLSDATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_EQSL_QSLRDATE, new DateFormatDelegate(ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_EQSL_QSLSDATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_EQSL_QSL_RCVD, new ComboFormatDelegate(Data::instance()->qslRcvdEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_EQSL_QSL_SENT, new ComboFormatDelegate(Data::instance()->qslSentEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_FISTS, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_FISTS_CC, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_FORCE_INIT, new ComboFormatDelegate(Data::instance()->boolEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_FREQ_RX, new UnitFormatDelegate("", 6, 0.001, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_BAND_RX, new ComboFormatDelegate(new SqlListModel("SELECT name FROM bands ORDER BY start_freq", " "), ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HAMLOGEU_QSO_UPLOAD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_BAND_RX, new ComboFormatDelegate(new SqlListModel("SELECT name FROM bands ORDER BY start_freq", " ", ui->contactTable), ui->contactTable));
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HAMLOGEU_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HAMLOGEU_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HAMQTH_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HRDLOG_QSO_UPLOAD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HRDLOG_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_HRDLOG_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_IOTA_ISLAND_ID, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_K_INDEX, new UnitFormatDelegate("", 0, 1, ui->contactTable));
@@ -149,9 +149,9 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES_INTL, new TextBoxDelegate(this));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES, new TextBoxDelegate(this));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_PROP_MODE, new ComboFormatDelegate(Data::instance()->propagationModesIDList(), ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_DATE, new DateFormatDelegate());
+    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_DOWNLOAD_STATUS, new ComboFormatDelegate(Data::instance()->downloadStatusEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSO_COMPLETE, new ComboFormatDelegate(Data::instance()->qsoCompleteEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QSO_RANDOM, new ComboFormatDelegate(Data::instance()->boolEnum, ui->contactTable));
@@ -167,8 +167,7 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_TEN_TEN, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_UKSMG, new UnitFormatDelegate("", 0, 1, ui->contactTable));
 
-    QSettings settings;
-    const QByteArray &logbookState = settings.value("logbook/state").toByteArray();
+    const QByteArray &logbookState = LogParam::getLogbookState();
     if ( !logbookState.isEmpty() )
         ui->contactTable->horizontalHeader()->restoreState(logbookState);
     else
@@ -229,7 +228,7 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     adjusteComboMinSize(ui->userFilter);
     ui->userFilter->blockSignals(false);
 
-    clublog = new ClubLog(this);
+    clublog = new ClubLogUploader(this);
 
     restoreFilters();
 }
@@ -358,11 +357,9 @@ void LogbookWidget::finishQSOLookupBatch()
     }
 }
 
-void LogbookWidget::updateQSORecordFromCallbook(const QMap<QString, QString>& data)
+void LogbookWidget::updateQSORecordFromCallbook(const CallbookResponseData& data)
 {
     FCT_IDENTIFICATION;
-
-    qCDebug(function_parameters) << data;
 
     auto getCurrIndexColumnValue = [&](const LogbookModel::ColumnID id)
     {
@@ -374,42 +371,38 @@ void LogbookWidget::updateQSORecordFromCallbook(const QMap<QString, QString>& da
         return model->setData(model->index(currLookupIndex.row(), id), value, Qt::EditRole);
     };
 
-    if ( getCurrIndexColumnValue(LogbookModel::COLUMN_CALL) != data.value("call"))
+    if ( getCurrIndexColumnValue(LogbookModel::COLUMN_CALL) != data.call)
     {
         qWarning() << "Callsigns don't match - skipping. QSO " << model->data(model->index(currLookupIndex.row(), LogbookModel::COLUMN_CALL), Qt::DisplayRole).toString()
-                   << "data " << data.value("call");
+                   << "data " << data.call;
         return;
     }
 
-    const QString fnamelname = QString("%1 %2").arg(data.value("fname"),
-                                                    data.value("lname"));
-
+    const QString fnamelname = QString("%1 %2").arg(data.fname, data.lname);
     const QString &nameValue = getCurrIndexColumnValue(LogbookModel::COLUMN_NAME_INTL);
+
     const LogbookModel::EditStrategy originEditStrategy = model->editStrategy();
 
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
     if ( nameValue.isEmpty()
-         || data.value("name_fmt").contains(nameValue)
+         || data.name_fmt.contains(nameValue)
          || fnamelname.contains(nameValue)
-         || data.value("nick").contains(nameValue) )
+         || data.nick.contains(nameValue) )
     {
-        QString name = data.value("name_fmt");
+        QString name = data.name_fmt;
         if ( name.isEmpty() )
-            name = ( data.value("fname").isEmpty() && data.value("lname").isEmpty() ) ? data.value("nick")
-                                                                                    : fnamelname;
+            name = ( data.fname.isEmpty() && data.lname.isEmpty() ) ? data.nick
+                                                                    : fnamelname;
         setModelData(LogbookModel::COLUMN_NAME_INTL, name);
     }
 
     auto setIfEmpty = [&](const LogbookModel::ColumnID id,
-                          const QString &dataFieldID,
+                          const QString &callbookValue,
                           bool containsEnabled = false,
                           bool forceReplace = false)
     {
-        const QString &callbookValue = data.value(dataFieldID);
-
-        if ( callbookValue.isEmpty() )
-            return;
+        if ( callbookValue.isEmpty() ) return;
 
         const QString &columnValue = getCurrIndexColumnValue(id);
 
@@ -422,28 +415,28 @@ void LogbookWidget::updateQSORecordFromCallbook(const QMap<QString, QString>& da
             bool ret = setModelData(id, callbookValue);
 
             qCDebug(runtime) << "Changing"
-                             << dataFieldID << callbookValue
+                             << LogbookModel::getFieldNameTranslation(id) << callbookValue
                              << ret;
         }
     };
 
-    setIfEmpty(LogbookModel::COLUMN_GRID, "gridsquare", true);
-    setIfEmpty(LogbookModel::COLUMN_QTH_INTL, "qth");
-    setIfEmpty(LogbookModel::COLUMN_DARC_DOK, "dok");
-    setIfEmpty(LogbookModel::COLUMN_IOTA, "iota");
-    setIfEmpty(LogbookModel::COLUMN_EMAIL, "email");
-    setIfEmpty(LogbookModel::COLUMN_COUNTY, "county");
-    setIfEmpty(LogbookModel::COLUMN_QSL_VIA, "qsl_via");
-    setIfEmpty(LogbookModel::COLUMN_WEB, "url");
-    setIfEmpty(LogbookModel::COLUMN_STATE, "us_state");
-    setIfEmpty(LogbookModel::COLUMN_ITUZ, "ituz", false, true); // always replace if different
-    setIfEmpty(LogbookModel::COLUMN_CQZ, "cqz", false, true);   // always replace if different
+    setIfEmpty(LogbookModel::COLUMN_GRID, data.gridsquare, true);
+    setIfEmpty(LogbookModel::COLUMN_QTH_INTL, data.qth);
+    setIfEmpty(LogbookModel::COLUMN_DARC_DOK, data.dok);
+    setIfEmpty(LogbookModel::COLUMN_IOTA, data.iota);
+    setIfEmpty(LogbookModel::COLUMN_EMAIL, data.email);
+    setIfEmpty(LogbookModel::COLUMN_COUNTY, data.county);
+    setIfEmpty(LogbookModel::COLUMN_QSL_VIA, data.qsl_via);
+    setIfEmpty(LogbookModel::COLUMN_WEB, data.url);
+    setIfEmpty(LogbookModel::COLUMN_STATE, data.us_state);
+    setIfEmpty(LogbookModel::COLUMN_ITUZ, data.ituz, false, true); // always replace if different
+    setIfEmpty(LogbookModel::COLUMN_CQZ, data.cqz, false, true);   // always replace if different
     model->submitAll();
 
     model->setEditStrategy(originEditStrategy);
 }
 
-void LogbookWidget::callsignFound(const QMap<QString, QString> &data)
+void LogbookWidget::callsignFound(const CallbookResponseData &data)
 {
     FCT_IDENTIFICATION;
 
@@ -512,17 +505,15 @@ void LogbookWidget::saveBandFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    settings.setValue("logbook/filters/band", ui->bandFilter->currentText());
+    LogParam::setLogbookFilterBand(ui->bandFilter->currentText());
 }
 
 void LogbookWidget::restoreBandFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
     ui->bandFilter->blockSignals(true);
-    const QString &value = settings.value("logbook/filters/band").toString();
+    const QString &value = LogParam::getLogbookFilterBand();
     if ( !value.isEmpty() )
         ui->bandFilter->setCurrentText(value);
     else
@@ -545,17 +536,15 @@ void LogbookWidget::saveModeFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    settings.setValue("logbook/filters/mode", ui->modeFilter->currentText());
+    LogParam::setLogbookFilterMode(ui->modeFilter->currentText());
 }
 
 void LogbookWidget::restoreModeFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
     ui->modeFilter->blockSignals(true);
-    const QString &value = settings.value("logbook/filters/mode").toString();
+    const QString &value = LogParam::getLogbookFilterMode();
     if ( !value.isEmpty() )
         ui->modeFilter->setCurrentText(value);
     else
@@ -578,17 +567,15 @@ void LogbookWidget::saveCountryFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    settings.setValue("logbook/filters/country", ui->countryFilter->currentText());
+    LogParam::setLogbookFilterCountry(ui->countryFilter->currentText());
 }
 
 void LogbookWidget::restoreCountryFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
     ui->countryFilter->blockSignals(true);
-    const QString &value = settings.value("logbook/filters/country").toString();
+    const QString &value = LogParam::getLogbookFilterCountry();
     if ( !value.isEmpty() )
         ui->countryFilter->setCurrentText(value);
     else
@@ -620,17 +607,15 @@ void LogbookWidget::saveUserFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    settings.setValue("logbook/filters/user", ui->userFilter->currentText());
+    LogParam::setLogbookFilterUserFilter(ui->userFilter->currentText());
 }
 
 void LogbookWidget::restoreUserFilter()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
     ui->userFilter->blockSignals(true);
-    const QString &value = settings.value("logbook/filters/user").toString();
+    const QString &value = LogParam::getLogbookFilterUserFilter();
     if ( !value.isEmpty() )
         ui->userFilter->setCurrentText(value);
     else
@@ -681,15 +666,15 @@ void LogbookWidget::refreshUserFilter()
 
 void LogbookWidget::saveClubFilter()
 {
-    QSettings settings;
-    settings.setValue("logbook/filters/member", ui->clubFilter->currentText());
+    FCT_IDENTIFICATION;
+
+    LogParam::setLogbookFilterClub(ui->clubFilter->currentText());
 }
 
 void LogbookWidget::restoreClubFilter()
 {
-    QSettings settings;
     ui->clubFilter->blockSignals(true);
-    const QString &value = settings.value("logbook/filters/member").toString();
+    const QString &value = LogParam::getLogbookFilterClub();
     if ( !value.isEmpty() )
         ui->clubFilter->setCurrentText(value);
     else
@@ -752,7 +737,7 @@ void LogbookWidget::deleteContact()
 
     // Clublog does not accept batch DELETE operation
     // ask if an operator wants to continue
-    if ( ClubLog::isUploadImmediatelyEnabled()
+    if ( ClubLogBase::isUploadImmediatelyEnabled()
          && deletedRowIndexes.count() > 5 )
     {
         reply = QMessageBox::question(this,
@@ -929,9 +914,7 @@ void LogbookWidget::saveTableHeaderState()
 {
     FCT_IDENTIFICATION;
 
-    QSettings settings;
-    QByteArray logbookState = ui->contactTable->horizontalHeader()->saveState();
-    settings.setValue("logbook/state", logbookState);
+    LogParam::setLogbookState(ui->contactTable->horizontalHeader()->saveState());
 }
 
 void LogbookWidget::showTableHeaderContextMenu(const QPoint& point)
@@ -975,16 +958,16 @@ void LogbookWidget::doubleClickColumn(QModelIndex modelIndex)
         dialog->setAutoClose(true);
         dialog->show();
 
-        EQSL *eQSL = new EQSL(dialog);
+        EQSLQSLDownloader *eQSL = new EQSLQSLDownloader(dialog);
 
-        connect(eQSL, &EQSL::QSLImageFound, this, [dialog, eQSL](QString imgFile)
+        connect(eQSL, &EQSLQSLDownloader::QSLImageFound, this, [dialog, eQSL](QString imgFile)
         {
             dialog->done(0);
             QDesktopServices::openUrl(QUrl::fromLocalFile(imgFile));
             eQSL->deleteLater();
         });
 
-        connect(eQSL, &EQSL::QSLImageError, this, [this, dialog, eQSL](const QString &error)
+        connect(eQSL, &EQSLQSLDownloader::QSLImageError, this, [this, dialog, eQSL](const QString &error)
         {
             dialog->done(1);
             QMessageBox::critical(this, tr("QLog Error"), tr("eQSL Download Image failed: ") + error);
@@ -994,7 +977,7 @@ void LogbookWidget::doubleClickColumn(QModelIndex modelIndex)
         connect(dialog, &QProgressDialog::canceled, this, [eQSL]()
         {
             qCDebug(runtime)<< "Operation canceled";
-            eQSL->abortRequest();
+            eQSL->abortDownload();
             eQSL->deleteLater();
         });
 
@@ -1131,7 +1114,7 @@ void LogbookWidget::colorsFilterWidget(QComboBox *widget)
 {
     FCT_IDENTIFICATION;
 
-    widget->setStyleSheet( (widget->currentIndex() > 0) ? "QComboBox {color: green}"
+    widget->setStyleSheet( (widget->currentIndex() > 0) ? "QComboBox {border: 2px solid red; border-radius: 4px; padding: 2px;}"
                                                         : "");
 }
 
@@ -1182,11 +1165,18 @@ LogbookWidget::~LogbookWidget()
 {
     FCT_IDENTIFICATION;
 
-    saveTableHeaderState();
+
     if ( lookupDialog )
     {
         callbookManager.abortQuery();
         finishQSOLookupBatch();
     }
     delete ui;
+}
+
+void LogbookWidget::finalizeBeforeAppExit()
+{
+    FCT_IDENTIFICATION;
+
+    saveTableHeaderState();
 }

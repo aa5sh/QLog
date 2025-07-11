@@ -9,7 +9,7 @@
 #include "rig/macros.h"
 #include "core/debug.h"
 #include "data/Data.h"
-#include "core/HRDLog.h"
+#include "service/hrdlog/HRDLog.h"
 #include "data/BandPlan.h"
 
 // On AIR pinging to HRDLog [in sec]
@@ -22,7 +22,7 @@ RigWidget::RigWidget(QWidget *parent) :
     lastSeenFreq(0.0),
     rigOnline(false),
     ui(new Ui::RigWidget),
-    hrdlog(new HRDLog(this))
+    hrdlog(new HRDLogUploader(this))
 {
     FCT_IDENTIFICATION;
 
@@ -32,7 +32,7 @@ RigWidget::RigWidget(QWidget *parent) :
     ui->rigProfilCombo->setModel(rigModel);
     ui->rigProfilCombo->setStyleSheet("QComboBox {color: red}");
 
-    QSqlTableModel* bandComboModel = new QSqlTableModel();
+    QSqlTableModel* bandComboModel = new QSqlTableModel(this);
     bandComboModel->setTable("bands");
     bandComboModel->setSort(bandComboModel->fieldIndex("start_freq"), Qt::AscendingOrder);
     ui->bandComboBox->setModel(bandComboModel);
@@ -373,7 +373,7 @@ void RigWidget::sendOnAirState()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigOnline && hrdlog->getOnAirEnabled() )
+    if ( rigOnline && HRDLogBase::getOnAirEnabled() )
     {
         hrdlog->sendOnAir(lastSeenFreq, lastSeenMode);
     }

@@ -4,7 +4,7 @@
 #include "HamlibRigDrv.h"
 #include "core/debug.h"
 #include "rig/macros.h"
-#include "core/SerialPort.h"
+#include "data/SerialPort.h"
 
 #ifndef HAMLIB_FILPATHLEN
 #define HAMLIB_FILPATHLEN FILPATHLEN
@@ -437,10 +437,12 @@ void HamlibRigDrv::syncKeySpeed(qint16 wpm)
 void HamlibRigDrv::sendMorse(const QString &text)
 {
     FCT_IDENTIFICATION;
-
     qCDebug(function_parameters) << text;
 
-    if ( text.isEmpty() )
+    QString chpString(text);
+    chpString.remove("\n");
+
+    if ( chpString.isEmpty() )
         return;
 
     MUTEXLOCKER;
@@ -451,7 +453,7 @@ void HamlibRigDrv::sendMorse(const QString &text)
         return;
     }
 
-    int status = rig_send_morse(rig, RIG_VFO_CURR, text.toLocal8Bit().constData());
+    int status = rig_send_morse(rig, RIG_VFO_CURR, chpString.toLocal8Bit().constData());
     isRigRespOK(status, tr("Cannot sent Morse"), false);
 
     commandSleep();
@@ -956,8 +958,8 @@ void HamlibRigDrv::commandSleep()
 }
 
 bool HamlibRigDrv::isRigRespOK(int errorStatus,
-                                const QString errorName,
-                                bool emitError)
+                               const QString &errorName,
+                               bool emitError)
 {
     FCT_IDENTIFICATION;
 
