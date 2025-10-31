@@ -51,14 +51,8 @@ jobs:
      - name: Build app
        run: |
          cd build
-         # macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
-         macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog -always-overwrite -verbose=3
-         QTWEBENGINE_PROCESS=./qlog.app/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess
-         for dep in QtQuick QtQml QtNetwork QtGui QtCore QtPositioning QtWebEngineCore; do
-           install_name_tool -change /opt/homebrew/opt/qtdeclarative/lib/${dep}.framework/Versions/A/${dep} @executable_path/../../../../Frameworks/${dep}.framework/Versions/A/${dep} "$QTWEBENGINE_PROCESS" || true
-           install_name_tool -change /opt/homebrew/opt/qt6/lib/${dep}.framework/Versions/A/${dep} @executable_path/../../../../Frameworks/${dep}.framework/Versions/A/${dep} "$QTWEBENGINE_PROCESS" || true
-         done
-         macdeployqt qlog.app -always-overwrite -verbose=3
+         macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
+         macdeployqt qlog.app -always-overwrite -verbose=3 -qmldir=..
          ICU_PATH=$(brew --prefix icu4c)/lib
          cp `brew --prefix`/lib/libhamlib.dylib qlog.app/Contents/Frameworks/libhamlib.dylib
          cp `brew --prefix`/lib/libqt6keychain.dylib qlog.app/Contents/Frameworks/libqt6keychain.dylib
