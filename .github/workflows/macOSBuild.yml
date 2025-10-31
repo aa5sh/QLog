@@ -61,16 +61,7 @@ jobs:
          cp $ICU_PATH/libicui18n*.dylib qlog.app/Contents/Frameworks/
          cp `brew --prefix`/lib/libglib-2.0.0.dylib qlog.app/Contents/Frameworks/libglib-2.0.0.dylib
          cp `brew --prefix`/lib/libbrotlidec.1.dylib qlog.app/Contents/Frameworks/libbrotlidec.1.dylib
-         # trying to fix webengine again
-         QT_PATH=$(brew --prefix qt6)
 
-         # Copy the WebEngineProcess helper
-         cp -R $QT_PATH/libexec/QtWebEngineProcess.app qlog.app/Contents/Frameworks/
-
-         # Copy WebEngine resource files
-         cp $QT_PATH/resources/qtwebengine_resources*.pak qlog.app/Contents/Resources/ 2>/dev/null || true
-         cp $QT_PATH/resources/qtwebengine_devtools_resources.pak qlog.app/Contents/Resources/ 2>/dev/null || true
-         # trying to fix webengine again
          install_name_tool -change `brew --prefix`/lib/libglib-2.0.0.dylib @executable_path/../Frameworks/libglib-2.0.0.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlidec.1.dylib @executable_path/../Frameworks/libbrotlidec.1.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib qlog.app/Contents/MacOS/qlog
