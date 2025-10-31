@@ -51,7 +51,8 @@ jobs:
      - name: Build app
        run: |
          cd build
-         macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
+         # macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
+         macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog -always-overwrite -verbose=3
          ICU_PATH=$(brew --prefix icu4c)/lib
          cp `brew --prefix`/lib/libhamlib.dylib qlog.app/Contents/Frameworks/libhamlib.dylib
          cp `brew --prefix`/lib/libqt6keychain.dylib qlog.app/Contents/Frameworks/libqt6keychain.dylib
@@ -60,6 +61,16 @@ jobs:
          cp $ICU_PATH/libicui18n*.dylib qlog.app/Contents/Frameworks/
          cp `brew --prefix`/lib/libglib-2.0.0.dylib qlog.app/Contents/Frameworks/libglib-2.0.0.dylib
          cp `brew --prefix`/lib/libbrotlidec.1.dylib qlog.app/Contents/Frameworks/libbrotlidec.1.dylib
+         # trying to fix webengine again
+         QT_PATH=$(brew --prefix qt6)
+
+         # Copy the WebEngineProcess helper
+         cp -R $QT_PATH/libexec/QtWebEngineProcess.app qlog.app/Contents/Frameworks/
+
+         # Copy WebEngine resource files
+         cp $QT_PATH/resources/qtwebengine_resources*.pak qlog.app/Contents/Resources/ 2>/dev/null || true
+         cp $QT_PATH/resources/qtwebengine_devtools_resources.pak qlog.app/Contents/Resources/ 2>/dev/null || true
+         # trying to fix webengine again
          install_name_tool -change `brew --prefix`/lib/libglib-2.0.0.dylib @executable_path/../Frameworks/libglib-2.0.0.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlidec.1.dylib @executable_path/../Frameworks/libbrotlidec.1.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib qlog.app/Contents/MacOS/qlog
@@ -89,6 +100,7 @@ jobs:
            security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
            # We finally codesign our app bundle, specifying the Hardened runtime option
+           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/qlog.app/Contents/Frameworks/QtWebEngineProcess.app
            /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/qlog.app
      - name: "Notarize app bundle"
          # Extract the secrets we defined earlier as environment variables
