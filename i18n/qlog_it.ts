@@ -10444,7 +10444,7 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
     <name>StatisticsWidget</name>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="14"/>
-        <location filename="../ui/StatisticsWidget.cpp" line="626"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="633"/>
         <source>Statistics</source>
         <translation>Statistiche</translation>
     </message>
@@ -10510,7 +10510,7 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="285"/>
-        <location filename="../ui/StatisticsWidget.cpp" line="713"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="720"/>
         <source>Band</source>
         <translation>Banda</translation>
     </message>
@@ -10540,72 +10540,72 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation>Cartaceo</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="708"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="715"/>
         <source>Year</source>
         <translation>Anno</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="709"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="716"/>
         <source>Month</source>
         <translation>Mese</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="710"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="717"/>
         <source>Day in Week</source>
         <translation>Giorno della settimana</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="711"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="718"/>
         <source>Hour</source>
         <translation>Ora</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="712"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="719"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="714"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="721"/>
         <source>Continent</source>
         <translation>Continente</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="715"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="722"/>
         <source>Propagation Mode</source>
         <translation>Modo di Propagazione</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="722"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="729"/>
         <source>Confirmed / Not Confirmed</source>
         <translation>Confermato / Non Confermato</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="729"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="736"/>
         <source>Countries</source>
         <translation>Nazioni</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="730"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="737"/>
         <source>Big Gridsquares</source>
         <translation>Grandi quadrati della griglia</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="739"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="746"/>
         <source>Distance</source>
         <translation>Distanza</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="746"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="753"/>
         <source>QSOs</source>
         <translation>QSOs</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="747"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="754"/>
         <source>Confirmed/Worked Grids</source>
         <translation>Griglia Confermata/Lavorata</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="748"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="755"/>
         <source>ODX</source>
         <translation>ODX</translation>
     </message>
@@ -10663,12 +10663,12 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation>Non confermato </translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="626"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="633"/>
         <source>Over 50000 QSOs. Display them?</source>
         <translation>Oltre 50000 QSO. Visualizzarli?</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="767"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="774"/>
         <source>All</source>
         <translation>Tutti</translation>
     </message>
@@ -10901,7 +10901,7 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
     </message>
     <message>
         <location filename="../ui/UploadQSODialog.cpp" line="276"/>
-        <location filename="../ui/UploadQSODialog.cpp" line="338"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="337"/>
         <source>QLog Warning - %1</source>
         <translation>Avviso QLog - %1</translation>
     </message>
@@ -10911,58 +10911,58 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation>Impossibile aggiornare lo stato del QSO</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="339"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="338"/>
         <source>Cannot upload the QSO(s): </source>
         <translation>Impossibile caricare il/i QSO: </translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="394"/>
-        <location filename="../ui/UploadQSODialog.cpp" line="405"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="393"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="404"/>
         <source>QLog Information</source>
         <translation>Informazioni QLog</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="394"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="393"/>
         <source>No QSO found to upload.</source>
         <translation>Nessun QSO trovato da caricare.</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="405"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="404"/>
         <source>QSO(s) were uploaded to the selected services</source>
         <translation>I QSOs sono stati caricati nei servizi selezionati</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Time</source>
         <translation>Ora</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Callsign</source>
         <translation>Indicativo</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Upload to</source>
         <translation>Carica su</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="493"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="491"/>
         <source>The values below will be used when an input record does not contain the ADIF values</source>
         <translation>I valori seguenti verranno utilizzati quando una registrazione inserita non contiene i valori ADIF</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="622"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="620"/>
         <source>Any</source>
         <translation>Qualsiasi</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="635"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="633"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>

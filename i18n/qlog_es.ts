@@ -10503,7 +10503,7 @@
     <name>StatisticsWidget</name>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="14"/>
-        <location filename="../ui/StatisticsWidget.cpp" line="626"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="633"/>
         <source>Statistics</source>
         <translation>Estadísticas</translation>
     </message>
@@ -10569,7 +10569,7 @@
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="285"/>
-        <location filename="../ui/StatisticsWidget.cpp" line="713"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="720"/>
         <source>Band</source>
         <translation>Banda</translation>
     </message>
@@ -10599,72 +10599,72 @@
         <translation>Papel</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="708"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="715"/>
         <source>Year</source>
         <translation>Año</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="709"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="716"/>
         <source>Month</source>
         <translation>Mes</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="710"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="717"/>
         <source>Day in Week</source>
         <translation>Día de la Semana</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="711"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="718"/>
         <source>Hour</source>
         <translation>Hora</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="712"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="719"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="714"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="721"/>
         <source>Continent</source>
         <translation>Continente</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="715"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="722"/>
         <source>Propagation Mode</source>
         <translation>Modo de Propagación</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="722"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="729"/>
         <source>Confirmed / Not Confirmed</source>
         <translation>Confirmado / No Confirmado</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="729"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="736"/>
         <source>Countries</source>
         <translation>Paises</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="730"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="737"/>
         <source>Big Gridsquares</source>
         <translation>Grandes cuadrículas</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="739"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="746"/>
         <source>Distance</source>
         <translation>Distancia</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="746"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="753"/>
         <source>QSOs</source>
         <translation>QSOs</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="747"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="754"/>
         <source>Confirmed/Worked Grids</source>
         <translation>Locators Confirmados/Trabajados</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="748"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="755"/>
         <source>ODX</source>
         <translation>ODX</translation>
     </message>
@@ -10722,12 +10722,12 @@
         <translation>No Confirmado</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="626"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="633"/>
         <source>Over 50000 QSOs. Display them?</source>
         <translation>Más de 50.000 QSO. ¿Mostrarlo?</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="767"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="774"/>
         <source>All</source>
         <translation>Todos</translation>
     </message>
@@ -10960,7 +10960,7 @@
     </message>
     <message>
         <location filename="../ui/UploadQSODialog.cpp" line="276"/>
-        <location filename="../ui/UploadQSODialog.cpp" line="338"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="337"/>
         <source>QLog Warning - %1</source>
         <translation>Alerta de QLog - %1</translation>
     </message>
@@ -10970,58 +10970,58 @@
         <translation>No se puede actualizar el estado del QSO</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="339"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="338"/>
         <source>Cannot upload the QSO(s): </source>
         <translation>No se puede subir el/los QSO/s: </translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="394"/>
-        <location filename="../ui/UploadQSODialog.cpp" line="405"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="393"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="404"/>
         <source>QLog Information</source>
         <translation>Información de QLog</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="394"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="393"/>
         <source>No QSO found to upload.</source>
         <translation>No se encontraron QSOs para subir.</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="405"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="404"/>
         <source>QSO(s) were uploaded to the selected services</source>
         <translation>Los QSOs se cargaron en los servicios seleccionados</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Time</source>
         <translation>Hora</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Callsign</source>
         <translation>Indicativo</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Upload to</source>
         <translation>Subir a</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="493"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="491"/>
         <source>The values below will be used when an input record does not contain the ADIF values</source>
         <translation>Los valores siguientes se utilizarán cuando un registro de entrada no contenga los valores ADIF</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="622"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="620"/>
         <source>Any</source>
         <translation>Cualquier</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="635"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="633"/>
         <source>Unknown</source>
         <translation>Desconocido</translation>
     </message>

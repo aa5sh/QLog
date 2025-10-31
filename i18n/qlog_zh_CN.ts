@@ -10446,7 +10446,7 @@
     <name>StatisticsWidget</name>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="14"/>
-        <location filename="../ui/StatisticsWidget.cpp" line="626"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="633"/>
         <source>Statistics</source>
         <translation>统计分析</translation>
     </message>
@@ -10512,7 +10512,7 @@
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="285"/>
-        <location filename="../ui/StatisticsWidget.cpp" line="713"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="720"/>
         <source>Band</source>
         <translation>波段</translation>
     </message>
@@ -10542,72 +10542,72 @@
         <translation>纸质卡片</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="708"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="715"/>
         <source>Year</source>
         <translation>年</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="709"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="716"/>
         <source>Month</source>
         <translation>月</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="710"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="717"/>
         <source>Day in Week</source>
         <translation>星期几</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="711"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="718"/>
         <source>Hour</source>
         <translation>小时</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="712"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="719"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="714"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="721"/>
         <source>Continent</source>
         <translation>大洲</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="715"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="722"/>
         <source>Propagation Mode</source>
         <translation>传播模式</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="722"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="729"/>
         <source>Confirmed / Not Confirmed</source>
         <translation>已确认/未确认</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="729"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="736"/>
         <source>Countries</source>
         <translation>国家/地区</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="730"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="737"/>
         <source>Big Gridsquares</source>
         <translation>大网格坐标</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="739"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="746"/>
         <source>Distance</source>
         <translation>距离</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="746"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="753"/>
         <source>QSOs</source>
         <translation>QSO</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="747"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="754"/>
         <source>Confirmed/Worked Grids</source>
         <translation>确认/已通联 网格</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="748"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="755"/>
         <source>ODX</source>
         <translation>ODX</translation>
     </message>
@@ -10665,12 +10665,12 @@
         <translation>未确认 </translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="626"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="633"/>
         <source>Over 50000 QSOs. Display them?</source>
         <translation>超过50000个QSO。显示全部吗？</translation>
     </message>
     <message>
-        <location filename="../ui/StatisticsWidget.cpp" line="767"/>
+        <location filename="../ui/StatisticsWidget.cpp" line="774"/>
         <source>All</source>
         <translation>全部</translation>
     </message>
@@ -10904,7 +10904,7 @@
     </message>
     <message>
         <location filename="../ui/UploadQSODialog.cpp" line="276"/>
-        <location filename="../ui/UploadQSODialog.cpp" line="338"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="337"/>
         <source>QLog Warning - %1</source>
         <translation>QLog警告- %1</translation>
     </message>
@@ -10914,58 +10914,58 @@
         <translation>无法更新 QSO 状态</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="339"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="338"/>
         <source>Cannot upload the QSO(s): </source>
         <translation>无法上传该 QSO(s): </translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="394"/>
-        <location filename="../ui/UploadQSODialog.cpp" line="405"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="393"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="404"/>
         <source>QLog Information</source>
         <translation>QLog 信息</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="394"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="393"/>
         <source>No QSO found to upload.</source>
         <translation>未找到要上传的QSO。</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="405"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="404"/>
         <source>QSO(s) were uploaded to the selected services</source>
         <translation>QSO(s)已上传至选定的服务</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Time</source>
         <translation>时间</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Callsign</source>
         <translation>呼号</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="447"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="446"/>
         <source>Upload to</source>
         <translation>上传到</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="493"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="491"/>
         <source>The values below will be used when an input record does not contain the ADIF values</source>
         <translation>当输入记录不包含ADIF值时，将使用下面的值</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="622"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="620"/>
         <source>Any</source>
         <translation>任何</translation>
     </message>
     <message>
-        <location filename="../ui/UploadQSODialog.cpp" line="635"/>
+        <location filename="../ui/UploadQSODialog.cpp" line="633"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
