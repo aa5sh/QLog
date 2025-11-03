@@ -133,6 +133,7 @@ private:
     void generateMembershipCheckboxes();
     void generateQRZAPICallsignTable();
     void saveQRZAPICallsignTable();
+    void validateWsjtForwardPorts();
 
     QSqlTableModel* modeTableModel;
     QSqlTableModel* bandTableModel;

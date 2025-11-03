@@ -293,12 +293,58 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->cwKeyModeSelect->addItem(tr("Ultimate"), CWKey::ULTIMATE);
     ui->cwKeyModeSelect->setCurrentIndex(ui->cwKeyModeSelect->findData(CWKey::IAMBIC_B));
 
+    connect(ui->wsjtPortSpin, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, &SettingsDialog::validateWsjtForwardPorts);
+
+    connect(ui->wsjtForwardEdit, &QLineEdit::textChanged,
+            this, &SettingsDialog::validateWsjtForwardPorts);
+
     /* disable WSJTX Multicast by default */
     joinMulticastChanged(false);
 
     generateMembershipCheckboxes();
 
     readSettings();
+}
+
+void SettingsDialog::validateWsjtForwardPorts()
+{
+    FCT_IDENTIFICATION;
+
+    int portToCheck = ui->wsjtPortSpin->value();
+    QString forwardList = ui->wsjtForwardEdit->text().trimmed();
+
+    QStringList entries = forwardList.split(' ', Qt::SkipEmptyParts);
+
+    bool portFound = false;
+
+    for (QStringList::const_iterator it = entries.constBegin(); it != entries.constEnd(); ++it) {
+        QString entry = *it;
+        QStringList parts = entry.split(':');
+        if (parts.size() == 2) {
+            bool ok = false;
+            int port = parts[1].toInt(&ok);
+            if (ok && port == portToCheck) {
+                portFound = true;
+                break;
+            }
+        }
+    }
+
+    if (portFound) {
+        ui->wsjtPortLabel->setToolTip(tr("WSJT Port is duplicated which could cause a loop."));
+        ui->wsjtForwardEdit->setToolTip(tr("WSJT Port is duplicated which could cause a loop."));
+        QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                             QMessageBox::tr("WSJT Port is duplicated which could cause a loop."));
+        ui->wsjtPortLabel->setStyleSheet("color: black; border-radius: 5px; background: yellow;");
+        ui->wsjtForwardLabel->setStyleSheet("color: black; border-radius: 5px; background: yellow;");
+
+    } else {
+        ui->wsjtPortLabel->setToolTip("");
+        ui->wsjtForwardEdit->setToolTip("");
+        ui->wsjtPortLabel->setStyleSheet("");
+        ui->wsjtForwardLabel->setStyleSheet("");
+    }
 }
 
 void SettingsDialog::save() {
