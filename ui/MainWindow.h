@@ -2,8 +2,9 @@
 #define QLOG_UI_MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
+#include <QActionGroup>
 #include "ui/StatisticsWidget.h"
-#include "ui/component/SwitchButton.h"
 #include "core/NetworkNotification.h"
 #include "core/AlertEvaluator.h"
 #include "core/PropConditions.h"
@@ -24,12 +25,14 @@ public:
 
     void closeEvent(QCloseEvent* event);
     void keyReleaseEvent(QKeyEvent *event);
+    void changeEvent(QEvent *event);
+
     QList<QAction *> getUserDefinedShortcutActionList();
     QStringList getBuiltInStaticShortcutList() const;
 
 signals:
     void settingsChanged();
-    void themeChanged(int);
+    void themeChanged(int themeMode, bool isDark);
     void altBackslash(bool active);
     void manualMode(bool);
     void contestStopped();
@@ -64,7 +67,6 @@ private slots:
     void conditionsUpdated();
     void QSOFilterSetting();
     void alertRuleSetting();
-    void darkModeToggle(int);
     void processSpotAlert(SpotAlert alert);
     void clearAlertEvent();
     void beepSettingAlerts();
@@ -99,8 +101,7 @@ private:
     QLabel* contestLabel;
     QPushButton* alertButton;
     QPushButton* alertTextButton;
-    SwitchButton* darkLightModeSwith;
-    QLabel* darkIconLabel;
+    QPushButton *themeButton;
     StatisticsWidget* stats;
     NetworkNotification networknotification;
     AlertEvaluator alertEvaluator;
@@ -112,9 +113,6 @@ private:
     QActionGroup *dupeGroup;
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
-
-    void setDarkMode();
-    void setLightMode();
 
     void setupActivitiesMenu();
 
@@ -130,6 +128,10 @@ private:
     void openNonVfoBandmaps(const QList<QPair<QString, QString>> &list);
     void clearNonVfoBandmaps();
     QList<QPair<QString, QString>> getNonVfoBandmapsParams() const;
+    void themeInit(int mode);
+    bool setNativeTheme();
+    void setLightTheme();
+    void setDarkTheme();
 };
 
 #endif // QLOG_UI_MAINWINDOW_H
