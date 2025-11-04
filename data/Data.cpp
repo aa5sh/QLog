@@ -30,41 +30,72 @@ Data::Data(QObject *parent) :
     loadTZ();
 
 
-    // dxcc_prefixes.exact DESC, dxcc_prefixes.prefix DESC
+    // dxcc_prefixes_ad1c.exact DESC, dxcc_prefixes_ad1c.prefix DESC
     // is used because it prefers an exact-match record over a partial-match records
     isDXCCQueryValid = queryDXCC.prepare(
                 "SELECT "
-                "    dxcc_entities.id, "
-                "    dxcc_entities.name, "
-                "    dxcc_entities.prefix, "
-                "    dxcc_entities.cont, "
+                "    dxcc_entities_ad1c.id, "
+                "    dxcc_entities_ad1c.name, "
+                "    dxcc_entities_ad1c.prefix, "
+                "    dxcc_entities_ad1c.cont, "
                 "    CASE "
-                "        WHEN (dxcc_prefixes.cqz != 0) "
-                "        THEN dxcc_prefixes.cqz "
-                "        ELSE dxcc_entities.cqz "
+                "        WHEN (dxcc_prefixes_ad1c.cqz != 0) "
+                "        THEN dxcc_prefixes_ad1c.cqz "
+                "        ELSE dxcc_entities_ad1c.cqz "
                 "    END AS cqz, "
                 "    CASE "
-                "        WHEN (dxcc_prefixes.ituz != 0) "
-                "        THEN dxcc_prefixes.ituz "
-                "        ELSE dxcc_entities.ituz "
+                "        WHEN (dxcc_prefixes_ad1c.ituz != 0) "
+                "        THEN dxcc_prefixes_ad1c.ituz "
+                "        ELSE dxcc_entities_ad1c.ituz "
                 "    END AS ituz , "
-                "    dxcc_entities.lat, "
-                "    dxcc_entities.lon, "
-                "    dxcc_entities.tz, "
-                "    dxcc_prefixes.exact "
-                "FROM dxcc_prefixes "
-                "INNER JOIN dxcc_entities ON (dxcc_prefixes.dxcc = dxcc_entities.id) "
-                "WHERE (dxcc_prefixes.prefix = :callsign and dxcc_prefixes.exact = true) "
-                "    OR (dxcc_prefixes.exact = false and :callsign LIKE dxcc_prefixes.prefix || '%') "
-                "ORDER BY dxcc_prefixes.exact DESC, dxcc_prefixes.prefix DESC "
+                "    dxcc_entities_ad1c.lat, "
+                "    dxcc_entities_ad1c.lon, "
+                "    dxcc_entities_ad1c.tz, "
+                "    dxcc_prefixes_ad1c.exact "
+                "FROM dxcc_prefixes_ad1c "
+                "INNER JOIN dxcc_entities_ad1c ON (dxcc_prefixes_ad1c.dxcc = dxcc_entities_ad1c.id) "
+                "WHERE (dxcc_prefixes_ad1c.prefix = :callsign and dxcc_prefixes_ad1c.exact = true) "
+                "    OR (dxcc_prefixes_ad1c.exact = false and :callsign LIKE dxcc_prefixes_ad1c.prefix || '%') "
+                "ORDER BY dxcc_prefixes_ad1c.exact DESC, dxcc_prefixes_ad1c.prefix DESC "
                 "LIMIT 1 "
                 );
 
-    isDXCCIDQueryValid = queryDXCCID.prepare(
-                " SELECT dxcc_entities.id, dxcc_entities.name, dxcc_entities.prefix, dxcc_entities.cont, "
-                "        dxcc_entities.cqz, dxcc_entities.ituz, dxcc_entities.lat, dxcc_entities.lon, dxcc_entities.tz "
-                " FROM dxcc_entities "
-                " WHERE dxcc_entities.id = :dxccid"
+    isDXCCClublogQueryValid = queryDXCCClublog.prepare(
+                "SELECT e.id, "
+                "      e.name, "
+                "      e.prefix, "
+                "      e.cont, "
+                "      COALESCE(z.cqz, "
+                "               CASE  WHEN (p.cqz != 0) THEN p.cqz ELSE e.cqz END) AS cqz, "
+                "      CASE WHEN z.cqz IS NOT NULL THEN NULL "
+                "           WHEN (p.ituz != 0) THEN p.ituz "
+                "           ELSE e.ituz END AS ituz, "
+                "      e.lat, "
+                "      e.lon, "
+                "      p.exact "
+                " FROM dxcc_prefixes_clublog p"
+                "   INNER JOIN dxcc_entities_clublog e ON (p.dxcc = e.id) "
+                "   LEFT JOIN dxcc_zone_exceptions_clublog z ON ( z.call = :exactcall AND :dxccdate BETWEEN COALESCE(z.start, '0001-01-01 00:00:00') "
+                "                                                                                    AND COALESCE(z.end, '9999-12-31 23:59:59')) "
+                " WHERE ((p.prefix = :exactcall and p.exact = 1) "
+                "     OR (p.exact = 0 and :modifiedcall LIKE p.prefix || '%')) "
+                "    AND :dxccdate BETWEEN COALESCE(p.start, '0001-01-01 00:00:00') "
+                "                          AND COALESCE(p.end, '9999-12-31 23:59:59') "
+                " ORDER BY p.exact DESC, p.prefix DESC LIMIT 1"
+                );
+
+    isDXCCIDAD1CQueryValid = queryDXCCIDAD1C.prepare(
+                " SELECT dxcc_entities_ad1c.id, dxcc_entities_ad1c.name, dxcc_entities_ad1c.prefix, dxcc_entities_ad1c.cont, "
+                "        dxcc_entities_ad1c.cqz, dxcc_entities_ad1c.ituz, dxcc_entities_ad1c.lat, dxcc_entities_ad1c.lon, dxcc_entities_ad1c.tz "
+                " FROM dxcc_entities_ad1c "
+                " WHERE dxcc_entities_ad1c.id = :dxccid"
+                );
+
+    isDXCCIDClublogQueryValid = queryDXCCIDClublog.prepare(
+                " SELECT c.id, c.name, c.prefix, c.cont, "
+                "        c.cqz, c.ituz, c.lat, c.lon "
+                " FROM dxcc_entities_clublog c "
+                " WHERE c.id = :dxccid"
                 );
 
     isSOTAQueryValid = querySOTA.prepare(
@@ -912,8 +943,7 @@ void Data::loadDxccFlags()
     {
         const QVariantMap &dxccData = object.toMap();
         int id = dxccData.value("id").toInt();
-        const QString &flag = dxccData.value("flag").toString();
-        flags.insert(id, flag);
+        dxccEntityStaticInfo.insert(id, dxccData);
     }
 }
 
@@ -1012,6 +1042,39 @@ void Data::loadTZ()
 DxccEntity Data::lookupDxcc(const QString &callsign)
 {
     FCT_IDENTIFICATION;
+#if 0
+    //qInfo() << "Start AD1C";
+    DxccEntity ad1cDXCCData = lookupDxccAD1C(callsign);
+    //qInfo() << "Finished AD1C";
+    DxccEntity clublogDXCCData = lookupDxccClublog(callsign);
+    //qInfo() << "Finished Clublog";
+    if ( ad1cDXCCData.dxcc != clublogDXCCData.dxcc
+         || ad1cDXCCData.cqz != clublogDXCCData.cqz
+         || ad1cDXCCData.ituz != clublogDXCCData.ituz)
+    {
+        qInfo(runtime) << "DIFF for call " << callsign
+                         << "AD1C:" << ad1cDXCCData.dxcc << ad1cDXCCData.cqz << ad1cDXCCData.ituz
+                         << "Clublog:" << clublogDXCCData.dxcc << clublogDXCCData.cqz << clublogDXCCData.ituz;
+    }
+    //qInfo() << "AD1C:" << ad1cDXCCData.dxcc << ad1cDXCCData.cqz << ad1cDXCCData.ituz
+      //         << "Clublog:" << clublogDXCCData.dxcc << clublogDXCCData.cqz << clublogDXCCData.ituz;
+    return ad1cDXCCData;
+#else
+    // LF: The AD1C method seems more accurate for current data regarding ITU and CQZ.
+    // The Clublog method is good for determining historical data and CQZ, but unfortunately,
+    // the ITU zone is not reliable in this method because it’s not listed and has to be
+    // calculated. Therefore, I decided to use the AD1C method as the general approach and only
+    // use Clublog in exceptional cases. Once Clublog starts distributing ITUZ, we should
+    // completely switch to the Clublog method.
+    // I also believes that the AD1C method is more accurate in determining special exceptions
+    // for American callsigns.
+    return lookupDxccAD1C(callsign);
+#endif
+}
+
+DxccEntity Data::lookupDxccAD1C(const QString &callsign)
+{
+    FCT_IDENTIFICATION;
     static QCache<QString, DxccEntity> localCache(1000);
 
     qCDebug(function_parameters) << callsign;
@@ -1076,7 +1139,7 @@ DxccEntity Data::lookupDxcc(const QString &callsign)
             dxccRet.latlon[1] = queryDXCC.value(7).toDouble();
             dxccRet.tz = queryDXCC.value(8).toFloat();
             bool isExactMatch = queryDXCC.value(9).toBool();
-            dxccRet.flag = flags.value(dxccRet.dxcc);
+            dxccRet.flag = dxccFlag(dxccRet.dxcc);
 
             if ( !isExactMatch )
             {
@@ -1111,39 +1174,39 @@ DxccEntity Data::lookupDxcc(const QString &callsign)
     return dxccRet;
 }
 
-DxccEntity Data::lookupDxccID(const int dxccID)
+DxccEntity Data::lookupDxccIDAD1C(const int dxccID)
 {
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << dxccID;
 
-    if ( !isDXCCIDQueryValid )
+    if ( !isDXCCIDAD1CQueryValid )
     {
         qWarning() << "Cannot prepare Select statement";
         return DxccEntity();
     }
 
-    queryDXCCID.bindValue(":dxccid", dxccID);
-    if ( ! queryDXCCID.exec() )
+    queryDXCCIDAD1C.bindValue(":dxccid", dxccID);
+    if ( ! queryDXCCIDAD1C.exec() )
     {
-        qWarning() << "Cannot execte Select statement" << queryDXCCID.lastError();
+        qWarning() << "Cannot execte Select statement" << queryDXCCIDAD1C.lastError();
         return DxccEntity();
     }
 
     DxccEntity dxccRet;
 
-    if ( queryDXCCID.next() )
+    if ( queryDXCCIDAD1C.next() )
     {
-        dxccRet.dxcc = queryDXCCID.value(0).toInt();
-        dxccRet.country = queryDXCCID.value(1).toString();
-        dxccRet.prefix = queryDXCCID.value(2).toString();
-        dxccRet.cont = queryDXCCID.value(3).toString();
-        dxccRet.cqz = queryDXCCID.value(4).toInt();
-        dxccRet.ituz = queryDXCCID.value(5).toInt();
-        dxccRet.latlon[0] = queryDXCCID.value(6).toDouble();
-        dxccRet.latlon[1] = queryDXCCID.value(7).toDouble();
-        dxccRet.tz = queryDXCCID.value(8).toFloat();
-        dxccRet.flag = flags.value(dxccRet.dxcc);
+        dxccRet.dxcc = queryDXCCIDAD1C.value(0).toInt();
+        dxccRet.country = queryDXCCIDAD1C.value(1).toString();
+        dxccRet.prefix = queryDXCCIDAD1C.value(2).toString();
+        dxccRet.cont = queryDXCCIDAD1C.value(3).toString();
+        dxccRet.cqz = queryDXCCIDAD1C.value(4).toInt();
+        dxccRet.ituz = queryDXCCIDAD1C.value(5).toInt();
+        dxccRet.latlon[0] = queryDXCCIDAD1C.value(6).toDouble();
+        dxccRet.latlon[1] = queryDXCCIDAD1C.value(7).toDouble();
+        dxccRet.tz = queryDXCCIDAD1C.value(8).toFloat();
+        dxccRet.flag = dxccFlag(dxccRet.dxcc);
     }
     else
     {
@@ -1152,6 +1215,172 @@ DxccEntity Data::lookupDxccID(const int dxccID)
         dxccRet.cqz = 0;
         dxccRet.tz = 0;
     }
+    return dxccRet;
+}
+
+DxccEntity Data::lookupDxccIDClublog(const int dxccID)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << dxccID;
+
+    if ( !isDXCCIDClublogQueryValid )
+    {
+        qWarning() << "Cannot prepare Select statement";
+        return DxccEntity();
+    }
+
+    queryDXCCIDClublog.bindValue(":dxccid", dxccID);
+    if ( ! queryDXCCIDClublog.exec() )
+    {
+        qWarning() << "Cannot execte Select statement" << queryDXCCIDClublog.lastError();
+        return DxccEntity();
+    }
+
+    DxccEntity dxccRet;
+
+    if ( queryDXCCIDClublog.next() )
+    {
+        dxccRet.dxcc = queryDXCCIDClublog.value(0).toInt();
+        dxccRet.country = queryDXCCIDClublog.value(1).toString();
+        dxccRet.prefix = queryDXCCIDClublog.value(2).toString();
+        dxccRet.cont = queryDXCCIDClublog.value(3).toString();
+        dxccRet.cqz = queryDXCCIDClublog.value(4).toInt();
+        dxccRet.ituz = queryDXCCIDClublog.value(5).toInt();
+        dxccRet.latlon[0] = queryDXCCIDClublog.value(6).toDouble();
+        dxccRet.latlon[1] = queryDXCCIDClublog.value(7).toDouble();
+        dxccRet.tz = queryDXCCIDClublog.value(8).toFloat();
+        dxccRet.flag = dxccFlag(dxccRet.dxcc);
+    }
+    else
+    {
+        dxccRet.dxcc = 0;
+        dxccRet.ituz = 0;
+        dxccRet.cqz = 0;
+        dxccRet.tz = 0;
+    }
+    return dxccRet;
+}
+
+DxccEntity Data::lookupDxccID(const int dxccID)
+{
+    FCT_IDENTIFICATION;
+
+    // LF: The AD1C method seems more accurate for current data regarding ITU and CQZ.
+    // The Clublog method is good for determining historical data and CQZ, but unfortunately,
+    // the ITU zone is not reliable in this method because it’s not listed and has to be
+    // calculated. Therefore, I decided to use the AD1C method as the general approach and only
+    // use Clublog in exceptional cases. Once Clublog starts distributing ITUZ, we should
+    // completely switch to the Clublog method.
+    // I also believes that the AD1C method is more accurate in determining special exceptions
+    // for American callsigns.
+    return lookupDxccIDAD1C(dxccID);
+}
+
+DxccEntity Data::lookupDxccClublog(const QString &callsign, const QDateTime &date)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << callsign;
+
+    if ( callsign.isEmpty()) return  DxccEntity();
+
+    if ( ! isDXCCClublogQueryValid )
+    {
+        qWarning() << "Cannot prepare Select statement";
+        return DxccEntity();
+    }
+
+    QString lookupPrefix = callsign; // use the callsign with optional prefix as default to find the dxcc
+    const Callsign parsedCallsign(callsign); // use Callsign to split the callsign into its parts
+
+    if ( parsedCallsign.isValid() )
+    {
+        QString suffix = parsedCallsign.getSuffix();
+        if ( suffix.length() == 1 ) // some countries add single numbers as suffix to designate a call area, e.g. /4
+        {
+            bool isNumber = false;
+            (void)suffix.toInt(&isNumber);
+            if ( isNumber )
+            {
+                lookupPrefix = parsedCallsign.getBasePrefix() + suffix; // use the call prefix and the number from the suffix to find the dxcc
+            }
+        }
+        else if ( suffix.length() > 1
+                  && !parsedCallsign.secondarySpecialSuffixes.contains(suffix) ) // if there is more than one character and it is not one of the special suffixes, we definitely have a call prefix as suffix
+        {
+            lookupPrefix = suffix;
+        }
+    }
+
+    queryDXCCClublog.bindValue(":modifiedcall", lookupPrefix);
+    queryDXCCClublog.bindValue(":exactcall", callsign);
+    queryDXCCClublog.bindValue(":dxccdate", date);
+
+    if ( ! queryDXCCClublog.exec() )
+    {
+        qWarning() << "Cannot execute Select statement"
+                   << queryDXCCClublog.lastError()
+                   << queryDXCCClublog.lastQuery();
+        return DxccEntity();
+    }
+
+    DxccEntity dxccRet;
+    const DxccEntity &ad1cDXCCData = lookupDxccAD1C(callsign);
+
+    if ( queryDXCCClublog.first() )
+    {
+        dxccRet.dxcc = queryDXCCClublog.value(0).toInt();
+        dxccRet.country = queryDXCCClublog.value(1).toString();
+        dxccRet.prefix = queryDXCCClublog.value(2).toString();
+        dxccRet.cont = queryDXCCClublog.value(3).toString();
+        dxccRet.cqz = queryDXCCClublog.value(4).toInt();
+        dxccRet.ituz = queryDXCCClublog.value(5).toInt();
+        dxccRet.latlon[0] = queryDXCCClublog.value(6).toDouble();
+        dxccRet.latlon[1] = queryDXCCClublog.value(7).toDouble();
+        dxccRet.tz = queryDXCCClublog.value(8).toFloat();
+        bool isExactMatch = queryDXCCClublog.value(9).toBool();
+        dxccRet.flag = dxccFlag(dxccRet.dxcc);
+
+        if ( !isExactMatch )
+        {
+            // find the exceptions to the exceptions
+            if (  dxccRet.prefix == "KG4" && parsedCallsign.getBase().size() != 5 )
+            {
+                //only KG4AA - KG4ZZ are US Navy in Guantanamo Bay. Other KG4s are USA
+                dxccRet = lookupDxccID(291); // USA
+
+                //do not overwrite the original prefix
+                dxccRet.prefix = "KG4";
+            }
+        }
+    }
+    else
+    {
+        qCDebug(runtime) << "DXCC not found for " << lookupPrefix << "; Using AD1C Info";
+        dxccRet = ad1cDXCCData;
+    }
+
+    if ( dxccRet.ituz == 0 )
+    {
+        qCDebug(runtime) << "Zone exception, using AD1C Info Info to find ITUZ for " << callsign;
+
+        if ( ad1cDXCCData.dxcc == dxccRet.dxcc && ad1cDXCCData.cqz == dxccRet.cqz )
+        {
+            qCDebug(runtime) << "Fixing ITUZ for call" << callsign;
+            dxccRet.ituz = ad1cDXCCData.ituz;
+        }
+        else
+        {
+            qCDebug(runtime) << "not match" << callsign
+                             << ad1cDXCCData.dxcc << dxccRet.dxcc
+                             << ad1cDXCCData.cqz << dxccRet.cqz;
+        }
+    }
+
+    if ( ad1cDXCCData.dxcc == dxccRet.dxcc && ad1cDXCCData.cqz == dxccRet.cqz )
+        dxccRet.ituz = ad1cDXCCData.ituz;
+
     return dxccRet;
 }
 
