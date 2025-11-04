@@ -7,9 +7,11 @@
 class HostPortAddress : public QHostAddress
 {
 public:
-    explicit HostPortAddress( const QString &, quint16);
+    explicit HostPortAddress(const QString &, quint16);
+    HostPortAddress(const QHostAddress &host, quint16 port);
     void setPort(quint16);
     quint16 getPort() const;
+    bool operator==(const HostPortAddress &other) const;
 
 private:
     quint16 port;
@@ -22,7 +24,7 @@ public:
     static const QRegularExpression hostsPortRegEx();
 
     explicit HostsPortString(const QString &, QObject *parent=nullptr);
-
+    bool hasLocalIPWithPort(int port) const;
     QList<HostPortAddress> getAddrList() const;
 
 private:
