@@ -219,7 +219,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     static QRegularExpression multicastAddress("^2(?:2[4-9]|3\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d?|0)){3}$");
 
     ui->wsjtMulticastAddressEdit->setValidator(new QRegularExpressionValidator(multicastAddress, ui->wsjtMulticastAddressEdit));
-
+    ui->wsjtForwardEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->wsjtForwardEdit));
     ui->notifQSOEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->notifQSOEdit));
     ui->notifDXSpotsEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->notifDXSpotsEdit));
     ui->notifWSJTXCQSpotsEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->notifWSJTXCQSpotsEdit));
@@ -372,9 +372,21 @@ void SettingsDialog::save() {
     {
         if ( ! ui->wsjtMulticastAddressEdit->hasAcceptableInput() )
         {
-            ui->tabWidget->setCurrentIndex(7);
+            ui->tabWidget->setCurrentIndex(8);
             QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
                                  QMessageBox::tr("WSJTX Multicast is enabled but the Address is not a multicast address."));
+            return;
+        }
+    }
+
+    if ( !ui->wsjtForwardEdit->text().isEmpty() )
+    {
+        HostsPortString list(ui->wsjtForwardEdit->text());
+        if ( list.hasLocalIPWithPort(ui->wsjtPortSpin->value()) )
+        {
+            ui->tabWidget->setCurrentIndex(8);
+            QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                                 QMessageBox::tr("Loop detected. Raw UDP forward uses the same port as the WSJT-X receiving port."));
             return;
         }
     }
