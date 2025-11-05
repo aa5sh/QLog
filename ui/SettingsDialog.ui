@@ -2137,7 +2137,7 @@
                       </layout>
                      </item>
                      <item row="6" column="1">
-                      <layout class="QHBoxLayout" name="horizontalLayout_38">
+                      <layout class="QHBoxLayout" name="horizontalLayout_381">
                        <item>
                         <widget class="QComboBox" name="rigDTRCombo">
                          <property name="sizePolicy">
@@ -2364,7 +2364,7 @@
                     <widget class="QComboBox" name="rigPortTypeCombo"/>
                    </item>
                    <item>
-                    <spacer name="horizontalSpacer_8">
+                    <spacer name="horizontalSpacer_81">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
                      </property>

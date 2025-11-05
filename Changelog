@@ -7,6 +7,7 @@ TBC - 0.47.0
 - [NEW] - Statistics, QSODetail contain deleted DXCC Entities (PR #728 @aa5sh @foldynl)
 - [NEW] - Settings - Added options to switch distance unit
 - [NEW] - Added manpage (PR #791 @dawkagaming)
+- [NEW] - Hamlib Rig - Added RTS and DTR control (PR #809 @aa5sh)
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 
 2025/10/31 - 0.46.2
