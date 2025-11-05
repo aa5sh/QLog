@@ -18,6 +18,9 @@ public:
     static const QString SERIAL_PARITY_MARK;
     static const QString SERIAL_PARITY_SPACE;
     static const QString SERIAL_PARITY_NO;
+    static const QString SERIAL_SIGNAL_NONE;
+    static const QString SERIAL_SIGNAL_HIGH;
+    static const QString SERIAL_SIGNAL_LOW;
 };
 
 #endif // QLOG_DATA_SERIALPORT_H

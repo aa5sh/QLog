@@ -5,6 +5,7 @@
 #include "core/debug.h"
 #include "data/ProfileManager.h"
 #include "rig/Rig.h"
+#include "SerialPort.h"
 
 MODULE_IDENTIFICATION("qlog.data.rigprofile");
 
@@ -71,14 +72,14 @@ RigProfilesManager::RigProfilesManager() :
 
     QSqlQuery profileQuery;
 
-    if ( ! profileQuery.prepare("SELECT profile_name, model, port_pathname, hostname, "
+    if ( ! profileQuery.prepare(QString("SELECT profile_name, model, port_pathname, hostname, "
                                 "netport, baudrate, databits, stopbits, flowcontrol, parity, "
                                 "pollinterval, txfreq_start, txfreq_end, get_freq, get_mode, "
                                 "get_vfo, get_pwr, rit_offset, xit_offset, get_rit, get_xit, "
                                 "default_pwr, get_ptt, qsy_wiping, get_key_speed, assigned_cw_key, "
                                 "key_speed_sync, driver, dxspot2rig, ptt_type, ptt_port_pathname, "
-                                "rts, dtr "
-                                "FROM rig_profiles") )
+                                "IFNULL(rts, '%0'), IFNULL(dtr, '%0') "
+                                "FROM rig_profiles").arg(SerialPort::SERIAL_SIGNAL_NONE)))
     {
         qWarning()<< "Cannot prepare select";
     }

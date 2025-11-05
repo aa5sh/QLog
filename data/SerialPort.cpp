@@ -18,3 +18,6 @@ const QString SerialPort::SERIAL_PARITY_ODD = "odd";
 const QString SerialPort::SERIAL_PARITY_MARK = "mark";
 const QString SerialPort::SERIAL_PARITY_SPACE  = "space";
 const QString SerialPort::SERIAL_PARITY_NO  = "no";
+const QString SerialPort::SERIAL_SIGNAL_NONE = "none";
+const QString SerialPort::SERIAL_SIGNAL_HIGH = "high";
+const QString SerialPort::SERIAL_SIGNAL_LOW = "low";

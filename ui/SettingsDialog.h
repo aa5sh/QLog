@@ -119,6 +119,7 @@ public slots:
     void hrdlogSettingChanged();
     void clublogSettingChanged();
     void updateDateFormatResult();
+    void rigFlowControlChanged(int);
 
     void qrzAddCallsignAPIKey();
     void qrzDelCallsignAPIKey();
