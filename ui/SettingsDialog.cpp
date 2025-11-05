@@ -293,6 +293,14 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->cwKeyModeSelect->addItem(tr("Ultimate"), CWKey::ULTIMATE);
     ui->cwKeyModeSelect->setCurrentIndex(ui->cwKeyModeSelect->findData(CWKey::IAMBIC_B));
 
+    ui->rigDTRCombo->addItem(tr("None"), SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigDTRCombo->addItem(tr("High"), SerialPort::SERIAL_SIGNAL_HIGH);
+    ui->rigDTRCombo->addItem(tr("Low"), SerialPort::SERIAL_SIGNAL_LOW);
+
+    ui->rigRTSCombo->addItem(tr("None"), SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigRTSCombo->addItem(tr("High"), SerialPort::SERIAL_SIGNAL_HIGH);
+    ui->rigRTSCombo->addItem(tr("Low"), SerialPort::SERIAL_SIGNAL_LOW);
+
     /* disable WSJTX Multicast by default */
     joinMulticastChanged(false);
 
@@ -482,6 +490,8 @@ void SettingsDialog::addRigProfile()
         profile.parity = ui->rigParitySelect->currentData().toString();
         profile.pttType = ui->rigPTTTypeCombo->currentData().toString();
         profile.pttPortPath = ui->rigPTTPortEdit->text();
+        profile.rts = ui->rigRTSCombo->currentData().toString();
+        profile.dtr = ui->rigDTRCombo->currentData().toString();
     }
 
     if ( ui->rigPollIntervalSpinBox->isEnabled() )
@@ -594,6 +604,12 @@ void SettingsDialog::doubleClickRigProfile(QModelIndex i)
     ui->rigPTTTypeCombo->setCurrentIndex(( pttIndex < 0 ) ? PTT_TYPE_CAT_INDEX : pttIndex);
     ui->rigPTTPortEdit->setText(profile.pttPortPath);
 
+    int rtsIndex = ui->rigRTSCombo->findData(profile.rts);
+    ui->rigRTSCombo->setCurrentIndex(( rtsIndex < 0 ) ? PTT_TYPE_CAT_INDEX : rtsIndex);
+
+    int dtrIndex = ui->rigDTRCombo->findData(profile.dtr);
+    ui->rigDTRCombo->setCurrentIndex(( dtrIndex < 0 ) ? PTT_TYPE_CAT_INDEX : dtrIndex);
+
     setUIBasedOnRigCaps(caps);
 
     ui->rigAddProfileButton->setText(tr("Modify"));
@@ -621,6 +637,8 @@ void SettingsDialog::clearRigProfileForm()
     ui->rigDataBitsSelect->setCurrentIndex(0);
     ui->rigStopBitsSelect->setCurrentIndex(0);
     ui->rigFlowControlSelect->setCurrentIndex(0);
+    ui->rigDTRCombo->setCurrentIndex(0);
+    ui->rigRTSCombo->setCurrentIndex(0);
     ui->rigParitySelect->setCurrentIndex(0);
     ui->rigGetFreqCheckBox->setChecked(true);
     ui->rigGetModeCheckBox->setChecked(true);
@@ -738,12 +756,19 @@ void SettingsDialog::rigInterfaceChanged(int)
     ui->rigModelSelect->setCurrentIndex(( driverID == Rig::HAMLIB_DRIVER ) ? ui->rigModelSelect->findData(DEFAULT_HAMLIB_RIG_MODEL)
                                                                            : 0 );
     ui->rigPTTTypeCombo->clear();
+    int noneIndex = ui->rigRTSCombo->findData(SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigRTSCombo->setCurrentIndex((noneIndex < 0) ? 0 : noneIndex);
+
+    noneIndex = ui->rigDTRCombo->findData(SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigDTRCombo->setCurrentIndex((noneIndex < 0) ? 0 : noneIndex);
 
     const QList<QPair<QString, QString>> &pttTypes = Rig::instance()->getPTTTypeList(static_cast<Rig::DriverID>(driverID));
 
     for ( const QPair<QString, QString> &type : pttTypes )
         ui->rigPTTTypeCombo->addItem(type.second, type.first);
 
+    ui->rigRTSCombo->setVisible((driverID == Rig::HAMLIB_DRIVER));
+    ui->rigDTRCombo->setVisible((driverID == Rig::HAMLIB_DRIVER));
     ui->rigPTTTypeCombo->setVisible(( driverID == Rig::HAMLIB_DRIVER ));
     ui->rigPTTTypeLabel->setVisible(( driverID == Rig::HAMLIB_DRIVER ));
     ui->rigPTTPortEdit->setVisible(( driverID == Rig::HAMLIB_DRIVER ));
@@ -2255,6 +2280,21 @@ void SettingsDialog::updateDateFormatResult()
     FCT_IDENTIFICATION;
 
     ui->dateFormatResultLabel->setText(QDate::currentDate().toString(ui->dateFormatStringEdit->text()));
+}
+
+void SettingsDialog::rigFlowControlChanged(int)
+{
+    FCT_IDENTIFICATION;
+
+    // if HW handshake is enabled then RTS must be None
+    bool isHWControlEnabled = (ui->rigFlowControlSelect->currentData().toString() == SerialPort::SERIAL_FLOWCONTROL_HARDWARE);
+
+    if ( isHWControlEnabled )
+    {
+        int rstNoneIndex = ui->rigRTSCombo->findData(SerialPort::SERIAL_SIGNAL_NONE);
+        ui->rigRTSCombo->setCurrentIndex((rstNoneIndex < 0) ? 0 : rstNoneIndex);
+    }
+    ui->rigRTSCombo->setEnabled(!isHWControlEnabled);
 }
 
 void SettingsDialog::qrzAddCallsignAPIKey()

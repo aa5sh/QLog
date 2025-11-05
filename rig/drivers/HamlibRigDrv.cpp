@@ -217,6 +217,8 @@ bool HamlibRigDrv::open()
         rig->state.rigport.parm.serial.stop_bits = rigProfile.stopbits;
         rig->state.rigport.parm.serial.handshake = stringToHamlibFlowControl(rigProfile.flowcontrol);
         rig->state.rigport.parm.serial.parity = stringToHamlibParity(rigProfile.parity);
+        rig->state.rigport.parm.serial.dtr_state = stringToHamlibSerialSignal(rigProfile.dtr);
+        rig->state.rigport.parm.serial.rts_state = stringToHamlibSerialSignal(rigProfile.rts);
 
         qCDebug(runtime) << "Using PTT Type" << rigProfile.pttType.toLocal8Bit().constData()
                          << "PTT Path" << rigProfile.pttPortPath;
@@ -1148,6 +1150,21 @@ serial_parity_e HamlibRigDrv::stringToHamlibParity(const QString &in_parity)
 
     return RIG_PARITY_NONE;
 }
+
+serial_control_state_e HamlibRigDrv::stringToHamlibSerialSignal(const QString &signalString)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << signalString;
+
+    if ( signalString == SerialPort::SERIAL_SIGNAL_HIGH )
+        return RIG_SIGNAL_ON;
+    if ( signalString == SerialPort::SERIAL_SIGNAL_LOW )
+        return RIG_SIGNAL_OFF;
+
+    return RIG_SIGNAL_UNSET;
+}
+
 
 QString HamlibRigDrv::hamlibErrorString(int errorCode)
 {
