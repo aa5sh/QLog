@@ -149,6 +149,18 @@ bool HamlibRotDrv::open()
         return false;
     }
 
+    token_t timeout_token = rot_token_lookup(rot, "timeout");
+    if (timeout_token != -RIG_EINVAL) {
+        int ret = rot_set_conf(rot, timeout_token, "5000");
+        if (ret == RIG_OK) {
+            qCDebug(runtime) << "Rotator timeout set to 5000ms";
+        } else {
+            qCDebug(runtime) << "rot_set_conf(timeout) failed:" << rigerror(ret);
+        }
+    } else {
+        qCDebug(runtime) << "timeout token not found";
+    }
+
     int status = rot_open(rot);
 
     if ( !isRotRespOK(status, tr("Rot Open Error"), false) )
