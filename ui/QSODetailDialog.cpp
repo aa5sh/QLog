@@ -1407,6 +1407,13 @@ void QSODetailDialog::drawDXOnMap(const QString &label, const Gridsquare &dxGrid
 
     double lat = dxGrid.getLatitude();
     double lon = dxGrid.getLongitude();
+    // do not wrap the points
+    double delta = lon - myGrid.getLongitude();
+    if ( delta > 180 )
+        lon -= 360;
+    if ( delta < -180 )
+        lon += 360;
+
     stationString.append(QString("[[\"%1\", %2, %3, yellowIcon]]").arg(popupString).arg(lat).arg(lon));
 
     QString shortPath = QString("[%1, %2, %3, %4]")
