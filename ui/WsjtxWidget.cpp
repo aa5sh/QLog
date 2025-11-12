@@ -193,7 +193,7 @@ void WsjtxWidget::statusReceived(WsjtxStatus newStatus)
     if ( this->status.dx_call != newStatus.dx_call
          || this->status.dx_grid != newStatus.dx_grid )
     {
-        emit callsignSelected(newStatus.dx_call, newStatus.dx_grid);
+        emit callsignSelected(newStatus.dx_call, newStatus.dx_grid, newStatus.id);
     }
 
     if ( this->status.mode != newStatus.mode )

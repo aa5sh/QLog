@@ -2915,11 +2915,12 @@ void NewContactWidget::fillCallsignGrid(const QString &callsign, const QString &
 }
 
 void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
-                                       const QString &grid)
+                                       const QString &grid,
+                                       const QString &id)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << receivedCallsign << grid;
+    qCDebug(function_parameters) << receivedCallsign << grid << id;
 
     if ( isManualEnterMode )
     {
@@ -2939,7 +2940,12 @@ void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
 
     callsign = receivedCallsign;
     ui->callsignEdit->setText(receivedCallsign);
-    uiDynamic->gridEdit->setText(grid);
+
+    if ( !grid.isEmpty() )
+    {
+        uiDynamic->gridEdit->setText(grid);
+    }
+
     checkDupe();
     setDxccInfo(receivedCallsign);
     queryPota();
@@ -2951,7 +2957,9 @@ void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
     // 1) prev Callsign empty grid
     // 2) new Callsign empty grid
     // 3) new Calllsign, new gris
-    if ( !grid.isEmpty() )
+    // WRITELOG workaround: Similar to JTDX, check application ID
+    // If ID contains "WRITELOG", always trigger callbook lookup
+    if ( !grid.isEmpty() || id.contains("WRITELOG") )
     {
         useFieldsFromPrevQSO(callsign, grid);
         finalizeCallsignEdit();
