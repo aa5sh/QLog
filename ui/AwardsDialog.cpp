@@ -118,7 +118,7 @@ void AwardsDialog::refreshTable(int)
         stmt_sum_confirmed << QString("SUM(CASE WHEN a.'%1' > 1 THEN 1 ELSE 0 END) '%2'").arg(band.name, band.name);
         stmt_sum_worked << QString("SUM(CASE WHEN a.'%1' > 0 THEN 1 ELSE 0 END) '%2'").arg(band.name, band.name);
         stmt_sum_total << QString("SUM(d.'%1') '%2'").arg(band.name, band.name);
-        stmt_having << QString("SUM(d.'%1') = 0").arg(band.name);
+        stmt_having << QString("(SUM(d.'%1') = 0 or SUM(d.'%1') = 1)").arg(band.name);
         stmt_total_band_condition_work << QString("e.'%0' > 0").arg(band.name);
         stmt_total_band_condition_confirmed << QString("e.'%0' > 1").arg(band.name);
     }

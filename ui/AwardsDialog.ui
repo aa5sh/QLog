@@ -221,7 +221,7 @@
       <item row="3" column="1">
        <widget class="QCheckBox" name="notWorkedCheckBox">
         <property name="text">
-         <string>Not-Worked Only</string>
+         <string>Not-Worked/Not-Confirmed Only</string>
         </property>
        </widget>
       </item>
