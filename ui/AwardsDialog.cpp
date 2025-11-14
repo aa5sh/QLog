@@ -76,6 +76,7 @@ void AwardsDialog::refreshTable(int)
     QString addWherePart;
     QString sourceContactsTable;
     QString sqlPartDetailTable;
+    QString stmt_having_str;
     QStringList stmt_max_part;
     QStringList stmt_total_padding;
     QStringList stmt_sum_confirmed;
@@ -118,7 +119,6 @@ void AwardsDialog::refreshTable(int)
         stmt_sum_confirmed << QString("SUM(CASE WHEN a.'%1' > 1 THEN 1 ELSE 0 END) '%2'").arg(band.name, band.name);
         stmt_sum_worked << QString("SUM(CASE WHEN a.'%1' > 0 THEN 1 ELSE 0 END) '%2'").arg(band.name, band.name);
         stmt_sum_total << QString("SUM(d.'%1') '%2'").arg(band.name, band.name);
-        stmt_having << QString("(SUM(d.'%1') = 0 or SUM(d.'%1') = 1)").arg(band.name);
         stmt_total_band_condition_work << QString("e.'%0' > 0").arg(band.name);
         stmt_total_band_condition_confirmed << QString("e.'%0' > 1").arg(band.name);
     }
@@ -133,8 +133,45 @@ void AwardsDialog::refreshTable(int)
                     << " SUM(CASE WHEN a.'EME' > 0 THEN 1 ELSE 0 END) 'EME' ";
     stmt_sum_total << " SUM(d.'SAT') 'SAT' "
                    << " SUM(d.'EME') 'EME' ";
-    stmt_having << " SUM(d.'SAT') = 0"
-                << " SUM(d.'EME') = 0";
+
+    QStringList entityWorkedList;
+    QStringList entityConfirmedList;
+
+    for (const Band& band : dxccBands) {
+        entityWorkedList     << QString("CASE WHEN d.'%1' > 0 THEN 1 ELSE 0 END").arg(band.name);
+        entityConfirmedList  << QString("CASE WHEN d.'%1' > 1 THEN 1 ELSE 0 END").arg(band.name);
+    }
+
+    entityWorkedList     << "CASE WHEN d.'SAT' > 0 THEN 1 ELSE 0 END"
+                     << "CASE WHEN d.'EME' > 0 THEN 1 ELSE 0 END";
+    entityConfirmedList  << "CASE WHEN d.'SAT' > 1 THEN 1 ELSE 0 END"
+                        << "CASE WHEN d.'EME' > 1 THEN 1 ELSE 0 END";
+
+    QString workedCountExpr =
+        QString("(%1)").arg(entityWorkedList.join(" + "));
+    QString confirmedCountExpr =
+        QString("(%1)").arg(entityConfirmedList.join(" + "));
+
+    bool NotWorked     = ui->notWorkedCheckBox->isChecked();
+    bool NotConfirmed  = ui->notConfirmedCheckBox->isChecked();
+
+    if (!NotWorked && !NotConfirmed) {
+        stmt_having_str.clear();
+    }
+    else if (NotWorked && !NotConfirmed) {
+        stmt_having_str = QString("HAVING %1 = 0").arg(workedCountExpr);
+    }
+    else if (!NotWorked && NotConfirmed) {
+        stmt_having_str =
+            QString("HAVING %1 = 0 AND %2 > 0")
+                .arg(confirmedCountExpr, workedCountExpr);
+    }
+    else {
+        stmt_having_str =
+            QString("HAVING (%1 = 0 OR %2 = 0)")
+                .arg(workedCountExpr, confirmedCountExpr);
+    }
+
     stmt_total_band_condition_work << "e.'SAT' > 0"
                                    << "e.'EME' > 0";
     stmt_total_band_condition_confirmed << "e.'SAT' > 1"
@@ -400,7 +437,7 @@ void AwardsDialog::refreshTable(int)
                                                            tr("Worked")).arg(  // 14
                                                            stmt_sum_worked.join(","), // 15
                                                            stmt_sum_total.join(","), // 16
-                                                           ui->notWorkedCheckBox->isChecked() ? QString("HAVING %1").arg(stmt_having.join(" AND ")) : QString()) // 17
+                                                           (ui->notWorkedCheckBox->isChecked() || ui->notConfirmedCheckBox->isChecked()) ? stmt_having_str : QString()) // 17
                                                            );
     qDebug(runtime) << finalSQL;
 
