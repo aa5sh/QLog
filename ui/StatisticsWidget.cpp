@@ -559,7 +559,8 @@ void StatisticsWidget::drawMyLocationsOnMap(QSqlQuery &query)
     if ( query.lastQuery().isEmpty() )
         return;
 
-    QList<QString> locations;
+    QStringList locationIcons;
+    QStringList rawLocationsPoint;
 
     while ( query.next() )
     {
@@ -570,14 +571,16 @@ void StatisticsWidget::drawMyLocationsOnMap(QSqlQuery &query)
         {
             double lat = stationGrid.getLatitude();
             double lon = stationGrid.getLongitude();
-            locations.append(QString("[\"%1\", %2, %3, homeIcon]").arg(loc).arg(lat).arg(lon));
+            locationIcons.append(QString("[\"%1\", %2, %3, homeIcon]").arg(loc).arg(lat).arg(lon));
+            rawLocationsPoint.append(QString("[%1, %2]").arg(lat).arg(lon));
         }
     }
 
     QString javaScript = QString("grids_confirmed = [];"
                                  "grids_worked = [];"
                                  "drawPointsGroup2([%1]);"
-                                 "maidenheadConfWorked.redraw();").arg(locations.join(","));
+                                 "maidenheadConfWorked.redraw();"
+                                 "map.panTo([0, L.latLngBounds([%2]).getCenter().lng]);").arg(locationIcons.join(","), rawLocationsPoint.join(","));
 
     qCDebug(runtime) << javaScript;
 
