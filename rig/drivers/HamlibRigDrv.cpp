@@ -108,6 +108,7 @@ RigCaps HamlibRigDrv::getCaps(int model)
         ret.canGetPTT = ( caps->get_ptt );
         ret.canSendMorse = ( caps->send_morse != nullptr );
         ret.canProcessDXSpot = isSmartSDRSlice(caps);
+        ret.isCIVAddrSupported = isCIVAddrRig(caps);
 
         if ( ret.isNetworkOnly )
         {
@@ -240,6 +241,20 @@ bool HamlibRigDrv::open()
             lastErrorText = tr("Cannot set PTT Share");
             qCDebug(runtime) << "Rig Open Error" << lastErrorText;
             return false;
+        }
+
+        if ( rigProfile.civAddr >= 0 )
+        {
+            const QString civAddrString = QString::number(rigProfile.civAddr);
+            const QString civAddrHexString = QString::number(rigProfile.civAddr, 16);
+
+            qCDebug(runtime) << "Setting CIV Addr to" << civAddrString << "0x" + civAddrHexString;
+            if ( rig_set_conf(rig, rig_token_lookup(rig, "civaddr"), civAddrString.toUtf8().constData()) != RIG_OK )
+            {
+                lastErrorText = tr("Cannot set CIV Addr") + " 0x" + civAddrHexString;
+                qCDebug(runtime) << "Rig Open Error" << lastErrorText;
+                return false;
+            }
         }
     }
     else
@@ -1066,6 +1081,16 @@ bool HamlibRigDrv::isSmartSDRSlice(const rig_caps *caps)
     Q_UNUSED(caps)
     return false;
 #endif
+}
+
+bool HamlibRigDrv::isCIVAddrRig(const rig_caps *caps)
+{
+    FCT_IDENTIFICATION;
+
+    const QString &modelName = QString::fromLatin1(caps->mfg_name);
+    return modelName.contains("Icom", Qt::CaseInsensitive)
+            || modelName.contains("Ten-Tec", Qt::CaseInsensitive); /* rigctl: some Ten-Tec rigs
+                                                                       so QLog will enable it for all Ten-Tec */
 }
 
 const QString HamlibRigDrv::getModeNormalizedText(const rmode_t mode,

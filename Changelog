@@ -5,9 +5,10 @@ TBC - 0.47.0
 - [NEW] - ADIF 3.1.6 - Added new contest IDs
 - [NEW] - ADIF 3.1.6 - Added new column EQSL_AG (Import/Export only)
 - [NEW] - Statistics, QSODetail contain deleted DXCC Entities (PR #728 @aa5sh @foldynl)
-- [NEW] - Settings - Added options to switch distance unit
-- [NEW] - Added manpage (PR #791 @dawkagaming)
-- [NEW] - Hamlib Rig - Added RTS and DTR control (PR #809 @aa5sh)
+- [NEW] - Settings Hamlib - Added support to define CIV Addr for Icom and Ten-Tec (issue #747)
+- [NEW] - Settings Hamlib - Added RTS and DTR control (PR #809 @aa5sh)
+- [NEW] - Settings GUI - Added options to switch distance unit
+- [NEW] - Added Linux manpage (PR #791 @dawkagaming)
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
 - Fixed QSODetail - Anti-meridian bug on map (issue #786)

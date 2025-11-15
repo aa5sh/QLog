@@ -492,6 +492,7 @@ void SettingsDialog::addRigProfile()
         profile.pttPortPath = ui->rigPTTPortEdit->text();
         profile.rts = ui->rigRTSCombo->currentData().toString();
         profile.dtr = ui->rigDTRCombo->currentData().toString();
+        profile.civAddr = ui->rigCIVAddrSpinBox->value();
     }
 
     if ( ui->rigPollIntervalSpinBox->isEnabled() )
@@ -610,6 +611,8 @@ void SettingsDialog::doubleClickRigProfile(QModelIndex i)
     int dtrIndex = ui->rigDTRCombo->findData(profile.dtr);
     ui->rigDTRCombo->setCurrentIndex(( dtrIndex < 0 ) ? PTT_TYPE_CAT_INDEX : dtrIndex);
 
+    ui->rigCIVAddrSpinBox->setValue(( profile.civAddr >= 0 ) ? profile.civAddr : CIVADDR_DISABLED_VALUE);
+
     setUIBasedOnRigCaps(caps);
 
     ui->rigAddProfileButton->setText(tr("Modify"));
@@ -655,6 +658,7 @@ void SettingsDialog::clearRigProfileForm()
     ui->rigDXSpots2RigCheckBox->setChecked(false);
     ui->rigAddProfileButton->setText(tr("Add"));
     ui->rigPTTPortEdit->clear();
+    ui->rigCIVAddrSpinBox->setValue(CIVADDR_DISABLED_VALUE);
 }
 
 void SettingsDialog::rigRXOffsetChanged(int)
@@ -2667,6 +2671,14 @@ void SettingsDialog::setUIBasedOnRigCaps(const RigCaps &caps)
             ui->rigKeySpeedSyncCheckBox->setChecked(false);
         }
     }
+
+
+    if ( !caps.isCIVAddrSupported )
+        ui->rigCIVAddrSpinBox->setValue(CIVADDR_DISABLED_VALUE);
+
+    ui->rigCIVAddrLabel->setVisible(caps.isCIVAddrSupported);
+    ui->rigCIVAddrSpinBox->setVisible(caps.isCIVAddrSupported);
+
 }
 
 /* Based on selected Rig model, it is needed to prepare AssignedCWKeyCombo

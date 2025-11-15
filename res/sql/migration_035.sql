@@ -70,3 +70,4 @@ CREATE TABLE "dxcc_zone_exceptions_clublog" (
 
 ALTER TABLE rig_profiles ADD COLUMN rts TEXT;
 ALTER TABLE rig_profiles ADD COLUMN dtr TEXT;
+ALTER TABLE rig_profiles ADD civaddr INTEGER;

@@ -135,6 +135,8 @@ private:
     void generateQRZAPICallsignTable();
     void saveQRZAPICallsignTable();
 
+    const int CIVADDR_DISABLED_VALUE = -1;
+
     QSqlTableModel* modeTableModel;
     QSqlTableModel* bandTableModel;
     StationProfilesManager *stationProfManager;

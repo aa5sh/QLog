@@ -1989,9 +1989,6 @@
                      </item>
                      <item row="2" column="1">
                       <layout class="QHBoxLayout" name="horizontalLayout_26">
-                       <property name="spacing">
-                        <number>6</number>
-                       </property>
                        <item>
                         <widget class="QComboBox" name="rigBaudSelect">
                          <property name="sizePolicy">
@@ -2043,6 +2040,44 @@
                            <string notr="true">1200</string>
                           </property>
                          </item>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="rigCIVAddrLabel">
+                         <property name="text">
+                          <string>CIV Addr</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                         <property name="margin">
+                          <number>2</number>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QSpinBox" name="rigCIVAddrSpinBox">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="specialValueText">
+                          <string>Auto</string>
+                         </property>
+                         <property name="prefix">
+                          <string notr="true">0x</string>
+                         </property>
+                         <property name="minimum">
+                          <number>-1</number>
+                         </property>
+                         <property name="maximum">
+                          <number>255</number>
+                         </property>
+                         <property name="displayIntegerBase">
+                          <number>16</number>
+                         </property>
                         </widget>
                        </item>
                       </layout>
@@ -4783,9 +4818,14 @@
   <tabstop>rigGetKeySpeedCheckBox</tabstop>
   <tabstop>rigKeySpeedSyncCheckBox</tabstop>
   <tabstop>rigDXSpots2RigCheckBox</tabstop>
+  <tabstop>rigPortTypeCombo</tabstop>
+  <tabstop>rigPollIntervalSpinBox</tabstop>
   <tabstop>cwNetPortSpin</tabstop>
   <tabstop>rigPortEdit</tabstop>
   <tabstop>rigBaudSelect</tabstop>
+  <tabstop>rigCIVAddrSpinBox</tabstop>
+  <tabstop>rigDataBitsSelect</tabstop>
+  <tabstop>rigStopBitsSelect</tabstop>
   <tabstop>rigFlowControlSelect</tabstop>
   <tabstop>rigParitySelect</tabstop>
   <tabstop>rigHostNameEdit</tabstop>
@@ -6055,8 +6095,8 @@
   <slot>rigFlowControlChanged(int)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

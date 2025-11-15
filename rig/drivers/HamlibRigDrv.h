@@ -15,6 +15,7 @@ public:
     static QList<QPair<QString, QString> > getPTTTypeList();
     static RigCaps getCaps(int model);
     static bool isSmartSDRSlice(const struct rig_caps *caps);
+    static bool isCIVAddrRig(const struct rig_caps *caps);
     explicit HamlibRigDrv(const RigProfile &profile,
                           QObject *parent = nullptr);
     virtual ~HamlibRigDrv();
