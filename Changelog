@@ -10,6 +10,7 @@ TBC - 0.47.0
 - [NEW] - Hamlib Rig - Added RTS and DTR control (PR #809 @aa5sh)
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
+- Fixed QSODetail - Anti-meridian bug on map (issue #786)
 
 2025/10/31 - 0.46.2
 - Fixed Spaces after QRZ.com name (issue #767)
