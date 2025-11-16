@@ -85,6 +85,8 @@ void AwardsDialog::refreshTable(int)
     QStringList addlCTEs;
     QStringList stmt_total_band_condition_work;
     QStringList stmt_total_band_condition_confirmed;
+    QStringList stmt_not_confirmed;
+    QStringList stmt_any_worked;
 
     const QString &awardSelected = getSelectedAward();
 
@@ -121,6 +123,8 @@ void AwardsDialog::refreshTable(int)
         stmt_having << QString("SUM(d.'%1') = 0").arg(band.name);
         stmt_total_band_condition_work << QString("e.'%0' > 0").arg(band.name);
         stmt_total_band_condition_confirmed << QString("e.'%0' > 1").arg(band.name);
+        stmt_not_confirmed << QString("MAX(d.'%1') < 2").arg(band.name);
+        stmt_any_worked << QString("MAX(d.'%1') > 0").arg(band.name);
     }
 
     stmt_max_part << QString(" MAX(CASE WHEN prop_mode = 'SAT' AND m.dxcc IN (%1) THEN %2 ELSE 0 END) as 'SAT' ").arg(modes.join(","), innerConfirmedCase)
@@ -139,6 +143,10 @@ void AwardsDialog::refreshTable(int)
                                    << "e.'EME' > 0";
     stmt_total_band_condition_confirmed << "e.'SAT' > 1"
                                         << "e.'EME' > 1";
+    stmt_not_confirmed << " MAX(d.'SAT') < 2"
+                       << " MAX(d.'EME') < 2";
+    stmt_any_worked << " MAX(d.'SAT') > 0"
+                    << " MAX(d.'EME') > 0";
 
     sourceContactsTable = " source_contacts AS ("
                           "  SELECT * "
@@ -337,6 +345,17 @@ void AwardsDialog::refreshTable(int)
                           "     INNER JOIN modes m on c.mode = m.name ";
     }
 
+    QStringList havingConditions;
+    if ( ui->notWorkedCheckBox->isChecked() )
+        havingConditions << QString("(%1)").arg(stmt_having.join(" AND "));
+    if ( ui->notConfirmedCheckBox->isChecked() )
+        havingConditions << QString("(%1) AND (%2)").arg(stmt_not_confirmed.join(" AND "),
+                                                         stmt_any_worked.join(" OR "));
+
+    QString havingClause;
+    if ( !havingConditions.isEmpty() )
+        havingClause = QString("HAVING %1").arg(havingConditions.join(" OR "));
+
     addlCTEs.append(sourceContactsTable);
 
     QString finalSQL(QString(
@@ -401,7 +420,7 @@ void AwardsDialog::refreshTable(int)
                                                            tr("Worked")).arg(  // 14
                                                            stmt_sum_worked.join(","), // 15
                                                            stmt_sum_total.join(","), // 16
-                                                           ui->notWorkedCheckBox->isChecked() ? QString("HAVING %1").arg(stmt_having.join(" AND ")) : QString()) // 17
+                                                           havingClause) // 17
                                                            );
     qDebug(runtime) << finalSQL;
 
@@ -519,4 +538,8 @@ void AwardsDialog::setNotWorkedEnabled(bool enabled)
     ui->notWorkedLabel->setVisible(enabled);
     ui->notWorkedCheckBox->setChecked(enabled && ui->notWorkedCheckBox->isChecked());
     ui->notWorkedCheckBox->blockSignals(false);
+    ui->notConfirmedCheckBox->blockSignals(true);
+    ui->notConfirmedCheckBox->setVisible(enabled);
+    ui->notConfirmedCheckBox->setChecked(enabled && ui->notConfirmedCheckBox->isChecked());
+    ui->notConfirmedCheckBox->blockSignals(false);
 }
