@@ -219,11 +219,35 @@
        </layout>
       </item>
       <item row="3" column="1">
-       <widget class="QCheckBox" name="notWorkedCheckBox">
-        <property name="text">
-         <string>Not-Worked Only</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="showFilterLayout">
+        <item>
+         <widget class="QCheckBox" name="notWorkedCheckBox">
+          <property name="text">
+           <string>Not-Worked Only</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="notConfirmedCheckBox">
+          <property name="text">
+           <string>Not-Confirmed Only</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="notWorkedLabel">
@@ -472,7 +496,23 @@
    <slot>refreshTable(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>562</x>
+     <x>545</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>507</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>notConfirmedCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>AwardsDialog</receiver>
+   <slot>refreshTable(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>667</x>
      <y>96</y>
     </hint>
     <hint type="destinationlabel">
