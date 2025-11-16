@@ -139,6 +139,20 @@ public:
     static void saveConfigMulticastTTL(int);
     static int getConfigMulticastTTL();
 
+    // identification of different variants of the WSJTX protocol based on packet ID
+    static bool isJTDXId(const QString &id)
+    {
+        return id.contains("JTDX");
+    }
+    static bool isWriteLogId(const QString &id)
+    {
+        return id.contains("WRITELOG");
+    }
+    static bool isCSNSat(const QString &data)
+    {
+        return data.contains("<programid:6>CSN Sat");
+    }
+
 signals:
     void statusReceived(WsjtxStatus);
     void decodeReceived(WsjtxDecode);

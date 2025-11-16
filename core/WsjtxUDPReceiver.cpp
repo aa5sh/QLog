@@ -296,7 +296,8 @@ void WsjtxUDPReceiver::readPendingDatagrams()
             decode.mode = QString(mode);
             decode.message = QString(message);
 
-            if ( id.contains("JTDX") )
+#if 0
+            if ( isJTDXId(decode.id) )
             {
                 /* It's a workaround for JTDX only.
                  * JTDX sends the time without a time zone. Which is
@@ -307,7 +308,7 @@ void WsjtxUDPReceiver::readPendingDatagrams()
                  */
                 // it is not needed to convert it here?
             }
-
+#endif
             qCDebug(runtime) << decode;
 
             emit decodeReceived(decode);
@@ -339,7 +340,7 @@ void WsjtxUDPReceiver::readPendingDatagrams()
             log.exch_rcvd = QString(exch_rcvd);
             log.prop_mode = QString(prop_mode);
 
-            if ( id.contains("JTDX") )
+            if ( isJTDXId(log.id) )
             {
                 /* It's a workaround for JTDX only.
                  * JTDX sends the time without a time zone. Which is
@@ -363,9 +364,8 @@ void WsjtxUDPReceiver::readPendingDatagrams()
             WsjtxLogADIF log;
 
             const QString data = datagram.data();
-            bool isCSNSat = data.contains("<programid:6>CSN Sat");
 
-            if ( isCSNSat )
+            if ( isCSNSat(data) )
             {
                 id = "CSN Sat";
                 int index = data.indexOf("<adif_ver:");

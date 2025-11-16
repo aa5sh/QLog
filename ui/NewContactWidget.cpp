@@ -33,6 +33,7 @@
 #include "data/ActivityProfile.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
+#include "core/WsjtxUDPReceiver.h"
 
 MODULE_IDENTIFICATION("qlog.ui.newcontactwidget");
 
@@ -2968,7 +2969,7 @@ void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
     // 3) new Calllsign, new gris
     // WRITELOG workaround: Similar to JTDX, check application ID
     // If ID contains "WRITELOG", always trigger callbook lookup
-    if ( !grid.isEmpty() || id.contains("WRITELOG") )
+    if ( !grid.isEmpty() || WsjtxUDPReceiver::isWriteLogId(id) )
     {
         useFieldsFromPrevQSO(callsign, grid);
         finalizeCallsignEdit();
