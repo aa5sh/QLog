@@ -52,7 +52,7 @@
      <x>0</x>
      <y>0</y>
      <width>913</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -92,6 +92,7 @@
     <addaction name="actionReportBug"/>
     <addaction name="actionMailingList"/>
     <addaction name="separator"/>
+    <addaction name="actionWhatsNew"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
@@ -891,7 +892,7 @@
     <string>Theme: Native</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionThemeLight">
@@ -902,7 +903,7 @@
     <string>Theme: QLog Light</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionThemeDark">
@@ -913,7 +914,12 @@
     <string>Theme: QLog Dark</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionWhatsNew">
+   <property name="text">
+    <string>What's New</string>
    </property>
   </action>
  </widget>
@@ -1647,6 +1653,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionWhatsNew</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showWhatsNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>settingsChanged()</signal>
@@ -1676,5 +1698,6 @@
   <slot>stopContest()</slot>
   <slot>showServiceDownloadQSL()</slot>
   <slot>showServiceUpload()</slot>
+  <slot>showWhatsNew()</slot>
  </slots>
 </ui>

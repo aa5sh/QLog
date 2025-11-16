@@ -9,6 +9,7 @@ TBC - 0.47.0
 - [NEW] - Settings Hamlib - Added RTS and DTR control (PR #809 @aa5sh)
 - [NEW] - Settings GUI - Added options to switch distance unit
 - [NEW] - Added Linux manpage (PR #791 @dawkagaming)
+- [NEW] - Added a link to the GitHub release notes under Help-Whats New
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
 - Fixed QSODetail - Anti-meridian bug on map (issue #786)

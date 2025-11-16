@@ -1696,6 +1696,13 @@ void MainWindow::showAbout()
     QMessageBox::about(this, tr("About"), aboutText);
 }
 
+void MainWindow::showWhatsNew()
+{
+    FCT_IDENTIFICATION;
+
+    QDesktopServices::openUrl(QString("https://github.com/foldynl/QLog/releases/tag/v%0").arg(VERSION));
+}
+
 void MainWindow::showWikiHelp()
 {
     FCT_IDENTIFICATION;

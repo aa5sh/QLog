@@ -59,6 +59,7 @@ private slots:
     void exportLog();
     void showAwards();
     void showAbout();
+    void showWhatsNew();
     void showWikiHelp();
     void showMailingList();
     void showReportBug();
