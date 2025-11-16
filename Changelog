@@ -13,6 +13,7 @@ TBC - 0.47.0
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
 - Fixed QSODetail - Anti-meridian bug on map (issue #786)
 - Fixed Statistics: Center maps on QTH longitude (issue #824)
+- Fixed OmniRig disconnecting when its status changed unexpectedly (issue #832)
 
 2025/10/31 - 0.46.2
 - Fixed Spaces after QRZ.com name (issue #767)
