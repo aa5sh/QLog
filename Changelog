@@ -11,6 +11,7 @@ TBC - 0.47.0
 - [NEW] - Added Linux manpage (PR #791 @dawkagaming)
 - [NEW] - Added a link to the GitHub release notes under Help-Whats New
 - [NEW] - Added workaround for WriteLog - always call callbook lookups (PR #833 @sjwoodr)
+- [NEW] - Statistics - Added Not-Confirmed filter (PR #836 @aa5sh)
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
 - Fixed QSODetail - Anti-meridian bug on map (issue #786)
