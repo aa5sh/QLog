@@ -70,6 +70,13 @@ OmnirigV2RigDrv::OmnirigV2RigDrv(const RigProfile &profile,
         qCDebug(runtime) << "Cannot allocate Omnirig structure";
         lastErrorText = tr("Initialization Error");
     }
+
+    offlineTimer.setSingleShot(true);
+    connect(&offlineTimer, &QTimer::timeout, this, [this] ()
+    {
+        qCDebug(runtime) << "Offline timer exceeded";
+        emitDisconnect();
+    });
 }
 
 OmnirigV2RigDrv::~OmnirigV2RigDrv()
@@ -150,16 +157,13 @@ bool OmnirigV2RigDrv::open()
 
     __rigTypeChange(rigProfile.model);
 
-    QTimer::singleShot(300, this, [this]()
+    QTimer::singleShot(500, this, [this]()
     {
         OmnirigV2RigDrv::rigStatusChange(rigProfile.model);
     });
 
-    emit rigIsReady();
-
     // TODO - solve timeout from library. Is it possible????
     return true;
-
 }
 
 bool OmnirigV2RigDrv::isMorseOverCatSupported()
@@ -340,8 +344,7 @@ void OmnirigV2RigDrv::stopTimers()
 {
     FCT_IDENTIFICATION;
 
-    // not timer
-    return;
+    offlineTimer.stop();
 }
 
 void OmnirigV2RigDrv::sendDXSpot(const DxSpot &spot)
@@ -412,11 +415,14 @@ void OmnirigV2RigDrv::rigStatusChange(int rigID)
     if ( OmniRigV2::ST_ONLINE != rig->Status () )
     {
         qCDebug(runtime) << "New status" << rig->StatusStr();
-        emit errorOccurred(tr("Rig status changed"),
-                          tr("Rig is not connected"));
+        if ( !offlineTimer.isActive() )
+            offlineTimer.start(OFFLINETIMER_TIME_MS);
     }
     else
+    {
+        offlineTimer.stop();
         emit rigIsReady();
+    }
 }
 
 void OmnirigV2RigDrv::COMException(int code,
@@ -775,6 +781,21 @@ double OmnirigV2RigDrv::getXITFreq()
 void OmnirigV2RigDrv::setXITFreq(double xit)
 {
      currXIT = xit;
+}
+
+void OmnirigV2RigDrv::emitDisconnect()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !rig )
+    {
+        qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    emit errorOccured(tr("Rig status changed"),
+                      tr("Rig is not connected"));
+
 }
 
 #undef MUTEXLOCKER
