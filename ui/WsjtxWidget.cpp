@@ -238,7 +238,7 @@ void WsjtxWidget::callsignClicked(QString callsign)
     if ( entry.callsign.isEmpty() )
         return;
 
-    emit callsignSelected(callsign, entry.grid);
+    emit callsignSelected(callsign, entry.grid, entry.decode.id);
     emit reply(entry.decode);
 }
 
