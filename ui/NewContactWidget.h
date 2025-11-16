@@ -236,7 +236,7 @@ public slots:
     void readGlobalSettings();
     void tuneDx(const DxSpot &spot);
     void fillCallsignGrid(const QString &callsign, const QString& grid);
-    void prepareWSJTXQSO(const QString &receivedCallsign, const QString &grid);
+    void prepareWSJTXQSO(const QString &receivedCallsign, const QString &grid, const QString &id);
     void resetContact();
     void saveContact();
 
