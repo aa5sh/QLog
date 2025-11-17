@@ -79,6 +79,7 @@ SOURCES += \
         data/ActivityProfile.cpp \
         data/AntProfile.cpp \
         data/BandPlan.cpp \
+        data/Accents.cpp \
         data/CWKeyProfile.cpp \
         data/CWShortcutProfile.cpp \
         data/Callsign.cpp \
