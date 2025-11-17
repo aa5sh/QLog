@@ -43,6 +43,8 @@ private:
     bool refreshUploadStatusTrigger();
 
     static const int latestVersion = 35;
+
+    friend class MigrationSqlTest_FriendAccessor;
 };
 
 #endif // QLOG_CORE_MIGRATION_H
