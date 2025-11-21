@@ -317,6 +317,9 @@ bool Migration::functionMigration(int version)
     case 34:
         ret = settings2DB();
         break;
+    case 35:
+        ret = removeSettings2DB();
+        break;
     default:
         ret = true;
     }
@@ -782,9 +785,13 @@ bool Migration::profiles2DB()
     return true;
 }
 
-void removeSettings2DB()
+bool Migration::removeSettings2DB()
 {
-    // TODO call it later when we will sure that everything is working
+    // all platform-independent settings are already in the DB,
+    // no unusual errors occur. It's time to delete old values
+    // ​​from the config.
+    // Only platform-dependent settings remain in the config now.
+
     QSettings settings;
 
     settings.remove("qrzcom/username");
@@ -886,6 +893,7 @@ void removeSettings2DB()
     settings.remove("geometry");
     settings.remove("windowState");
     settings.remove("bandmapwidgets");
+    return true;
 }
 
 bool Migration::settings2DB()
