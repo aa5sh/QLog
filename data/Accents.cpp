@@ -13315,7 +13315,7 @@ QString Data::removeAccents(const QString &input)
         {
             const int offset = charInt - 128;
             const int maxIndex = static_cast<int>(sizeof(tranlitIndexMap) / sizeof(tranlitIndexMap[0]));
-            if ( offset >= 0 && offset < maxIndex )
+            if ( offset < maxIndex )
             {
                 const int index = tranlitIndexMap[offset];
                 if ( index >= 0 )
