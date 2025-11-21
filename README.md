@@ -99,6 +99,7 @@ The above packages are maintained by the application maintainer. However, there 
 
 Prerequisites:
 
+- Installed [Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version)
 - Installed [Trusted QSL](http://www.arrl.org/tqsl-download) (Optional)
 - Installed [Omnirig v1](https://www.dxatlas.com/omnirig/) (Optional)
 - Installed [Omnirig v2](https://www.hb9ryz.ch/omnirig/) (Optional)
