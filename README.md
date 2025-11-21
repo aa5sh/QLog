@@ -108,7 +108,7 @@ Installation package is available via GitHub [Releases](https://github.com/foldy
 
 ### MacOS
 
-Official support ended. Only for developers.
+MacOS DMG: https://github.com/aa5sh/QLog/releases
 
 ## Compilation
 
