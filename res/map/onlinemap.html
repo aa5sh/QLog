@@ -476,26 +476,54 @@
 
     // this function show WSJTX spots
     function addWSJTXSpot(lat, lng, callsign, color) {
-        let pointColor = color;
-        let marker = new L.marker([lat, lng], {opacity: 0.001 });
-        marker.bindTooltip(callsign, {pane: 'lowestPane', permanent: true, direction : 'bottom', offset: [-16, 8], className: 'wsjtx-tooltip' });
-        marker.on('dblclick', wsjtxCallsignPressed);
-        marker.callsign = callsign;
-        marker.getTooltip().setContent(`<div style="background-color: ${pointColor};border-radius: 20px;padding: 5px;font-weight: bold;">${marker.getTooltip().getContent()}</div>`);
+        const fadeSchedule = [
+            { timeout: 30000, className: 'fade-out75' },
+            { timeout: 45000, className: 'fade-out50' },
+        ];
+
+        const tooltipHTML = content =>
+            `<div style="background-color: ${color};border-radius:20px;padding:5px;font-weight:bold;">${content}</div>`;
+
+        function createSpotMarker(latitude, longitude) {
+            const marker = new L.marker([latitude, longitude], { opacity: 0.001 });
+            marker.callsign = callsign;
+
+            marker.bindTooltip(callsign, {
+                pane: 'lowestPane',
+                permanent: true,
+                direction: 'bottom',
+                offset: [-16, 8],
+                className: 'wsjtx-tooltip'
+            });
+
+            marker.on('dblclick', wsjtxCallsignPressed);
+
+            const tooltip = marker.getTooltip();
+            tooltip.setContent(tooltipHTML(tooltip.getContent()));
+
+            return marker;
+        }
+
+        // the main marker
+        const marker = createSpotMarker(lat, lng);
+
+        // mirror marker
+        const mirrorLon = lng >= 0 ? lng - 360 : lng + 360;
+        const markerMirror = createSpotMarker(lat, mirrorLon);
 
         wsjtxStationsLayer.addLayer(marker);
+        wsjtxStationsLayer.addLayer(markerMirror);
 
-        setTimeout(function() {
-            marker.getTooltip().getElement().classList.add('fade-out75');
-        }, 30000);
+        fadeSchedule.forEach(item => {
+            setTimeout(() => {
+                marker.getTooltip().getElement().classList.add(item.className);
+                markerMirror.getTooltip().getElement().classList.add(item.className);
+            }, item.timeout);
+        });
 
-        setTimeout(function() {
-            marker.getTooltip().getElement().classList.add('fade-out50');
-        }, 45000);
-
-        // remove spot after 60s
-        setTimeout(function() {
+        setTimeout(() => {
             map.removeLayer(marker);
+            map.removeLayer(markerMirror);
         }, 60000);
     }
 
