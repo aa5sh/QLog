@@ -14,6 +14,7 @@ TBC - 0.47.0
 - [NEW] - Statistics - Added Not-Confirmed filter (PR #836 @aa5sh)
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
+- [CHANGED] - Double Spin Boxes - the decimal separator is forced to be a period
 - Fixed QSODetail - Anti-meridian bug on map (issue #786)
 - Fixed Statistics: Center maps on QTH longitude (issue #824)
 - Fixed OmniRig disconnecting when its status changed unexpectedly (issue #832)
