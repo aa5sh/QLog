@@ -37,6 +37,8 @@ public slots:
     void rotDisconnected();
     void refreshRotProfileCombo();
     void setQSOBearing(double, double);
+    void shortcutProfileIncrease();
+    void shortcutProfileDecrease();
 
 protected:
     void showEvent(QShowEvent* event);
@@ -59,6 +61,7 @@ private:
     void refreshRotUserButtons();
     void setUserButtonDesc(QPushButton *button, const QString&, const double);
     double getQSOBearing();
+    void shortcutComboMove(int);
 
     QGraphicsPathItem* antennaNeedle;
     QGraphicsPathItem* requestedAzimuthNeedle;

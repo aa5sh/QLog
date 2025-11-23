@@ -12,6 +12,7 @@ TBC - 0.47.0
 - [NEW] - Added a link to the GitHub release notes under Help-Whats New
 - [NEW] - Added workaround for WriteLog - always call callbook lookups (PR #833 @sjwoodr)
 - [NEW] - Statistics - Added Not-Confirmed filter (PR #836 @aa5sh)
+- [NEW] - Rotator Widget - Added buttons to change button profiles
 - [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
 - [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
 - [CHANGED] - Double Spin Boxes - the decimal separator is forced to be a period
