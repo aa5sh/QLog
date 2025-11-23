@@ -176,6 +176,7 @@ SOURCES += \
         ui/WebEnginePage.cpp \
         ui/WsjtxFilterDialog.cpp \
         ui/WsjtxWidget.cpp \
+        ui/component/BaseDoubleSpinBox.cpp \
         ui/component/EditLine.cpp \
         ui/component/FreqQSpinBox.cpp \
         ui/component/MultiselectCompleter.cpp \
@@ -326,6 +327,7 @@ HEADERS += \
         ui/WsjtxWidget.h \
         i18n/dbstrings.tri \
         i18n/datastrings.tri \
+        ui/component/BaseDoubleSpinBox.h \
         ui/component/ButtonStyle.h \
         ui/component/EditLine.h \
         ui/component/FreqQSpinBox.h \
