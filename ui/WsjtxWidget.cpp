@@ -186,7 +186,6 @@ void WsjtxWidget::statusReceived(WsjtxStatus newStatus)
     {
         currFreq = Hz2MHz(newStatus.dial_freq);
         currBand = BandPlan::freq2Band(currFreq).name;
-        ui->freqLabel->setText(QString("%1 MHz").arg(QSTRING_FREQ(currFreq)));
         clearTable();
     }
 
@@ -198,7 +197,6 @@ void WsjtxWidget::statusReceived(WsjtxStatus newStatus)
 
     if ( this->status.mode != newStatus.mode )
     {
-        ui->modeLabel->setText(newStatus.mode);
         wsjtxTableModel->setCurrentSpotPeriod(WsjtxUDPReceiver::modePeriodLength(newStatus.mode)); /*currently, only Status has a correct Mode in the message */
         clearTable();
     }
@@ -331,7 +329,7 @@ void WsjtxWidget::reloadSetting()
     dxMemberFilter = QSet<QString>(QSet<QString>::fromList(tmp));
 #endif
 
-    ui->filteredLabel->setHidden(!isFilterEnabled());
+    ui->filteredLabel->setVisible(isFilterEnabled());
 }
 
 void WsjtxWidget::clearTable()
