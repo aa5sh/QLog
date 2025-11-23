@@ -10,7 +10,6 @@
 #include <QLineEdit>
 #include <QHash>
 #include <QFormLayout>
-#include <QDoubleSpinBox>
 #include <QToolButton>
 
 #include "data/DxSpot.h"
@@ -27,6 +26,7 @@
 #include "data/SOTAEntity.h"
 #include "data/WWFFEntity.h"
 #include "component/ShutdownAwareWidget.h"
+#include "ui/component/BaseDoubleSpinBox.h"
 
 namespace Ui {
 class NewContactWidget;
@@ -127,7 +127,7 @@ public:
     NewContactEditLine *rxPWREdit;
 
     QLabel *powerLabel;
-    QDoubleSpinBox *powerEdit;
+    BaseDoubleSpinBox *powerEdit;
 
     QLabel *rigLabel;
     NewContactEditLine *rigEdit;

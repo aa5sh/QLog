@@ -4,7 +4,6 @@
 #include <QStyledItemDelegate>
 #include <QItemDelegate>
 #include <QDate>
-#include <QDoubleSpinBox>
 #include <QCheckBox>
 #include <QStyleOptionViewItem>
 #include <QPainter>
@@ -23,6 +22,7 @@
 
 #include "core/LogLocale.h"
 #include "data/Gridsquare.h"
+#include "ui/component/BaseDoubleSpinBox.h"
 
 class CallsignDelegate : public QStyledItemDelegate {
 public:
@@ -166,7 +166,7 @@ public:
                           const QStyleOptionViewItem&,
                           const QModelIndex&) const
     {
-        QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
+        BaseDoubleSpinBox* editor = new BaseDoubleSpinBox(parent);
         editor->setDecimals(precision);
         editor->setRange(-1*step, 1e12);
         editor->setSingleStep(step);
@@ -184,14 +184,14 @@ public:
     void setEditorData(QWidget* editor, const QModelIndex& index) const
     {
         double value = index.model()->data(index, Qt::EditRole).toDouble();
-        QDoubleSpinBox* spinBox = static_cast<QDoubleSpinBox*>(editor);
+        BaseDoubleSpinBox* spinBox = static_cast<BaseDoubleSpinBox*>(editor);
         spinBox->setValue(value);
     }
 
     void setModelData(QWidget* editor, QAbstractItemModel* model,
                       const QModelIndex& index) const
     {
-        QDoubleSpinBox* spinBox = static_cast<QDoubleSpinBox*>(editor);
+        BaseDoubleSpinBox* spinBox = static_cast<BaseDoubleSpinBox*>(editor);
         if (spinBox->text() == "Empty" )
         {
             model->setData(index, QVariant() , Qt::EditRole);
@@ -228,7 +228,7 @@ public:
                           const QStyleOptionViewItem&,
                           const QModelIndex&) const
     {
-        QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
+        BaseDoubleSpinBox* editor = new BaseDoubleSpinBox(parent);
         editor->setDecimals(precision);
         editor->setRange(-1*step, 1e12);
         editor->setSingleStep(step);
@@ -246,14 +246,14 @@ public:
     void setEditorData(QWidget* editor, const QModelIndex& index) const
     {
         double value = index.model()->data(index, Qt::EditRole).toDouble();
-        QDoubleSpinBox* spinBox = static_cast<QDoubleSpinBox*>(editor);
+        BaseDoubleSpinBox* spinBox = static_cast<BaseDoubleSpinBox*>(editor);
         spinBox->setValue(value);
     }
 
     void setModelData(QWidget* editor, QAbstractItemModel* model,
                       const QModelIndex& index) const
     {
-        QDoubleSpinBox* spinBox = static_cast<QDoubleSpinBox*>(editor);
+        BaseDoubleSpinBox* spinBox = static_cast<BaseDoubleSpinBox*>(editor);
         if (spinBox->text() == "Empty" )
         {
             model->setData(index, QVariant() , Qt::EditRole);

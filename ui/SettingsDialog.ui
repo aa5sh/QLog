@@ -527,7 +527,7 @@
                   </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="QDoubleSpinBox" name="antAzBeamWidthSpinBox">
+                  <widget class="BaseDoubleSpinBox" name="antAzBeamWidthSpinBox">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -552,7 +552,7 @@
                   </widget>
                  </item>
                  <item row="3" column="1">
-                  <widget class="QDoubleSpinBox" name="antAzOffsetSpinBox">
+                  <widget class="BaseDoubleSpinBox" name="antAzOffsetSpinBox">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -1605,7 +1605,7 @@
                  <item row="3" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_5">
                    <item>
-                    <widget class="QDoubleSpinBox" name="rigTXFreqMinSpinBox">
+                    <widget class="BaseDoubleSpinBox" name="rigTXFreqMinSpinBox">
                      <property name="toolTip">
                       <string>Minimum and maximum TX frequencies. Specific ranges are derived from allowed Band in the Setting.</string>
                      </property>
@@ -1631,7 +1631,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDoubleSpinBox" name="rigTXFreqMaxSpinBox">
+                    <widget class="BaseDoubleSpinBox" name="rigTXFreqMaxSpinBox">
                      <property name="toolTip">
                       <string>Minimum and maximum TX frequencies. Specific ranges are derived from allowed Band in the Setting.</string>
                      </property>
@@ -1672,7 +1672,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDoubleSpinBox" name="rigRXOffsetSpinBox">
+                    <widget class="BaseDoubleSpinBox" name="rigRXOffsetSpinBox">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1707,7 +1707,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDoubleSpinBox" name="rigTXOffsetSpinBox">
+                    <widget class="BaseDoubleSpinBox" name="rigTXOffsetSpinBox">
                      <property name="toolTip">
                       <string>Enter manually XIT or Transverter offset</string>
                      </property>
@@ -1738,7 +1738,7 @@
                   </widget>
                  </item>
                  <item row="5" column="1">
-                  <widget class="QDoubleSpinBox" name="rigPWRDefaultSpinBox">
+                  <widget class="BaseDoubleSpinBox" name="rigPWRDefaultSpinBox">
                    <property name="toolTip">
                     <string>Enter default PWR (ex. when Rig is disconnected)</string>
                    </property>
@@ -4740,6 +4740,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>BaseDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>ui/component/BaseDoubleSpinBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>SerialPortEditLine</class>
    <extends>QLineEdit</extends>
    <header>ui/component/EditLine.h</header>
@@ -6095,8 +6100,8 @@
   <slot>rigFlowControlChanged(int)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
