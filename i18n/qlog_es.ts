@@ -623,7 +623,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="233"/>
         <source>Not-Confirmed Only</source>
-        <translation type="unfinished"></translation>
+        <translation>No confirmado</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="255"/>
@@ -714,7 +714,7 @@
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="163"/>
         <source>DELETED</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminado</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="213"/>
@@ -1017,7 +1017,7 @@
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="408"/>
         <source>Immediately stop CW sending</source>
-        <translation type="unfinished"></translation>
+        <translation>Detener inmediatamente la transmisión CW</translation>
     </message>
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="440"/>
@@ -3261,17 +3261,17 @@
     <message>
         <location filename="../data/Data.h" line="94"/>
         <source>Confirmed (AG)</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmado (AG)</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="95"/>
         <source>Confirmed (no AG)</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmado (non-AG)</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="96"/>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocido</translation>
+        <translation>Desconocido</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="1"/>
@@ -4362,7 +4362,7 @@
     <message>
         <location filename="../rig/drivers/HamlibRigDrv.cpp" line="254"/>
         <source>Cannot set CIV Addr</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede establecer la dirección CI-V</translation>
     </message>
     <message>
         <location filename="../rig/drivers/HamlibRigDrv.cpp" line="262"/>
@@ -5342,7 +5342,7 @@
     <message>
         <location filename="../models/LogbookModel.cpp" line="654"/>
         <source>eQSL AG</source>
-        <translation type="unfinished"></translation>
+        <translation>eQSL AG</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="655"/>
@@ -6193,7 +6193,7 @@
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="318"/>
         <source>Incorrect login or password</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuario o contraseña incorrectos</translation>
     </message>
 </context>
 <context>
@@ -6661,27 +6661,27 @@
     <message>
         <location filename="../ui/MainWindow.ui" line="892"/>
         <source>Theme: Native</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema: Native</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="903"/>
         <source>Theme: QLog Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema: QLog Light</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="914"/>
         <source>Theme: QLog Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema: QLog Dark</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="922"/>
         <source>What&apos;s New</source>
-        <translation type="unfinished"></translation>
+        <translation>Novedades</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="58"/>
         <source>Color Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema de color</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="74"/>
@@ -6867,7 +6867,7 @@
     <message>
         <location filename="../core/Migration.cpp" line="406"/>
         <source>Clublog CTY.XML</source>
-        <translation type="unfinished"></translation>
+        <translation>Clublog CTY.XML</translation>
     </message>
     <message>
         <location filename="../core/Migration.cpp" line="409"/>
@@ -7369,7 +7369,7 @@
     <message>
         <location filename="../rotator/drivers/PSTRotDrv.cpp" line="107"/>
         <source>Error Occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>Se produjo un error</translation>
     </message>
     <message>
         <location filename="../rotator/drivers/PSTRotDrv.cpp" line="108"/>
@@ -7705,7 +7705,7 @@
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="397"/>
         <source>Loop detected. Raw UDP forward uses the same port as the WSJT-X receiving port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bucle detectado. El reenvío UDP en bruto usa el mismo puerto que el puerto de recepción de WSJT-X.</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="421"/>
@@ -9854,22 +9854,22 @@
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2048"/>
         <source>CIV Addr</source>
-        <translation type="unfinished"></translation>
+        <translation>CIV Addr</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2067"/>
         <source>Auto</source>
-        <translation type="unfinished">Automático</translation>
+        <translation>Automático</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2195"/>
         <source>RTS</source>
-        <translation type="unfinished">RTS</translation>
+        <translation>RTS</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2226"/>
         <source>DTR</source>
-        <translation type="unfinished">DTR</translation>
+        <translation>DTR</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2477"/>
@@ -10160,17 +10160,17 @@
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4660"/>
         <source>Unit System</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistema de unidades</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4669"/>
         <source>Metric</source>
-        <translation type="unfinished"></translation>
+        <translation>Métrico</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4679"/>
         <source>Imperial</source>
-        <translation type="unfinished"></translation>
+        <translation>Imperial</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4513"/>
@@ -10498,13 +10498,13 @@
         <location filename="../ui/SettingsDialog.cpp" line="297"/>
         <location filename="../ui/SettingsDialog.cpp" line="301"/>
         <source>High</source>
-        <translation type="unfinished"></translation>
+        <translation>High</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="298"/>
         <location filename="../ui/SettingsDialog.cpp" line="302"/>
         <source>Low</source>
-        <translation type="unfinished"></translation>
+        <translation>Low</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="322"/>
@@ -10873,7 +10873,7 @@
     <message>
         <location filename="../rig/drivers/TCIRigDrv.cpp" line="343"/>
         <source>Error Occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>Se produjo un error</translation>
     </message>
     <message>
         <location filename="../rig/drivers/TCIRigDrv.cpp" line="559"/>
