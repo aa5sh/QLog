@@ -793,7 +793,7 @@ void OmnirigV2RigDrv::emitDisconnect()
         return;
     }
 
-    emit errorOccured(tr("Rig status changed"),
+    emit errorOccurred(tr("Rig status changed"),
                       tr("Rig is not connected"));
 
 }
