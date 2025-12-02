@@ -9011,22 +9011,32 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="307"/>
+        <location filename="../ui/RotatorWidget.ui" line="176"/>
+        <source>Previous Button Profile</source>
+        <translation>Vorheriges Tastenprofil</translation>
+    </message>
+    <message>
+        <location filename="../ui/RotatorWidget.ui" line="284"/>
+        <source>Next Button Profile</source>
+        <translation>Nächstes Tastenprofil</translation>
+    </message>
+    <message>
+        <location filename="../ui/RotatorWidget.ui" line="313"/>
         <source>QSO LP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="310"/>
+        <location filename="../ui/RotatorWidget.ui" line="316"/>
         <source>QSO Long Path</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="315"/>
+        <location filename="../ui/RotatorWidget.ui" line="321"/>
         <source>QSO SP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="318"/>
+        <location filename="../ui/RotatorWidget.ui" line="324"/>
         <source>QSO Short Path</source>
         <translation></translation>
     </message>

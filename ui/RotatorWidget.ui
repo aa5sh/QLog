@@ -172,6 +172,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Previous Button Profile</string>
+       </property>
        <property name="text">
         <string notr="true"/>
        </property>
@@ -276,6 +279,9 @@
          <width>15</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Next Button Profile</string>
        </property>
        <property name="text">
         <string notr="true"/>
