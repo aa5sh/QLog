@@ -63,6 +63,11 @@ MainWindow::MainWindow(QWidget* parent) :
     themeMenu->addAction(ui->actionThemeNative);
     themeMenu->addAction(ui->actionThemeLight);
     themeMenu->addAction(ui->actionThemeDark);
+    QActionGroup *themeGroup = new QActionGroup(this);
+    themeGroup->addAction(ui->actionThemeNative);
+    themeGroup->addAction(ui->actionThemeLight);
+    themeGroup->addAction(ui->actionThemeDark);
+
     themeButton->setMenu(themeMenu);
 
     /* Dark Mode is supported only in case of Fusion Style */
@@ -926,9 +931,6 @@ void MainWindow::themeInit(int mode)
 
     LogParam::setMainWindowDarkMode(mode);
 
-    ui->actionThemeNative->setChecked(false);
-    ui->actionThemeLight->setChecked(false);
-    ui->actionThemeDark->setChecked(false);
     bool isDark = false;
     switch (mode) {
     case 0:
@@ -945,7 +947,7 @@ void MainWindow::themeInit(int mode)
         this->setLightTheme();
         break;
     default:
-        qWarning("Unsupported theme ID");
+        qWarning() << "Unsupported theme ID" << mode;
     }
 
     QFile style(":/res/stylesheet.css");
