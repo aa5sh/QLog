@@ -121,7 +121,7 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
 
             if ( entry.dxcc.cont.contains(contregexp)
                  && ( entry.status & dxccStatusFilter )
-                 && Gridsquare::distance2localeUnitDistance(entry.distance, unit) >= distanceFilter
+                 && Gridsquare::distance2localeUnitDistance(entry.distance, unit, locale) >= distanceFilter
                  && entry.decode.snr >= snrFilter
                  && ( dxMemberFilter.size() == 0
                       || (dxMemberFilter.size() && entry.memberList2Set().intersects(dxMemberFilter)))
@@ -186,20 +186,18 @@ void WsjtxWidget::statusReceived(WsjtxStatus newStatus)
     {
         currFreq = Hz2MHz(newStatus.dial_freq);
         currBand = BandPlan::freq2Band(currFreq).name;
-        ui->freqLabel->setText(QString("%1 MHz").arg(QSTRING_FREQ(currFreq)));
         clearTable();
     }
 
     if ( this->status.dx_call != newStatus.dx_call
          || this->status.dx_grid != newStatus.dx_grid )
     {
-        emit callsignSelected(newStatus.dx_call, newStatus.dx_grid);
+        emit callsignSelected(newStatus.dx_call, newStatus.dx_grid, newStatus.id);
     }
 
     if ( this->status.mode != newStatus.mode )
     {
-        ui->modeLabel->setText(newStatus.mode);
-        wsjtxTableModel->setCurrentSpotPeriod(WsjtxUDPReceiver::modePeriodLenght(newStatus.mode)); /*currently, only Status has a correct Mode in the message */
+        wsjtxTableModel->setCurrentSpotPeriod(WsjtxUDPReceiver::modePeriodLength(newStatus.mode)); /*currently, only Status has a correct Mode in the message */
         clearTable();
     }
 
@@ -238,7 +236,7 @@ void WsjtxWidget::callsignClicked(QString callsign)
     if ( entry.callsign.isEmpty() )
         return;
 
-    emit callsignSelected(callsign, entry.grid);
+    emit callsignSelected(callsign, entry.grid, entry.decode.id);
     emit reply(entry.decode);
 }
 
@@ -331,7 +329,7 @@ void WsjtxWidget::reloadSetting()
     dxMemberFilter = QSet<QString>(QSet<QString>::fromList(tmp));
 #endif
 
-    ui->filteredLabel->setHidden(!isFilterEnabled());
+    ui->filteredLabel->setVisible(isFilterEnabled());
 }
 
 void WsjtxWidget::clearTable()

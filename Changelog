@@ -1,3 +1,26 @@
+2025/12/06 - 0.47.0
+- [NEW] - Adds theme options - native, light, dark (PR #718 @kyleboyle)
+- [NEW] - Implemented ADIF 3.1.6
+- [NEW] - ADIF 3.1.6 - Added new modes FSK and MTONE
+- [NEW] - ADIF 3.1.6 - Added new contest IDs
+- [NEW] - ADIF 3.1.6 - Added new column EQSL_AG (Import/Export only)
+- [NEW] - Statistics, QSODetail contain deleted DXCC Entities (PR #728 @aa5sh @foldynl)
+- [NEW] - Settings Hamlib - Added support to define CIV Addr for Icom and Ten-Tec (issue #747)
+- [NEW] - Settings Hamlib - Added RTS and DTR control (PR #809 @aa5sh)
+- [NEW] - Settings GUI - Added options to switch distance unit
+- [NEW] - Added Linux manpage (PR #791 @dawkagaming)
+- [NEW] - Added a link to the GitHub release notes under Help-Whats New
+- [NEW] - Added workaround for WriteLog - always call callbook lookups (PR #833 @sjwoodr)
+- [NEW] - Awards - Added Not-Confirmed filter (PR #836 @aa5sh)
+- [NEW] - Rotator Widget - Added buttons to change button profiles
+- [CHANGED] - Settings - Added network loop detection for WSJTX Forward (issue #815 @aa5sh @foldynl)
+- [CHANGED] - Rotator - Rotator timeout is set to 5s (PR #823 @aa5sh)
+- [CHANGED] - Double Spin Boxes - the decimal separator is forced to be a period
+- [DELETED] - WSJTX Widget - Removed Freq and Mode
+- Fixed QSODetail - Anti-meridian bug on map (issue #786)
+- Fixed Statistics: Center maps on QTH longitude (issue #824)
+- Fixed OmniRig disconnecting when its status changed unexpectedly (issue #832)
+
 2025/10/31 - 0.46.2
 - Fixed Spaces after QRZ.com name (issue #767)
 - Fixed SPID Rot1Prog Rotator more 360 deg (issue #775)

@@ -99,6 +99,7 @@ The above packages are maintained by the application maintainer. However, there 
 
 Prerequisites:
 
+- Installed [Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version)
 - Installed [Trusted QSL](http://www.arrl.org/tqsl-download) (Optional)
 - Installed [Omnirig v1](https://www.dxatlas.com/omnirig/) (Optional)
 - Installed [Omnirig v2](https://www.hb9ryz.ch/omnirig/) (Optional)
@@ -107,7 +108,7 @@ Installation package is available via GitHub [Releases](https://github.com/foldy
 
 ### MacOS
 
-Official support ended. Only for developers.
+MacOS DMG: https://github.com/aa5sh/QLog/releases
 
 ## Compilation
 
@@ -131,6 +132,8 @@ Prerequisites
 - `PTHREADLIBPATH` - the path to pthread Library - needed for Windows Hamlib 4.5 and later. Leave empty if system libraries should be used.
 - `QTKEYCHAININCLUDEPATH` - the path to QtKeyChain Includes 
 - `QTKEYCHAINLIBPATH`- the path to QtKeyChain Library
+- `ZLIBINCLUDEPATH` - the path to ZLIB Includes
+- `ZLIBLIBPATH` - the path to ZLIB Library
 
 Leave variables empty if system libraries and Hamlib version autodetect (calling `pkg-config`) should be used during compilation (for Windows, the parameter must be present)
 

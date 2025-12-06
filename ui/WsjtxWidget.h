@@ -9,6 +9,8 @@
 #include "rig/Rig.h"
 #include "component/ShutdownAwareWidget.h"
 
+#include "core/LogLocale.h"
+
 namespace Ui {
 class WsjtxWidget;
 }
@@ -35,7 +37,7 @@ private slots:
     void actionFilter();
 
 signals:
-    void callsignSelected(QString callsign, QString grid);
+    void callsignSelected(QString callsign, QString grid, QString id);
     void reply(WsjtxDecode);
     void CQSpot(WsjtxEntry);
     void filteredCQSpot(WsjtxEntry);
@@ -64,6 +66,8 @@ private:
     int snrFilter;
     uint dxccStatusFilter;
     QSet<QString> dxMemberFilter;
+    LogLocale locale;
+
     void saveTableHeaderState();
     void restoreTableHeaderState();
     bool isFilterEnabled();

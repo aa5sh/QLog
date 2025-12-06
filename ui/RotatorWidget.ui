@@ -66,7 +66,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="gotoDoubleSpinBox">
+      <widget class="BaseDoubleSpinBox" name="gotoDoubleSpinBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -165,6 +165,26 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="leftButton">
+       <property name="maximumSize">
+        <size>
+         <width>15</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Previous Button Profile</string>
+       </property>
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="icon">
+        <iconset resource="../res/icons/icons.qrc">
+         <normaloff>:/icons/baseline-play_back-24px.svg</normaloff>:/icons/baseline-play_back-24px.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="userButton_1">
        <property name="enabled">
         <bool>false</bool>
@@ -253,6 +273,26 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="rightButton">
+       <property name="maximumSize">
+        <size>
+         <width>15</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Next Button Profile</string>
+       </property>
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="icon">
+        <iconset resource="../res/icons/icons.qrc">
+         <normaloff>:/icons/baseline-play_arrow-24px.svg</normaloff>:/icons/baseline-play_arrow-24px.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -285,7 +325,16 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>BaseDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>ui/component/BaseDoubleSpinBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../res/icons/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>gotoButton</sender>
@@ -447,6 +496,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>rightButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RotatorWidget</receiver>
+   <slot>shortcutProfileIncrease()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>335</x>
+     <y>241</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>128</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leftButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RotatorWidget</receiver>
+   <slot>shortcutProfileDecrease()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>241</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>128</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>gotoPosition()</slot>
@@ -459,5 +540,7 @@
   <slot>qsoBearingSP()</slot>
   <slot>qsoBearingLP()</slot>
   <slot>setRequestedAz(double)</slot>
+  <slot>shortcutProfileIncrease()</slot>
+  <slot>shortcutProfileDecrease()</slot>
  </slots>
 </ui>

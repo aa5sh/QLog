@@ -38,11 +38,14 @@ private:
     bool resetConfigs();
     bool profiles2DB();
     bool settings2DB();
+    bool removeSettings2DB();
     bool setSelectedProfile(const QString &tablename, const QString &profileName);
     QString fixIntlField(QSqlQuery &query, const QString &columName, const QString &columnNameIntl);
     bool refreshUploadStatusTrigger();
 
-    static const int latestVersion = 34;
+    static const int latestVersion = 35;
+
+    friend class MigrationSqlTest_FriendAccessor;
 };
 
 #endif // QLOG_CORE_MIGRATION_H

@@ -3,7 +3,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
-
+#include <QStandardItemModel>
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 #include "models/RigTypeModel.h"
@@ -144,7 +144,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
 
     /* Country Combo */
     SqlListModel* countryModel = new SqlListModel("SELECT id, translate_to_locale(name), name  "
-                                                  "FROM dxcc_entities "
+                                                  "FROM dxcc_entities_ad1c "
                                                   "ORDER BY 2 COLLATE LOCALEAWARE ASC;", " ", ui->stationCountryCombo);
     while ( countryModel->canFetchMore() )
         countryModel->fetchMore();
@@ -219,7 +219,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     static QRegularExpression multicastAddress("^2(?:2[4-9]|3\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d?|0)){3}$");
 
     ui->wsjtMulticastAddressEdit->setValidator(new QRegularExpressionValidator(multicastAddress, ui->wsjtMulticastAddressEdit));
-
+    ui->wsjtForwardEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->wsjtForwardEdit));
     ui->notifQSOEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->notifQSOEdit));
     ui->notifDXSpotsEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->notifDXSpotsEdit));
     ui->notifWSJTXCQSpotsEdit->setValidator(new QRegularExpressionValidator(HostsPortString::hostsPortRegEx(), ui->notifWSJTXCQSpotsEdit));
@@ -292,6 +292,14 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->cwKeyModeSelect->addItem(tr("IAMBIC B"), CWKey::IAMBIC_B);
     ui->cwKeyModeSelect->addItem(tr("Ultimate"), CWKey::ULTIMATE);
     ui->cwKeyModeSelect->setCurrentIndex(ui->cwKeyModeSelect->findData(CWKey::IAMBIC_B));
+
+    ui->rigDTRCombo->addItem(tr("None"), SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigDTRCombo->addItem(tr("High"), SerialPort::SERIAL_SIGNAL_HIGH);
+    ui->rigDTRCombo->addItem(tr("Low"), SerialPort::SERIAL_SIGNAL_LOW);
+
+    ui->rigRTSCombo->addItem(tr("None"), SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigRTSCombo->addItem(tr("High"), SerialPort::SERIAL_SIGNAL_HIGH);
+    ui->rigRTSCombo->addItem(tr("Low"), SerialPort::SERIAL_SIGNAL_LOW);
 
     /* disable WSJTX Multicast by default */
     joinMulticastChanged(false);
@@ -372,9 +380,21 @@ void SettingsDialog::save() {
     {
         if ( ! ui->wsjtMulticastAddressEdit->hasAcceptableInput() )
         {
-            ui->tabWidget->setCurrentIndex(7);
+            ui->tabWidget->setCurrentIndex(8);
             QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
                                  QMessageBox::tr("WSJTX Multicast is enabled but the Address is not a multicast address."));
+            return;
+        }
+    }
+
+    if ( !ui->wsjtForwardEdit->text().isEmpty() )
+    {
+        HostsPortString list(ui->wsjtForwardEdit->text());
+        if ( list.hasLocalIPWithPort(ui->wsjtPortSpin->value()) )
+        {
+            ui->tabWidget->setCurrentIndex(8);
+            QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                                 QMessageBox::tr("Loop detected. Raw UDP forward uses the same port as the WSJT-X receiving port."));
             return;
         }
     }
@@ -470,6 +490,9 @@ void SettingsDialog::addRigProfile()
         profile.parity = ui->rigParitySelect->currentData().toString();
         profile.pttType = ui->rigPTTTypeCombo->currentData().toString();
         profile.pttPortPath = ui->rigPTTPortEdit->text();
+        profile.rts = ui->rigRTSCombo->currentData().toString();
+        profile.dtr = ui->rigDTRCombo->currentData().toString();
+        profile.civAddr = ui->rigCIVAddrSpinBox->value();
     }
 
     if ( ui->rigPollIntervalSpinBox->isEnabled() )
@@ -582,6 +605,14 @@ void SettingsDialog::doubleClickRigProfile(QModelIndex i)
     ui->rigPTTTypeCombo->setCurrentIndex(( pttIndex < 0 ) ? PTT_TYPE_CAT_INDEX : pttIndex);
     ui->rigPTTPortEdit->setText(profile.pttPortPath);
 
+    int rtsIndex = ui->rigRTSCombo->findData(profile.rts);
+    ui->rigRTSCombo->setCurrentIndex(( rtsIndex < 0 ) ? PTT_TYPE_CAT_INDEX : rtsIndex);
+
+    int dtrIndex = ui->rigDTRCombo->findData(profile.dtr);
+    ui->rigDTRCombo->setCurrentIndex(( dtrIndex < 0 ) ? PTT_TYPE_CAT_INDEX : dtrIndex);
+
+    ui->rigCIVAddrSpinBox->setValue(( profile.civAddr >= 0 ) ? profile.civAddr : CIVADDR_DISABLED_VALUE);
+
     setUIBasedOnRigCaps(caps);
 
     ui->rigAddProfileButton->setText(tr("Modify"));
@@ -609,6 +640,8 @@ void SettingsDialog::clearRigProfileForm()
     ui->rigDataBitsSelect->setCurrentIndex(0);
     ui->rigStopBitsSelect->setCurrentIndex(0);
     ui->rigFlowControlSelect->setCurrentIndex(0);
+    ui->rigDTRCombo->setCurrentIndex(0);
+    ui->rigRTSCombo->setCurrentIndex(0);
     ui->rigParitySelect->setCurrentIndex(0);
     ui->rigGetFreqCheckBox->setChecked(true);
     ui->rigGetModeCheckBox->setChecked(true);
@@ -625,6 +658,7 @@ void SettingsDialog::clearRigProfileForm()
     ui->rigDXSpots2RigCheckBox->setChecked(false);
     ui->rigAddProfileButton->setText(tr("Add"));
     ui->rigPTTPortEdit->clear();
+    ui->rigCIVAddrSpinBox->setValue(CIVADDR_DISABLED_VALUE);
 }
 
 void SettingsDialog::rigRXOffsetChanged(int)
@@ -726,12 +760,19 @@ void SettingsDialog::rigInterfaceChanged(int)
     ui->rigModelSelect->setCurrentIndex(( driverID == Rig::HAMLIB_DRIVER ) ? ui->rigModelSelect->findData(DEFAULT_HAMLIB_RIG_MODEL)
                                                                            : 0 );
     ui->rigPTTTypeCombo->clear();
+    int noneIndex = ui->rigRTSCombo->findData(SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigRTSCombo->setCurrentIndex((noneIndex < 0) ? 0 : noneIndex);
+
+    noneIndex = ui->rigDTRCombo->findData(SerialPort::SERIAL_SIGNAL_NONE);
+    ui->rigDTRCombo->setCurrentIndex((noneIndex < 0) ? 0 : noneIndex);
 
     const QList<QPair<QString, QString>> &pttTypes = Rig::instance()->getPTTTypeList(static_cast<Rig::DriverID>(driverID));
 
     for ( const QPair<QString, QString> &type : pttTypes )
         ui->rigPTTTypeCombo->addItem(type.second, type.first);
 
+    ui->rigRTSCombo->setVisible((driverID == Rig::HAMLIB_DRIVER));
+    ui->rigDTRCombo->setVisible((driverID == Rig::HAMLIB_DRIVER));
     ui->rigPTTTypeCombo->setVisible(( driverID == Rig::HAMLIB_DRIVER ));
     ui->rigPTTTypeLabel->setVisible(( driverID == Rig::HAMLIB_DRIVER ));
     ui->rigPTTPortEdit->setVisible(( driverID == Rig::HAMLIB_DRIVER ));
@@ -2245,6 +2286,21 @@ void SettingsDialog::updateDateFormatResult()
     ui->dateFormatResultLabel->setText(QDate::currentDate().toString(ui->dateFormatStringEdit->text()));
 }
 
+void SettingsDialog::rigFlowControlChanged(int)
+{
+    FCT_IDENTIFICATION;
+
+    // if HW handshake is enabled then RTS must be None
+    bool isHWControlEnabled = (ui->rigFlowControlSelect->currentData().toString() == SerialPort::SERIAL_FLOWCONTROL_HARDWARE);
+
+    if ( isHWControlEnabled )
+    {
+        int rstNoneIndex = ui->rigRTSCombo->findData(SerialPort::SERIAL_SIGNAL_NONE);
+        ui->rigRTSCombo->setCurrentIndex((rstNoneIndex < 0) ? 0 : rstNoneIndex);
+    }
+    ui->rigRTSCombo->setEnabled(!isHWControlEnabled);
+}
+
 void SettingsDialog::qrzAddCallsignAPIKey()
 {
     FCT_IDENTIFICATION;
@@ -2401,6 +2457,10 @@ void SettingsDialog::readSettings()
     ui->dateFormatCustomRadioButton->setChecked(!dateSystemFormat);
     ui->dateFormatStringEdit->setText(locale.getSettingDateFormat());
 
+    bool unitFormatMetric =  locale.getSettingUseMetric();
+    ui->unitFormatMetricRadioButton->setChecked(unitFormatMetric);
+    ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
+
     /******************/
     /* END OF Reading */
     /******************/
@@ -2525,6 +2585,8 @@ void SettingsDialog::writeSettings()
     locale.setSettingUseSystemDateFormat(systemDateChecked);
     if ( !systemDateChecked )
         locale.setSettingDateFormat(ui->dateFormatStringEdit->text());
+
+    locale.setSettingUseMetric(ui->unitFormatMetricRadioButton->isChecked());
 }
 
 /* this function is called when user modify rig progile
@@ -2609,6 +2671,14 @@ void SettingsDialog::setUIBasedOnRigCaps(const RigCaps &caps)
             ui->rigKeySpeedSyncCheckBox->setChecked(false);
         }
     }
+
+
+    if ( !caps.isCIVAddrSupported )
+        ui->rigCIVAddrSpinBox->setValue(CIVADDR_DISABLED_VALUE);
+
+    ui->rigCIVAddrLabel->setVisible(caps.isCIVAddrSupported);
+    ui->rigCIVAddrSpinBox->setVisible(caps.isCIVAddrSupported);
+
 }
 
 /* Based on selected Rig model, it is needed to prepare AssignedCWKeyCombo

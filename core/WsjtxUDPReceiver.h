@@ -126,7 +126,7 @@ class WsjtxUDPReceiver : public QObject
     Q_OBJECT
 public:
     explicit WsjtxUDPReceiver(QObject *parent = nullptr);
-    static float modePeriodLenght(const QString &);
+    static float modePeriodLength(const QString &);
 
     static quint16 getConfigPort();
     static void saveConfigPort(quint16);
@@ -138,6 +138,20 @@ public:
     static QString getConfigMulticastAddress();
     static void saveConfigMulticastTTL(int);
     static int getConfigMulticastTTL();
+
+    // identification of different variants of the WSJTX protocol based on packet ID
+    static bool isJTDXId(const QString &id)
+    {
+        return id.contains("JTDX");
+    }
+    static bool isWriteLogId(const QString &id)
+    {
+        return id.contains("WRITELOG");
+    }
+    static bool isCSNSat(const QString &data)
+    {
+        return data.contains("<programid:6>CSN Sat");
+    }
 
 signals:
     void statusReceived(WsjtxStatus);

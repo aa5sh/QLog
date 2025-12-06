@@ -70,6 +70,25 @@ double RotatorWidget::getQSOBearing()
     return qsoBearing;
 }
 
+void RotatorWidget::shortcutComboMove(int step)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << step;
+
+    int count = ui->userButtonsProfileCombo->count();
+    int currIndex = ui->userButtonsProfileCombo->currentIndex();
+
+    if ( count > 0
+         && currIndex != -1
+         && step < count )
+    {
+        int nextIndex = currIndex + step;
+        nextIndex += (1 - nextIndex / count) * count;
+        ui->userButtonsProfileCombo->setCurrentIndex(nextIndex % count);
+    }
+}
+
 void RotatorWidget::qsoBearingLP()
 {
     FCT_IDENTIFICATION;
@@ -169,6 +188,19 @@ void RotatorWidget::setQSOBearing(double , double )
         QSOAzimuthNeedle->hide();
 }
 
+void RotatorWidget::shortcutProfileIncrease()
+{
+    FCT_IDENTIFICATION;
+
+    shortcutComboMove(1);
+}
+
+void RotatorWidget::shortcutProfileDecrease()
+{
+    FCT_IDENTIFICATION;
+
+     shortcutComboMove(-1);
+}
 
 void RotatorWidget::showEvent(QShowEvent* event)
 {
@@ -512,6 +544,8 @@ void RotatorWidget::rotConnected()
     ui->gotoButton->setEnabled(true);
     ui->qsoBearingButton->setEnabled(true);
     ui->userButtonsProfileCombo->setEnabled(true);
+    ui->leftButton->setVisible(ui->userButtonsProfileCombo->count()>1);
+    ui->rightButton->setVisible(ui->userButtonsProfileCombo->count()>1);
     refreshRotUserButtons();
     waitingFirstValue = true;
     if ( antennaNeedle ) antennaNeedle->show();
@@ -530,6 +564,8 @@ void RotatorWidget::rotDisconnected()
     ui->userButton_2->setEnabled(false);
     ui->userButton_3->setEnabled(false);
     ui->userButton_4->setEnabled(false);
+    ui->leftButton->setVisible(false);
+    ui->rightButton->setVisible(false);
     if ( antennaNeedle ) antennaNeedle->hide();
     if ( requestedAzimuthNeedle) requestedAzimuthNeedle->hide();
     requestedAzimuth = qQNaN();

@@ -45,6 +45,7 @@ private slots:
 private:
     OmniRig::IRigX* getRigPtr();
 
+    const uint OFFLINETIMER_TIME_MS = 10000;
     void __rigTypeChange(int);
     void commandSleep();
     const QString getModeNormalizedText(const QString& rawMode, QString &submode);
@@ -61,6 +62,8 @@ private:
     double getXITFreq();
     void setXITFreq(double);
 
+    void emitDisconnect();
+
     unsigned int currFreq;
     QString currModeID;
     QString currVFO;
@@ -73,6 +76,7 @@ private:
     int readableParams;
     int writableParams;
     QMutex drvLock;
+    QTimer offlineTimer;
     const QMap<OmniRig::RigParamX, QString> modeMap = {
                                       {OmniRig::PM_CW_U, "CWR"},
                                       {OmniRig::PM_CW_L, "CW"},

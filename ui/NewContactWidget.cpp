@@ -33,6 +33,7 @@
 #include "data/ActivityProfile.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
+#include "core/WsjtxUDPReceiver.h"
 
 MODULE_IDENTIFICATION("qlog.ui.newcontactwidget");
 
@@ -530,7 +531,16 @@ void NewContactWidget::setDxccInfo(const QString &callsign)
 
     qCDebug(function_parameters) << callsign;
 
-    setDxccInfo(Data::instance()->lookupDxcc(callsign.toUpper()));
+    DxccEntity entity;
+    if ( isManualEnterMode )
+    {
+        const QDateTime &qsoDt = QDateTime(ui->dateEdit->date(), ui->timeOnEdit->time(), QTimeZone::utc());
+        entity = Data::instance()->lookupDxccClublog(callsign, qsoDt);
+    }
+    else
+        entity = Data::instance()->lookupDxcc(callsign.toUpper());
+
+    setDxccInfo(entity);
 }
 
 void NewContactWidget::useFieldsFromPrevQSO(const QString &callsign, const QString &grid)
@@ -2187,7 +2197,7 @@ void NewContactWidget::updateCoordinates(double lat, double lon, CoordPrecision 
     {
         dxDistance = distance;
         QString unit;
-        double showDistance = Gridsquare::distance2localeUnitDistance(dxDistance, unit);
+        double showDistance = Gridsquare::distance2localeUnitDistance(dxDistance, unit, locale);
         double LPBearing = bearing - 180;
 
         if ( LPBearing < 0 )
@@ -2915,11 +2925,12 @@ void NewContactWidget::fillCallsignGrid(const QString &callsign, const QString &
 }
 
 void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
-                                       const QString &grid)
+                                       const QString &grid,
+                                       const QString &id)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << receivedCallsign << grid;
+    qCDebug(function_parameters) << receivedCallsign << grid << id;
 
     if ( isManualEnterMode )
     {
@@ -2939,7 +2950,12 @@ void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
 
     callsign = receivedCallsign;
     ui->callsignEdit->setText(receivedCallsign);
-    uiDynamic->gridEdit->setText(grid);
+
+    if ( !grid.isEmpty() )
+    {
+        uiDynamic->gridEdit->setText(grid);
+    }
+
     checkDupe();
     setDxccInfo(receivedCallsign);
     queryPota();
@@ -2951,7 +2967,9 @@ void NewContactWidget::prepareWSJTXQSO(const QString &receivedCallsign,
     // 1) prev Callsign empty grid
     // 2) new Callsign empty grid
     // 3) new Calllsign, new gris
-    if ( !grid.isEmpty() )
+    // WRITELOG workaround: Similar to JTDX, check application ID
+    // If ID contains "WRITELOG", always trigger callbook lookup
+    if ( !grid.isEmpty() || WsjtxUDPReceiver::isWriteLogId(id) )
     {
         useFieldsFromPrevQSO(callsign, grid);
         finalizeCallsignEdit();
@@ -3854,6 +3872,18 @@ void NewContactWidget::queryPota()
         uiDynamic->potaEdit->setText(ref);
         potaEditFinished();
     }
+}
+
+void NewContactWidget::handleDateTimeChangeFromUser()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !isManualEnterMode ) return;
+
+    if ( callsign.isEmpty() )
+        setDxccInfo(DxccEntity());
+    else
+        setDxccInfo(callsign);
 }
 
 NewContactDynamicWidgets::NewContactDynamicWidgets(bool allocateWidgets,

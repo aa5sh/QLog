@@ -15,6 +15,7 @@ public:
     static QList<QPair<QString, QString> > getPTTTypeList();
     static RigCaps getCaps(int model);
     static bool isSmartSDRSlice(const struct rig_caps *caps);
+    static bool isCIVAddrRig(const struct rig_caps *caps);
     explicit HamlibRigDrv(const RigProfile &profile,
                           QObject *parent = nullptr);
     virtual ~HamlibRigDrv();
@@ -76,6 +77,7 @@ private:
     const QString hamlibVFO2String(const vfo_t vfo) const;
     serial_handshake_e stringToHamlibFlowControl(const QString &in_flowcontrol);
     serial_parity_e stringToHamlibParity(const QString &in_parity);
+    serial_control_state_e stringToHamlibSerialSignal(const QString &flowcontrol);
     QString hamlibErrorString(int);
     RIG* rig;
     QTimer timer;

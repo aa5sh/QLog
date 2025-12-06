@@ -16,6 +16,7 @@
 MODULE_IDENTIFICATION("qlog.core.clublog");
 
 const QString ClubLogBase::SECURE_STORAGE_KEY = "Clublog";
+const QString ClubLogBase::API_KEY = "7a45c2b20f932ca8908b975a60f0a78a7602f65a";
 
 // https://clublog.freshdesk.com/support/solutions/articles/53202-which-adif-fields-does-club-log-use-
 QStringList ClubLogUploader::uploadedFields =
@@ -344,7 +345,7 @@ void ClubLogUploader::processReply(QNetworkReply* reply)
     /* Otherwise */
     /*************/
     else
-        qWarning() << "Unrecognized Clublog reponse" << reply->property("messageType").toString();
+        qWarning() << "Unrecognized Clublog response" << reply->property("messageType").toString();
 
     reply->deleteLater(); 
 }

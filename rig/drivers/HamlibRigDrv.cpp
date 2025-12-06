@@ -108,6 +108,7 @@ RigCaps HamlibRigDrv::getCaps(int model)
         ret.canGetPTT = ( caps->get_ptt );
         ret.canSendMorse = ( caps->send_morse != nullptr );
         ret.canProcessDXSpot = isSmartSDRSlice(caps);
+        ret.isCIVAddrSupported = isCIVAddrRig(caps);
 
         if ( ret.isNetworkOnly )
         {
@@ -217,6 +218,8 @@ bool HamlibRigDrv::open()
         rig->state.rigport.parm.serial.stop_bits = rigProfile.stopbits;
         rig->state.rigport.parm.serial.handshake = stringToHamlibFlowControl(rigProfile.flowcontrol);
         rig->state.rigport.parm.serial.parity = stringToHamlibParity(rigProfile.parity);
+        rig->state.rigport.parm.serial.dtr_state = stringToHamlibSerialSignal(rigProfile.dtr);
+        rig->state.rigport.parm.serial.rts_state = stringToHamlibSerialSignal(rigProfile.rts);
 
         qCDebug(runtime) << "Using PTT Type" << rigProfile.pttType.toLocal8Bit().constData()
                          << "PTT Path" << rigProfile.pttPortPath;
@@ -238,6 +241,20 @@ bool HamlibRigDrv::open()
             lastErrorText = tr("Cannot set PTT Share");
             qCDebug(runtime) << "Rig Open Error" << lastErrorText;
             return false;
+        }
+
+        if ( rigProfile.civAddr >= 0 )
+        {
+            const QString civAddrString = QString::number(rigProfile.civAddr);
+            const QString civAddrHexString = QString::number(rigProfile.civAddr, 16);
+
+            qCDebug(runtime) << "Setting CIV Addr to" << civAddrString << "0x" + civAddrHexString;
+            if ( rig_set_conf(rig, rig_token_lookup(rig, "civaddr"), civAddrString.toUtf8().constData()) != RIG_OK )
+            {
+                lastErrorText = tr("Cannot set CIV Addr") + " 0x" + civAddrHexString;
+                qCDebug(runtime) << "Rig Open Error" << lastErrorText;
+                return false;
+            }
         }
     }
     else
@@ -610,7 +627,7 @@ void HamlibRigDrv::checkErrorCounter()
 
     // emit only one error
     auto it = postponedErrors.constBegin();
-    emit errorOccured(it.key(), it.value());
+    emit errorOccurred(it.key(), it.value());
     postponedErrors.clear();
 }
 
@@ -1039,7 +1056,7 @@ bool HamlibRigDrv::isRigRespOK(int errorStatus,
         {
             // hard error, emit error now
             qCDebug(runtime) << "Hard Error";
-            emit errorOccured(errorName, lastErrorText);
+            emit errorOccurred(errorName, lastErrorText);
         }
         else
         {
@@ -1064,6 +1081,16 @@ bool HamlibRigDrv::isSmartSDRSlice(const rig_caps *caps)
     Q_UNUSED(caps)
     return false;
 #endif
+}
+
+bool HamlibRigDrv::isCIVAddrRig(const rig_caps *caps)
+{
+    FCT_IDENTIFICATION;
+
+    const QString &modelName = QString::fromLatin1(caps->mfg_name);
+    return modelName.contains("Icom", Qt::CaseInsensitive)
+            || modelName.contains("Ten-Tec", Qt::CaseInsensitive); /* rigctl: some Ten-Tec rigs
+                                                                       so QLog will enable it for all Ten-Tec */
 }
 
 const QString HamlibRigDrv::getModeNormalizedText(const rmode_t mode,
@@ -1148,6 +1175,21 @@ serial_parity_e HamlibRigDrv::stringToHamlibParity(const QString &in_parity)
 
     return RIG_PARITY_NONE;
 }
+
+serial_control_state_e HamlibRigDrv::stringToHamlibSerialSignal(const QString &signalString)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << signalString;
+
+    if ( signalString == SerialPort::SERIAL_SIGNAL_HIGH )
+        return RIG_SIGNAL_ON;
+    if ( signalString == SerialPort::SERIAL_SIGNAL_LOW )
+        return RIG_SIGNAL_OFF;
+
+    return RIG_SIGNAL_UNSET;
+}
+
 
 QString HamlibRigDrv::hamlibErrorString(int errorCode)
 {

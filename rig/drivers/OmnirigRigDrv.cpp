@@ -68,6 +68,13 @@ OmnirigRigDrv::OmnirigRigDrv(const RigProfile &profile,
         qCDebug(runtime) << "Cannot allocate Omnirig structure";
         lastErrorText = tr("Initialization Error");
     }
+
+    offlineTimer.setSingleShot(true);
+    connect(&offlineTimer, &QTimer::timeout, this, [this] ()
+    {
+        qCDebug(runtime) << "Offline timer exceeded";
+        emitDisconnect();
+    });
 }
 
 OmnirigRigDrv::~OmnirigRigDrv()
@@ -148,12 +155,10 @@ bool OmnirigRigDrv::open()
 
     __rigTypeChange(rigProfile.model);
 
-    QTimer::singleShot(300, this, [this]()
+    QTimer::singleShot(500, this, [this]()
     {
         OmnirigRigDrv::rigStatusChange(rigProfile.model);
     });
-
-    emit rigIsReady();
 
     // TODO - solve timeout from library. Is it possible????
     return true;
@@ -337,8 +342,7 @@ void OmnirigRigDrv::stopTimers()
 {
     FCT_IDENTIFICATION;
 
-    // not timer
-    return;
+    offlineTimer.stop();
 }
 
 void OmnirigRigDrv::sendDXSpot(const DxSpot &)
@@ -460,11 +464,14 @@ void OmnirigRigDrv::rigStatusChange(int rigID)
     if ( OmniRig::ST_ONLINE != rig->Status () )
     {
         qCDebug(runtime) << "New status" << rig->StatusStr();
-        emit errorOccured(tr("Rig status changed"),
-                          tr("Rig is not connected"));
+        if ( !offlineTimer.isActive() )
+            offlineTimer.start(OFFLINETIMER_TIME_MS);
     }
     else
+    {
+        offlineTimer.stop();
         emit rigIsReady();
+    }
 }
 
 void OmnirigRigDrv::COMException(int code,
@@ -479,7 +486,7 @@ void OmnirigRigDrv::COMException(int code,
                                  << destination
                                  << help;
 
-    emit errorOccured(tr("Omnirig Error"),
+    emit errorOccurred(tr("Omnirig Error"),
                       QString("%1 at %2: %3 (%4)").arg(QString::number(code),
                                                        source,
                                                        destination,
@@ -762,6 +769,20 @@ double OmnirigRigDrv::getXITFreq()
 void OmnirigRigDrv::setXITFreq(double xit)
 {
     currXIT = xit;
+}
+
+void OmnirigRigDrv::emitDisconnect()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !rig )
+    {
+        qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    emit errorOccurred(tr("Rig status changed"),
+                      tr("Rig is not connected"));
 }
 
 #undef MUTEXLOCKER

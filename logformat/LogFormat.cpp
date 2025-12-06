@@ -1011,6 +1011,15 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
                 originalRecord.setValue("qsl_rcvd_via", QSLRecord.value("qsl_sent_via"));
 
+                /*
+                 * It appears that the life cycle of EQSL_AQ field is not fully understood
+                 * at the moment. Unfortunately, even on the ADIF forum there are differing opinions,
+                 * but I have gained the impression that the only authority that knows the correct
+                 * value of EQSL_AG is eQSL itself. Therefore, I believe that the value received from eQSL
+                 * should always be set here, even though the field’s value may vary at the time the QSL is received.
+                 */
+                originalRecord.setValue("eqsl_ag", QSLRecord.value("eqsl_ag"));
+
                 if ( !model.setRecord(0, originalRecord) )
                 {
                     qWarning() << "Cannot update a Contact record - " << model.lastError();
@@ -1029,7 +1038,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         }
 
         default:
-            qCDebug(runtime) << "Uknown QSL import";
+            qCDebug(runtime) << "Unknown QSL import";
         }
     }
 

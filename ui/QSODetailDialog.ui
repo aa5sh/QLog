@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1039</width>
-    <height>751</height>
+    <height>753</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1313,7 +1313,7 @@
           <number>45</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
-          <number>22</number>
+          <number>23</number>
          </attribute>
         </widget>
        </item>
@@ -1339,7 +1339,7 @@
           <number>45</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
-          <number>22</number>
+          <number>23</number>
          </attribute>
         </widget>
        </item>
@@ -1626,7 +1626,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="powerEdit">
+          <widget class="BaseDoubleSpinBox" name="powerEdit">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -2305,6 +2305,11 @@
    <extends>QWidget</extends>
    <header>ui/component/SmartSearchBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BaseDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>ui/component/BaseDoubleSpinBox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

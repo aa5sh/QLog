@@ -29,7 +29,7 @@ public:
                    ritOffset = 0.0; xitOffset = 0.0, getRITInfo = false;
                    getXITInfo = true; defaultPWR = 0.0, getPTTInfo = false;
                    QSYWiping = false, getKeySpeed = false, keySpeedSync = false;
-                   driver = 0, dxSpot2Rig = false;
+                   driver = 0, dxSpot2Rig = false, civAddr = -1;
                  };
 
     QString profileName;
@@ -63,6 +63,9 @@ public:
     bool dxSpot2Rig;
     QString pttType;
     QString pttPortPath;
+    QString rts;
+    QString dtr;
+    qint16 civAddr; // -1 = AUTO; otherwise address
 
     bool operator== (const RigProfile &profile);
     bool operator!= (const RigProfile &profile);

@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.46.2
+VERSION = 0.47.0
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -29,6 +29,10 @@ DEFINES += VERSION=\\\"$$VERSION\\\"
 # Define paths to QTKeyChain. Leave empty if system libraries should be used
 #QTKEYCHAININCLUDEPATH =
 #QTKEYCHAINLIBPATH =
+
+# Define paths to zlib - Leave empty if system libraries should be used
+#ZLIBINCLUDEPATH =
+#ZLIBLIBPATH =
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -75,6 +79,7 @@ SOURCES += \
         data/ActivityProfile.cpp \
         data/AntProfile.cpp \
         data/BandPlan.cpp \
+        data/Accents.cpp \
         data/CWKeyProfile.cpp \
         data/CWShortcutProfile.cpp \
         data/Callsign.cpp \
@@ -171,6 +176,7 @@ SOURCES += \
         ui/WebEnginePage.cpp \
         ui/WsjtxFilterDialog.cpp \
         ui/WsjtxWidget.cpp \
+        ui/component/BaseDoubleSpinBox.cpp \
         ui/component/EditLine.cpp \
         ui/component/FreqQSpinBox.cpp \
         ui/component/MultiselectCompleter.cpp \
@@ -321,6 +327,7 @@ HEADERS += \
         ui/WsjtxWidget.h \
         i18n/dbstrings.tri \
         i18n/datastrings.tri \
+        ui/component/BaseDoubleSpinBox.h \
         ui/component/ButtonStyle.h \
         ui/component/EditLine.h \
         ui/component/FreqQSpinBox.h \
@@ -381,6 +388,7 @@ OTHER_FILES += \
     res/stylesheet.css \
     res/qlog.rc \
     res/qlog.desktop \
+    res/qlog.1 \
     res/io.github.foldynl.QLog.metainfo.xml
 
 TRANSLATIONS = i18n/qlog_cs.ts \
@@ -442,6 +450,10 @@ isEmpty(HAMLIBVERSION_PATCH){
    INCLUDEPATH += $$PTHREADINCLUDEPATH
 }
 
+!isEmpty(ZLIBINCLUDEPATH) {
+   INCLUDEPATH += $$ZLIBINCLUDEPATH
+}
+
 !isEmpty(HAMLIBLIBPATH) {
    LIBS += -L$$HAMLIBLIBPATH
 }
@@ -454,6 +466,10 @@ isEmpty(HAMLIBVERSION_PATCH){
    LIBS += -L$$PTHREADINCLUDEPATH
 }
 
+!isEmpty(ZLIBLIBPATH) {
+   LIBS += -L$$ZLIBLIBPATH
+}
+
 unix:!macx {
    isEmpty(PREFIX) {
      PREFIX = /usr/local
@@ -464,6 +480,9 @@ unix:!macx {
    desktop.path = $$PREFIX/share/applications/
    desktop.files += res/$${TARGET}.desktop
 
+   manpage.path = $$PREFIX/usr/share/man/man1
+   manpage.files += res/$${TARGET}.1
+
    icon.path = $$PREFIX/share/icons/hicolor/256x256/apps
    icon.files += res/$${TARGET}.png
 
@@ -473,7 +492,7 @@ unix:!macx {
    INSTALLS += target desktop icon metainfo
 
    INCLUDEPATH += /usr/local/include
-   LIBS += -L/usr/local/lib -lhamlib -lsqlite3
+   LIBS += -L/usr/local/lib -lhamlib -lsqlite3 -lz
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
 }
@@ -486,7 +505,7 @@ macx: {
    }
 
    INCLUDEPATH += /usr/local/include /opt/homebrew/include /opt/local/include
-   LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3 -L/opt/local/lib
+   LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3 -lz -L/opt/local/lib
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
    DISTFILES +=
@@ -527,7 +546,7 @@ win32: {
    QMAKE_TARGET_COMPANY = OK1MLG
    QMAKE_TARGET_DESCRIPTION = Hamradio logging
 
-   LIBS += -lws2_32 -llibhamlib-4
+   LIBS += -lws2_32 -llibhamlib-4 -lzlib
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
 

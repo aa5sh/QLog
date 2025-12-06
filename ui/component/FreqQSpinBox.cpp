@@ -3,7 +3,7 @@
 #include "data/BandPlan.h"
 
 FreqQSpinBox::FreqQSpinBox(QWidget *parent) :
-    QDoubleSpinBox(parent)
+    BaseDoubleSpinBox(parent)
 {
     loadBands();
 }
@@ -28,7 +28,7 @@ void FreqQSpinBox::keyPressEvent(QKeyEvent *event)
             return;
         }
 
-    QDoubleSpinBox::keyPressEvent(event);
+    BaseDoubleSpinBox::keyPressEvent(event);
 }
 
 void FreqQSpinBox::wheelEvent(QWheelEvent *event)
@@ -42,7 +42,7 @@ void FreqQSpinBox::wheelEvent(QWheelEvent *event)
         event->accept();
         return;
     }
-    QDoubleSpinBox::wheelEvent(event);
+    BaseDoubleSpinBox::wheelEvent(event);
 }
 
 void FreqQSpinBox::increaseByBand()

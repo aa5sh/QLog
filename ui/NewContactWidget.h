@@ -10,7 +10,6 @@
 #include <QLineEdit>
 #include <QHash>
 #include <QFormLayout>
-#include <QDoubleSpinBox>
 #include <QToolButton>
 
 #include "data/DxSpot.h"
@@ -27,6 +26,7 @@
 #include "data/SOTAEntity.h"
 #include "data/WWFFEntity.h"
 #include "component/ShutdownAwareWidget.h"
+#include "ui/component/BaseDoubleSpinBox.h"
 
 namespace Ui {
 class NewContactWidget;
@@ -127,7 +127,7 @@ public:
     NewContactEditLine *rxPWREdit;
 
     QLabel *powerLabel;
-    QDoubleSpinBox *powerEdit;
+    BaseDoubleSpinBox *powerEdit;
 
     QLabel *rigLabel;
     NewContactEditLine *rigEdit;
@@ -236,7 +236,7 @@ public slots:
     void readGlobalSettings();
     void tuneDx(const DxSpot &spot);
     void fillCallsignGrid(const QString &callsign, const QString& grid);
-    void prepareWSJTXQSO(const QString &receivedCallsign, const QString &grid);
+    void prepareWSJTXQSO(const QString &receivedCallsign, const QString &grid, const QString &id);
     void resetContact();
     void saveContact();
 
@@ -302,6 +302,7 @@ private slots:
     void tabsExpandCollapse();
     void setContestFieldsState();
     void queryPota();
+    void handleDateTimeChangeFromUser();
 
 private:
     void useFieldsFromPrevQSO(const QString &callsign,

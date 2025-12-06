@@ -1,4 +1,5 @@
 #include <QRegularExpression>
+#include <QNetworkInterface>
 #include "HostsPortString.h"
 #include "core/debug.h"
 
@@ -51,6 +52,24 @@ HostsPortString::HostsPortString(const QString &addressesString, QObject *parent
     }
 }
 
+bool HostsPortString::hasLocalIPWithPort(int port) const
+{
+    FCT_IDENTIFICATION;
+
+    qDebug(function_parameters) << port;
+
+    QList<QHostAddress> localAddresses = QNetworkInterface::allAddresses();
+    localAddresses.append(QHostAddress("0.0.0.0"));
+
+    qCDebug(runtime) << "My IPs:" << localAddresses;
+
+    for ( const QHostAddress& addr : static_cast<const QList<QHostAddress>&>(localAddresses) )
+        if ( addressList.contains(HostPortAddress(addr, port)) )
+            return true;
+
+    return false;
+}
+
 QList<HostPortAddress> HostsPortString::getAddrList() const
 {
     FCT_IDENTIFICATION;
@@ -64,6 +83,13 @@ HostPortAddress::HostPortAddress(const QString &hostAddress, quint16 hostPort) :
 {
     FCT_IDENTIFICATION;
 
+}
+
+HostPortAddress::HostPortAddress(const QHostAddress &host, quint16 port) :
+    QHostAddress(host),
+    port(port)
+{
+    FCT_IDENTIFICATION;
 }
 
 void HostPortAddress::setPort(quint16 hostPort)
@@ -80,4 +106,9 @@ quint16 HostPortAddress::getPort() const
     FCT_IDENTIFICATION;
 
     return port;
+}
+
+bool HostPortAddress::operator==(const HostPortAddress &other) const
+{
+    return QHostAddress::operator==(other) && port == other.port;
 }

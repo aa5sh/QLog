@@ -1,0 +1,73 @@
+INSERT INTO modes (name, submodes, rprt, dxcc, enabled) VALUES ('FSK', '["SCAMP_FAST", "SCAMP_SLOW", "SCAMP_VSLOW"]', NULL, 'DIGITAL', 0);
+INSERT INTO modes (name, submodes, rprt, dxcc, enabled) VALUES ('MTONE', '["SCAMP_OO", "SCAMP_OO_SLW"]', NULL, 'DIGITAL', 0);
+
+ALTER TABLE contacts ADD eqsl_ag TEXT;
+
+DROP TABLE IF EXISTS DXCC_PREFIXES;
+DROP TABLE IF EXISTS DXCC_ENTITIES;
+
+CREATE TABLE IF NOT EXISTS dxcc_entities_ad1c (
+        id     INTEGER PRIMARY KEY,
+        name   TEXT NOT NULL,
+        prefix TEXT,
+        cont   TEXT,
+        cqz    INTEGER,
+        ituz   INTEGER,
+        lat    REAL,
+        lon    REAL,
+        tz     REAL
+);
+
+CREATE TABLE "dxcc_prefixes_ad1c" (
+        prefix   TEXT NOT NULL,
+        exact    INTEGER NOT NULL,
+        dxcc     INTEGER NOT NULL,
+        cqz      INTEGER,
+        ituz     INTEGER,
+        cont     TEXT,
+        lat      REAL,
+        lon      REAL
+);
+
+CREATE INDEX dxcc_prefixes_ad1c_idx ON dxcc_prefixes_ad1c (prefix, exact);
+
+CREATE TABLE IF NOT EXISTS dxcc_entities_clublog (
+        id      INTEGER PRIMARY KEY,
+        name    TEXT NOT NULL,
+        prefix  TEXT,
+        deleted INTEGER NOT NULL,
+        cont    TEXT,
+        cqz     INTEGER,
+        ituz    INTEGER,
+        lat     REAL,
+        lon     REAL,
+        start   TEXT,
+        "end"   TEXT
+);
+
+CREATE TABLE "dxcc_prefixes_clublog" (
+        prefix   TEXT NOT NULL,
+        exact    INTEGER NOT NULL,
+        dxcc     INTEGER NOT NULL,
+        cqz      INTEGER,
+        ituz     INTEGER,
+        cont     TEXT,
+        lat      REAL,
+        lon      REAL,
+        start    TEXT,
+        "end"    TEXT
+);
+
+CREATE INDEX dxcc_prefixes_clublog_idx on dxcc_prefixes_clublog (prefix, exact);
+
+CREATE TABLE "dxcc_zone_exceptions_clublog" (
+        record INTEGER PRIMARY KEY,
+        call   TEXT NOT NULL,
+        cqz    INTEGER NOT NULL,
+        start  TEXT,
+        "end"  TEXT
+);
+
+ALTER TABLE rig_profiles ADD COLUMN rts TEXT;
+ALTER TABLE rig_profiles ADD COLUMN dtr TEXT;
+ALTER TABLE rig_profiles ADD civaddr INTEGER;

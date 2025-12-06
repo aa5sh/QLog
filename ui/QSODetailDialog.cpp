@@ -264,14 +264,14 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
 
     /* Country */
     ui->countryBox->setModel(new SqlListModel("SELECT id, translate_to_locale(name), name  "
-                                              "FROM dxcc_entities "
+                                              "FROM dxcc_entities_clublog "
                                               "ORDER BY 2 COLLATE LOCALEAWARE ASC;", " ", ui->countryBox));
     ui->countryBox->setModelColumn(1);
     ui->countryBox->adjustMaxSize();
 
     /* My Country Combo */
     ui->myCountryBox->setModel(new SqlListModel("SELECT id, translate_to_locale(name), name  "
-                                                "FROM dxcc_entities "
+                                                "FROM dxcc_entities_clublog "
                                                 "ORDER BY 2 COLLATE LOCALEAWARE ASC;", " ", ui->myCountryBox));
     ui->myCountryBox->setModelColumn(1);
     ui->myCountryBox->adjustMaxSize();
@@ -897,7 +897,7 @@ bool QSODetailDialog::doValidation()
                                  !ui->gridEdit->text().isEmpty() && !ui->gridEdit->hasAcceptableInput(),
                                  tr("DX Grid has an incorrect format"));
 
-    const DxccEntity &dxccEntity = Data::instance()->lookupDxcc(ui->callsignEdit->text());
+    const DxccEntity &dxccEntity = Data::instance()->lookupDxccClublog(ui->callsignEdit->text(), ui->dateTimeOnEdit->dateTime());
 
     allValid &= highlightInvalid(ui->countryLabel,
                                  dxccEntity.dxcc && ui->countryBox->currentText() != QCoreApplication::translate("DBStrings", dxccEntity.country.toUtf8().constData()),
@@ -929,7 +929,7 @@ bool QSODetailDialog::doValidation()
                                  Data::instance()->propagationModeTextToID(ui->propagationModeEdit->currentText()) == "SAT" && ui->satNameEdit->text().isEmpty(),
                                  tr("Sat name must not be empty"));
 
-    const DxccEntity &myDxccEntity = Data::instance()->lookupDxcc(ui->myCallsignEdit->text());
+    const DxccEntity &myDxccEntity = Data::instance()->lookupDxccClublog(ui->myCallsignEdit->text(), ui->dateTimeOnEdit->dateTime());
 
     allValid &= highlightInvalid(ui->myCallsignLabel,
                                  ui->myCallsignEdit->text().isEmpty(),
@@ -1117,7 +1117,12 @@ void QSODetailDialog::mapLoaded(bool)
 
     main_page->runJavaScript(postponedScripts);
 
-    if ( LogParam::getMainWindowDarkMode() )
+    const QPalette &defaultPalette = this->palette();
+    const QColor &text = defaultPalette.color(QPalette::WindowText);
+    const QColor &window = defaultPalette.color(QPalette::Window);
+    bool isDark = text.lightness() > window.lightness();
+
+    if ( isDark )
     {
         QString themeJavaScript = "map.getPanes().tilePane.style.webkitFilter=\"brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.9)\";";
         main_page->runJavaScript(themeJavaScript);
@@ -1401,12 +1406,19 @@ void QSODetailDialog::drawDXOnMap(const QString &label, const Gridsquare &dxGrid
     if (dxGrid.distanceTo(myGrid, distance))
     {
         QString unit;
-        distance = Gridsquare::distance2localeUnitDistance(distance, unit);
+        distance = Gridsquare::distance2localeUnitDistance(distance, unit, locale);
         popupString.append(QString("</br> %1 %2").arg(QString::number(distance, 'f', 0), unit));
     }
 
     double lat = dxGrid.getLatitude();
     double lon = dxGrid.getLongitude();
+    // do not wrap the points
+    double delta = lon - myGrid.getLongitude();
+    if ( delta > 180 )
+        lon -= 360;
+    if ( delta < -180 )
+        lon += 360;
+
     stationString.append(QString("[[\"%1\", %2, %3, yellowIcon]]").arg(popupString).arg(lat).arg(lon));
 
     QString shortPath = QString("[%1, %2, %3, %4]")
@@ -1616,7 +1628,7 @@ void QSODetailDialog::refreshDXStatTabs()
 {
     FCT_IDENTIFICATION;
 
-    const DxccEntity &dxccEntity = Data::instance()->lookupDxccID(editedRecord->field("dxcc").value().toInt());
+    const DxccEntity &dxccEntity = Data::instance()->lookupDxccIDClublog(editedRecord->field("dxcc").value().toInt());
     const Band &currBand = BandPlan::freq2Band(ui->freqTXEdit->value());
 
     ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, currBand);

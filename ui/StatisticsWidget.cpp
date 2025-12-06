@@ -250,7 +250,7 @@ void StatisticsWidget::refreshGraph()
          {
          case 0:  // Countries
              stmt = "SELECT translate_to_locale(COALESCE(d.name, c.dxcc)) as dxcc_display, COUNT(1) AS cnt "
-                    "FROM contacts c LEFT JOIN dxcc_entities d ON c.dxcc = d.id "
+                    "FROM contacts c LEFT JOIN dxcc_entities_clublog d ON c.dxcc = d.id "
                     "WHERE " + genericFilter.join(" AND ") + " "
                     "GROUP BY dxcc_display ORDER BY cnt DESC LIMIT 10";
              break;
@@ -279,7 +279,7 @@ void StatisticsWidget::refreshGraph()
          switch ( ui->statTypeSecCombo->currentIndex() )
          {
          case 0:  // Distance
-             QString distCoef = QString::number(Gridsquare::localeDistanceCoef());
+             QString distCoef = QString::number(Gridsquare::localeDistanceCoef(locale));
              stmt = QString("WITH hist AS ( "
                     " SELECT CAST((distance * %1)/500.00 AS INTEGER) * 500 as dist_floor, "
                     " COUNT(1) AS count "
@@ -340,8 +340,8 @@ void StatisticsWidget::refreshGraph()
              break;
          case 2: // ODX
              QString unit;
-             Gridsquare::distance2localeUnitDistance(0, unit);
-             QString distCoef = QString::number(Gridsquare::localeDistanceCoef());
+             Gridsquare::distance2localeUnitDistance(0, unit, locale);
+             QString distCoef = QString::number(Gridsquare::localeDistanceCoef(locale));
              QString sel = QString("SELECT callsign || '<br>' || CAST(ROUND(distance * %1,0) AS INT) || ' %2', gridsquare, my_gridsquare, ").arg(distCoef, unit);
 
              stmt = sel + innerCase + " AS confirmed FROM contacts WHERE "
@@ -400,15 +400,15 @@ void StatisticsWidget::mapLoaded(bool)
     layerControlHandler.restoreLayerControlStates(main_page);
 }
 
-void StatisticsWidget::changeTheme(int theme)
+void StatisticsWidget::changeTheme(int theme, bool isDark)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << theme;
+    qCDebug(function_parameters) << theme << isDark;
 
     QString themeJavaScript;
 
-    if ( theme == 1 ) /* dark mode */
+    if (isDark) /* dark mode */
         themeJavaScript = "map.getPanes().tilePane.style.webkitFilter=\"brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.9)\";";
     else
         themeJavaScript = "map.getPanes().tilePane.style.webkitFilter=\"\";";
@@ -559,7 +559,8 @@ void StatisticsWidget::drawMyLocationsOnMap(QSqlQuery &query)
     if ( query.lastQuery().isEmpty() )
         return;
 
-    QList<QString> locations;
+    QStringList locationIcons;
+    QStringList rawLocationsPoint;
 
     while ( query.next() )
     {
@@ -570,14 +571,16 @@ void StatisticsWidget::drawMyLocationsOnMap(QSqlQuery &query)
         {
             double lat = stationGrid.getLatitude();
             double lon = stationGrid.getLongitude();
-            locations.append(QString("[\"%1\", %2, %3, homeIcon]").arg(loc).arg(lat).arg(lon));
+            locationIcons.append(QString("[\"%1\", %2, %3, homeIcon]").arg(loc).arg(lat).arg(lon));
+            rawLocationsPoint.append(QString("[%1, %2]").arg(lat).arg(lon));
         }
     }
 
     QString javaScript = QString("grids_confirmed = [];"
                                  "grids_worked = [];"
                                  "drawPointsGroup2([%1]);"
-                                 "maidenheadConfWorked.redraw();").arg(locations.join(","));
+                                 "maidenheadConfWorked.redraw();"
+                                 "map.panTo([0, L.latLngBounds([%2]).getCenter().lng]);").arg(locationIcons.join(","), rawLocationsPoint.join(","));
 
     qCDebug(runtime) << javaScript;
 
@@ -742,7 +745,7 @@ void StatisticsWidget::setSubTypesCombo(int mainTypeIdx)
     case 3:
     {
         QString unit;
-        Gridsquare::distance2localeUnitDistance(0, unit);
+        Gridsquare::distance2localeUnitDistance(0, unit, locale);
         ui->statTypeSecCombo->addItem(tr("Distance") + QString(" [%1]").arg(unit));
     }
     break;

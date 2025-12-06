@@ -317,6 +317,9 @@ bool Migration::functionMigration(int version)
     case 34:
         ret = settings2DB();
         break;
+    case 35:
+        ret = removeSettings2DB();
+        break;
     default:
         ret = true;
     }
@@ -354,13 +357,14 @@ bool Migration::updateExternalResource()
     connect(&progress, &QProgressDialog::canceled,
             &downloader, &LOVDownloader::abortRequest);
 
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::CTY, "(1/7)");
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::SATLIST, "(2/7)");
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::SOTASUMMITS, "(3/7)");
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::WWFFDIRECTORY, "(4/7)");
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::IOTALIST, "(5/7)");
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::POTADIRECTORY, "(6/7)");
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::MEMBERSHIPCONTENTLIST, "(7/7)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::CTY, "(1/8)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::CLUBLOGCTY, "2/8");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::SATLIST, "(3/8)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::SOTASUMMITS, "(4/8)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::WWFFDIRECTORY, "(5/8)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::IOTALIST, "(6/8)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::POTADIRECTORY, "(7/8)");
+    updateExternalResourceProgress(progress, downloader, LOVDownloader::MEMBERSHIPCONTENTLIST, "(8/8)");
 
     return true;
 }
@@ -398,7 +402,9 @@ void Migration::updateExternalResourceProgress(QProgressDialog& progress,
     case LOVDownloader::SourceType::MEMBERSHIPCONTENTLIST:
         stringInfo = tr("Membership Directory Records");
         break;
-
+    case LOVDownloader::SourceType::CLUBLOGCTY:
+        stringInfo = tr("Clublog CTY.XML");
+        break;
     default:
         stringInfo = tr("List of Values");
     }
@@ -779,9 +785,13 @@ bool Migration::profiles2DB()
     return true;
 }
 
-void removeSettings2DB()
+bool Migration::removeSettings2DB()
 {
-    // TODO call it later when we will sure that everything is working
+    // all platform-independent settings are already in the DB,
+    // no unusual errors occur. It's time to delete old values
+    // ​​from the config.
+    // Only platform-dependent settings remain in the config now.
+
     QSettings settings;
 
     settings.remove("qrzcom/username");
@@ -883,6 +893,7 @@ void removeSettings2DB()
     settings.remove("geometry");
     settings.remove("windowState");
     settings.remove("bandmapwidgets");
+    return true;
 }
 
 bool Migration::settings2DB()

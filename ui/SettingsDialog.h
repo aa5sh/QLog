@@ -119,6 +119,7 @@ public slots:
     void hrdlogSettingChanged();
     void clublogSettingChanged();
     void updateDateFormatResult();
+    void rigFlowControlChanged(int);
 
     void qrzAddCallsignAPIKey();
     void qrzDelCallsignAPIKey();
@@ -133,6 +134,8 @@ private:
     void generateMembershipCheckboxes();
     void generateQRZAPICallsignTable();
     void saveQRZAPICallsignTable();
+
+    const int CIVADDR_DISABLED_VALUE = -1;
 
     QSqlTableModel* modeTableModel;
     QSqlTableModel* bandTableModel;
