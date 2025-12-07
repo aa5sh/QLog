@@ -512,19 +512,6 @@ macx: {
 }
 
 win32: {
-   QT += axcontainer
-   TYPELIBS = $$system($$[QT_INSTALL_BINS]/dumpcpp -getfile {4FE359C5-A58F-459D-BE95-CA559FB4F270})
-   isEmpty(TYPELIBS){
-       error("Omnirig v1 is not found - required")
-   }
-
-   !exists( $$OUT_PWD/OmniRig2.* ) {
-      OMNIRIG2 = $$system($$[QT_INSTALL_BINS]/dumpcpp {959819FF-B57B-468A-9F30-BBA6BE319987} -n OmniRigV2 -o $$OUT_PWD/OmniRig2)
-      isEmpty(OMNIRIG2){
-          error("Omnirig v2 is not found - required")
-      }
-   }
-
    INCLUDEPATH += \
         /usr/local/include \
         $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/
@@ -532,14 +519,13 @@ win32: {
    SOURCES += \
         rig/drivers/OmnirigRigDrv.cpp \
         rig/drivers/Omnirigv2RigDrv.cpp \
-        OmniRig2.cpp \
         $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.c
 
 
    HEADERS += \
         rig/drivers/OmnirigRigDrv.h \
         rig/drivers/Omnirigv2RigDrv.h \
-        OmniRig2.h \
+        rig/drivers/OmniRigEventSink.h \
         $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.h
 
    TARGET = qlog

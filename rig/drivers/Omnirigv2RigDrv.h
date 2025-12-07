@@ -1,86 +1,101 @@
 #ifndef OMNIRIGV2RIGRIGDRV_H
 #define OMNIRIGV2RIGRIGDRV_H
 
+#include <QMutex>
+#include <QTimer>
+#include <QMap>
+
 #include "GenericRigDrv.h"
 #include "rig/RigCaps.h"
 
-// OmniRig.h is generated automatically by dumpcpp
-// omnirig must be installed before compilation
-// Currently supported is OmniRig v2
-#include "Omnirig2.h"
+// Forward declaration from OmnirigV2 library (getting via #import in .cpp)
+namespace OmnirigV2
+{
+    struct IOmniRigX;
+    struct IRigX;
+    struct IOmniRigXEvents;
+    enum RigParamX;
+    enum RigStatusX;
+}
 
-//don't inherit Omnirigv1, it won't do any good because it's a different namespace
+struct IConnectionPoint;
+template <typename Owner, typename EventInterface> class OmniRigEventSink;
+
 class OmnirigV2RigDrv : public GenericRigDrv
 {
     Q_OBJECT
+    friend class OmniRigEventSink<OmnirigV2RigDrv, OmnirigV2::IOmniRigXEvents>;
 
 public:
-
     static QList<QPair<int, QString>> getModelList();
     static RigCaps getCaps(int);
 
     explicit OmnirigV2RigDrv(const RigProfile &profile,
-                          QObject *parent = nullptr);
+                             QObject *parent = nullptr);
 
-    virtual ~OmnirigV2RigDrv();
+    ~OmnirigV2RigDrv() override;
 
-    virtual bool open() override;
-    virtual bool isMorseOverCatSupported() override;
-    virtual QStringList getAvailableModes() override;
+    bool        open() override;
+    bool        isMorseOverCatSupported() override;
+    QStringList getAvailableModes() override;
 
-    virtual void setFrequency(double) override;
-    virtual void setRawMode(const QString &) override;
-    virtual void setMode(const QString &, const QString &, bool digiVariant) override;
-    virtual void setPTT(bool) override;
-    virtual void setKeySpeed(qint16 wpm) override;
-    virtual void syncKeySpeed(qint16 wpm) override;
-    virtual void sendMorse(const QString &) override;
-    virtual void stopMorse() override;
-    virtual void sendState() override;
-    virtual void stopTimers() override;
-    virtual void sendDXSpot(const DxSpot &spot) override;
+    void setFrequency(double) override;
+    void setRawMode(const QString &) override;
+    void setMode(const QString &, const QString &, bool digiVariant) override;
+    void setPTT(bool) override;
+    void setKeySpeed(qint16 wpm) override;
+    void syncKeySpeed(qint16 wpm) override;
+    void sendMorse(const QString &) override;
+    void stopMorse() override;
+    void sendState() override;
+    void stopTimers() override;
+    void sendDXSpot(const DxSpot &spot) override;
 
-private slots:
+public slots:
     void rigTypeChange(int);
     void rigStatusChange(int);
-    void COMException (int,  QString, QString, QString);
     void rigParamsChange(int rigID, int params);
 
 private:
-    OmniRigV2::IRigX *getRigPtr();
-
-    const uint OFFLINETIMER_TIME_MS = 10000;
-
     void __rigTypeChange(int);
     void commandSleep();
-    const QString getModeNormalizedText(const QString& rawMode, QString &submode);
+    const QString getModeNormalizedText(const QString &rawMode, QString &submode);
 
-    void checkChanges(int, bool force = false);
-    bool checkFreqChange(int, bool);
-    bool checkModeChange(int, bool);
-    void checkPTTChange(int, bool);
-    void checkVFOChange(int, bool);
-    void checkRITChange(int, bool);
-    //void checkXITChange(int, bool); XitOffset is not implemented in Omnirig library now
+    void checkChanges(int params, bool force = false);
+    bool checkFreqChange(int params, bool force);
+    bool checkModeChange(int params, bool force);
+    void checkPTTChange(int params, bool force);
+    void checkVFOChange(int params, bool force);
+    void checkRITChange(int params, bool force);
 
     double getRITFreq();
-    void setRITFreq(double);
+    void   setRITFreq(double);
     double getXITFreq();
-    void setXITFreq(double);
+    void   setXITFreq(double);
 
     void emitDisconnect();
 
+private:
     unsigned int currFreq;
-    QString currModeID;
-    QString currVFO;
     unsigned int currRIT;
     unsigned int currXIT;
-    bool currPTT;
+    bool         currPTT;
+    QString      currModeID;
+    QString      currVFO;
 
-    OmniRigV2::OmniRigX *omniRigInterface;
-    OmniRigV2::RigX *rig;
+    // COM Objects
+    OmnirigV2::IOmniRigX *omniInterface;   // the main OmniRigX COM object
+    OmnirigV2::IRigX     *rig;
+
+    // Event sink (IDispatch) defined in OmniRigEventSink.h
+    OmniRigEventSink<OmnirigV2RigDrv, OmnirigV2::IOmniRigXEvents> *eventSink;
+    IConnectionPoint *connPoint;
+    unsigned long     connCookie;
+
+    // Parameters from OmniRig (bitmap)
     int readableParams;
     int writableParams;
+
     QMutex drvLock;
     QTimer offlineTimer;
 
@@ -90,15 +105,10 @@ private:
     const int VFO_SPEC_MASK = ( OmniRigV2::PM_VFOEQUAL | OmniRigV2::PM_VFOSWAP);
     const int ALLVFOsMASK  = (VFO_A_MASK | VFO_B_MASK | VFO_SPEC_MASK);
 
-    const QMap<OmniRigV2::RigParamX, QString> modeMap = {
-                                      {OmniRigV2::PM_CW_U, "CWR"},
-                                      {OmniRigV2::PM_CW_L, "CW"},
-                                      {OmniRigV2::PM_SSB_U, "USB"},
-                                      {OmniRigV2::PM_SSB_L, "LSB"},
-                                      {OmniRigV2::PM_DIG_U, "DIG_U"},
-                                      {OmniRigV2::PM_DIG_L, "DIG_L"},
-                                      {OmniRigV2::PM_AM, "AM"},
-                                      {OmniRigV2::PM_FM, "FM"}
-                                     };
+    static const uint OFFLINETIMER_TIME_MS = 10000;
+
+    // Mode maps
+    QMap<int, QString> modeMap;
 };
+
 #endif // OMNIRIGV2RIGRIGDRV_H
