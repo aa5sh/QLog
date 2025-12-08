@@ -1,4 +1,5 @@
 TBC - 0.48.0
+- [CHANGED] - Omnirig Drivers: Removed QT AXContainers - pure Windows API code
 
 2025/12/19 - 0.47.1
 - [CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)
