@@ -379,6 +379,7 @@ DxWidget::DxWidget(QWidget *parent) :
     socket(nullptr),
     ui(new Ui::DxWidget),
     deduplicateSpots(false),
+    commandsMenu(new QMenu(this)),
     reconnectAttempts(0),
     connectionState(DISCONNECTED),
     connectedServerString(nullptr),
@@ -448,11 +449,8 @@ DxWidget::DxWidget(QWidget *parent) :
     reloadSetting();
     serverComboSetup();
 
-    QMenu *commandsMenu = new QMenu(this);
     commandsMenu->addAction(ui->actionSpotQSO);
     commandsMenu->addSeparator();
-    commandsMenu->addAction(ui->actionShowHFStats);
-    commandsMenu->addAction(ui->actionShowVHFStats);
     commandsMenu->addAction(ui->actionShowWCY);
     commandsMenu->addAction(ui->actionShowWWV);
     ui->commandButton->setMenu(commandsMenu);
@@ -619,6 +617,7 @@ void DxWidget::disconnectCluster(bool tryReconnect)
         ui->serverSelect->setStyleSheet(QStringLiteral("QComboBox {color: red}"));
     }
     connectionState = DISCONNECTED;
+    dxcType = UNKNOWN;
     if ( connectedServerString )
     {
         delete connectedServerString;
@@ -753,14 +752,8 @@ void DxWidget::sendCommand(const QString & command,
 {
     FCT_IDENTIFICATION;
 
-    QByteArray data;
-    data.append(command.toLatin1());
-    data.append("\r\n");
-
     if ( socket && socket->isOpen() )
-    {
-        socket->write(data);
-    }
+        socket->write((command + QLatin1String("\r\n")).toLatin1());
 
     // switch to raw mode to see a response
     if ( switchToConsole )
@@ -816,62 +809,86 @@ void DxWidget::receive()
 
     static QRegularExpression dxSpotRE(QStringLiteral("^DX de ([a-zA-Z0-9\\/]+).*:\\s+([0-9|.]+)\\s+([a-zA-Z0-9\\/]+)[^\\s]*\\s+(.*)\\s+(\\d{4}Z)"),
                                        QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch dxSpotMatch;
 
     static QRegularExpression wcySpotRE(QStringLiteral("^(WCY de) +([A-Z0-9\\-#]*) +<(\\d{2})> *: +K=(\\d{1,3}) expK=(\\d{1,3}) A=(\\d{1,3}) R=(\\d{1,3}) SFI=(\\d{1,3}) SA=([a-zA-Z]{1,3}) GMF=([a-zA-Z]{1,3}) Au=([a-zA-Z]{2}) *$"),
                                         QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch wcySpotMatch;
 
     static QRegularExpression wwvSpotRE(QStringLiteral("^(WWV de) +([A-Z0-9\\-#]*) +<(\\d{2})Z?> *: *SFI=(\\d{1,3}), A=(\\d{1,3}), K=(\\d{1,3}), (.*\\b) *-> *(.*\\b) *$"),
                                         QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch wwvSpotMatch;
 
     static QRegularExpression toAllSpotRE(QStringLiteral("^(To ALL de) +([A-Z0-9\\-#]*)\\s?(<(\\d{4})Z>)?[ :]+(.*)?$"),
                                         QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch toAllSpotMatch;
 
     static QRegularExpression SHDXFormatRE(QStringLiteral("^\\s{0,8}([0-9|.]+)\\s+([a-zA-Z0-9\\/]+)[^\\s]*\\s+(.*)\\s+(\\d{4}Z) (.*)<([a-zA-Z0-9\\/]+)>$"),
                                         QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch SHDXFormatMatch;
 
     static QRegularExpression splitLineRE(QStringLiteral("(\a|\n|\r)+"));
     static QRegularExpression loginRE(QStringLiteral("enter your call(sign)?:"));
 
+    static const QString loginStr         = QStringLiteral("login");
+    static const QString ccClusterStr     = QStringLiteral("Running CC Cluster software");
+    static const QString invalidCallsign  = QStringLiteral("is an invalid callsign");
+    static const QString passwordStr      = QStringLiteral("password");
+    static const QString sorryStr         = QStringLiteral("sorry");
+    static const QString dxSpiderStr      = QStringLiteral("dxspider");
+    static const QString dxPrefix         = QStringLiteral("DX");
+    static const QString wcyPrefix        = QStringLiteral("WCY de");
+    static const QString wwvPrefix        = QStringLiteral("WWV de");
+    static const QString toAllPrefix      = QStringLiteral("To ALL de");
+
     reconnectAttempts = 0;
 
-    if ( !socket )
+    if ( !socket || !connectedServerString )
+    {
+        qCDebug(runtime) << "socket or connection string is null";
         return;
+    }
 
-    const QStringList &lines = QString::fromUtf8(socket->readAll()).split(splitLineRE);
+    const QByteArray rawData = socket->readAll();
+
+    if ( rawData.isEmpty() ) return;
+
+    const QString data = QString::fromUtf8(rawData);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    const QStringList lines = data.split(splitLineRE, Qt::SkipEmptyParts);
+#else /* Due to ubuntu 20.04 where qt5.12 is present */
+    const QStringList lines = data.split(splitLineRE, QString::SkipEmptyParts);
+#endif
+
+    const auto sendLine = [this](const QString &s)
+    {
+        socket->write((s + QLatin1String("\r\n")).toUtf8());
+    };
 
     for ( const QString &line : lines )
     {
-        if ( !socket || !connectedServerString )
-        {
-            qCDebug(runtime) << "socket or connection string is null";
-            return;
-        }
-
         qCDebug(runtime) << connectionState << line;
 
         // Skip empty lines
-        if ( line.length() == 0 )
+        if ( line.isEmpty() ) continue;
+
+        if ( connectionState == CONNECTED )
         {
-            continue;
+            if ( line.startsWith(loginStr, Qt::CaseInsensitive) || line.contains(loginRE) )
+            {
+                // username requested
+                sendLine(connectedServerString->getUsername());
+                connectionState = LOGIN_SENT;
+                qCDebug(runtime) << "Login sent";
+                continue;
+            }
+
+            if ( line.contains(ccClusterStr, Qt::CaseInsensitive) )
+            {
+                dxcType = CCCluster;
+                qCDebug(runtime) << "CC Cluster Detected";
+                updateCommandsMenu();
+                continue;
+            }
         }
 
-        if ( line.startsWith(QStringLiteral("login"), Qt::CaseInsensitive)
-             || line.contains(loginRE) )
-        {
-            // username requested
-            socket->write(connectedServerString->getUsername().append("\r\n").toLocal8Bit());
-            connectionState = LOGIN_SENT;
-            qCDebug(runtime) << "Login sent";
-            continue;
-        }
-
-        if ( connectionState == LOGIN_SENT
-             && line.contains(QStringLiteral("is an invalid callsign")) )
+        if ( connectionState == LOGIN_SENT && line.contains(invalidCallsign) )
         {
             // invalid login
             QMessageBox::warning(nullptr,
@@ -880,8 +897,7 @@ void DxWidget::receive()
             continue;
         }
 
-        if ( connectionState == LOGIN_SENT
-             && line.startsWith(QStringLiteral("password"), Qt::CaseInsensitive) )
+        if ( connectionState == LOGIN_SENT && line.startsWith(passwordStr, Qt::CaseInsensitive) )
         {
             // password requested
             QString password = CredentialStore::instance()->getPassword(connectedServerString->getPasswordStorageKey(),
@@ -912,14 +928,13 @@ void DxWidget::receive()
                 }
             }
             activateCurrPasswordIcon();
-            socket->write(password.append("\r\n").toLocal8Bit());
+            sendLine(password);
             connectionState = PASSWORD_SENT;
             qCDebug(runtime) << "Password sent";
             continue;
         }
 
-        if ( connectionState == PASSWORD_SENT
-             && line.startsWith(QStringLiteral("sorry"), Qt::CaseInsensitive ) )
+        if ( connectionState == PASSWORD_SENT && line.startsWith(sorryStr, Qt::CaseInsensitive ) )
         {
             // invalid password
             CredentialStore::instance()->deletePassword(connectedServerString->getPasswordStorageKey(),
@@ -930,25 +945,36 @@ void DxWidget::receive()
             continue;
         }
 
-        if ( line.contains(QStringLiteral("dxspider"), Qt::CaseInsensitive) )
+        if ( connectionState == LOGIN_SENT || connectionState == PASSWORD_SENT )
         {
-            if ( connectionState == LOGIN_SENT
-                 || connectionState == PASSWORD_SENT )
-                connectionState = OPERATION;
 
-            ui->commandButton->setEnabled(true);
+            if ( line.contains(dxSpiderStr, Qt::CaseInsensitive) )
+            {
+                connectionState = OPERATION;
+                dxcType = DXSPIDER;
+                qCDebug(runtime) << "dxspider Detected";
+                updateCommandsMenu();
+                ui->commandButton->setEnabled(true);
+                continue;
+            }
+            // the difference compared to DXSpider is that CC Cluster type
+            // is detected before login, but DXSpider type is detected after login
+            if ( dxcType == CCCluster )
+            {
+                connectionState = OPERATION;
+                ui->commandButton->setEnabled(true);
+            }
         }
 
         /********************/
         /* Received DX SPOT */
         /********************/
-        if ( line.startsWith(QStringLiteral("DX")) )
+        if ( line.startsWith(dxPrefix) )
         {
-            if ( connectionState == LOGIN_SENT
-                 || connectionState == PASSWORD_SENT )
+            if ( connectionState == LOGIN_SENT || connectionState == PASSWORD_SENT )
                 connectionState = OPERATION;
 
-            dxSpotMatch = dxSpotRE.match(line);
+            const QRegularExpressionMatch dxSpotMatch = dxSpotRE.match(line);
 
             if ( dxSpotMatch.hasMatch() )
             {
@@ -962,9 +988,9 @@ void DxWidget::receive()
         /************************/
         /* Received WCY Info */
         /************************/
-        else if ( line.startsWith(QStringLiteral("WCY de")) )
+        else if ( line.startsWith(wcyPrefix) )
         {
-            wcySpotMatch = wcySpotRE.match(line);
+            const QRegularExpressionMatch wcySpotMatch = wcySpotRE.match(line);
 
             if ( wcySpotMatch.hasMatch() )
             {
@@ -987,9 +1013,9 @@ void DxWidget::receive()
         /*********************/
         /* Received WWV Info */
         /*********************/
-        else if ( line.startsWith(QStringLiteral("WWV de")) )
+        else if ( line.startsWith(wwvPrefix) )
         {
-            wwvSpotMatch = wwvSpotRE.match(line);
+            const QRegularExpressionMatch wwvSpotMatch = wwvSpotRE.match(line);
 
             if ( wwvSpotMatch.hasMatch() )
             {
@@ -1009,9 +1035,9 @@ void DxWidget::receive()
         /*************************/
         /* Received Generic Info */
         /*************************/
-        else if ( line.startsWith(QStringLiteral("To ALL de")) )
+        else if ( line.startsWith(toAllPrefix) )
         {
-            toAllSpotMatch = toAllSpotRE.match(line);
+            const QRegularExpressionMatch toAllSpotMatch = toAllSpotRE.match(line);
 
             if ( toAllSpotMatch.hasMatch() )
             {
@@ -1032,7 +1058,7 @@ void DxWidget::receive()
         /****************/
         else if ( line.contains(SHDXFormatRE) )
         {
-            SHDXFormatMatch = SHDXFormatRE.match(line);
+            const QRegularExpressionMatch SHDXFormatMatch = SHDXFormatRE.match(line);
 
             if ( SHDXFormatMatch.hasMatch() )
             {
@@ -1655,6 +1681,31 @@ void DxWidget::activateCurrPasswordIcon()
     FCT_IDENTIFICATION;
 
     ui->serverSelect->setItemIcon(ui->serverSelect->currentIndex(), QIcon(":/icons/password.png"));
+}
+
+void DxWidget::updateCommandsMenu()
+{
+    FCT_IDENTIFICATION;
+
+    switch (dxcType)
+    {
+    case CCCluster:
+        if ( ui->commandButton->defaultAction() == ui->actionShowHFStats
+             || ui->commandButton->defaultAction() == ui->actionShowVHFStats )
+            ui->commandButton->setDefaultAction(ui->actionSpotQSO);
+
+        commandsMenu->removeAction(ui->actionShowHFStats);
+        commandsMenu->removeAction(ui->actionShowVHFStats);
+        break;
+
+    case DXSPIDER:
+        commandsMenu->addAction(ui->actionShowHFStats);
+        commandsMenu->addAction(ui->actionShowVHFStats);
+        break;
+
+    default:
+        qCDebug(runtime) << "no change";
+    }
 }
 
 void DxWidget::processDxSpot(const QString &spotter,
