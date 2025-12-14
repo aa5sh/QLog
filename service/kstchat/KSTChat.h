@@ -178,7 +178,7 @@ private:
     QList<QPair<Command, QString>> commandQueue;
 
     const NewContactWidget *contact;
-    const QString KST_HOSTNAME = "www.on4kst.info";
+    const QString KST_HOSTNAME = "www.on4kst.org";
     const quint16 KST_PORT = 23000;
     const quint16 KST_UPDATE_USERS_LIST = 3 * 60;// update user list every 3*60 seconds
     static const QString SECURE_STORAGE_KEY;
