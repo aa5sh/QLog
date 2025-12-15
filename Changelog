@@ -1,5 +1,6 @@
 TBC - 0.47.1
 - [CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)
+- [CHANGED] - Chat - Changed ON4KST URL (issue #857)
 - Fixed Updated QSOs are not sent to wavelog (issue #847)
 
 2025/12/06 - 0.47.0
