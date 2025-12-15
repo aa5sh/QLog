@@ -184,6 +184,13 @@ private:
         OPERATION = 5
     };
 
+    enum DXCType
+    {
+        UNKNOWN = 0,
+        DXSPIDER = 1,
+        CCCluster = 2
+    };
+
     DxTableModel* dxTableModel;
     WCYTableModel* wcyTableModel;
     WWVTableModel* wwvTableModel;
@@ -199,7 +206,8 @@ private:
     bool deduplicateSpots;
     int deduplicatetime;
     int deduplicatefreq;
-
+    DXCType dxcType = UNKNOWN;
+    QMenu *commandsMenu;
     QSet<QString> dxMemberFilter;
     QSqlRecord lastQSO;
     quint8 reconnectAttempts;
@@ -237,6 +245,7 @@ private:
     void serverComboSetup();
     void clearAllPasswordIcons();
     void activateCurrPasswordIcon();
+    void updateCommandsMenu();
 
     void processDxSpot(const QString &spotter,
                        const QString &freq,
