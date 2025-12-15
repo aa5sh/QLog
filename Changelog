@@ -1,4 +1,6 @@
 TBC - 0.47.1
+- [CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)
+- Fixed Updated QSOs are not sent to wavelog (issue #847)
 
 2025/12/06 - 0.47.0
 - [NEW] - Adds theme options - native, light, dark (PR #718 @kyleboyle)
