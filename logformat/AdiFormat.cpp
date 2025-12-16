@@ -13,6 +13,14 @@ void AdiFormat::exportStart()
 {
     FCT_IDENTIFICATION;
 
+    // ADIF Spec:
+    // A Header begins with any character other than < and terminates
+    // with a case-insensitive End-Of-Header tag
+    //
+    // Adding an extra space to be compliant with the ADIF specification.
+    // It is the same as in the example in the ADIF resource file.
+    stream << " ";
+
     writeField("ADIF_VER", ALWAYS_PRESENT, ADIF_VERSION_STRING);
     writeField("PROGRAMID", ALWAYS_PRESENT, PROGRAMID_STRING);
     writeField("PROGRAMVERSION", ALWAYS_PRESENT, VERSION);
