@@ -4,6 +4,7 @@ TBC - 0.47.1
 - Fixed missing clear button for Search Callsign (issue #753)
 - Fixed Updated QSOs are not sent to wavelog (issue #847)
 - Fixed ADI Header does not follow ADIF Spec (issue #859)
+- Fixed OmniRig settings are not saved (issue #862)
 
 2025/12/06 - 0.47.0
 - [NEW] - Adds theme options - native, light, dark (PR #718 @kyleboyle)
