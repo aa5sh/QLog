@@ -659,6 +659,8 @@ void SettingsDialog::clearRigProfileForm()
     ui->rigAddProfileButton->setText(tr("Add"));
     ui->rigPTTPortEdit->clear();
     ui->rigCIVAddrSpinBox->setValue(CIVADDR_DISABLED_VALUE);
+
+    rigChanged(ui->rigModelSelect->currentIndex());
 }
 
 void SettingsDialog::rigRXOffsetChanged(int)
@@ -695,8 +697,8 @@ void SettingsDialog::rigGetFreqChanged(int)
 {
     FCT_IDENTIFICATION;
 
-    ui->rigQSYWipingCheckBox->setEnabled(ui->rigGetFreqCheckBox->isChecked());
     ui->rigQSYWipingCheckBox->setChecked(ui->rigGetFreqCheckBox->isChecked());
+    ui->rigQSYWipingCheckBox->setEnabled(ui->rigGetFreqCheckBox->isChecked());
 }
 
 void SettingsDialog::rigPortTypeChanged(int index)
@@ -1848,8 +1850,8 @@ void SettingsDialog::cwKeyChanged(int)
          || currentType == CWKey::FLDIGI_KEYER )
     {
         ui->cwBaudSelect->setEnabled(false);
-        ui->cwPortEdit->setEnabled(false);
         ui->cwPortEdit->clear();
+        ui->cwPortEdit->setEnabled(false);
         ui->cwKeyModeSelect->setEnabled(false);
         ui->cwDefaulSpeed->setEnabled(true);
         ui->cwSwapPaddlesCheckbox->setEnabled(false);
@@ -2599,65 +2601,65 @@ void SettingsDialog::setUIBasedOnRigCaps(const RigCaps &caps)
 
     if ( ! caps.canGetFreq )
     {
-        ui->rigGetFreqCheckBox->setEnabled(false);
         ui->rigGetFreqCheckBox->setChecked(false);
+        ui->rigGetFreqCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canGetMode )
     {
-        ui->rigGetModeCheckBox->setEnabled(false);
         ui->rigGetModeCheckBox->setChecked(false);
+        ui->rigGetModeCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canGetVFO )
     {
-        ui->rigGetVFOCheckBox->setEnabled(false);
         ui->rigGetVFOCheckBox->setChecked(false);
+        ui->rigGetVFOCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canGetPWR )
     {
-        ui->rigGetPWRCheckBox->setEnabled(false);
         ui->rigGetPWRCheckBox->setChecked(false);
+        ui->rigGetPWRCheckBox->setEnabled(false);
     }
 
 
     if ( ! caps.canGetRIT )
     {
-        ui->rigGetRITCheckBox->setEnabled(false);
         ui->rigGetRITCheckBox->setChecked(false);
+        ui->rigGetRITCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canGetXIT )
     {
-        ui->rigGetXITCheckBox->setEnabled(false);
         ui->rigGetXITCheckBox->setChecked(false);
+        ui->rigGetXITCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canGetPTT)
     {
-        ui->rigGetPTTStateCheckBox->setEnabled(false);
         ui->rigGetPTTStateCheckBox->setChecked(false);
+        ui->rigGetPTTStateCheckBox->setEnabled(false);
     }
 
     if ( ! ui->rigGetFreqCheckBox->isChecked() )
     {
-        ui->rigQSYWipingCheckBox->setEnabled(false);
         ui->rigQSYWipingCheckBox->setChecked(false);
+        ui->rigQSYWipingCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canGetKeySpeed )
     {
-        ui->rigGetKeySpeedCheckBox->setEnabled(false);
         ui->rigGetKeySpeedCheckBox->setChecked(false);
-        ui->rigKeySpeedSyncCheckBox->setEnabled(false);
+        ui->rigGetKeySpeedCheckBox->setEnabled(false);
         ui->rigKeySpeedSyncCheckBox->setChecked(false);
+        ui->rigKeySpeedSyncCheckBox->setEnabled(false);
     }
 
     if ( ! caps.canProcessDXSpot )
     {
-        ui->rigDXSpots2RigCheckBox->setEnabled(false);
         ui->rigDXSpots2RigCheckBox->setChecked(false);
+        ui->rigDXSpots2RigCheckBox->setEnabled(false);
     }
 
     if ( ui->rigAssignedCWKeyCombo->currentText() != EMPTY_CWKEY_PROFILE )
@@ -2667,8 +2669,8 @@ void SettingsDialog::setUIBasedOnRigCaps(const RigCaps &caps)
         if ( ! caps.canGetKeySpeed
              || (selectedKeyProfile.model == CWKey::MORSEOVERCAT) )
         {
-            ui->rigKeySpeedSyncCheckBox->setEnabled(false);
             ui->rigKeySpeedSyncCheckBox->setChecked(false);
+            ui->rigKeySpeedSyncCheckBox->setEnabled(false);
         }
     }
 
