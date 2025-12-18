@@ -298,6 +298,6 @@ void BandPlanTest::modeToDXCCModeGroup()
     QCOMPARE(BandPlan::modeToDXCCModeGroup(mode), expectedGroup);
 }
 
-QTEST_APPLESS_MAIN(BandPlanTest)
+QTEST_MAIN(BandPlanTest)
 
 #include "tst_bandplan.moc"
