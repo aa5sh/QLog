@@ -51,6 +51,19 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.47.1" date="2025-12-19">
+      <description>
+        <ul>
+          <li>[CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)</li>
+          <li>[CHANGED] - Chat - Changed ON4KST URL (issue #857)</li>
+          <li>Fixed missing clear button for Search Callsign (issue #753)</li>
+          <li>Fixed Updated QSOs are not sent to wavelog (issue #847)</li>
+          <li>Fixed Fixed Omnirig(v2) getFreq, getVFO, setFreq (issue #853)</li>
+          <li>Fixed ADI Header does not follow ADIF Spec (issue #859)</li>
+          <li>Fixed OmniRig settings are not saved (issue #862)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.47.0" date="2025-12-06">
       <description>
         <ul>

@@ -40,6 +40,15 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Fri Dec 19 2025 Ladislav Foldyna - 0.47.1-1
+- [CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)
+- [CHANGED] - Chat - Changed ON4KST URL (issue #857)
+- Fixed missing clear button for Search Callsign (issue #753)
+- Fixed Updated QSOs are not sent to wavelog (issue #847)
+- Fixed Fixed Omnirig(v2) getFreq, getVFO, setFreq (issue #853)
+- Fixed ADI Header does not follow ADIF Spec (issue #859)
+- Fixed OmniRig settings are not saved (issue #862)
+
 * Sat Dec 6 2025 Ladislav Foldyna - 0.47.0-1
 - [NEW] - Adds theme options - native, light, dark (PR #718 @kyleboyle)
 - [NEW] - Implemented ADIF 3.1.6
