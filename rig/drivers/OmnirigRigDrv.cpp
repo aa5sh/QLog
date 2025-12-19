@@ -208,9 +208,7 @@ void OmnirigRigDrv::setFrequency(double newFreq)
         return;
     }
 
-    if ( rig->Vfo() == OmniRig::PM_VFOB
-         || rig->Vfo() == OmniRig::PM_VFOBB
-         || rig->Vfo() == OmniRig::PM_VFOBA )
+    if ( rig->Vfo() & VFO_B_MASK )
     {
         qCDebug(runtime) << "Setting VFO B Freq";
         rig->SetFreqB(internalFreq);
@@ -533,7 +531,6 @@ OmniRig::IRigX *OmnirigRigDrv::getRigPtr()
                                      : omniRigInterface->Rig2();
 }
 
-
 bool OmnirigRigDrv::checkFreqChange(int params, bool force)
 {
     FCT_IDENTIFICATION;
@@ -544,44 +541,49 @@ bool OmnirigRigDrv::checkFreqChange(int params, bool force)
         return false;
     }
 
+    bool inForce = force;
+
+    if ( !rigProfile.getFreqInfo ) return true;
+    if ( !inForce && !( params & (FREQMASK | ALLVFOsMASK) ) ) return true;
+    if ( !inForce && (params & ALLVFOsMASK)) inForce = true;
+
     unsigned int vfo_freq = 0;
-    if ( rigProfile.getFreqInfo
-         && ( params & OmniRig::PM_FREQA
-              || params & OmniRig::PM_FREQB
-              || params & OmniRig::PM_FREQ
-              || force) )
+    const OmniRig::RigParamX vfoParam = rig->Vfo();
+    const bool vfoIsB = (vfoParam & VFO_B_MASK);
+
+    if ( vfoIsB )
     {
-        if ( rig->Vfo() == OmniRig::PM_VFOB
-            || rig->Vfo() == OmniRig::PM_VFOBB
-            || rig->Vfo() == OmniRig::PM_VFOBA )
+        qCDebug(runtime) << "Getting VFO B Freq";
+        vfo_freq = rig->FreqB();
+        if ( !vfo_freq )
         {
-            qCDebug(runtime) << "Getting VFO B Freq";
-            vfo_freq = rig->FreqB();
-        }
-        else if ( (writableParams & OmniRig::PM_FREQA) )
-        {
-            qCDebug(runtime) << "Getting VFO A Freq";
-            vfo_freq = rig->FreqA();
-        }
-        else
-        {
-            qCDebug(runtime) << "Getting Generic VFO Freq";
+            qCDebug(runtime) << "FreqB returned 0, falling back to Freq()";
             vfo_freq = rig->Freq();
-        };
-
-        qCDebug(runtime) << "Rig Freq: "<< vfo_freq;
-        qCDebug(runtime) << "Object Freq: "<< currFreq;
-
-        if ( vfo_freq != currFreq
-             || force )
-        {
-            currFreq = vfo_freq;
-            qCDebug(runtime) << "emitting FREQ changed" << currFreq << Hz2MHz(currFreq);
-            emit frequencyChanged(Hz2MHz(currFreq),
-                                  Hz2MHz(getRITFreq()),
-                                  Hz2MHz(getXITFreq()));
         }
     }
+    else
+    {
+        qCDebug(runtime) << "Getting VFO A Freq";
+        vfo_freq = rig->FreqA();
+        if ( !vfo_freq )
+        {
+            qCDebug(runtime) << "FreqA returned 0, falling back to Freq()";
+            vfo_freq = rig->Freq();
+        }
+    }
+
+    qCDebug(runtime) << "Rig Freq: "<< vfo_freq;
+    qCDebug(runtime) << "Object Freq: "<< currFreq;
+
+    if ( vfo_freq != currFreq || inForce )
+    {
+        currFreq = vfo_freq;
+        qCDebug(runtime) << "emitting FREQ changed" << currFreq << Hz2MHz(currFreq);
+        emit frequencyChanged(Hz2MHz(currFreq),
+                              Hz2MHz(getRITFreq()),
+                              Hz2MHz(getXITFreq()));
+    }
+
     return true;
 }
 
@@ -674,32 +676,16 @@ void OmnirigRigDrv::checkVFOChange(int params, bool force)
         return;
     }
 
-    if ( rigProfile.getVFOInfo
-         && ( params & OmniRig::PM_VFOA
-              || params & OmniRig::PM_VFOAA
-              || params & OmniRig::PM_VFOAB
-              || params & OmniRig::PM_VFOB
-              || params & OmniRig::PM_VFOBB
-              || params & OmniRig::PM_VFOBA
-              || params & OmniRig::PM_VFOEQUAL
-              || params & OmniRig::PM_VFOSWAP
-              || force) )
+    if ( !rigProfile.getVFOInfo ) return;
+
+    if ( (params & ALLVFOsMASK) || force )
     {
-        int inParams = ( force
-                         || params & OmniRig::PM_VFOEQUAL
-                         ||  params & OmniRig::PM_VFOSWAP ) ? rig->Vfo()
-                                                            : params;
+        int inParams = ( force || (params & VFO_SPEC_MASK) ) ? rig->Vfo()
+                                                             : params;
         QString vfo;
 
-        if ( inParams & OmniRig::PM_VFOA
-             || inParams & OmniRig::PM_VFOAA
-             || inParams & OmniRig::PM_VFOAB )
-            vfo = "VFOA";
-
-        if ( inParams & OmniRig::PM_VFOB
-             || inParams & OmniRig::PM_VFOBB
-             || inParams & OmniRig::PM_VFOBA )
-            vfo = "VFOB";
+        if ( inParams & VFO_A_MASK ) vfo = "VFOA";
+        if ( inParams & VFO_B_MASK ) vfo = "VFOB";
 
         qCDebug(runtime) << "Rig VFO: "<< vfo;
         qCDebug(runtime) << "Object VFO: "<< currVFO;
