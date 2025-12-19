@@ -196,8 +196,17 @@ void CloudlogUploader::processReply(QNetworkReply *reply)
                 const QStringList &messages = resp.value("messages").toStringList();
                 QString reason = messages.isEmpty() ? QString() : messages.first();
                 reason = (reason.isEmpty() && messages.size() >= 2) ? messages.at(1) : reason;
-                bool success = (status == "created") ||
-                               (status == "abort" && reason.contains("Duplicate for"));
+
+                /* The idea behind this was that QLog would submit all new and modified QSOs
+                 * to Wavelog even though Wavelog rejects duplicates. The goal was that once
+                 * Wavelog starts accepting QSO updates, QLog could remain unchanged. Unfortunately,
+                 * the issue is that Wavelog reports duplicates as errors, and worse, the message
+                 * text is translated into multiple languages. As a result, QLog cannot reliably
+                 * distinguish an actual error from a duplicate. Therefore, I am removing this check,
+                 * and it is necessary to ensure that QLog sends only new QSOs to Cloudlog/Wavelog. */
+                bool success = (status == "created");
+                               //|| (status == "abort" && reason.contains("Duplicate for"));
+
 
                 if (success)
                 {

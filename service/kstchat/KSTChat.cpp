@@ -21,12 +21,6 @@
 
 MODULE_IDENTIFICATION("qlog.core.kstchat");
 
-#define KST_HOSTNAME "www.on4kst.info"
-#define KST_PORT 23000
-
-// update user list every 3*60 seconds
-#define KST_UPDATE_USERS_LIST 3*60
-
 KSTChat::KSTChat(int chatRoomIndex,
                  const QString &username,
                  const QString &password,

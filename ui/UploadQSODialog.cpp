@@ -464,13 +464,24 @@ void UploadQSODialog::executeQuery()
 
         QStringList uploadStatuses(qslUploadStatuses);
 
-        if ( (    it.key() == CLUBLOGID && ui->clublogClearCheckbox->isChecked() )
-             || ( it.key() == WAVELOGID  && ui->wavelogReuploadCheckbox->isChecked() ))
+        if ( it.key() == WAVELOGID )
+        {
+            if ( ui->wavelogReuploadCheckbox->isChecked() )
+                uploadStatuses << "'Y'";
+            else
+                // Wavelog reports duplicates as errors with translated error messages.
+                // QLog cannot reliably distinguish between a duplicate and a real error.
+                // Therefore, it is necessary to ensure that QLog sends only
+                // new QSOs to Cloudlog/Wavelog.
+                // Currently only two statues are use for Wavelog - Y/M - removing M (Modified)
+                uploadStatuses.removeAll("'M'");
+        }
+
+        if ( it.key() == CLUBLOGID && ui->clublogClearCheckbox->isChecked() )
         {
             //reupload all QSOs (except N)
             uploadStatuses << "'Y'";
         }
-
 
         QString addlCondition = ( it.key() == LOTWID && ui->lotwCheckbox->isChecked() )
                                 ? "AND (upper(prop_mode) NOT IN ('INTERNET', 'RPT', 'ECH', 'IRL') OR prop_mode IS NULL)"

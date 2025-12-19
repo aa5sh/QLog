@@ -83,6 +83,13 @@ private:
     int writableParams;
     QMutex drvLock;
     QTimer offlineTimer;
+
+    const int FREQMASK = (OmniRigV2::PM_FREQA | OmniRigV2::PM_FREQB | OmniRigV2::PM_FREQ);
+    const int VFO_A_MASK = ( OmniRigV2::PM_VFOA | OmniRigV2::PM_VFOAA | OmniRigV2::PM_VFOAB);
+    const int VFO_B_MASK = ( OmniRigV2::PM_VFOB | OmniRigV2::PM_VFOBA | OmniRigV2::PM_VFOBB);
+    const int VFO_SPEC_MASK = ( OmniRigV2::PM_VFOEQUAL | OmniRigV2::PM_VFOSWAP);
+    const int ALLVFOsMASK  = (VFO_A_MASK | VFO_B_MASK | VFO_SPEC_MASK);
+
     const QMap<OmniRigV2::RigParamX, QString> modeMap = {
                                       {OmniRigV2::PM_CW_U, "CWR"},
                                       {OmniRigV2::PM_CW_L, "CW"},

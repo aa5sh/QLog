@@ -601,6 +601,10 @@ void LogbookWidget::filterCallsign(const QString &call)
         ui->searchTextFilter->blockSignals(true);
         ui->searchTextFilter->setText(call);
         ui->searchTextFilter->blockSignals(false);
+        // clearbutton is shown only when signals are enabled. therefore
+        // it is needed to force clear-button update
+        ui->searchTextFilter->setClearButtonEnabled(false);
+        ui->searchTextFilter->setClearButtonEnabled(true);
     }
 
     filterTable();
