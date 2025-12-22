@@ -2,6 +2,7 @@
 #include <QCompleter>
 #include <QSerialPortInfo>
 #include <QDir>
+#include <QAbstractItemView>
 #include "EditLine.h"
 
 
@@ -133,7 +134,11 @@ SerialPortEditLine::SerialPortEditLine(QWidget *parent) :
         portNames << niceName;
     }
 #endif
-    setCompleter(new QCompleter(portNames));
+    QCompleter *completer = new QCompleter(portNames, this);
+    QAbstractItemView *popup = completer->popup();
+    popup->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    popup->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setCompleter(completer);
 }
 
 void SerialPortEditLine::focusInEvent(QFocusEvent *event)
