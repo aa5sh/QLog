@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "rig/Rig.h"
 #include "service/hrdlog/HRDLog.h"
+#include "ui/component/tunablelabel.h"
 
 namespace Ui {
 class RigWidget;

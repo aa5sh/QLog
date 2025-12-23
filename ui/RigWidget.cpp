@@ -11,6 +11,7 @@
 #include "data/Data.h"
 #include "service/hrdlog/HRDLog.h"
 #include "data/BandPlan.h"
+#include "ui/component/tunablelabel.h"
 
 // On AIR pinging to HRDLog [in sec]
 #define ONAIR_INTERVAL (1 * 60)

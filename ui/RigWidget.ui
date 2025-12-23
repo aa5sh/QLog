@@ -218,7 +218,7 @@
   <customwidget>
    <class>TunableLabel</class>
    <extends>QLabel</extends>
-   <header>tunablelabel.h</header>
+   <header>ui/component/TunableLabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
