@@ -182,7 +182,8 @@ SOURCES += \
         ui/component/MultiselectCompleter.cpp \
         ui/component/RepeatButton.cpp \
         ui/component/SmartSearchBox.cpp \
-        ui/component/SwitchButton.cpp
+        ui/component/SwitchButton.cpp \
+        ui/component/tunablelabel.cpp
 
 HEADERS += \
         core/AlertEvaluator.h \
@@ -336,7 +337,8 @@ HEADERS += \
         ui/component/ShutdownAwareWidget.h \
         ui/component/SmartSearchBox.h \
         ui/component/StyleItemDelegate.h \
-        ui/component/SwitchButton.h
+        ui/component/SwitchButton.h \
+        ui/component/tunablelabel.h
 
 FORMS += \
         ui/ActivityEditor.ui \

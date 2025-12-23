@@ -43,6 +43,18 @@ RigWidget::RigWidget(QWidget *parent) :
     QStringListModel* modesModel = new QStringListModel(this);
     ui->modeComboBox->setModel(modesModel);
 
+    auto *tuneLbl = qobject_cast<TunableLabel*>(ui->freqLabel);
+    if (tuneLbl) {
+        tuneLbl->setBaseStepHz(100);
+
+        connect(tuneLbl, &TunableLabel::tuneDeltaRequested, this, &RigWidget::onTuneDeltaRequested);
+
+        connect(tuneLbl, &TunableLabel::clicked, this, [this]{
+            this->setFocus(Qt::MouseFocusReason);
+        });
+    }
+
+
     refreshRigProfileCombo();
 
     QTimer *onAirTimer = new QTimer(this);
@@ -61,6 +73,24 @@ RigWidget::~RigWidget()
     hrdlog->deleteLater();
     delete ui;
 }
+
+void RigWidget::onTuneDeltaRequested(qint64 deltaHz)
+{
+    FCT_IDENTIFICATION;
+
+    // Convert Hz delta → MHz delta
+    if (lastSeenFreq == 0.0)
+        return;
+    const double deltaMHz = static_cast<double>(deltaHz) / 1'000'000.0;
+    const double newMHz   = lastSeenFreq + deltaMHz;
+
+    if (rigOnline) {
+        Rig::instance()->setFrequency(MHz(newMHz));
+        qCDebug(runtime) << "Mouse Wheel freq: " << newMHz;
+    }
+}
+
+
 
 void RigWidget::updateFrequency(VFOID vfoid, double vfoFreq, double ritFreq, double xitFreq)
 {

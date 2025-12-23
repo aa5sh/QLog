@@ -158,7 +158,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="freqLabel">
+      <widget class="TunableLabel" name="freqLabel">
        <property name="font">
         <font>
          <pointsize>20</pointsize>
@@ -214,6 +214,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TunableLabel</class>
+   <extends>QLabel</extends>
+   <header>tunablelabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -44,6 +44,7 @@ public slots:
 
 private slots:
     void sendOnAirState();
+    void onTuneDeltaRequested(qint64 deltaHz);
 
 private:
 
@@ -52,6 +53,7 @@ private:
     double lastSeenFreq;
     QString lastSeenMode;
     bool rigOnline;
+    // RigWidget.h
 
     Ui::RigWidget *ui;
     HRDLogUploader *hrdlog;
