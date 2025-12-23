@@ -1,4 +1,4 @@
-#include "TunableLabel.h"
+#include "ui/component/tunablelabel.h"
 
 #include <QWheelEvent>
 #include <QMouseEvent>
