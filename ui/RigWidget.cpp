@@ -79,10 +79,9 @@ void RigWidget::onTuneDeltaRequested(qint64 deltaHz)
 {
     FCT_IDENTIFICATION;
 
-    // Convert Hz delta → MHz delta
     if (lastSeenFreq == 0.0)
         return;
-    const double deltaMHz = static_cast<double>(deltaHz) / 1'000'000.0;
+    const double deltaMHz = static_cast<double>(deltaHz) / 1000000.0;
     const double newMHz   = lastSeenFreq + deltaMHz;
 
     if (rigOnline) {
