@@ -1,4 +1,5 @@
 TBC - 0.48.0
+- [NEW] - Rig Widget - tuning rig with mouse (issue #855)
 - [CHANGED] - Omnirig Drivers: Removed QT AXContainers - pure Windows API code
 - [CHANGED] - Enabled Chekbox in Alerts Table (issue #867)
 - [CHANGED] - Serial Port Completer contains Horizontal ScrollBar

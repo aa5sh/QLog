@@ -1,9 +1,3 @@
-#include <QStringListModel>
-#include <QSqlTableModel>
-#include <QSqlRecord>
-#include <QLineEdit>
-#include <QShortcut>
-
 #include "RigWidget.h"
 #include "ui_RigWidget.h"
 #include "rig/macros.h"
@@ -11,9 +5,6 @@
 #include "data/Data.h"
 #include "service/hrdlog/HRDLog.h"
 #include "data/BandPlan.h"
-
-// On AIR pinging to HRDLog [in sec]
-#define ONAIR_INTERVAL (1 * 60)
 
 MODULE_IDENTIFICATION("qlog.ui.rigwidget");
 
@@ -27,6 +18,12 @@ RigWidget::RigWidget(QWidget *parent) :
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    ui->freqLabel->setSelectionModeEnabled(false);
+    ui->freqLabel->setDebounceEnabled(true);
+    ui->freqLabel->setDebounceIntervalMs(250);
+    ui->freqLabel->setLocale(QLocale::c());
+    connect(ui->freqLabel, &FreqQSpinBox::debouncedValueChanged,
+            this, &RigWidget::freqChanged);
 
     QStringListModel* rigModel = new QStringListModel(this);
     ui->rigProfilCombo->setModel(rigModel);
@@ -48,7 +45,6 @@ RigWidget::RigWidget(QWidget *parent) :
     QTimer *onAirTimer = new QTimer(this);
     connect(onAirTimer, &QTimer::timeout, this, &RigWidget::sendOnAirState);
     onAirTimer->start(ONAIR_INTERVAL * 1000);
-
     resetRigInfo();
 
     rigDisconnected();
@@ -70,7 +66,9 @@ void RigWidget::updateFrequency(VFOID vfoid, double vfoFreq, double ritFreq, dou
 
     qCDebug(function_parameters) << vfoFreq << ritFreq << xitFreq;
 
-    ui->freqLabel->setText(QString("%1 MHz").arg(QSTRING_FREQ(vfoFreq)));
+    ui->freqLabel->blockSignals(true);
+    ui->freqLabel->setValue(vfoFreq);
+    ui->freqLabel->blockSignals(false);
     const QString& bandName = BandPlan::freq2Band(vfoFreq).name;
 
     if ( bandName != ui->bandComboBox->currentText() )
@@ -308,7 +306,7 @@ void RigWidget::rigConnected()
     ui->modeComboBox->setEnabled(true);
     ui->modeComboBox->blockSignals(false);
     ui->bandComboBox->blockSignals(false);
-
+    ui->freqLabel->setReadOnly(false);
     refreshModeCombo();
 }
 
@@ -329,6 +327,8 @@ void RigWidget::rigDisconnected()
 
     ui->modeComboBox->blockSignals(false);
     ui->bandComboBox->blockSignals(false);
+
+    ui->freqLabel->setReadOnly(true);
 }
 
 void RigWidget::bandUp()
@@ -379,6 +379,15 @@ void RigWidget::sendOnAirState()
     }
 }
 
+void RigWidget::freqChanged(double)
+{
+    FCT_IDENTIFICATION;
+
+    if ( !rigOnline ) return;
+
+    Rig::instance()->setFrequency(MHz(ui->freqLabel->value()));
+}
+
 void RigWidget::resetRigInfo()
 {
     QString empty;
@@ -398,6 +407,7 @@ void RigWidget::saveLastSeenFreq()
 
     if ( rigOnline && lastSeenFreq != 0.0 )
     {
+        qCDebug(runtime) << "Last Seen Freq" << lastSeenFreq;
         QSqlTableModel *bandComboModel = dynamic_cast<QSqlTableModel*>(ui->bandComboBox->model());
 
         QModelIndexList bandIndex = bandComboModel->match(bandComboModel->index(0,bandComboModel->fieldIndex("name")),

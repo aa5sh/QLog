@@ -158,18 +158,51 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="freqLabel">
+      <widget class="FreqQSpinBox" name="freqLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
          <pointsize>20</pointsize>
-         <strikeout>false</strikeout>
         </font>
        </property>
-       <property name="text">
-        <string>0.00000 MHz</string>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QDoubleSpinBox { background: transparent; border: none; padding: 0px; }
+      QAbstractSpinBox::lineEdit { background: transparent; border: none; padding: 0px; margin: 0px; }</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::NoButtons</enum>
+       </property>
+       <property name="specialValueText">
+        <string notr="true">Disconnected</string>
+       </property>
+       <property name="showGroupSeparator" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="suffix">
+        <string> MHz</string>
+       </property>
+       <property name="decimals">
+        <number>5</number>
+       </property>
+       <property name="singleStep">
+        <double>0.001000000000000</double>
        </property>
       </widget>
      </item>
@@ -214,6 +247,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FreqQSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>ui/component/FreqQSpinBox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -223,8 +263,8 @@
    <slot>rigProfileComboChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>88</y>
+     <x>70</x>
+     <y>28</y>
     </hint>
     <hint type="destinationlabel">
      <x>102</x>
@@ -239,8 +279,8 @@
    <slot>bandComboChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>209</x>
-     <y>250</y>
+     <x>178</x>
+     <y>28</y>
     </hint>
     <hint type="destinationlabel">
      <x>209</x>
@@ -255,8 +295,8 @@
    <slot>modeComboChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>101</x>
-     <y>152</y>
+     <x>270</x>
+     <y>28</y>
     </hint>
     <hint type="destinationlabel">
      <x>101</x>
@@ -269,5 +309,6 @@
   <slot>rigProfileComboChanged(QString)</slot>
   <slot>bandComboChanged(QString)</slot>
   <slot>modeComboChanged(QString)</slot>
+  <slot>freqChanged(double)</slot>
  </slots>
 </ui>
