@@ -81,7 +81,12 @@ OmnirigV2RigDrv::OmnirigV2RigDrv(const RigProfile &profile,
       connPoint(nullptr),
       connCookie(0),
       readableParams(0),
-      writableParams(0)
+      writableParams(0),
+      FREQMASK(OmnirigV2::PM_FREQA | OmnirigV2::PM_FREQB | OmnirigV2::PM_FREQ),
+      VFO_A_MASK(OmnirigV2::PM_VFOA | OmnirigV2::PM_VFOAA | OmnirigV2::PM_VFOAB),
+      VFO_B_MASK(OmnirigV2::PM_VFOB | OmnirigV2::PM_VFOBA | OmnirigV2::PM_VFOBB),
+      VFO_SPEC_MASK(OmnirigV2::PM_VFOEQUAL | OmnirigV2::PM_VFOSWAP),
+      ALLVFOsMASK(VFO_A_MASK | VFO_B_MASK | VFO_SPEC_MASK)
 {
     FCT_IDENTIFICATION;
 
@@ -90,14 +95,14 @@ OmnirigV2RigDrv::OmnirigV2RigDrv(const RigProfile &profile,
     if ( FAILED(hr) )
         qCWarning(runtime) << "CoInitializeEx failed, hr =" << QString::number(hr, 16);
 
-    modeMap.insert((int)OmnirigV2::PM_CW_U,  "CWR");
-    modeMap.insert((int)OmnirigV2::PM_CW_L,  "CW");
-    modeMap.insert((int)OmnirigV2::PM_SSB_U, "USB");
-    modeMap.insert((int)OmnirigV2::PM_SSB_L, "LSB");
-    modeMap.insert((int)OmnirigV2::PM_DIG_U, "DIG_U");
-    modeMap.insert((int)OmnirigV2::PM_DIG_L, "DIG_L");
-    modeMap.insert((int)OmnirigV2::PM_AM,    "AM");
-    modeMap.insert((int)OmnirigV2::PM_FM,    "FM");
+    modeMap.insert(OmnirigV2::PM_CW_U,  "CWR");
+    modeMap.insert(OmnirigV2::PM_CW_L,  "CW");
+    modeMap.insert(OmnirigV2::PM_SSB_U, "USB");
+    modeMap.insert(OmnirigV2::PM_SSB_L, "LSB");
+    modeMap.insert(OmnirigV2::PM_DIG_U, "DIG_U");
+    modeMap.insert(OmnirigV2::PM_DIG_L, "DIG_L");
+    modeMap.insert(OmnirigV2::PM_AM,    "AM");
+    modeMap.insert(OmnirigV2::PM_FM,    "FM");
 
     // Timer
     offlineTimer.setSingleShot(true);
@@ -304,7 +309,7 @@ void OmnirigV2RigDrv::setFrequency(double newFreq)
 
     if ( !rigProfile.getFreqInfo || !rig ) return;
 
-    unsigned int internalFreq = static_cast<unsigned int>(newFreq);
+    long internalFreq = static_cast<long>(newFreq);
 
     qCDebug(runtime) << "Received freq" << internalFreq << "current" << currFreq;
 
@@ -319,17 +324,17 @@ void OmnirigV2RigDrv::setFrequency(double newFreq)
     if ( vfo & VFO_B_MASK )
     {
         qCDebug(runtime) << "Setting VFO B Freq";
-        rig->put_FreqB((long)internalFreq);
+        rig->put_FreqB(internalFreq);
     }
-    else if ( writableParams & (int)OmnirigV2::PM_FREQA )
+    else if ( writableParams & OmnirigV2::PM_FREQA )
     {
         qCDebug(runtime) << "Setting VFO A Freq";
-        rig->put_FreqA((long)internalFreq);
+        rig->put_FreqA(internalFreq);
     }
     else
     {
         qCDebug(runtime) << "Setting Generic VFO Freq";
-        rig->put_Freq((long)internalFreq);
+        rig->put_Freq(internalFreq);
     }
 
     commandSleep();
@@ -350,7 +355,7 @@ void OmnirigV2RigDrv::setRawMode(const QString &rawMode)
     if (!mappedMode.isEmpty())
     {
         OmnirigV2::RigParamX m = static_cast<OmnirigV2::RigParamX>(mappedMode.at(0));
-        qCDebug(runtime) << "Mode Found" << (int)m;
+        qCDebug(runtime) << "Mode Found" << m;
         if ( m & writableParams )
         {
             qCDebug(runtime) << "Setting Mode";
@@ -360,9 +365,7 @@ void OmnirigV2RigDrv::setRawMode(const QString &rawMode)
     }
 }
 
-void OmnirigV2RigDrv::setMode(const QString &mode,
-                              const QString &submode,
-                              bool digiVariant)
+void OmnirigV2RigDrv::setMode(const QString &mode, const QString &submode, bool digiVariant)
 {
     FCT_IDENTIFICATION;
 
@@ -377,8 +380,7 @@ void OmnirigV2RigDrv::setMode(const QString &mode,
             innerSubmode = digMode;
     }
 
-    setRawMode((submode.isEmpty()) ? mode.toUpper()
-                                   : innerSubmode.toUpper());
+    setRawMode((submode.isEmpty()) ? mode.toUpper() : innerSubmode.toUpper());
 }
 
 void OmnirigV2RigDrv::setPTT(bool newPTTState)
@@ -475,8 +477,8 @@ void OmnirigV2RigDrv::__rigTypeChange(int rigID)
     rig->get_ReadableParams(&r);
     rig->get_WriteableParams(&w);
 
-    readableParams = (int)r;
-    writableParams = (int)w;
+    readableParams = static_cast<int>(r);
+    writableParams = static_cast<int>(w);
 
     qCDebug(runtime) << "R-params" << QString::number(readableParams, 16)
                      << "W-params" << QString::number(writableParams, 16);
@@ -506,7 +508,7 @@ void OmnirigV2RigDrv::rigStatusChange(int rigID)
     QString qStatusStr = bstrToQString(statusStr);
 
     qCDebug(runtime) << "Rig ID " << rigID;
-    qCDebug(runtime) << "New Status" << (int)st << qStatusStr;
+    qCDebug(runtime) << "New Status" << st << qStatusStr;
 
     if ( OmnirigV2::ST_ONLINE != st )
     {
@@ -573,7 +575,7 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
     rig->get_Vfo(&vfo);
     const bool vfoIsB = (vfo & VFO_B_MASK);
 
-    long tmp = 0;
+    long tmp = 0L;
     if ( vfoIsB )
     {
         qCDebug(runtime) << "Getting VFO B Freq";
@@ -595,7 +597,7 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
         }
     }
 
-    vfo_freq = (unsigned int)tmp;
+    vfo_freq = static_cast<unsigned int>(tmp);
 
     qCDebug(runtime) << "Rig Freq: "<< vfo_freq;
     qCDebug(runtime) << "Object Freq: "<< currFreq;
@@ -629,7 +631,7 @@ bool OmnirigV2RigDrv::checkModeChange(int params, bool force)
         {
             OmnirigV2::RigParamX m = OmnirigV2::PM_UNKNOWN;
             rig->get_Mode(&m);
-            inParams = (int)m;
+            inParams = m;
         }
 
         QMap<int, QString>::const_iterator it;
@@ -670,8 +672,8 @@ void OmnirigV2RigDrv::checkPTTChange(int params, bool force)
     }
 
     if ( rigProfile.getPTTInfo
-         && (params & (int)OmnirigV2::PM_RX
-            || params & (int)OmnirigV2::PM_TX
+         && (params & OmnirigV2::PM_RX
+            || params & OmnirigV2::PM_TX
             || force) )
     {
         int inParams = params;
@@ -679,15 +681,15 @@ void OmnirigV2RigDrv::checkPTTChange(int params, bool force)
         {
             OmnirigV2::RigParamX tx = OmnirigV2::PM_RX;
             rig->get_Tx(&tx);
-            inParams = (int)tx;
+            inParams = tx;
         }
 
         bool ptt = false;
 
-        if ( inParams & (int)OmnirigV2::PM_RX )
+        if ( inParams & OmnirigV2::PM_RX )
             ptt = false;
 
-        if ( inParams & (int)OmnirigV2::PM_TX )
+        if ( inParams & OmnirigV2::PM_TX )
             ptt = true;
 
         qCDebug(runtime) << "Rig PTT: "<< ptt;
@@ -716,11 +718,12 @@ void OmnirigV2RigDrv::checkVFOChange(int params, bool force)
 
     if ( (params & ALLVFOsMASK) || force )
     {
+        int inParams;
         if (force || ( params & VFO_SPEC_MASK ) )
         {
             OmnirigV2::RigParamX v;
             rig->get_Vfo(&v);
-            inParams = (int)v;
+            inParams = v;
         }
         else
         {
@@ -755,8 +758,8 @@ void OmnirigV2RigDrv::checkRITChange(int params, bool force)
     }
 
     if (rigProfile.getRITInfo
-        && (params & (int)OmnirigV2::PM_RITON
-            || params & (int)OmnirigV2::PM_RITOFF
+        && (params & OmnirigV2::PM_RITON
+            || params & OmnirigV2::PM_RITOFF
             || force))
     {
         int inParams = params;
@@ -764,12 +767,12 @@ void OmnirigV2RigDrv::checkRITChange(int params, bool force)
         {
             OmnirigV2::RigParamX r;
             rig->get_Rit(&r);
-            inParams = (int)r;
+            inParams = r;
         }
 
         long off = 0;
         rig->get_RitOffset(&off);
-        unsigned int rit = (inParams & (int)OmnirigV2::PM_RITON)
+        unsigned int rit = (inParams & OmnirigV2::PM_RITON)
                                ? static_cast<unsigned int>(off)
                                : 0;
 

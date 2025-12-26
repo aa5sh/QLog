@@ -77,7 +77,12 @@ OmnirigRigDrv::OmnirigRigDrv(const RigProfile &profile,
       eventSink(nullptr),
       connPoint(nullptr),
       readableParams(0),
-      writableParams(0)
+      writableParams(0),
+      FREQMASK(OmnirigV1::PM_FREQA | OmnirigV1::PM_FREQB | OmnirigV1::PM_FREQ),
+      VFO_A_MASK(OmnirigV1::PM_VFOA | OmnirigV1::PM_VFOAA | OmnirigV1::PM_VFOAB),
+      VFO_B_MASK(OmnirigV1::PM_VFOB | OmnirigV1::PM_VFOBA | OmnirigV1::PM_VFOBB),
+      VFO_SPEC_MASK(OmnirigV1::PM_VFOEQUAL | OmnirigV1::PM_VFOSWAP),
+      ALLVFOsMASK(VFO_A_MASK | VFO_B_MASK | VFO_SPEC_MASK)
 {
     FCT_IDENTIFICATION;
 
@@ -86,22 +91,22 @@ OmnirigRigDrv::OmnirigRigDrv(const RigProfile &profile,
     if ( FAILED(hr) )
         qCWarning(runtime) << "CoInitializeEx failed, hr =" << QString::number(hr, 16);
 
-    modeMap.insert((int)OmnirigV1::PM_CW_U,  "CWR");
-    modeMap.insert((int)OmnirigV1::PM_CW_L,  "CW");
-    modeMap.insert((int)OmnirigV1::PM_SSB_U, "USB");
-    modeMap.insert((int)OmnirigV1::PM_SSB_L, "LSB");
-    modeMap.insert((int)OmnirigV1::PM_DIG_U, "DIG_U");
-    modeMap.insert((int)OmnirigV1::PM_DIG_L, "DIG_L");
-    modeMap.insert((int)OmnirigV1::PM_AM,    "AM");
-    modeMap.insert((int)OmnirigV1::PM_FM,    "FM");
+    modeMap.insert(OmnirigV1::PM_CW_U,  "CWR");
+    modeMap.insert(OmnirigV1::PM_CW_L,  "CW");
+    modeMap.insert(OmnirigV1::PM_SSB_U, "USB");
+    modeMap.insert(OmnirigV1::PM_SSB_L, "LSB");
+    modeMap.insert(OmnirigV1::PM_DIG_U, "DIG_U");
+    modeMap.insert(OmnirigV1::PM_DIG_L, "DIG_L");
+    modeMap.insert(OmnirigV1::PM_AM,    "AM");
+    modeMap.insert(OmnirigV1::PM_FM,    "FM");
 
     // Timer
     offlineTimer.setSingleShot(true);
     QObject::connect(&offlineTimer, &QTimer::timeout, this, [this]()
-                     {
-                         qCDebug(runtime) << "Offline timer exceeded";
-                         emitDisconnect();
-                     });
+    {
+        qCDebug(runtime) << "Offline timer exceeded";
+        emitDisconnect();
+    });
 
     // COM: creating OmniRigX via ProgID
     CLSID clsidOmniRigX;
@@ -210,6 +215,10 @@ OmnirigRigDrv::~OmnirigRigDrv()
 
 bool OmnirigRigDrv::open()
 {
+    FCT_IDENTIFICATION;
+
+    MUTEXLOCKER;
+
     if ( !omniInterface )
     {
         lastErrorText = tr("Initialization Error");
@@ -295,7 +304,7 @@ void OmnirigRigDrv::setFrequency(double newFreq)
 
     if ( !rigProfile.getFreqInfo || !rig ) return;
 
-    unsigned int internalFreq = static_cast<unsigned int>(newFreq);
+    long internalFreq = static_cast<long>(newFreq);
 
     qCDebug(runtime) << "Received freq" << internalFreq << "current" << currFreq;
 
@@ -310,17 +319,17 @@ void OmnirigRigDrv::setFrequency(double newFreq)
     if ( vfo & VFO_B_MASK )
     {
         qCDebug(runtime) << "Setting VFO B Freq";
-        rig->put_FreqB((long)internalFreq);
+        rig->put_FreqB(internalFreq);
     }
-    else if ( writableParams & (int)OmnirigV1::PM_FREQA )
+    else if ( writableParams & OmnirigV1::PM_FREQA )
     {
         qCDebug(runtime) << "Setting VFO A Freq";
-        rig->put_FreqA((long)internalFreq);
+        rig->put_FreqA(internalFreq);
     }
     else
     {
         qCDebug(runtime) << "Setting Generic VFO Freq";
-        rig->put_Freq((long)internalFreq);
+        rig->put_Freq(internalFreq);
     }
 
     commandSleep();
@@ -341,7 +350,7 @@ void OmnirigRigDrv::setRawMode(const QString &rawMode)
     if (!mappedMode.isEmpty())
     {
         OmnirigV1::RigParamX m = static_cast<OmnirigV1::RigParamX>(mappedMode.at(0));
-        qCDebug(runtime) << "Mode Found" << (int)m;
+        qCDebug(runtime) << "Mode Found" << m;
         if ( m & writableParams )
         {
             qCDebug(runtime) << "Setting Mode";
@@ -375,16 +384,9 @@ void OmnirigRigDrv::setPTT(bool newPTTState)
 
     qCDebug(function_parameters) << newPTTState;
 
-    if ( !rigProfile.getPTTInfo )
-        return;
+    if ( !rigProfile.getPTTInfo || !rig ) return;
 
     MUTEXLOCKER;
-
-    if ( !rig )
-    {
-        qCWarning(runtime) << "Rig is not active";
-        return;
-    }
 
     rig->put_Tx(newPTTState ? OmnirigV1::PM_TX : OmnirigV1::PM_RX);
 
@@ -461,8 +463,8 @@ void OmnirigRigDrv::__rigTypeChange(int rigID)
     rig->get_ReadableParams(&r);
     rig->get_WriteableParams(&w);
 
-    readableParams = (int)r;
-    writableParams = (int)w;
+    readableParams = static_cast<int>(r);
+    writableParams = static_cast<int>(w);
 
     qCDebug(runtime) << "R-params" << QString::number(readableParams, 16)
                      << "W-params" << QString::number(writableParams, 16);
@@ -539,8 +541,7 @@ void OmnirigRigDrv::rigStatusChange(int rigID)
 
     qCDebug(function_parameters) << "Rig ID" << rigID;
 
-    if ( rigID != rigProfile.model )
-        return;
+    if ( rigID != rigProfile.model ) return;
 
     MUTEXLOCKER;
 
@@ -558,7 +559,7 @@ void OmnirigRigDrv::rigStatusChange(int rigID)
     QString qStatusStr = bstrToQString(statusStr);
 
     qCDebug(runtime) << "Rig ID " << rigID;
-    qCDebug(runtime) << "New Status" << (int)st << qStatusStr;
+    qCDebug(runtime) << "New Status" << st << qStatusStr;
 
     if ( OmnirigV1::ST_ONLINE != st )
     {
@@ -618,16 +619,15 @@ bool OmnirigRigDrv::checkFreqChange(int params, bool force)
     bool inForce = force;
 
     if ( !rigProfile.getFreqInfo ) return true;
-    if ( !inForce && !( params & (FREQMASK | ALLVFOsMASK) ) ) return true;
+    if ( !inForce && !(params & (FREQMASK | ALLVFOsMASK) ) ) return true;
     if ( !inForce && (params & ALLVFOsMASK)) inForce = true;
 
     unsigned int vfo_freq = 0;
-    
     OmnirigV1::RigParamX vfo = OmnirigV1::PM_UNKNOWN;
     rig->get_Vfo(&vfo);
     const bool vfoIsB = (vfo & VFO_B_MASK);
 
-    long tmp = 0;
+    long tmp = 0L;
     if ( vfoIsB )
     {
         qCDebug(runtime) << "Getting VFO B Freq";
@@ -649,7 +649,7 @@ bool OmnirigRigDrv::checkFreqChange(int params, bool force)
         }
     }
 
-    vfo_freq = (unsigned int)tmp;
+    vfo_freq = static_cast<unsigned int>(tmp);
 
     qCDebug(runtime) << "Rig Freq: "<< vfo_freq;
     qCDebug(runtime) << "Object Freq: "<< currFreq;
@@ -683,7 +683,7 @@ bool OmnirigRigDrv::checkModeChange(int params, bool force)
         {
             OmnirigV1::RigParamX m = OmnirigV1::PM_UNKNOWN;
             rig->get_Mode(&m);
-            inParams = (int)m;
+            inParams = m;
         }
 
         QMap<int, QString>::const_iterator it;
@@ -725,8 +725,8 @@ void OmnirigRigDrv::checkPTTChange(int params, bool force)
     }
 
     if ( rigProfile.getPTTInfo
-        && (params & (int)OmnirigV1::PM_RX
-            || params & (int)OmnirigV1::PM_TX
+        && (params & OmnirigV1::PM_RX
+            || params & OmnirigV1::PM_TX
             || force) )
     {
         int inParams = params;
@@ -734,15 +734,15 @@ void OmnirigRigDrv::checkPTTChange(int params, bool force)
         {
             OmnirigV1::RigParamX tx = OmnirigV1::PM_RX;
             rig->get_Tx(&tx);
-            inParams = (int)tx;
+            inParams = tx;
         }
 
         bool ptt = false;
 
-        if ( inParams & (int)OmnirigV1::PM_RX )
+        if ( inParams & OmnirigV1::PM_RX )
             ptt = false;
 
-        if ( inParams & (int)OmnirigV1::PM_TX )
+        if ( inParams & OmnirigV1::PM_TX )
             ptt = true;
 
         qCDebug(runtime) << "Rig PTT: "<< ptt;
@@ -772,11 +772,11 @@ void OmnirigRigDrv::checkVFOChange(int params, bool force)
     if ( (params & ALLVFOsMASK) || force )
     {
         int inParams;
-        if (force || (params & (int)OmnirigV1::PM_VFOEQUAL))
+        if (force || (params & VFO_SPEC_MASK))
         {
             OmnirigV1::RigParamX v;
             rig->get_Vfo(&v);
-            inParams = (int)v;
+            inParams = v;
         }
         else
         {
@@ -784,6 +784,7 @@ void OmnirigRigDrv::checkVFOChange(int params, bool force)
         }
 
         QString vfo;
+
         if ( inParams & VFO_A_MASK ) vfo = "VFOA";
         if ( inParams & VFO_B_MASK ) vfo = "VFOB";
 
@@ -810,8 +811,8 @@ void OmnirigRigDrv::checkRITChange(int params, bool force)
     }
 
     if (rigProfile.getRITInfo
-        && (params & (int)OmnirigV1::PM_RITON
-            || params & (int)OmnirigV1::PM_RITOFF
+        && (params & OmnirigV1::PM_RITON
+            || params & OmnirigV1::PM_RITOFF
             || force))
     {
         int inParams = params;
@@ -819,12 +820,12 @@ void OmnirigRigDrv::checkRITChange(int params, bool force)
         {
             OmnirigV1::RigParamX r;
             rig->get_Rit(&r);
-            inParams = (int)r;
+            inParams = r;
         }
 
         long off = 0;
         rig->get_RitOffset(&off);
-        unsigned int rit = (inParams & (int)OmnirigV1::PM_RITON)
+        unsigned int rit = (inParams & OmnirigV1::PM_RITON)
                                ? static_cast<unsigned int>(off)
                                : 0;
 

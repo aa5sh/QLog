@@ -97,11 +97,11 @@ private:
     QMutex drvLock;
     QTimer offlineTimer;
 
-    const int FREQMASK = (OmniRig::PM_FREQA | OmniRig::PM_FREQB | OmniRig::PM_FREQ);
-    const int VFO_A_MASK = ( OmniRig::PM_VFOA | OmniRig::PM_VFOAA | OmniRig::PM_VFOAB);
-    const int VFO_B_MASK = ( OmniRig::PM_VFOB | OmniRig::PM_VFOBA | OmniRig::PM_VFOBB);
-    const int VFO_SPEC_MASK = ( OmniRig::PM_VFOEQUAL | OmniRig::PM_VFOSWAP);
-    const int ALLVFOsMASK  = (VFO_A_MASK | VFO_B_MASK | VFO_SPEC_MASK);
+    const int FREQMASK;
+    const int VFO_A_MASK;
+    const int VFO_B_MASK;
+    const int VFO_SPEC_MASK;
+    const int ALLVFOsMASK;
 
     static const uint OFFLINETIMER_TIME_MS = 10000;
 
