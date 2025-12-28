@@ -564,11 +564,8 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
         return false;
     }
 
-    bool inForce = force;
-
     if ( !rigProfile.getFreqInfo ) return true;
-    if ( !inForce && !( params & (FREQMASK | ALLVFOsMASK) ) ) return true;
-    if ( !inForce && (params & ALLVFOsMASK)) inForce = true;
+    if ( !force && !( params & (FREQMASK | ALLVFOsMASK) ) ) return true;
 
     unsigned int vfo_freq = 0;
     OmnirigV2::RigParamX vfo = OmnirigV2::PM_UNKNOWN;
@@ -602,7 +599,7 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
     qCDebug(runtime) << "Rig Freq: "<< vfo_freq;
     qCDebug(runtime) << "Object Freq: "<< currFreq;
 
-    if ( vfo_freq != currFreq || inForce )
+    if ( vfo_freq != currFreq || force )
     {
         currFreq = vfo_freq;
         qCDebug(runtime) << "emitting FREQ changed" << currFreq << Hz2MHz(currFreq);
