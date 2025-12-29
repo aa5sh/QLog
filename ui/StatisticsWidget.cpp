@@ -16,11 +16,9 @@
 #include "core/debug.h"
 #include "models/SqlListModel.h"
 #include "data/Gridsquare.h"
+#include "core/QSOFilterManager.h"
 
 MODULE_IDENTIFICATION("qlog.ui.statisticswidget");
-
-// default statistics interval [in days]
-#define DEFAULT_STAT_RANGE -1
 
 void StatisticsWidget::mainStatChanged(int idx)
 {
@@ -31,7 +29,6 @@ void StatisticsWidget::mainStatChanged(int idx)
      setSubTypesCombo(idx);
      refreshGraph();
 }
-
 
 void StatisticsWidget::refreshWidget()
 {
@@ -88,6 +85,9 @@ void StatisticsWidget::refreshGraph()
      if ( ui->useDateRangeCheckBox->isChecked() )
          genericFilter << " (datetime(start_time) BETWEEN datetime('" + ui->startDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss")
                           + "') AND datetime('" + ui->endDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "') ) ";
+
+     if ( ui->userFilterCombo->currentIndex() > 0 )
+         genericFilter <<  QSOFilterManager::instance()->getWhereClause(ui->userFilterCombo->currentText());
 
      qCDebug(runtime) << "main " << ui->statTypeMainCombo->currentIndex()
                       << " secondary " << ui->statTypeSecCombo->currentIndex();
@@ -435,6 +435,8 @@ StatisticsWidget::StatisticsWidget(QWidget *parent) :
     ui->myRigCombo->setModel(new QStringListModel(this));
     ui->myAntennaCombo->setModel(new QStringListModel(this));
     ui->bandCombo->setModel(new QStringListModel(this));
+    ui->userFilterCombo->setModel(QSOFilterManager::QSOFilterModel(tr("No User Filter"),
+                                                                   ui->userFilterCombo));
 
     ui->startDateEdit->setDisplayFormat(locale.formatDateTimeShortWithYYYY());
     ui->startDateEdit->setDate(QDate::currentDate().addDays(DEFAULT_STAT_RANGE));
@@ -480,6 +482,9 @@ bool StatisticsWidget::event(QEvent *event)
         ui->myAntennaCombo->blockSignals(true);
         ui->myAntennaCombo->setCurrentIndex(0);
         ui->myAntennaCombo->blockSignals(false);
+        ui->userFilterCombo->blockSignals(true);
+        ui->userFilterCombo->setCurrentIndex(0);
+        ui->userFilterCombo->blockSignals(false);
         refreshGraph();
     }
     return QWidget::event(event);  // Propagate the event further
