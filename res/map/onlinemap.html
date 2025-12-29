@@ -59,12 +59,42 @@
     .leaflet-tooltip.wsjtx-tooltip.fade-out50 {
         opacity: 0.5 !important; /* !important zajistí, že tato hodnota má přednost */
     }
+
+    .busy{
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+    .busy.hidden{ display:none; }
+
+    .spinner{
+      width: 42px;
+      height: 42px;
+      border: 4px solid rgba(0,0,0,0.15);
+      border-top-color: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .label{ margin-top: 10px; font: 14px sans-serif; color:#333; }
+
   </style>
 </head>
 
 <body>
 
   <div id="map"></div>
+
+  <div id="busyOverlay" class="busy hidden">
+    <div class="spinner"></div>
+    <div class="label">Rendering…</div>
+  </div>
 
   <script>
 
@@ -156,6 +186,31 @@
       }
     }
 
+    let busyToken = 0;
+
+    function busyShow(msg) {
+      const el = document.getElementById('busyOverlay');
+      el.querySelector('.label').textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function busyHide() {
+      document.getElementById('busyOverlay').classList.add('hidden');
+    }
+
+    async function runBusy(msg, fn) {
+      const token = ++busyToken;
+      busyShow(msg);
+
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+      fn();
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+
+      if (token === busyToken) busyHide();
+    }
+
     // Configuration for Aurora Heatmap
     const auroraCfg = {
       // radius should be small ONLY if scaleRadius is true (or small radius is intended)
@@ -206,6 +261,10 @@
             pathLayer.addLayer(geodesic);
             geodesic.setLatLngs([{lat: coord[0], lng: coord[1]}, {lat: coord[2], lng: coord[3]}]);
         });
+    }
+
+    function drawShortPathsBusy(coords, text) {
+      return runBusy(text, () => drawShortPaths(coords));
     }
 
     // function computes a destination point based on distance and azimuth
@@ -259,6 +318,10 @@
            markersLayer.addLayer(marker);
         });
      }
+
+    function drawPointsBusy(points, text) {
+      return runBusy(text, () => drawPoints(points));
+    }
 
      // generic function for flying to the point
      function flyToPoint(point, zoom) {

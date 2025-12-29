@@ -647,9 +647,12 @@ void StatisticsWidget::drawPointsOnMap(QSqlQuery &query)
 
     QString javaScript = QString("grids_confirmed = [];"
                                  "grids_worked = [];"
-                                 "drawPoints([%1]);"
-                                 "drawShortPaths([%2]);"
-                                 "maidenheadConfWorked.redraw();").arg(stations.join(","), shortPaths.join(","));
+                                 "drawPointsBusy([%1], '%2');"
+                                 "drawShortPathsBusy([%3], '%4');"
+                                 "maidenheadConfWorked.redraw();").arg(stations.join(","),
+                                                                       tr("Rendering QSOs..."),
+                                                                       shortPaths.join(","),
+                                                                       tr("Rendering QSOs..."));
 
     qCDebug(runtime) << javaScript;
 
@@ -680,8 +683,8 @@ void StatisticsWidget::drawFilledGridsOnMap(QSqlQuery &query)
     QString javaScript = QString("grids_confirmed = [ %1 ]; "
                                  "grids_worked = [ %2 ];"
                                  "mylocations = [];"
-                                 "drawPoints([]);"
-                                 "drawShortPaths([]);"
+                                 "drawPointsBusy([], '');"
+                                 "drawShortPathsBusy([], '');"
                                  "maidenheadConfWorked.redraw();").arg(confirmedGrids.join(","), workedGrids.join(","));
 
     qCDebug(runtime) << javaScript;
