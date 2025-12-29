@@ -126,6 +126,55 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="userFilterLabel">
+          <property name="text">
+           <string>User Filter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="userFilterComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
@@ -218,6 +267,13 @@
         </item>
        </layout>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="notWorkedLabel">
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="1">
        <layout class="QHBoxLayout" name="showFilterLayout">
         <item>
@@ -248,13 +304,6 @@
          </spacer>
         </item>
        </layout>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="notWorkedLabel">
-        <property name="text">
-         <string>Show</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -311,6 +360,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>awardComboBox</tabstop>
+  <tabstop>myEntityComboBox</tabstop>
+  <tabstop>userFilterComboBox</tabstop>
+  <tabstop>lotwCheckBox</tabstop>
+  <tabstop>eqslCheckBox</tabstop>
+  <tabstop>paperCheckBox</tabstop>
+  <tabstop>cwCheckBox</tabstop>
+  <tabstop>phoneCheckBox</tabstop>
+  <tabstop>digiCheckBox</tabstop>
+  <tabstop>notWorkedCheckBox</tabstop>
+  <tabstop>notConfirmedCheckBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -517,6 +579,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>507</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userFilterComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>AwardsDialog</receiver>
+   <slot>refreshTable(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>616</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>503</x>
      <y>350</y>
     </hint>
    </hints>

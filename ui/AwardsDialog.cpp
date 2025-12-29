@@ -6,6 +6,8 @@
 #include "core/debug.h"
 #include "data/Band.h"
 #include "data/BandPlan.h"
+#include "core/QSOFilterManager.h"
+
 #include <QSqlError>
 MODULE_IDENTIFICATION("qlog.ui.awardsdialog");
 
@@ -30,6 +32,7 @@ AwardsDialog::AwardsDialog(QWidget *parent) :
     ui->myEntityComboBox->setModelColumn(1);
     ui->myEntityComboBox->blockSignals(false);
 
+    ui->awardComboBox->blockSignals(true);
     ui->awardComboBox->addItem(tr("DXCC"), QVariant("dxcc"));
     ui->awardComboBox->addItem(tr("ITU"), QVariant("itu"));
     ui->awardComboBox->addItem(tr("WAC"), QVariant("wac"));
@@ -44,10 +47,16 @@ AwardsDialog::AwardsDialog(QWidget *parent) :
     ui->awardComboBox->addItem(tr("Gridsquare 2-Chars"), QVariant("grid2"));
     ui->awardComboBox->addItem(tr("Gridsquare 4-Chars"), QVariant("grid4"));
     ui->awardComboBox->addItem(tr("Gridsquare 6-Chars"), QVariant("grid6"));
+    ui->awardComboBox->blockSignals(false);
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Done"));
     ui->awardTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->awardTableView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    ui->userFilterComboBox->blockSignals(true);
+    ui->userFilterComboBox->setModel(QSOFilterManager::QSOFilterModel(tr("No User Filter"),
+                                                                      ui->userFilterComboBox));
+    ui->userFilterComboBox->blockSignals(false);
 
     refreshTable(0);
 }
@@ -344,6 +353,11 @@ void AwardsDialog::refreshTable(int)
                           "     INNER JOIN source_contacts c ON c.wwff_ref = w.reference "
                           "     INNER JOIN modes m on c.mode = m.name ";
     }
+
+    if ( ui->userFilterComboBox->currentIndex() > 0 )
+        addWherePart += " AND " + QSOFilterManager::instance()->getWhereClause(ui->userFilterComboBox->currentText());
+
+    qCDebug(runtime) << "addWherePart" << addWherePart;
 
     QStringList havingConditions;
     if ( ui->notWorkedCheckBox->isChecked() )
