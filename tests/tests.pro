@@ -5,6 +5,7 @@ SUBDIRS += CallsignTest \
            DataTest \
            GridsquareTest \
            BandPlanTest \
+           AlertEvaluatorTest \
            DxServerStringTest \
            HostsPortStringTest \
            MigrationTest \

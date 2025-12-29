@@ -1,7 +1,6 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
-
 #include "AlertEvaluator.h"
 #include "debug.h"
 #include "data/DxSpot.h"
@@ -115,7 +114,7 @@ void AlertEvaluator::loadRules()
 AlertRule::AlertRule(QObject *parent) :
     QObject(parent),
     enabled(false),
-    sourceMap(0),
+    sourceMap(SpotAlert::UKNOWN),
     dxCountry(-1),
     dxLogStatusMap(0),
     spotterCountry(-1),
@@ -255,46 +254,61 @@ bool AlertRule::match(const WsjtxEntry &wsjtx) const
 {
     FCT_IDENTIFICATION;
 
-    bool ret = false;
-
     qCDebug(function_parameters) << wsjtx;
 
-    /* the first part validates a primitive types */
-    if ( isValid()
-         && enabled
-         && (sourceMap & SpotAlert::WSJTXCQSPOT)
-         && (dxCountry == 0 || dxCountry == wsjtx.dxcc.dxcc)
-         && (ituz == 0 || ituz == wsjtx.dxcc.ituz)
-         && (cqz == 0 || cqz == wsjtx.dxcc.cqz)
-         && (!pota || wsjtx.containsPOTA)
-         && (!sota || wsjtx.containsSOTA)
-         && (!iota || wsjtx.containsIOTA)
-         && (!wwff || wsjtx.containsWWFF)
-         && (wsjtx.status & dxLogStatusMap)
-         && (mode == "*" || mode.contains("|" + ((wsjtx.decodedMode == "FT8") ? BandPlan::MODE_GROUP_STRING_FT8
-                                                                              : BandPlan::MODE_GROUP_STRING_DIGITAL )))
-         && (band == "*" || band.contains("|" + wsjtx.band))
-         && (spotterCountry == 0 || spotterCountry == wsjtx.dxcc_spotter.dxcc )
-         && (dxContinent == "*" || dxContinent.contains("|" + wsjtx.dxcc.cont))
-         && (spotterContinent == "*" || spotterContinent.contains("|" + wsjtx.dxcc_spotter.cont))
-         && (dxMember == QStringList("*") || wsjtx.memberList2Set().intersects(dxMemberSet))
-       )
+    auto fail = [&]() -> bool
     {
-        qCDebug(runtime) << "Rule match - phase 1 - OK";
+        qCDebug(runtime) << "Rule name:" << ruleName << "- result false";
+        return false;
+    };
 
-        qCDebug(runtime) << "Callsign RE" << callsignRE.pattern();
-        qCDebug(runtime) << "Comment RE" << commentRE.pattern();
+    /* the first part validates a primitive types */
+    if ( !isValid() || !enabled )                     return fail();
+    if ( !(sourceMap & SpotAlert::WSJTXCQSPOT) )      return fail();
 
-        /* primitive types are OK, lets go to validate RE */
-        QRegularExpressionMatch callsignMatch = callsignRE.match(wsjtx.callsign);
-        QRegularExpressionMatch commentMatch = commentRE.match(wsjtx.decode.message);
+    if ( dxCountry && dxCountry != wsjtx.dxcc.dxcc )  return fail();
+    if ( ituz      && ituz      != wsjtx.dxcc.ituz )  return fail();
+    if ( cqz       && cqz       != wsjtx.dxcc.cqz )   return fail();
+    if ( pota || sota || iota || wwff )
+    {
+        const bool refMatch =
+               (pota && wsjtx.containsPOTA)
+            || (sota && wsjtx.containsSOTA)
+            || (iota && wsjtx.containsIOTA)
+            || (wwff && wsjtx.containsWWFF);
 
-        ret = callsignMatch.hasMatch()
-              && commentMatch.hasMatch();
+        if ( !refMatch ) return fail();
     }
 
-    qCDebug(runtime) << "Rule name: " << ruleName << " - result " << ret;
+    if ( !(wsjtx.status & dxLogStatusMap) ) return fail();
 
+    if ( mode != "*" )
+    {
+        const QString &group = (wsjtx.decodedMode == QLatin1String("FT8"))
+            ? BandPlan::MODE_GROUP_STRING_FT8
+            : BandPlan::MODE_GROUP_STRING_DIGITAL;
+        if ( !mode.contains(QLatin1Char('|') + group) ) return fail();
+    }
+
+    if ( band != "*" && !band.contains(QLatin1Char('|') + wsjtx.band) )  return fail();
+
+    if ( spotterCountry && spotterCountry != wsjtx.dxcc_spotter.dxcc) return fail();
+    if ( dxContinent != "*" && !dxContinent.contains(QLatin1Char('|') + wsjtx.dxcc.cont)) return fail();
+    if ( spotterContinent != "*" && !spotterContinent.contains(QLatin1Char('|') + wsjtx.dxcc_spotter.cont)) return fail();
+
+    if ( !(dxMember.size() == 1 && dxMember.front() == QLatin1String("*")))
+    {
+        if ( !wsjtx.memberList2Set().intersects(dxMemberSet) ) return fail();
+    }
+
+    qCDebug(runtime) << "Rule match - phase 1 - OK";
+    qCDebug(runtime) << "Callsign RE" << callsignRE.pattern();
+    qCDebug(runtime) << "Comment RE" << commentRE.pattern();
+
+    const bool ret = callsignRE.match(wsjtx.callsign).hasMatch()
+                     && commentRE.match(wsjtx.decode.message).hasMatch();
+
+    qCDebug(runtime) << "Rule name: " << ruleName << " - result " << ret;
     return ret;
 }
 
@@ -302,45 +316,74 @@ bool AlertRule::match(const DxSpot &spot) const
 {
     FCT_IDENTIFICATION;
 
-    bool ret = false;
-
     qCDebug(function_parameters) << spot;
 
-    /* the first part validates a primitive types */
-    if ( isValid()
-         && enabled
-         && (sourceMap & SpotAlert::DXSPOT)
-         && (dxCountry == 0 || dxCountry == spot.dxcc.dxcc)
-         && (ituz == 0 || ituz == spot.dxcc.ituz)
-         && (cqz == 0 || cqz == spot.dxcc.cqz)
-         && (!pota || spot.containsPOTA)
-         && (!sota || spot.containsSOTA)
-         && (!iota || spot.containsIOTA)
-         && (!wwff || spot.containsWWFF)
-         && (spot.status & dxLogStatusMap)
-         && (mode == "*" || (!spot.modeGroupString.isEmpty() && mode.contains("|" + spot.modeGroupString)))
-         && (band == "*" || (!spot.band.isEmpty() && band.contains("|" + spot.band)))
-         && (spotterCountry == 0 || spotterCountry == spot.dxcc_spotter.dxcc )
-         && (dxContinent == "*" || (!spot.dxcc.cont.isEmpty() && dxContinent.contains("|" + spot.dxcc.cont)))
-         && (spotterContinent == "*" || (!spot.dxcc_spotter.cont.isEmpty() && spotterContinent.contains("|" + spot.dxcc_spotter.cont)))
-         && (dxMember == QStringList("*") || spot.memberList2Set().intersects(dxMemberSet))
-       )
+    auto fail = [&]() -> bool
     {
-        qCDebug(runtime) << "Rule match - phase 1 - OK";
+        qCDebug(runtime) << "Rule name:" << ruleName << "- result false";
+        return false;
+    };
 
-        qCDebug(runtime) << "Callsign RE" << callsignRE.pattern();
-        qCDebug(runtime) << "Comment RE" << commentRE.pattern();
+    /* the first part validates a primitive types */
+    if ( !isValid() || !enabled )         return fail();
+    if ( !(sourceMap & SpotAlert::DXSPOT) )  return fail();
 
-        /* primitive types are OK, lets go to validate RE */
-        QRegularExpressionMatch callsignMatch = callsignRE.match(spot.callsign);
-        QRegularExpressionMatch commentMatch = commentRE.match(spot.comment);
+    if ( dxCountry != 0 && dxCountry != spot.dxcc.dxcc ) return fail();
+    if ( ituz      != 0 && ituz      != spot.dxcc.ituz ) return fail();
+    if ( cqz       != 0 && cqz       != spot.dxcc.cqz )  return fail();
+    if ( pota || sota || iota || wwff )
+    {
+        const bool refMatch =
+               (pota && spot.containsPOTA)
+            || (sota && spot.containsSOTA)
+            || (iota && spot.containsIOTA)
+            || (wwff && spot.containsWWFF);
 
-        ret = callsignMatch.hasMatch()
-              && commentMatch.hasMatch();
+        if ( !refMatch ) return fail();
     }
 
-    qCDebug(runtime) << "Rule name: " << ruleName << " - result " << ret;
+    if ( !(spot.status & dxLogStatusMap) ) return fail();
 
+    if ( mode != "*" )
+    {
+        if (spot.modeGroupString.isEmpty()) return fail();
+        if (!mode.contains(QLatin1Char('|') + spot.modeGroupString)) return fail();
+    }
+
+    if ( band != "*" )
+    {
+        if (spot.band.isEmpty()) return fail();
+        if (!band.contains(QLatin1Char('|') + spot.band)) return fail();
+    }
+
+    if ( spotterCountry != 0 && spotterCountry != spot.dxcc_spotter.dxcc ) return fail();
+
+    if ( dxContinent != "*" )
+    {
+        if ( spot.dxcc.cont.isEmpty() )              return fail();
+        if ( !dxContinent.contains(QLatin1Char('|') + spot.dxcc.cont) ) return fail();
+    }
+
+    if ( spotterContinent != "*" )
+    {
+        if ( spot.dxcc_spotter.cont.isEmpty() ) return fail();
+        if ( !spotterContinent.contains(QLatin1Char('|') + spot.dxcc_spotter.cont) ) return fail();
+    }
+
+    if ( !(dxMember.size() == 1 && dxMember.front() == QLatin1String("*")) )
+    {
+        if (!spot.memberList2Set().intersects(dxMemberSet)) return fail();
+    }
+
+    qCDebug(runtime) << "Rule match - phase 1 - OK";
+    qCDebug(runtime) << "Callsign RE" << callsignRE.pattern();
+    qCDebug(runtime) << "Comment RE" << commentRE.pattern();
+
+    const bool ret =
+        callsignRE.match(spot.callsign).hasMatch() &&
+        commentRE.match(spot.comment).hasMatch();
+
+    qCDebug(runtime) << "Rule name:" << ruleName << "- result" << ret;
     return ret;
 }
 
