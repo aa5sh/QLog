@@ -12,6 +12,7 @@
 #include "ui/ColumnSettingDialog.h"
 #include "data/Data.h"
 #include "core/LogParam.h"
+#include "core/QSOFilterManager.h"
 
 MODULE_IDENTIFICATION("qlog.ui.exportdialog");
 
@@ -32,10 +33,7 @@ ExportDialog::ExportDialog(QWidget *parent) :
     ui->endDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
     ui->endDateEdit->setDate(QDate::currentDate().addDays(1));
 
-    ui->userFilterComboBox->setModel(new SqlListModel("SELECT filter_name "
-                                                      "FROM qso_filters "
-                                                      "ORDER BY filter_name COLLATE LOCALEAWARE ASC",
-                                                      "", ui->userFilterComboBox));
+    ui->userFilterComboBox->setModel(QSOFilterManager::QSOFilterModel("", ui->userFilterComboBox));
     ui->userFilterCheckBox->setEnabled(ui->userFilterComboBox->count() > 0);
 }
 

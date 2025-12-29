@@ -264,3 +264,14 @@ QString QSOFilterManager::getWhereClause(const QString &filterName)
     return ret;
 }
 
+SqlListModel *QSOFilterManager::QSOFilterModel(const QString &firstValue, QObject *parent)
+{
+    FCT_IDENTIFICATION;
+
+    return new SqlListModel("SELECT filter_name "
+                            "FROM qso_filters "
+                            "ORDER BY filter_name COLLATE LOCALEAWARE ASC",
+                            firstValue,
+                            parent);
+}
+
