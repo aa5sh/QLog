@@ -19,6 +19,7 @@
 #include "data/BandPlan.h"
 #include "core/LogParam.h"
 #include "component/SmartSearchBox.h"
+#include "ModeSelectionController.h"
 
 MODULE_IDENTIFICATION("qlog.ui.qsodetaildialog");
 
@@ -119,16 +120,9 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     ui->myCQEdit->setValidator(new QIntValidator(Data::getCQZMin(), Data::getCQZMax(), this));
 
     /* Submode mapping */
-    QStringListModel* submodeModel = new QStringListModel(this);
-    ui->submodeEdit->setModel(submodeModel);
-
-    /* Mode mapping */
-    QSqlTableModel* modeModel = new QSqlTableModel(this);
-    modeModel->setTable("modes");
-    modeModel->setSort(modeModel->fieldIndex("name"), Qt::AscendingOrder);
-    ui->modeEdit->setModel(modeModel);
-    ui->modeEdit->setModelColumn(modeModel->fieldIndex("name"));
-    modeModel->select();
+    modeController.reset(new ModeSelectionController(ui->modeEdit, ui->submodeEdit,
+                                                     true, false, false, false, this));
+    modeController->applyCurrentMode();
 
     /* IOTA Completer */
     iotaCompleter.reset(new QCompleter(Data::instance()->iotaIDList(), this));
@@ -627,26 +621,10 @@ void QSODetailDialog::modeChanged(QString)
 {
     FCT_IDENTIFICATION;
 
-    QSqlTableModel* modeModel = dynamic_cast<QSqlTableModel*>(ui->modeEdit->model());
-    QSqlRecord record = modeModel->record(ui->modeEdit->currentIndex());
-    QString submodes = record.value("submodes").toString();
+    if ( modeController.isNull() )
+        return;
 
-    QStringList submodeList = QJsonDocument::fromJson(submodes.toUtf8()).toVariant().toStringList();
-    QStringListModel* model = dynamic_cast<QStringListModel*>(ui->submodeEdit->model());
-    model->setStringList(submodeList);
-
-    if (!submodeList.isEmpty())
-    {
-        submodeList.prepend("");
-        model->setStringList(submodeList);
-        ui->submodeEdit->setEnabled(true);
-    }
-    else
-    {
-        QStringList list;
-        model->setStringList(list);
-        ui->submodeEdit->setEnabled(false);
-    }
+    modeController->applyCurrentMode();
 
     queryMemberList();
 }

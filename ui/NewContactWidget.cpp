@@ -29,6 +29,7 @@
 #include "data/MainLayoutProfile.h"
 #include "models/LogbookModel.h"
 #include "data/BandPlan.h"
+#include "ui/ModeSelectionController.h"
 #include "core/LogParam.h"
 #include "data/ActivityProfile.h"
 #include "core/LogParam.h"
@@ -49,7 +50,8 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     bandwidthFilter(BANDWIDTH_UNKNOWN),
     rigOnline(false),
     isManualEnterMode(false),
-    callbookSearchPaused(false)
+    callbookSearchPaused(false),
+    modeController(nullptr)
 {
     FCT_IDENTIFICATION;
 
@@ -158,19 +160,15 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     /******************/
     /* Submodes Combo */
     /******************/
-    QStringListModel* submodeModel = new QStringListModel(this);
-    ui->submodeEdit->setModel(submodeModel);
-
-    /****************/
-    /* Modes Combo  */
-    /****************/
-    QSqlTableModel* modeModel = new QSqlTableModel(this);
-    modeModel->setTable("modes");
-    modeModel->setFilter("enabled = true");
-    modeModel->setSort(modeModel->fieldIndex("name"), Qt::AscendingOrder);
-    ui->modeEdit->setModel(modeModel);
-    ui->modeEdit->setModelColumn(modeModel->fieldIndex("name"));
-    modeModel->select();
+    modeController = new ModeSelectionController(ui->modeEdit, ui->submodeEdit,
+                                                 true, true, true, true, this);
+    connect(modeController, &ModeSelectionController::defaultReportChanged,
+            this, [this](const QString &report)
+            {
+                defaultReport = report;
+                setDefaultReport();
+            });
+    modeController->applyCurrentMode();
 
     /**********************/
     /* Propagation Combo  */
@@ -387,15 +385,7 @@ void NewContactWidget::readGlobalSettings()
     /*************************/
     /* Refresh mode combobox */
     /*************************/
-    QString current_mode = ui->modeEdit->currentText();
-    QString current_submode = ui->submodeEdit->currentText();
-    ui->modeEdit->blockSignals(true);
-    ui->submodeEdit->blockSignals(true);
-    dynamic_cast<QSqlTableModel*>(ui->modeEdit->model())->select();
-    ui->modeEdit->blockSignals(false);
-    ui->submodeEdit->blockSignals(false);
-    ui->modeEdit->setCurrentText(current_mode);
-    ui->submodeEdit->setCurrentText(current_submode);
+    modeController->reloadModel();
 
     /********************/
     /* Reload Callbooks */
@@ -830,38 +820,13 @@ void NewContactWidget::__modeChanged()
 {
     FCT_IDENTIFICATION;
 
-    QSqlTableModel* modeModel = dynamic_cast<QSqlTableModel*>(ui->modeEdit->model());
-    QSqlRecord record = modeModel->record(ui->modeEdit->currentIndex());
-    QString submodes = record.value("submodes").toString();
-
-    QStringList submodeList = QJsonDocument::fromJson(submodes.toUtf8()).toVariant().toStringList();
-    QStringListModel* model = dynamic_cast<QStringListModel*>(ui->submodeEdit->model());
-    model->setStringList(submodeList);
-
-    if (!submodeList.isEmpty())
-    {
-        submodeList.prepend("");
-        model->setStringList(submodeList);
-        ui->submodeEdit->setVisible(true);
-        ui->submodeEdit->setCurrentIndex(1);
-    }
-    else
-    {
-        QStringList list;
-        model->setStringList(list);
-        ui->submodeEdit->setVisible(false);
-        ui->submodeEdit->setCurrentIndex(-1);
-    }
+    modeController->applyCurrentMode();
 
     // Adjuste Combos Size
     int maxWidth = qMax(ui->modeEdit->sizeHint().width(),
                         ui->submodeEdit->sizeHint().width());
     ui->modeEdit->setFixedWidth(maxWidth);
     ui->submodeEdit->setFixedWidth(maxWidth);
-
-    defaultReport = record.value("rprt").toString();
-
-    setDefaultReport();
     queryMemberList();
     refreshCallsignsColors();
 }
@@ -871,9 +836,10 @@ void NewContactWidget::changeMode()
 {
     FCT_IDENTIFICATION;
 
-    ui->submodeEdit->blockSignals(true);
+    if ( !modeController )
+        return;
+
     __modeChanged();
-    ui->submodeEdit->blockSignals(false);
 
     // if manual mode is not enabled then change the mode
     if ( !isManualEnterMode )
@@ -4175,4 +4141,3 @@ void NewContactDynamicWidgets::initializeWidgets(LogbookModel::ColumnID DBIndexM
     }
     widgetMapping[DBIndexMapping] = widget;
 }
-
