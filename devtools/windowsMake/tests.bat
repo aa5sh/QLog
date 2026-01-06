@@ -28,7 +28,7 @@ set "VS_VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxili
 set "VS_ARCH=x86_amd64"
 
 rem -- QT Settings
-set "QT_BASE=C:\Qt\6.8.2\msvc2022_64"
+set "QT_BASE=C:\Qt\6.10.1\msvc2022_64"
 set "JOM=C:\Qt\Tools\QtCreator\bin\jom\jom.exe"
 
 rem -- Project Settings
