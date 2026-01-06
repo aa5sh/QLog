@@ -58,12 +58,12 @@ void ClockWidget::updateClock()
     }
 
     /* Use only in case when you want to debug which widget is focussed*/
-//    QWidget * fw = qApp->focusWidget();
+#define SHOW_FOCUS
+#ifdef SHOW_FOCUS
+    QWidget * fw = qApp->focusWidget();
+    if ( fw ) qInfo() << fw->objectName();
+#endif
 
-//    if ( fw )
-//    {
-//        qInfo() << fw->objectName();
-//    }
 }
 
 void ClockWidget::updateSun()
