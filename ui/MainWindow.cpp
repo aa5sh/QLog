@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
     themeButton = new QPushButton(this);
     themeButton->setToolTip(tr("Color Theme"));
+    themeButton->setObjectName("themeButton");
+    themeButton->setFocusPolicy(Qt::ClickFocus);
     themeButton->setIcon(QIcon(QPixmap(":/icons/color-palette-dark.svg")));
     themeButton->setFlat(true);
 
@@ -121,6 +123,7 @@ MainWindow::MainWindow(QWidget* parent) :
     activityButton = new QPushButton("", ui->statusBar);
     activityButton->setFlat(true);
     activityButton->setFocusPolicy(Qt::NoFocus);
+    activityButton->setObjectName("activityButton");
     QMenu *activityMenu = new QMenu(activityButton);
     activityButton->setMenu(activityMenu);
 
@@ -147,6 +150,7 @@ MainWindow::MainWindow(QWidget* parent) :
     alertButton->setMenu(menuAlert);
 
     alertTextButton = new QPushButton(" ", ui->statusBar);
+    alertTextButton->setObjectName("alertTextButton");
     alertTextButton->setFlat(true);
     alertTextButton->setFocusPolicy(Qt::NoFocus);
     alertTextButton->setToolTip(tr("Press to tune the alert"));
