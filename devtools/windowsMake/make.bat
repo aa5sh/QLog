@@ -104,7 +104,7 @@ rem === Action ===
 
 set "ACTION=%~1"
 if /I "%ACTION%"=="" set "ACTION=release"
-
+if not exist "%BUILDROOT%" mkdir "%BUILDROOT%"
 pushd "%BUILDROOT%" >nul
 
 rem === Initialize MSVC environment ===
