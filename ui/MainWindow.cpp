@@ -985,9 +985,9 @@ void MainWindow::processSpotAlert(SpotAlert alert)
     ui->alertsWidget->addAlert(alert);
     alertButton->setText(QString::number(ui->alertsWidget->alertCount()));
     alertTextButton->setText(alert.ruleNameList.join(", ") + ": " + alert.spot.callsign + ", " + alert.spot.band + ", " + alert.spot.modeGroupString);
-    alertTextButton->disconnect();
+    if (alertTextButtonConn) QObject::disconnect(alertTextButtonConn);
 
-    connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
+    alertTextButtonConn = connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
     {
         if ( alert.source == SpotAlert::WSJTXCQSPOT )
             wsjtx->startReply(alert.spot.decode);
@@ -995,10 +995,7 @@ void MainWindow::processSpotAlert(SpotAlert alert)
             ui->newContactWidget->tuneDx(alert.getDxSpot());
     });
 
-    if ( ui->actionBeepSettingAlert->isChecked() )
-    {
-        QApplication::beep();
-    }
+    if ( ui->actionBeepSettingAlert->isChecked() ) QApplication::beep();
 }
 
 void MainWindow::clearAlertEvent()

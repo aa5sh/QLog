@@ -114,6 +114,7 @@ private:
     QActionGroup *dupeGroup;
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
+    QMetaObject::Connection alertTextButtonConn;
 
     void setupActivitiesMenu();
 
