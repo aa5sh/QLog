@@ -19,6 +19,7 @@
 #include <QTimeZone>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QAbstractItemView>
 
 #include "core/LogLocale.h"
 #include "data/Gridsquare.h"
@@ -581,6 +582,13 @@ private slots:
     void commitAndCloseEditor()
     {
         KeySequenceEdit *editor = static_cast<KeySequenceEdit *>(sender());
+        QAbstractItemView* view = qobject_cast<QAbstractItemView*>(parent());
+        if ( view && view->indexWidget(view->currentIndex()) != editor )
+        {
+            // if parent view is not active do nothing
+            // otherwise it produces a warning QAbstractItemView::commitData called with an editor that does not belong to this view
+            return;
+        }
         emit commitData(editor);
         emit closeEditor(editor, QAbstractItemDelegate::NoHint);
     }
