@@ -1009,7 +1009,7 @@ void MainWindow::clearAlertEvent()
     if ( newCount == 0 )
     {
         alertTextButton->setText(" ");
-        alertTextButton->disconnect();
+        if (alertTextButtonConn) QObject::disconnect(alertTextButtonConn);
     }
 }
 
