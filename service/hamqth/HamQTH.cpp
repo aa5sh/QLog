@@ -60,11 +60,7 @@ HamQTHCallbook::HamQTHCallbook(QObject* parent) :
 
 HamQTHCallbook::~HamQTHCallbook()
 {
-    if ( currentReply )
-    {
-        currentReply->abort();
-        currentReply->deleteLater();
-    }
+    if ( currentReply ) currentReply->abort();
 }
 
 QString HamQTHCallbook::getDisplayName()

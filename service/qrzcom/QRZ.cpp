@@ -104,11 +104,7 @@ QRZCallbook::QRZCallbook(QObject* parent) :
 
 QRZCallbook::~QRZCallbook()
 {
-    if ( currentReply )
-    {
-        currentReply->abort();
-        currentReply->deleteLater();
-    }
+    if ( currentReply ) currentReply->abort();
 }
 
 QString QRZCallbook::getDisplayName()
