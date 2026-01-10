@@ -406,7 +406,10 @@ public:
                         const QModelIndex &index ) const
     {
         bool val = index.model()->data( index, Qt::EditRole ).toBool();
-        static_cast<QCheckBox*>(editor)->setChecked(val);
+        QCheckBox *theCheckBox =  static_cast<QCheckBox*>(editor);
+        theCheckBox->blockSignals(true);
+        theCheckBox->setChecked(val);
+        theCheckBox->blockSignals(false);
     }
 
     void setModelData( QWidget *editor,
@@ -558,8 +561,9 @@ public:
     void setEditorData(QWidget* editor, const QModelIndex& index) const
     {
         KeySequenceEdit *keySequenceEdit = static_cast<KeySequenceEdit *>(editor);
-        if ( keySequenceEdit )
-            keySequenceEdit->setKeySequence(index.model()->data(index, Qt::EditRole).toString());
+        keySequenceEdit->blockSignals(true);
+        keySequenceEdit->setKeySequence(index.model()->data(index, Qt::EditRole).toString());
+        keySequenceEdit->blockSignals(false);
     }
 
     void setModelData(QWidget* editor, QAbstractItemModel* model,
@@ -589,7 +593,7 @@ public:
 
     QWidget *createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const override
     {
-            return nullptr;
+        return nullptr;
     }
 };
 
