@@ -47,6 +47,7 @@ DEFINES += QT_DEPRECATED_WARNINGS QT_MESSAGELOGCONTEXT
 macx:QT_CONFIG -= no-pkg-config
 
 CONFIG += c++11 force_debug_info
+#CONFIG += sanitizer sanitize_address
 CONFIG *= link_pkgconfig
 
 SOURCES += \
