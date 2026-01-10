@@ -505,8 +505,10 @@ public:
         layout->addWidget(clearButton);
         connect(clearButton, &QPushButton::clicked, this, [=]()
         {
+            keySequenceEdit->blockSignals(true);
             keySequenceEdit->clear();
-            emit editingFinished();
+            keySequenceEdit->blockSignals(false);
+            emit clearPress();
         });
         connect(keySequenceEdit, &QKeySequenceEdit::editingFinished, this, [=]()
         {
@@ -528,6 +530,7 @@ public:
 
 signals:
     void editingFinished();
+    void clearPress();
 
 private:
      QKeySequenceEdit* keySequenceEdit;
@@ -538,8 +541,7 @@ class ShortcutDelegate : public QStyledItemDelegate
      Q_OBJECT
 
 public:
-    ShortcutDelegate(QObject* parent = nullptr) :
-        QStyledItemDelegate(parent) { }
+    ShortcutDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) { }
 
     QWidget* createEditor(QWidget* parent,
                           const QStyleOptionViewItem&,
@@ -547,6 +549,8 @@ public:
     {
         KeySequenceEdit *editor = new KeySequenceEdit(parent);
         connect(editor, &KeySequenceEdit::editingFinished, this,
+                &ShortcutDelegate::commitAndCloseEditor);
+        connect(editor, &KeySequenceEdit::clearPress, this,
                 &ShortcutDelegate::commitAndCloseEditor);
         return editor;
     }
@@ -570,9 +574,6 @@ public:
                       const QModelIndex& index) const
     {
         const KeySequenceEdit *keySequenceEdit = static_cast<KeySequenceEdit *>(editor);
-        if ( ! keySequenceEdit )
-            return;
-
         model->setData(index, keySequenceEdit->keySequence().toString(QKeySequence::NativeText));
     }
 
@@ -581,7 +582,7 @@ private slots:
     {
         KeySequenceEdit *editor = static_cast<KeySequenceEdit *>(sender());
         emit commitData(editor);
-        emit closeEditor(editor);
+        emit closeEditor(editor, QAbstractItemDelegate::NoHint);
     }
 };
 
