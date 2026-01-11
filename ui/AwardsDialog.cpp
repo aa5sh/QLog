@@ -355,7 +355,7 @@ void AwardsDialog::refreshTable(int)
     }
 
     if ( ui->userFilterComboBox->currentIndex() > 0 )
-        addWherePart += " AND " + QSOFilterManager::instance()->getWhereClause(ui->userFilterComboBox->currentText());
+        addWherePart += " AND " + QSOFilterManager::instance()->getWhereClause(ui->userFilterComboBox->currentText(), "c");
 
     qCDebug(runtime) << "addWherePart" << addWherePart;
 

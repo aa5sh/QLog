@@ -73,7 +73,7 @@ public:
         return &instance;
     }
 
-    static QString getWhereClause(const QString &filterName);
+    static QString getWhereClause(const QString &filterName, const QString &columnPrefix = {});
     static SqlListModel* QSOFilterModel(const QString &firstValue, QObject *parent = nullptr);
     bool save(const QSOFilter &filter);
     bool remove(const QString &filterName);
