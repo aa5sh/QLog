@@ -8,6 +8,7 @@ TBC - 0.48.0
 - [CHANGED] - Serial Port Completer contains Horizontal ScrollBar
 - Fixed Omnirig drivers keep sending frequency change (issue #872)
 - Fixed ADIF import does not accept a default operator name (issue #884)
+- Fixed HamQTH URL from http to https (PR #886 @aa5sh)
 
 2025/12/19 - 0.47.1
 - [CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)
