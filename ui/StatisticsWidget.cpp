@@ -704,6 +704,8 @@ void StatisticsWidget::refreshCombos()
     refreshCombo(ui->myAntennaCombo, QLatin1String("SELECT DISTINCT my_antenna FROM contacts ORDER BY my_antenna"));
     refreshCombo(ui->bandCombo, QLatin1String("SELECT DISTINCT band FROM contacts c, bands b WHERE c.band = b.name ORDER BY b.start_freq;"));
     refreshCombo(ui->myGridCombo, QLatin1String("SELECT DISTINCT UPPER(my_gridsquare) FROM contacts ORDER BY my_gridsquare"));
+    SqlListModel *sqlModel = qobject_cast<SqlListModel*>(ui->userFilterCombo->model());
+    if ( sqlModel ) sqlModel->refresh();
 }
 
 void StatisticsWidget::setSubTypesCombo(int mainTypeIdx)

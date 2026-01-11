@@ -1816,6 +1816,7 @@ void MainWindow::QSOFilterSetting()
     QSOFilterDialog dialog(this);
     dialog.exec();
     ui->logbookWidget->refreshUserFilter();
+    stats->refreshWidget();
 }
 
 void MainWindow::alertRuleSetting()
