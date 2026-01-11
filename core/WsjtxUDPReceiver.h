@@ -6,6 +6,7 @@
 #include <QHostAddress>
 #include <QSqlRecord>
 #include <QNetworkDatagram>
+#include <QColor>
 
 #include "data/UpdatableSQLRecord.h"
 
@@ -180,6 +181,24 @@ private:
 
     void openPort();
     void forwardDatagram(const QNetworkDatagram &);
+
+    struct HighlightSpec {
+        QColor bg;
+        QColor fg;
+        bool lastOnly = false;
+    };
+
+    WsjtxStatus lastStatus;
+
+    HighlightSpec computeHighlightFor(const QString& dxCall,
+                                      const QString& band,
+                                      const QString& mode) const;
+
+    void sendHighlightCallsign(const QString& id,
+                               const QString& dxCall,
+                               const QColor& bg,
+                               const QColor& fg,
+                               bool highlightLast);
 };
 
 #endif // QLOG_CORE_WSJTXUDPRECEIVER_H

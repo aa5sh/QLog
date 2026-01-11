@@ -8,6 +8,8 @@
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QSqlField>
+#include <QRegularExpression>
+#include <QColor>
 
 #include "WsjtxUDPReceiver.h"
 #include "data/Data.h"
@@ -278,6 +280,7 @@ void WsjtxUDPReceiver::readPendingDatagrams()
             status.de_grid = QString(de_grid);
             status.conf_name = QString(conf_name);
             status.tx_message = QString(tx_message);
+            lastStatus = status;
 
             qCDebug(runtime)<<status;
 
@@ -310,6 +313,37 @@ void WsjtxUDPReceiver::readPendingDatagrams()
             }
 #endif
             qCDebug(runtime) << decode;
+            QRegularExpression cqRE("(^(?:(?P<word1>(?:CQ|DE|QRZ)(?:\\s?DX|\\s(?:[A-Z]{1,4}|\\d{3}))|[A-Z0-9\\/]+|\\.{3})\\s)(?:(?P<word2>[A-Z0-9\\/]+)(?:\\s(?P<word3>[-+A-Z0-9]+)(?:\\s(?P<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)");
+            QString dx;
+
+            if ( decode.message.startsWith("CQ") )
+            {
+                QRegularExpressionMatch match = cqRE.match((decode.message));
+
+                if (  match.hasMatch() )
+                {
+                    dx = match.captured(3);
+                }
+            }
+            else
+            {
+                const QStringList &decodedElements = decode.message.split(" ");
+
+                if ( decodedElements.count() > 1 )
+                {
+                    dx = decodedElements.at(1);
+                }
+            }
+
+            if (!dx.isEmpty() && lastStatus.dial_freq > 0)
+            {
+                double mhz = Hz2MHz(static_cast<double>(lastStatus.dial_freq));
+                QString band = BandPlan::freq2Band(mhz).name;
+
+                HighlightSpec spec = computeHighlightFor(dx, band, BandPlan::MODE_GROUP_STRING_DIGITAL);
+
+                sendHighlightCallsign(id, dx.toUpper(), spec.bg, spec.fg, spec.lastOnly);
+            }
 
             emit decodeReceived(decode);
             break;
@@ -583,6 +617,56 @@ void WsjtxUDPReceiver::reloadSetting()
 {
     FCT_IDENTIFICATION;
     openPort();
+}
+
+WsjtxUDPReceiver::HighlightSpec
+WsjtxUDPReceiver::computeHighlightFor(const QString& dxCall,
+                                      const QString& band,
+                                      const QString& mode) const
+{
+    FCT_IDENTIFICATION;
+
+    HighlightSpec spec;
+
+    DxccEntity dxcc;
+    DxccStatus status;
+    const QColor defaultTextColor = Qt::white;
+
+    dxcc = Data::instance()->lookupDxcc(dxCall);
+    status = Data::instance()->dxccStatus(dxcc.dxcc, band, BandPlan::MODE_GROUP_STRING_DIGITAL);
+    const QColor color = Data::statusToColor(status, false, defaultTextColor);
+
+    spec.bg = color;
+    spec.fg = Qt::black;
+
+    spec.lastOnly = true;
+    return spec;
+}
+
+void WsjtxUDPReceiver::sendHighlightCallsign(const QString& id,
+                                             const QString& dxCall,
+                                             const QColor& bg,
+                                             const QColor& fg,
+                                             bool highlightLast)
+{
+    FCT_IDENTIFICATION;
+
+    if (!socket) return;
+
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_4);
+
+    out << quint32(0xadbccbda);
+    out << quint32(3);
+    out << quint32(13);   // HighlightCallsign
+    out << id.toUtf8();
+    out << dxCall.toUtf8();
+    out << bg;
+    out << fg;
+    out << highlightLast;
+
+    socket->writeDatagram(data, wsjtxAddress, wsjtxPort);
 }
 
 int     WsjtxUDPReceiver::DEFAULT_PORT = 2237;
