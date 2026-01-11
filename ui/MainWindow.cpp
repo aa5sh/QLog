@@ -1667,9 +1667,9 @@ void MainWindow::showAbout()
 
     QString aboutText = tr("<h1>QLog %1</h1>"
                            "<p>&copy; 2019 Thomas Gatzweiler DL2IC<br/>"
-                           "&copy; 2021-2025 Ladislav Foldyna OK1MLG<br/>"
-                           "&copy; 2025 Michael Morgan AA5SH<br/>"
-                           "&copy; 2025 Kyle Boyle VE9KZ</p>"
+                           "&copy; 2021-2026 Ladislav Foldyna OK1MLG<br/>"
+                           "&copy; 2025-2026 Michael Morgan AA5SH<br/>"
+                           "&copy; 2025-2026 Kyle Boyle VE9KZ</p>"
                            "<p>Based on Qt %2<br/>"
                            "%3<br/>"
                            "%4<br/>"
