@@ -250,8 +250,7 @@ void StatisticsWidget::refreshGraph()
          {
          case 0:  // Countries
              stmt = "SELECT translate_to_locale(COALESCE(d.name, c.dxcc)) as dxcc_display, COUNT(1) AS cnt "
-                    "FROM contacts c LEFT JOIN dxcc_entities_clublog d ON c.dxcc = d.id "
-                    "WHERE " + genericFilter.join(" AND ") + " "
+                    "FROM ( SELECT * FROM contacts WHERE " + genericFilter.join(" AND ") + ") c LEFT JOIN dxcc_entities_clublog d ON c.dxcc = d.id "
                     "GROUP BY dxcc_display ORDER BY cnt DESC LIMIT 10";
              break;
          case 1:  // Big squares
