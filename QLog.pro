@@ -397,6 +397,7 @@ OTHER_FILES += \
 TRANSLATIONS = i18n/qlog_cs.ts \
                i18n/qlog_de.ts \
                i18n/qlog_es.ts \
+               i18n/qlog_fr.ts \
                i18n/qlog_it.ts \
                i18n/qlog_zh_CN.ts
 
