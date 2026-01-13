@@ -159,13 +159,24 @@ jobs:
          xcrun stapler validate "/Users/runner/work/QLog/QLog/build/qlog.app"
      - name: make dmg
        run: |
-         DMG_NAME="QLog.v${TAGVERSION}.dmg"
-         mkdir out
-         cp -R "/Users/runner/work/QLog/QLog/build/qlog.app" out
-         cd out
-         ln -s /Applications/ Applications
-         cd ..
-         hdiutil create -volname "QLog Installer" -srcfolder out -ov -format UDZO "/Users/runner/work/QLog/QLog/build/$DMG_NAME"
+        set -euo pipefail
+        # use TAGVERSION, but make a nicer filename (strip the "-14-g...." if you want)
+        VERSION="${TAGVERSION%%-*}"   # => "0.47.1" from "0.47.1-14-g0022e427"
+        DMG_NAME="QLog.v${VERSION}.dmg"
+        echo "DMG_NAME=$DMG_NAME" >> "$GITHUB_ENV"
+        echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+    
+        mkdir -p out
+        cp -R "/Users/runner/work/QLog/QLog/build/qlog.app" out/
+        ln -s /Applications out/Applications
+    
+        hdiutil create \
+          -volname "QLog Installer" \
+          -srcfolder out \
+          -ov -format UDZO \
+          "/Users/runner/work/QLog/QLog/build/$DMG_NAME"
+    
+        ls -lh "/Users/runner/work/QLog/QLog/build/$DMG_NAME"
      - name: Codesign dmg bundle
          # Extract the secrets we defined earlier as environment variables
        env: 
@@ -174,51 +185,40 @@ jobs:
            MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
            MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
        run: |
-           # Turn our base64-encoded certificate back to a regular .p12 file
-           ##echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-           # We need to create a new keychain, otherwise using the certificate will prompt
-           # with a UI dialog asking for the certificate password, which we can't
-           # use in a headless CI environment
-           ##security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain 
-           ##security default-keychain -s build.keychain
-           ##security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-           ##security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-           ##security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-           # We finally codesign our app bundle, specifying the Hardened runtime option
-           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/$DMG_NAME
-     - name: "Notarize app bundle"
-         # Extract the secrets we defined earlier as environment variables
+        set -euo pipefail
+        DMG="/Users/runner/work/QLog/QLog/build/$DMG_NAME"
+        test -f "$DMG"
+        /usr/bin/codesign --force --timestamp -s "$MACOS_CERTIFICATE_NAME" "$DMG"
+        /usr/bin/codesign -v --verbose=4 "$DMG"
+     - name: Notarize dmg
        env:
-           PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
-           PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
-           PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+        PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+        PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+        PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
        run: |
-           # Store the notarization credentials so that we can prevent a UI password dialog
-           # from blocking the CI
-
-           echo "Create keychain profile"
-           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
-           
-           echo "Creating temp notarization archive"
-           ditto -c -k --keepParent "/Users/runner/work/QLog/QLog/build/$DMG_NAME" "notarization.zip"
-
-           # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
-           # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
-           # characteristics. Visit the Notarization docs for more information and strategies on how to optimize it if
-           # you're curious
-
-           echo "Notarize app"
-           xcrun notarytool submit "notarization.zip" \
-             --keychain-profile "notarytool-profile" \
-             --wait \
-             --output-format json > notarization_logdmg.json
-
-           cat notarization_logdmg.json
-           
-           echo "Attach staple"
-           xcrun stapler staple "/Users/runner/work/QLog/QLog/build/$DMG_NAME"           
+        set -euo pipefail
+        DMG="/Users/runner/work/QLog/QLog/build/$DMG_NAME"
+        test -f "$DMG"
+    
+        xcrun notarytool store-credentials "notarytool-profile" \
+          --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" \
+          --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" \
+          --password "$PROD_MACOS_NOTARIZATION_PWD"
+    
+        ditto -c -k "$DMG" "notarization.zip"
+    
+        xcrun notarytool submit "notarization.zip" \
+          --keychain-profile "notarytool-profile" \
+          --wait --output-format json > notarization_dmg.json
+        cat notarization_dmg.json
+    
+        NOTARY_ID=$(python3 -c 'import json; print(json.load(open("notarization_dmg.json"))["id"])')
+        xcrun notarytool log "$NOTARY_ID" --keychain-profile "notarytool-profile" || true
+    
+        xcrun stapler staple "$DMG"
+        xcrun stapler validate "$DMG"        
      - name: Copy artifact
        uses: actions/upload-artifact@v4
        with:
-         name: QLog-${{ env.TAGVERSION }}-${{ matrix.os }}
-         path: /Users/runner/work/QLog/QLog/build/$DMG_NAME
+         name: QLog-${{ env.TAGVERSION }}-macos
+         path: /Users/runner/work/QLog/QLog/build/${{ env.DMG_NAME }}
