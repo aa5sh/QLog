@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql network xml charts webenginewidgets serialport dbus quickwidgets webchannel websockets svg
+QT       += core gui sql network xml charts webenginewidgets serialport dbus quickwidgets webchannel websockets svg virtualkeyboard
 
 greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
