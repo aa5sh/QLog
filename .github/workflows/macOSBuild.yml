@@ -49,8 +49,6 @@ jobs:
          cd build
          qmake -config release ..
          make -j4
-     - name: Set QT_PLUGIN_PATH
-       run: echo "QT_PLUGIN_PATH=$(brew --prefix)/lib/qt6/plugins" >> $GITHUB_ENV
      - name: Build app
        run: |
          cd build
@@ -64,8 +62,6 @@ jobs:
          cp $ICU_PATH/libicui18n*.dylib qlog.app/Contents/Frameworks/
          cp `brew --prefix`/lib/libglib-2.0.0.dylib qlog.app/Contents/Frameworks/libglib-2.0.0.dylib
          cp `brew --prefix`/lib/libbrotlidec.1.dylib qlog.app/Contents/Frameworks/libbrotlidec.1.dylib
-         cp -R $(brew --prefix)/lib/qt6/QtVirtualKeyboard.framework qlog.app/Contents/Frameworks/
-         cp -R $(brew --prefix)/lib/qt6/QtVirtualKeyboardQml.framework qlog.app/Contents/Frameworks/
 
          install_name_tool -change `brew --prefix`/lib/libglib-2.0.0.dylib @executable_path/../Frameworks/libglib-2.0.0.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlidec.1.dylib @executable_path/../Frameworks/libbrotlidec.1.dylib qlog.app/Contents/MacOS/qlog
