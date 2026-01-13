@@ -159,12 +159,9 @@ jobs:
            # you're curious
 
            echo "Notarize app"
-           xcrun notarytool submit "notarization.zip" --keychain-profile "notarytool-profile" --wait
-           for i in {1..5}; do
-             xcrun stapler staple "/Users/runner/work/QLog/QLog/build/qlog.app" && break
-             echo "Staple failed. Retrying in 30 seconds..."
-             sleep 30
-           done
+           xcrun notarytool submit "notarization.zip" --keychain-profile "notarytool-profile" --wait --output-format json > notarization_log.json
+           cat notarization_log.json
+           
            echo "Attach staple"
            xcrun stapler staple "/Users/runner/work/QLog/QLog/build/qlog.app"   
      - name: make dmg
