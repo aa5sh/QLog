@@ -61,7 +61,12 @@ jobs:
          cp $ICU_PATH/libicui18n*.dylib qlog.app/Contents/Frameworks/
          cp `brew --prefix`/lib/libglib-2.0.0.dylib qlog.app/Contents/Frameworks/libglib-2.0.0.dylib
          cp `brew --prefix`/lib/libbrotlidec.1.dylib qlog.app/Contents/Frameworks/libbrotlidec.1.dylib
-
+         # Replace qt_path with the result of `brew --prefix qt6`
+         qt_path=$(brew --prefix qt6)
+         cp -R "$qt_path/lib/QtSvg.framework" qlog.app/Contents/Frameworks/
+         cp -R "$qt_path/lib/QtVirtualKeyboard.framework" qlog.app/Contents/Frameworks/
+         cp -R "$qt_path/lib/QtVirtualKeyboardQml.framework" qlog.app/Contents/Frameworks/
+         
          install_name_tool -change `brew --prefix`/lib/libglib-2.0.0.dylib @executable_path/../Frameworks/libglib-2.0.0.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlidec.1.dylib @executable_path/../Frameworks/libbrotlidec.1.dylib qlog.app/Contents/MacOS/qlog
          install_name_tool -change `brew --prefix`/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib qlog.app/Contents/MacOS/qlog
@@ -170,7 +175,7 @@ jobs:
          cd out
          ln -s /Applications/ Applications
          cd ..
-         hdiutil create -volname "QLog Installer" -srcfolder out -ov -format UDZO "/Users/runner/work/QLog/QLog/build/qlog.dmg"
+         hdiutil create -volname "QLog Installer" -srcfolder out -ov -format UDZO "/Users/runner/work/QLog/QLog/build/$DMG_NAME"
      - name: Codesign dmg bundle
          # Extract the secrets we defined earlier as environment variables
        env: 
@@ -190,7 +195,7 @@ jobs:
            ##security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
            ##security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
            # We finally codesign our app bundle, specifying the Hardened runtime option
-           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/qlog.dmg
+           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/$DMG_NAME
      - name: "Notarize app bundle"
          # Extract the secrets we defined earlier as environment variables
        env:
@@ -205,7 +210,7 @@ jobs:
            xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
            
            echo "Creating temp notarization archive"
-           ditto -c -k --keepParent "/Users/runner/work/QLog/QLog/build/qlog.dmg" "notarization.zip"
+           ditto -c -k --keepParent "/Users/runner/work/QLog/QLog/build/$DMG_NAME" "notarization.zip"
 
            # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
            # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
@@ -216,9 +221,9 @@ jobs:
            xcrun notarytool submit "notarization.zip" --keychain-profile "notarytool-profile" --wait
 
            echo "Attach staple"
-           xcrun stapler staple "/Users/runner/work/QLog/QLog/build/qlog.dmg"           
+           xcrun stapler staple "/Users/runner/work/QLog/QLog/build/$DMG_NAME"           
      - name: Copy artifact
        uses: actions/upload-artifact@v4
        with:
          name: QLog-${{ env.TAGVERSION }}-${{ matrix.os }}
-         path: /Users/runner/work/QLog/QLog/build/qlog.dmg
+         path: /Users/runner/work/QLog/QLog/build/$DMG_NAME
