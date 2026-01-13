@@ -115,6 +115,10 @@ jobs:
          spctl -a -t exec -vv "$APP"
          
      - name: "Notarize app bundle"
+       env:
+           PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+           PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+           PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
        run: |
          set -euo pipefail
 
