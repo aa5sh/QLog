@@ -72,27 +72,70 @@ jobs:
          otool -L qlog.app/Contents/MacOS/qlog
          macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
          macdeployqt qlog.app
+# ... (the rest of the file is unchanged up to the Codesign app bundle step) ...
+
      - name: Codesign app bundle
-         # Extract the secrets we defined earlier as environment variables
-       env: 
-           MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
-           MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
-           MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
-           MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+       # Extract the secrets we defined earlier as environment variables
+       env:
+         MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
+         MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
+         MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
+         MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
        run: |
-           # Turn our base64-encoded certificate back to a regular .p12 file
-           echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-           # We need to create a new keychain, otherwise using the certificate will prompt
-           # with a UI dialog asking for the certificate password, which we can't
-           # use in a headless CI environment
-           security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain 
-           security default-keychain -s build.keychain
-           security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-           security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-           # We finally codesign our app bundle, specifying the Hardened runtime option
-           # /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/qlog.app/Contents/Frameworks/QtWebEngineProcess.app
-           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --deep -f /Users/runner/work/QLog/QLog/build/qlog.app
+         set -euo pipefail
+         APP="/Users/runner/work/QLog/QLog/build/qlog.app"
+
+         echo "Decoding certificate..."
+         echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
+
+         echo "Creating keychain..."
+         security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
+         security default-keychain -s build.keychain
+         security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
+         security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
+
+         echo "Listing bundle contents (sanity)..."
+         find "$APP" -maxdepth 4 -print || true
+
+         echo "Looking for QtWebEngineProcess and other nested .app helpers..."
+         find "$APP" -name "*.app" -print
+
+         echo "Signing nested .app helpers (QtWebEngineProcess etc.) individually..."
+         find "$APP" -name "*.app" -type d -print0 | while IFS= read -r -d '' SUBAPP; do
+           echo "Signing $SUBAPP"
+           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --force "$SUBAPP" || true
+         done
+
+         echo "Signing frameworks and dylibs..."
+         if [ -d "$APP/Contents/Frameworks" ]; then
+           find "$APP/Contents/Frameworks" -type f \( -name "*.dylib" -o -name "*.so" -o -name "*.framework" \) -print0 \
+             | while IFS= read -r -d '' F; do
+               echo "Signing $F"
+               /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --force "$F" || true
+             done
+         fi
+
+         echo "Signing main executable inside app (the executable file)..."
+         if [ -f "$APP/Contents/MacOS/qlog" ]; then
+           /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --force "$APP/Contents/MacOS/qlog" || true
+         fi
+
+         echo "Final sign of the app bundle (top-level)..."
+         /usr/bin/codesign --timestamp -s "$MACOS_CERTIFICATE_NAME" --options runtime --force "$APP"
+
+         echo "Verify codesign of top-level app:"
+         /usr/bin/codesign -v --verbose=4 "$APP" || true
+
+         echo "Gatekeeper check (spctl):"
+         spctl -a -t exec -vv "$APP" || true
+
+         echo "Check for QtWebEngineProcess binary linkages (if found):"
+         find "$APP" -name "QtWebEngineProcess.app" -print0 | while IFS= read -r -d '' P; do
+           B="$P/Contents/MacOS/$(ls "$P/Contents/MacOS" | head -n1)"
+           echo "otool -L $B"
+           otool -L "$B" || true
+         done
      - name: "Notarize app bundle"
          # Extract the secrets we defined earlier as environment variables
        env:
@@ -121,6 +164,7 @@ jobs:
            xcrun stapler staple "/Users/runner/work/QLog/QLog/build/qlog.app"   
      - name: make dmg
        run: |
+         DMG_NAME="QLog.v${TAGVERSION}.dmg"
          mkdir out
          cp -R "/Users/runner/work/QLog/QLog/build/qlog.app" out
          cd out
