@@ -55,7 +55,7 @@ jobs:
        run: |
          cd build
          macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
-         macdeployqt qlog.app -always-overwrite -verbose=3 -qmldir=.. -extra-plugins=platforminputcontexts,virtualkeyboard
+         macdeployqt qlog.app -always-overwrite -verbose=3 -qmldir=..
          ICU_PATH=$(brew --prefix icu4c)/lib
          cp `brew --prefix`/lib/libhamlib.dylib qlog.app/Contents/Frameworks/libhamlib.dylib
          cp `brew --prefix`/lib/libqt6keychain.dylib qlog.app/Contents/Frameworks/libqt6keychain.dylib
