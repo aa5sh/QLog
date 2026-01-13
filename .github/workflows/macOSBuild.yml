@@ -24,6 +24,7 @@ jobs:
          brew update
          brew upgrade || true
          brew install qt6
+         brew install qt6-virtualkeyboard
          brew link qt6 --force
          brew install hamlib
          brew link hamlib --force
