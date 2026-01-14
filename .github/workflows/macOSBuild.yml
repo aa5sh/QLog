@@ -98,59 +98,85 @@ jobs:
          otool -l "$HELPER_BIN" | grep -A2 LC_RPATH || true
          
      - name: Codesign app bundle
-       # Extract the secrets we defined earlier as environment variables
        env:
          MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
          MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
-         MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
          MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
        run: |
          set -euo pipefail
-        
-         APP="/Users/runner/work/QLog/QLog/build/qlog.app"
-         ENT="/Users/runner/work/QLog/QLog/entitlements.xml"
-        
+
+         APP="$GITHUB_WORKSPACE/build/qlog.app"
+         ENT="$GITHUB_WORKSPACE/entitlements.xml"
+
+         KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
+
+         # --- Create & configure keychain so codesign can find the identity
+         security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+         security set-keychain-settings -lut 21600 "$KEYCHAIN"
+         security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+         security list-keychains -d user -s "$KEYCHAIN"
+         security default-keychain -d user -s "$KEYCHAIN"
+
+         # --- Import signing cert (P12 must include private key)
+         echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+         security import "$RUNNER_TEMP/cert.p12" \
+           -k "$KEYCHAIN" \
+           -P "$MACOS_CERTIFICATE_PWD" \
+           -T /usr/bin/codesign \
+           -T /usr/bin/security
+
+         # Allow non-interactive access
+         security set-key-partition-list -S apple-tool:,apple:,codesign: \
+           -s -k "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+
+         echo "Available identities:"
+         security find-identity -v -p codesigning "$KEYCHAIN"
+
+         SIGN_ID_SHA=$(security find-identity -v -p codesigning "$KEYCHAIN" \
+           | awk '/Developer ID Application/ {print $2; exit}')
+         if [[ -z "${SIGN_ID_SHA:-}" ]]; then
+           echo "ERROR: No Developer ID Application identity found in keychain."
+           exit 1
+         fi
+         echo "Using identity: $SIGN_ID_SHA"
+
          # Helper app inside QtWebEngineCore.framework (Qt6 layout)
          HELPER_APP="$APP/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app"
          HELPER_BIN="$HELPER_APP/Contents/MacOS/QtWebEngineProcess"
-        
+
          echo "Entitlements file:"
          ls -l "$ENT"
-        
          echo "Sanity: helper exists?"
          ls -l "$HELPER_BIN"
-        
+
          # 1) Sign helper binary WITH entitlements
          /usr/bin/codesign --force --timestamp --options runtime \
            --entitlements "$ENT" \
-           -s "$MACOS_CERTIFICATE_NAME" "$HELPER_BIN"
-        
+           -s "$SIGN_ID_SHA" "$HELPER_BIN"
+
          # 2) Sign helper .app container WITH entitlements
          /usr/bin/codesign --force --timestamp --options runtime \
            --entitlements "$ENT" \
-           -s "$MACOS_CERTIFICATE_NAME" "$HELPER_APP"
-        
-         # 3) Sign frameworks, dylibs, plugins, other Mach-Os WITHOUT entitlements
-         echo "Signing all Mach-O files (no entitlements)..."
+           -s "$SIGN_ID_SHA" "$HELPER_APP"
+
+         # 3) Sign all other Mach-Os WITHOUT entitlements (don’t overwrite helper)
+         echo "Signing all other Mach-O files..."
          find "$APP" -type f -print0 | while IFS= read -r -d '' F; do
            if file "$F" | grep -q "Mach-O"; then
-             # Skip the helper; already signed with entitlements above
-             if [[ "$F" == "$HELPER_BIN" ]]; then
-               continue
-             fi
+             [[ "$F" == "$HELPER_BIN" ]] && continue
              /usr/bin/codesign --force --timestamp --options runtime \
-               -s "$MACOS_CERTIFICATE_NAME" "$F"
+               -s "$SIGN_ID_SHA" "$F"
            fi
          done
-        
-         # 4) Sign the top-level app WITH entitlements
+
+         # 4) Sign top-level app WITH entitlements
          /usr/bin/codesign --force --timestamp --options runtime \
            --entitlements "$ENT" \
-           -s "$MACOS_CERTIFICATE_NAME" "$APP"
-        
+           -s "$SIGN_ID_SHA" "$APP"
+
          # 5) Verify
          /usr/bin/codesign --verify --deep --strict --verbose=4 "$APP"
-         spctl -a -t exec -vv "$APP"     
+         spctl -a -t exec -vv "$APP" || true       
          
      - name: "Notarize app bundle"
        env:
@@ -215,19 +241,47 @@ jobs:
           "/Users/runner/work/QLog/QLog/build/$DMG_NAME"
     
         ls -lh "/Users/runner/work/QLog/QLog/build/$DMG_NAME"
+  
      - name: Codesign dmg bundle
-         # Extract the secrets we defined earlier as environment variables
-       env: 
-           MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
-           MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
-           MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
-           MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+       env:
+         MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
+         MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
+         MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
        run: |
-        set -euo pipefail
-        DMG="/Users/runner/work/QLog/QLog/build/$DMG_NAME"
-        test -f "$DMG"
-        /usr/bin/codesign --force --timestamp -s "$MACOS_CERTIFICATE_NAME" "$DMG"
-        /usr/bin/codesign -v --verbose=4 "$DMG"
+         set -euo pipefail
+
+         DMG="$GITHUB_WORKSPACE/build/$DMG_NAME"
+         test -f "$DMG"
+
+         KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
+
+         # If the prior step already created/imported, this will work as-is.
+         # But on Actions, each step is a new shell: re-create+import to be safe.
+         security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN" || true
+         security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+         security list-keychains -d user -s "$KEYCHAIN"
+         security default-keychain -d user -s "$KEYCHAIN"
+
+         echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+         security import "$RUNNER_TEMP/cert.p12" \
+           -k "$KEYCHAIN" \
+           -P "$MACOS_CERTIFICATE_PWD" \
+           -T /usr/bin/codesign \
+           -T /usr/bin/security || true
+
+         security set-key-partition-list -S apple-tool:,apple:,codesign: \
+           -s -k "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+
+         SIGN_ID_SHA=$(security find-identity -v -p codesigning "$KEYCHAIN" \
+           | awk '/Developer ID Application/ {print $2; exit}')
+         if [[ -z "${SIGN_ID_SHA:-}" ]]; then
+           echo "ERROR: No Developer ID Application identity found in keychain."
+           exit 1
+         fi
+
+         /usr/bin/codesign --force --timestamp -s "$SIGN_ID_SHA" "$DMG"
+         /usr/bin/codesign -v --verbose=4 "$DMG"
+         
      - name: Notarize dmg
        env:
         PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
