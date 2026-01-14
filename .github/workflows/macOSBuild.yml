@@ -143,7 +143,7 @@ jobs:
          set -euo pipefail
          APP="/Users/runner/work/QLog/QLog/build/qlog.app"
         
-         ENT="ci/webengine.entitlements.plist"
+         ENT="$GITHUB_WORKSPACE/entitlements.xml"
          HELPER_APP="$APP/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app"
          HELPER_BIN="$HELPER_APP/Contents/MacOS/QtWebEngineProcess"        
          
