@@ -106,53 +106,51 @@ jobs:
          MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
        run: |
          set -euo pipefail
-         APP="/Users/runner/work/QLog/QLog/build/qlog.app"
-
-         echo "Decoding certificate..."
-         echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
-
-         echo "Creating keychain..."
-         security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-         security default-keychain -s build.keychain
-         security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-         security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_CI_KEYCHAIN_PWD" build.keychain
-
-         set -euo pipefail
-         APP="/Users/runner/work/QLog/QLog/build/qlog.app"
         
-         ENT="$GITHUB_WORKSPACE/entitlements.xml"
-         HELPER_APP="$APP/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app"
-         HELPER_BIN="$HELPER_APP/Contents/MacOS/QtWebEngineProcess"        
-         
-         # sign helper binary with entitlements
+         APP="/Users/runner/work/QLog/QLog/build/qlog.app"
+         ENT="/Users/runner/work/QLog/QLog/entitlements.xml"
+        
+         # Helper app inside QtWebEngineCore.framework (Qt6 layout)
+         HELPER_APP="$APP/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app"
+         HELPER_BIN="$HELPER_APP/Contents/MacOS/QtWebEngineProcess"
+        
+         echo "Entitlements file:"
+         ls -l "$ENT"
+        
+         echo "Sanity: helper exists?"
+         ls -l "$HELPER_BIN"
+        
+         # 1) Sign helper binary WITH entitlements
          /usr/bin/codesign --force --timestamp --options runtime \
            --entitlements "$ENT" \
            -s "$MACOS_CERTIFICATE_NAME" "$HELPER_BIN"
         
-         # sign the helper .app container too (also with entitlements)
+         # 2) Sign helper .app container WITH entitlements
          /usr/bin/codesign --force --timestamp --options runtime \
-          --entitlements "$ENT" \
-          -s "$MACOS_CERTIFICATE_NAME" "$HELPER_APP"
+           --entitlements "$ENT" \
+           -s "$MACOS_CERTIFICATE_NAME" "$HELPER_APP"
         
-         echo "Sign everything that is a Mach-O binary (helpers, dylibs, plugins, frameworks)"
+         # 3) Sign frameworks, dylibs, plugins, other Mach-Os WITHOUT entitlements
+         echo "Signing all Mach-O files (no entitlements)..."
          find "$APP" -type f -print0 | while IFS= read -r -d '' F; do
            if file "$F" | grep -q "Mach-O"; then
-             echo "Signing Mach-O: $F"
-             /usr/bin/codesign --force --timestamp --options runtime -s "$MACOS_CERTIFICATE_NAME" "$F"
+             # Skip the helper; already signed with entitlements above
+             if [[ "$F" == "$HELPER_BIN" ]]; then
+               continue
+             fi
+             /usr/bin/codesign --force --timestamp --options runtime \
+               -s "$MACOS_CERTIFICATE_NAME" "$F"
            fi
          done
         
-         echo "Finally sign the top-level app"
-          /usr/bin/codesign --force \
-           --timestamp \
+         # 4) Sign the top-level app WITH entitlements
+         /usr/bin/codesign --force --timestamp --options runtime \
            --entitlements "$ENT" \
-           --options runtime \
            -s "$MACOS_CERTIFICATE_NAME" "$APP"
         
-         echo "Verify (strict)"
+         # 5) Verify
          /usr/bin/codesign --verify --deep --strict --verbose=4 "$APP"
-         spctl -a -t exec -vv "$APP"
+         spctl -a -t exec -vv "$APP"     
          
      - name: "Notarize app bundle"
        env:
