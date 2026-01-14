@@ -50,76 +50,76 @@ jobs:
          qmake -config release ..
          make -j4
      - name: Build app
-    run: |
-      set -euo pipefail
-      cd build
+       run: |
+         set -euo pipefail
+         cd build
   
-      APP="qlog.app"
-      ICU_PATH="$(brew --prefix icu4c)/lib"
+         APP="qlog.app"
+         ICU_PATH="$(brew --prefix icu4c)/lib"
   
-      # 1) First deploy Qt frameworks/plugins into the .app (this creates Contents/Frameworks)
-      macdeployqt "$APP" \
-        -always-overwrite \
-        -verbose=3 \
-        -executable="./$APP/Contents/MacOS/qlog" \
-        -qmldir=..
+         # 1) First deploy Qt frameworks/plugins into the .app (this creates Contents/Frameworks)
+         macdeployqt "$APP" \
+           -always-overwrite \
+           -verbose=3 \
+           -executable="./$APP/Contents/MacOS/qlog" \
+           -qmldir=..
   
-      # 2) Now we can safely copy extra non-Qt deps
-      mkdir -p "$APP/Contents/Frameworks"
+         # 2) Now we can safely copy extra non-Qt deps
+         mkdir -p "$APP/Contents/Frameworks"
   
-      cp "$(brew --prefix)"/lib/libhamlib.dylib                   "$APP/Contents/Frameworks/"
-      cp "$(brew --prefix)"/lib/libqt6keychain.dylib              "$APP/Contents/Frameworks/"
-      cp "$(brew --prefix)"/lib/libdbus-1.dylib                   "$APP/Contents/Frameworks/"
-      cp "$(brew --prefix)"/lib/libbrotlicommon.1.dylib           "$APP/Contents/Frameworks/"
-      cp "$(brew --prefix)"/lib/libbrotlidec.1.dylib              "$APP/Contents/Frameworks/"
-      cp "$(brew --prefix)"/lib/libglib-2.0.0.dylib               "$APP/Contents/Frameworks/"
-      cp "$ICU_PATH"/libicui18n*.dylib                            "$APP/Contents/Frameworks/" || true
+         cp "$(brew --prefix)"/lib/libhamlib.dylib                   "$APP/Contents/Frameworks/"
+         cp "$(brew --prefix)"/lib/libqt6keychain.dylib              "$APP/Contents/Frameworks/"
+         cp "$(brew --prefix)"/lib/libdbus-1.dylib                   "$APP/Contents/Frameworks/"
+         cp "$(brew --prefix)"/lib/libbrotlicommon.1.dylib           "$APP/Contents/Frameworks/"
+         cp "$(brew --prefix)"/lib/libbrotlidec.1.dylib              "$APP/Contents/Frameworks/"
+         cp "$(brew --prefix)"/lib/libglib-2.0.0.dylib               "$APP/Contents/Frameworks/"
+         cp "$ICU_PATH"/libicui18n*.dylib                            "$APP/Contents/Frameworks/" || true
   
-      # 3) Fix main exe linkages (only if they still point at brew paths)
-      install_name_tool -change "$(brew --prefix)"/lib/libglib-2.0.0.dylib     @executable_path/../Frameworks/libglib-2.0.0.dylib     "$APP/Contents/MacOS/qlog" || true
-      install_name_tool -change "$(brew --prefix)"/lib/libbrotlidec.1.dylib    @executable_path/../Frameworks/libbrotlidec.1.dylib    "$APP/Contents/MacOS/qlog" || true
-      install_name_tool -change "$(brew --prefix)"/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib "$APP/Contents/MacOS/qlog" || true
-      install_name_tool -change "$(brew --prefix)"/lib/libhamlib.dylib         @executable_path/../Frameworks/libhamlib.dylib         "$APP/Contents/MacOS/qlog" || true
-      install_name_tool -change "$(brew --prefix)"/lib/libqt6keychain.dylib    @executable_path/../Frameworks/libqt6keychain.dylib    "$APP/Contents/MacOS/qlog" || true
+         # 3) Fix main exe linkages (only if they still point at brew paths)
+         install_name_tool -change "$(brew --prefix)"/lib/libglib-2.0.0.dylib     @executable_path/../Frameworks/libglib-2.0.0.dylib     "$APP/Contents/MacOS/qlog" || true
+         install_name_tool -change "$(brew --prefix)"/lib/libbrotlidec.1.dylib    @executable_path/../Frameworks/libbrotlidec.1.dylib    "$APP/Contents/MacOS/qlog" || true
+         install_name_tool -change "$(brew --prefix)"/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib "$APP/Contents/MacOS/qlog" || true
+         install_name_tool -change "$(brew --prefix)"/lib/libhamlib.dylib         @executable_path/../Frameworks/libhamlib.dylib         "$APP/Contents/MacOS/qlog" || true
+         install_name_tool -change "$(brew --prefix)"/lib/libqt6keychain.dylib    @executable_path/../Frameworks/libqt6keychain.dylib    "$APP/Contents/MacOS/qlog" || true
   
-      # 4) Patch QtWebEngineProcess so it does NOT try to load /opt/homebrew QtQuick
-      HELPER="$APP/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+         # 4) Patch QtWebEngineProcess so it does NOT try to load /opt/homebrew QtQuick
+         HELPER="$APP/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
   
-      if [ -f "$HELPER" ]; then
-        echo "Patching WebEngine helper: $HELPER"
+         if [ -f "$HELPER" ]; then
+           echo "Patching WebEngine helper: $HELPER"
   
-        # Add rpath back to main app Frameworks
-        install_name_tool -add_rpath "@executable_path/../../../../../../../../Frameworks" "$HELPER" || true
+           # Add rpath back to main app Frameworks
+           install_name_tool -add_rpath "@executable_path/../../../../../../../../Frameworks" "$HELPER" || true
   
-        # Rewrite absolute QtQuick reference if present
-        install_name_tool -change \
-          "/opt/homebrew/opt/qtdeclarative/lib/QtQuick.framework/Versions/A/QtQuick" \
-          "@rpath/QtQuick.framework/Versions/A/QtQuick" \
-          "$HELPER" || true
+           # Rewrite absolute QtQuick reference if present
+           install_name_tool -change \
+             "/opt/homebrew/opt/qtdeclarative/lib/QtQuick.framework/Versions/A/QtQuick" \
+             "@rpath/QtQuick.framework/Versions/A/QtQuick" \
+             "$HELPER" || true
   
-        # Remove brew rpaths if present
-        install_name_tool -delete_rpath "/opt/homebrew/opt/qtdeclarative/lib" "$HELPER" || true
-        install_name_tool -delete_rpath "/opt/homebrew/opt/qtbase/lib" "$HELPER" || true
+           # Remove brew rpaths if present
+           install_name_tool -delete_rpath "/opt/homebrew/opt/qtdeclarative/lib" "$HELPER" || true
+           install_name_tool -delete_rpath "/opt/homebrew/opt/qtbase/lib" "$HELPER" || true
   
-        echo "WebEngine helper LC_RPATH:"
-        otool -l "$HELPER" | grep -A2 LC_RPATH || true
+           echo "WebEngine helper LC_RPATH:"
+           otool -l "$HELPER" | grep -A2 LC_RPATH || true
   
-        echo "WebEngine helper linked libs (look for /opt/homebrew):"
-        otool -L "$HELPER" | head -n 60 || true
-      else
-        echo "WARNING: QtWebEngineProcess not found at expected path."
-        find "$APP" -name "QtWebEngineProcess" -print || true
-      fi
+           echo "WebEngine helper linked libs (look for /opt/homebrew):"
+           otool -L "$HELPER" | head -n 60 || true
+         else
+           echo "WARNING: QtWebEngineProcess not found at expected path."
+           find "$APP" -name "QtWebEngineProcess" -print || true
+         fi
   
-      # 5) Sanity: ensure QtQuick.framework is bundled
-      echo "Checking bundled QtQuick:"
-      ls -d "$APP/Contents/Frameworks/QtQuick.framework" || true
-      ls -d "$APP/Contents/Frameworks/QtQml.framework" || true
+         # 5) Sanity: ensure QtQuick.framework is bundled
+         echo "Checking bundled QtQuick:"
+         ls -d "$APP/Contents/Frameworks/QtQuick.framework" || true
+         ls -d "$APP/Contents/Frameworks/QtQml.framework" || true
 
-      echo "FAIL if any /opt/homebrew references remain in WebEngine helper:"
-      otool -L "$HELPER" | grep -q "/opt/homebrew" && (echo "ERROR: helper still links to homebrew" && exit 1) || true
+         echo "FAIL if any /opt/homebrew references remain in WebEngine helper:"
+         otool -L "$HELPER" | grep -q "/opt/homebrew" && (echo "ERROR: helper still links to homebrew" && exit 1) || true
       
-      - name: Codesign app bundle
+     - name: Codesign app bundle
        # Extract the secrets we defined earlier as environment variables
        env:
          MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
