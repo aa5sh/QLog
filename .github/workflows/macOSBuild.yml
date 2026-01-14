@@ -52,28 +52,51 @@ jobs:
      - name: Build app
        run: |
          cd build
-         macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
-         macdeployqt qlog.app -always-overwrite -verbose=3 -qmldir=..
-         ICU_PATH=$(brew --prefix icu4c)/lib
-         cp `brew --prefix`/lib/libhamlib.dylib qlog.app/Contents/Frameworks/libhamlib.dylib
-         cp `brew --prefix`/lib/libqt6keychain.dylib qlog.app/Contents/Frameworks/libqt6keychain.dylib
-         cp `brew --prefix`/lib/libdbus-1.dylib qlog.app/Contents/Frameworks/libdbus-1.dylib
-         cp `brew --prefix`/lib/libbrotlicommon.1.dylib qlog.app/Contents/Frameworks/libbrotlicommon.1.dylib
-         cp $ICU_PATH/libicui18n*.dylib qlog.app/Contents/Frameworks/
-         cp `brew --prefix`/lib/libglib-2.0.0.dylib qlog.app/Contents/Frameworks/libglib-2.0.0.dylib
-         cp `brew --prefix`/lib/libbrotlidec.1.dylib qlog.app/Contents/Frameworks/libbrotlidec.1.dylib
+         ICU_PATH="$(brew --prefix icu4c)/lib"
+            
+         # Copy non-Qt deps you know macdeployqt won't bundle reliably
+         cp "$(brew --prefix)"/lib/libhamlib.dylib                      qlog.app/Contents/Frameworks/
+         cp "$(brew --prefix)"/lib/libqt6keychain.dylib                 qlog.app/Contents/Frameworks/
+         cp "$(brew --prefix)"/lib/libdbus-1.dylib                      qlog.app/Contents/Frameworks/
+         cp "$(brew --prefix)"/lib/libbrotlicommon.1.dylib              qlog.app/Contents/Frameworks/
+         cp "$(brew --prefix)"/lib/libbrotlidec.1.dylib                 qlog.app/Contents/Frameworks/
+         cp "$(brew --prefix)"/lib/libglib-2.0.0.dylib                  qlog.app/Contents/Frameworks/
+         cp "$ICU_PATH"/libicui18n*.dylib                               qlog.app/Contents/Frameworks/
+            
+         # Fix main exe linkages (only if they still point at brew paths)
+         install_name_tool -change "$(brew --prefix)"/lib/libglib-2.0.0.dylib        @executable_path/../Frameworks/libglib-2.0.0.dylib        qlog.app/Contents/MacOS/qlog
+         install_name_tool -change "$(brew --prefix)"/lib/libbrotlidec.1.dylib       @executable_path/../Frameworks/libbrotlidec.1.dylib       qlog.app/Contents/MacOS/qlog
+         install_name_tool -change "$(brew --prefix)"/lib/libbrotlicommon.1.dylib    @executable_path/../Frameworks/libbrotlicommon.1.dylib    qlog.app/Contents/MacOS/qlog
+         install_name_tool -change "$(brew --prefix)"/lib/libhamlib.dylib            @executable_path/../Frameworks/libhamlib.dylib            qlog.app/Contents/MacOS/qlog
+         install_name_tool -change "$(brew --prefix)"/lib/libqt6keychain.dylib       @executable_path/../Frameworks/libqt6keychain.dylib       qlog.app/Contents/MacOS/qlog
 
-         install_name_tool -change `brew --prefix`/lib/libglib-2.0.0.dylib @executable_path/../Frameworks/libglib-2.0.0.dylib qlog.app/Contents/MacOS/qlog
-         install_name_tool -change `brew --prefix`/lib/libbrotlidec.1.dylib @executable_path/../Frameworks/libbrotlidec.1.dylib qlog.app/Contents/MacOS/qlog
-         install_name_tool -change `brew --prefix`/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib qlog.app/Contents/MacOS/qlog
-         install_name_tool -change `brew --prefix`/lib/libhamlib.dylib @executable_path/../Frameworks/libhamlib.dylib qlog.app/Contents/MacOS/qlog
-         install_name_tool -change `brew --prefix`/lib/libqt6keychain.dylib @executable_path/../Frameworks/libqt6keychain.dylib qlog.app/Contents/MacOS/qlog
-         install_name_tool -change `brew --prefix`/lib/libbrotlicommon.1.dylib @executable_path/../Frameworks/libbrotlicommon.1.dylib qlog.app/Contents/MacOS/qlog 
-         install_name_tool -change `brew --prefix`/opt/icu4c/lib/libicui18n.74.dylib @executable_path/../Frameworks/libicui18n.74.dylib qlog.app/Contents/MacOS/qlog
-         otool -L qlog.app/Contents/MacOS/qlog
-         macdeployqt qlog.app -executable=./qlog.app/Contents/MacOS/qlog
-         macdeployqt qlog.app
-# ... (the rest of the file is unchanged up to the Codesign app bundle step) ...
+         # ONE final deploy pass
+         macdeployqt qlog.app \
+           -always-overwrite \
+           -verbose=3 \
+           -executable=./qlog.app/Contents/MacOS/qlog \
+           -qmldir=..
+
+         # mm
+         APP="qlog.app"
+         HELPER="$APP/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+
+         # Add rpath to main app frameworks (relative to helper binary location)
+         install_name_tool -add_rpath "@executable_path/../../../../../../../../Frameworks" "$HELPER" || true
+
+         # If the helper has an absolute QtQuick load command, rewrite it to @rpath form
+         install_name_tool -change \
+          "/opt/homebrew/opt/qtdeclarative/lib/QtQuick.framework/Versions/A/QtQuick" \
+          "@rpath/QtQuick.framework/Versions/A/QtQuick" \
+          "$HELPER" || true
+
+         # See current rpaths
+         otool -l "$HELPER" | grep -A2 LC_RPATH
+
+         # If you see /opt/homebrew/... rpaths, delete them (repeat as needed)
+         install_name_tool -delete_rpath "/opt/homebrew/opt/qtdeclarative/lib" "$HELPER" || true 
+         install_name_tool -delete_rpath "/opt/homebrew/opt/qtbase/lib" "$HELPER" || true
+         # mm
 
      - name: Codesign app bundle
        # Extract the secrets we defined earlier as environment variables
@@ -99,6 +122,20 @@ jobs:
          set -euo pipefail
          APP="/Users/runner/work/QLog/QLog/build/qlog.app"
         
+         ENT="ci/webengine.entitlements.plist"
+         HELPER_APP="$APP/Contents/Frameworks/Helpers/QtWebEngineProcess.app"
+         HELPER_BIN="$HELPER_APP/Contents/MacOS/QtWebEngineProcess"
+        
+         # sign helper binary with entitlements
+         /usr/bin/codesign --force --timestamp --options runtime \
+           --entitlements "$ENT" \
+           -s "$MACOS_CERTIFICATE_NAME" "$HELPER_BIN"
+        
+         # sign the helper .app container too (also with entitlements)
+         /usr/bin/codesign --force --timestamp --options runtime \
+          --entitlements "$ENT" \
+          -s "$MACOS_CERTIFICATE_NAME" "$HELPER_APP"
+        
          echo "Sign everything that is a Mach-O binary (helpers, dylibs, plugins, frameworks)"
          find "$APP" -type f -print0 | while IFS= read -r -d '' F; do
            if file "$F" | grep -q "Mach-O"; then
@@ -108,7 +145,11 @@ jobs:
          done
         
          echo "Finally sign the top-level app"
-          /usr/bin/codesign --force --timestamp --options runtime -s "$MACOS_CERTIFICATE_NAME" "$APP"
+          /usr/bin/codesign --force \
+           --timestamp \
+           --entitlements "$ENT" \
+           --options runtime \
+           -s "$MACOS_CERTIFICATE_NAME" "$APP"
         
          echo "Verify (strict)"
          /usr/bin/codesign --verify --deep --strict --verbose=4 "$APP"
