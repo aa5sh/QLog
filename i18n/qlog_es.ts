@@ -253,32 +253,32 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="180"/>
         <source>Worked</source>
-        <translation type="unfinished">Trabajado</translation>
+        <translation>Trabajado</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="187"/>
         <source>New Slot</source>
-        <translation type="unfinished">Nuevo Slot</translation>
+        <translation>Nuevo Slot</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="194"/>
         <source>Confirmed</source>
-        <translation type="unfinished">Confirmado</translation>
+        <translation>Confirmado</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="201"/>
         <source>New Entity</source>
-        <translation type="unfinished">Nueva Entidad</translation>
+        <translation>Nueva Entidad</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="208"/>
         <source>New Mode</source>
-        <translation type="unfinished">Nuevo Modo</translation>
+        <translation>Nuevo Modo</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="215"/>
         <source>New Band</source>
-        <translation type="unfinished">Nueva Banda</translation>
+        <translation>Nueva Banda</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="231"/>
@@ -605,7 +605,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="143"/>
         <source>User Filter</source>
-        <translation type="unfinished">Filtro de usuario</translation>
+        <translation>Filtro de usuario</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="191"/>
@@ -750,7 +750,7 @@
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="57"/>
         <source>No User Filter</source>
-        <translation type="unfinished">Sin filtro de usuario</translation>
+        <translation>Sin filtro de usuario</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="172"/>
@@ -6789,7 +6789,7 @@
     <message>
         <location filename="../ui/MainWindow.cpp" line="1668"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
-        <translation type="unfinished">&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2025 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Basado en Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Iconos por &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Imágenes satelitales por &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;Detección de zonas por &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;Base de datos de zonas horarias por &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt; {1&gt;?} {1&lt;?} {1&gt;?} {2019 ?} {2I?} {2021-2026 ?} {1M?} {2025-2026 ?} {5S?} {2025-2026 ?} {9K?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Basado en Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Iconos por &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Imágenes satelitales por &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;Detección de zonas por &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;Base de datos de zonas horarias por &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="1699"/>
@@ -7108,12 +7108,12 @@
         <translation>Antena</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4011"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4019"/>
         <source>Blank</source>
         <translation>Vacío</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4012"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4020"/>
         <source> W</source>
         <translation> W</translation>
     </message>
@@ -7193,112 +7193,112 @@
         <translation>Error al iniciar sesión en el Callbook</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2174"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2182"/>
         <source>LP</source>
         <translation>LP</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2226"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2234"/>
         <source>New Entity!</source>
         <translation>Nueva Entidad!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2229"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2237"/>
         <source>New Band!</source>
         <translation>Nueva Banda!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2232"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2240"/>
         <source>New Mode!</source>
         <translation>Nuevo Modo!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2235"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2243"/>
         <source>New Band &amp; Mode!</source>
         <translation>Nueva Banda y Modo!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2238"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2246"/>
         <source>New Slot!</source>
         <translation>Nuevo Slot!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2241"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2249"/>
         <source>Worked</source>
         <translation>Trabajado</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2244"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2252"/>
         <source>Confirmed</source>
         <translation>Confirmado</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3036"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3044"/>
         <source>GE</source>
         <translation>GE</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3046"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3054"/>
         <source>GM</source>
         <translation>GM</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3052"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3060"/>
         <source>GA</source>
         <translation>GA</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3370"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3378"/>
         <source> m</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3739"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3747"/>
         <source>Callbook search is inactive</source>
         <translation>Búsqueda en Callbook desactivada</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3744"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3752"/>
         <source>Callbook search is active</source>
         <translation>Búsqueda en Callbook activada</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3818"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3826"/>
         <source>Contest ID must be filled in to activate</source>
         <translation>Debe rellenarse el ID del concurso para activarlo</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3940"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3948"/>
         <source>two or four adjacent Maidenhead grid locators, each four characters long, (ex. EN98,FM08,EM97,FM07)</source>
         <translation>dos o cuatro locators adyacentes, cada uno de cuatro caracteres (ej. EN98,FM08,EM97,FM07)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3943"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3951"/>
         <source>the contacted station&apos;s DARC DOK (District Location Code) (ex. A01)</source>
         <translation>el DARC DOK (código de ubicación de distrito) de la estación contactada (ej. A01)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3963"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3971"/>
         <source>World Wide Flora &amp; Fauna</source>
         <translation>World Wide Flora &amp; Fauna</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3967"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3975"/>
         <source>Special Activity Group</source>
         <translation>Grupo de Actividades Especiales</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3971"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3979"/>
         <source>Special Activity Group Information</source>
         <translation>Información Grupo de Actividades Especiales</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3999"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4007"/>
         <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW)) </source>
         <translation>No es el nombre del concurso, sino un ID de concurso asignado (ej. CQ-WW-CW para CQ WW DX Contest (CW)) </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4014"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4022"/>
         <source>Description of the contacted station&apos;s equipment</source>
         <translation>Descripción del equipo de la estación contactada</translation>
     </message>
@@ -9013,7 +9013,7 @@
     <message>
         <location filename="../ui/RigWidget.ui" line="199"/>
         <source> MHz</source>
-        <translation type="unfinished"> MHz</translation>
+        <translation> MHz</translation>
     </message>
     <message>
         <location filename="../ui/RigWidget.ui" line="219"/>
@@ -9122,7 +9122,7 @@
     <message>
         <location filename="../ui/SettingsDialog.ui" line="58"/>
         <source> Profiles</source>
-        <translation>Perfiles</translation>
+        <translation> Perfiles</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="200"/>
@@ -9224,7 +9224,7 @@
     <message>
         <location filename="../ui/SettingsDialog.ui" line="103"/>
         <source>SIG (Optional parameter).</source>
-        <translation>Grupo de Actividades Especiales (Opcional)</translation>
+        <translation>Grupo de Actividades Especiales (Opcional) </translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="228"/>
@@ -10677,12 +10677,12 @@
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="207"/>
         <source>User Filter</source>
-        <translation type="unfinished">Filtro de usuario</translation>
+        <translation>Filtro de usuario</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="220"/>
         <source>Confirmed by</source>
-        <translation type="unfinished">Confirmado por</translation>
+        <translation>Confirmado por</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.ui" line="308"/>
@@ -10876,12 +10876,12 @@
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="237"/>
         <source>Not Confirmed </source>
-        <translation>No Confirmado</translation>
+        <translation>No Confirmado </translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="437"/>
         <source>No User Filter</source>
-        <translation type="unfinished">Sin filtro de usuario</translation>
+        <translation>Sin filtro de usuario</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="640"/>
@@ -10892,7 +10892,7 @@
         <location filename="../ui/StatisticsWidget.cpp" line="652"/>
         <location filename="../ui/StatisticsWidget.cpp" line="654"/>
         <source>Rendering QSOs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Renderizando los QSO…</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="786"/>
