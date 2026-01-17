@@ -1912,6 +1912,14 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
     QSqlField idField = model.record().field(model.fieldIndex("id"));
     model.removeColumn(model.fieldIndex("id"));
 
+    // the Band value is mandatory for LoTW QSL matching algorithm
+    if ( record.value("band").toString().isEmpty()
+         && !record.value("freq").toString().isEmpty() )
+    {
+        double freq = record.value("freq").toDouble();
+        record.setValue("band", BandPlan::freq2Band(freq).name);
+    }
+
     // if DXCC field is present then it must be used as DXCC Entity
     int recordDXCCId = record.value("dxcc").toInt(); // 0 = NAN or not present
                                                      // otherwise = DXCC ID
