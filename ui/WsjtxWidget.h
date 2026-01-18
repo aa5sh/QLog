@@ -42,6 +42,7 @@ signals:
     void reply(WsjtxEntry);
     void CQSpot(WsjtxEntry);
     void filteredCQSpot(WsjtxEntry);
+    void updatedCQSpot(WsjtxEntry);
     void spotsCleared();
     void frequencyChanged(VFOID, double, double, double);
     void modeChanged(VFOID, QString, QString, QString, qint32);

@@ -277,9 +277,12 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(wsjtx, &WsjtxUDPReceiver::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
     connect(ui->wsjtxWidget, &WsjtxWidget::CQSpot, &networknotification, &NetworkNotification::WSJTXCQSpot);
     connect(ui->wsjtxWidget, &WsjtxWidget::CQSpot, &alertEvaluator, &AlertEvaluator::WSJTXCQSpot);
+    connect(ui->wsjtxWidget, &WsjtxWidget::filteredCQSpot, wsjtx, &WsjtxUDPReceiver::sendHighlightCallsign);
     connect(ui->wsjtxWidget, &WsjtxWidget::filteredCQSpot, ui->onlineMapWidget, &OnlineMapWidget::drawWSJTXSpot);
+    connect(ui->wsjtxWidget, &WsjtxWidget::updatedCQSpot, wsjtx, &WsjtxUDPReceiver::sendClearHighlightCallsign);
+    connect(ui->wsjtxWidget, &WsjtxWidget::spotsCleared, wsjtx, &WsjtxUDPReceiver::sendClearAllHighlightCallsign);
     connect(ui->wsjtxWidget, &WsjtxWidget::spotsCleared, ui->onlineMapWidget, &OnlineMapWidget::clearWSJTXSpots);
-    connect(ui->wsjtxWidget, &WsjtxWidget::reply, wsjtx, &WsjtxUDPReceiver::startReply);
+    connect(ui->wsjtxWidget, &WsjtxWidget::reply, wsjtx, &WsjtxUDPReceiver::sendReply);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
@@ -383,7 +386,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->alertsWidget, &AlertWidget::rulesChanged, &alertEvaluator, &AlertEvaluator::loadRules);
     connect(ui->alertsWidget, &AlertWidget::alertsCleared, this, &MainWindow::clearAlertEvent);
     connect(ui->alertsWidget, &AlertWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
-    connect(ui->alertsWidget, &AlertWidget::tuneWsjtx, wsjtx, &WsjtxUDPReceiver::startReply);
+    connect(ui->alertsWidget, &AlertWidget::tuneWsjtx, wsjtx, &WsjtxUDPReceiver::sendReply);
 
     conditions = new PropConditions();
 
@@ -991,7 +994,7 @@ void MainWindow::processSpotAlert(SpotAlert alert)
     alertTextButtonConn = connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
     {
         if ( alert.source == SpotAlert::WSJTXCQSPOT )
-            wsjtx->startReply(alert.spot);
+            wsjtx->sendReply(alert.spot);
         else
             ui->newContactWidget->tuneDx(alert.getDxSpot());
     });

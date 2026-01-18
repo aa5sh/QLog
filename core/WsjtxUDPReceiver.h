@@ -55,7 +55,10 @@ signals:
     void addContact(QSqlRecord);
 
 public slots:
-    void startReply(WsjtxEntry);
+    void sendReply(const WsjtxEntry&);
+    void sendHighlightCallsign(const WsjtxEntry&);
+    void sendClearHighlightCallsign(const WsjtxEntry&);
+    void sendClearAllHighlightCallsign();
     void reloadSetting();
 
 private slots:
@@ -71,11 +74,21 @@ private:
 
     UpdatableSQLRecord wsjtSQLRecord;
 
-    static int DEFAULT_PORT;
-    static QString CONFIG_MULTICAST_TTL;
+    static const int DEFAULT_PORT = 2237;
+    const quint32 UDP_MAGIC_NUMBER = 0xadbccbda;
+    const quint32 UDP_DEFAULT_SCHEMA_VERSION = 3;
+    enum UDP_COMMANDS
+    {
+        REPLY_CMD = quint32(4),
+        HIGHLIGHT_CALLSIGN_CMD = quint32(13),
+    };
 
     void openPort();
     void forwardDatagram(const QNetworkDatagram &);
+    void sendHighlightCallsignColor(const WsjtxEntry &entry,
+                                    const QColor &fgColor,
+                                    const QColor &bgColor,
+                                    bool highlightLast = true);
 };
 
 #endif // QLOG_CORE_WSJTXUDPRECEIVER_H

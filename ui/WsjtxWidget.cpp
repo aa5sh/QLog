@@ -170,6 +170,7 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
 
                 wsjtxTableModel->addOrReplaceEntry(entry);
                 emit filteredCQSpot(entry);
+                emit updatedCQSpot(entry);
             }
         }
     }
