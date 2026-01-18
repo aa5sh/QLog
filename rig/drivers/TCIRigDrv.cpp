@@ -692,7 +692,7 @@ void TCIRigDrv::rspDRIVE(const QStringList &cmdArgs)
     FCT_IDENTIFICATION;
 
     // arg0 - rigid
-    // arg1 - power output (in watts)
+    // arg1 - power output (in % of max - 0 - 100%)
     CHECK_PARAMS_COUNT(cmdArgs.size(), 2);
 
     if ( !rigProfile.getPWRInfo )
@@ -705,10 +705,13 @@ void TCIRigDrv::rspDRIVE(const QStringList &cmdArgs)
     }
 
     bool ok;
-    unsigned int rigPower = cmdArgs.at(1).toUInt(&ok);
+    unsigned int powerLevel = cmdArgs.at(1).toUInt(&ok);
 
     if ( ok )
     {
+        // max power is set via Setting Rig Default PWR
+        double maxPower = (rigProfile.defaultPWR > 0.0) ? rigProfile.defaultPWR : 100.0;
+        const double rigPower = qRound(maxPower * powerLevel * 0.01 * 1000.0) / 1000.0;
         qCDebug(runtime) << "Rig PWR" << rigPower;
         qCDebug(runtime) << "emitting PWR changed";
         emit powerChanged(rigPower);
