@@ -55,7 +55,7 @@ signals:
     void addContact(QSqlRecord);
 
 public slots:
-    void startReply(WsjtxDecode);
+    void startReply(WsjtxEntry);
     void reloadSetting();
 
 private slots:

@@ -551,9 +551,11 @@ void WsjtxUDPReceiver::insertContact(WsjtxLogADIF log)
     //emit addContact(record);
 }
 
-void WsjtxUDPReceiver::startReply(WsjtxDecode decode)
+void WsjtxUDPReceiver::startReply(WsjtxEntry entry)
 {
     FCT_IDENTIFICATION;
+
+    const WsjtxDecode &decode = entry.decode;
 
     qCDebug(function_parameters) << decode;
 
@@ -563,9 +565,9 @@ void WsjtxUDPReceiver::startReply(WsjtxDecode decode)
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::ReadWrite);
-    stream << static_cast<quint32>(0xadbccbda);
-    stream << static_cast<quint32>(3);
-    stream << static_cast<quint32>(4);
+    stream << quint32(0xadbccbda);
+    stream << quint32(3);
+    stream << quint32(4);
     stream << decode.id.toUtf8();
     stream << decode.time;
     stream << decode.snr;
@@ -574,7 +576,7 @@ void WsjtxUDPReceiver::startReply(WsjtxDecode decode)
     stream << decode.mode.toUtf8();
     stream << decode.message.toUtf8();
     stream << decode.low_confidence;
-    stream << static_cast<quint8>(0);
+    stream << quint8(0);
 
     socket->writeDatagram(data, wsjtxAddress, wsjtxPort);
 }

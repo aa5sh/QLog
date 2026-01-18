@@ -991,7 +991,7 @@ void MainWindow::processSpotAlert(SpotAlert alert)
     alertTextButtonConn = connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
     {
         if ( alert.source == SpotAlert::WSJTXCQSPOT )
-            wsjtx->startReply(alert.spot.decode);
+            wsjtx->startReply(alert.spot);
         else
             ui->newContactWidget->tuneDx(alert.getDxSpot());
     });

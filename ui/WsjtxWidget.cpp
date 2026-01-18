@@ -224,21 +224,21 @@ void WsjtxWidget::tableViewDoubleClicked(QModelIndex index)
 
     const QModelIndex &source_index = proxyModel->mapToSource(index);
 
-    const WsjtxEntry &entry = wsjtxTableModel->getEntry(source_index);
+    const WsjtxEntry entry = wsjtxTableModel->getEntry(source_index);
     //emit callsignSelected(entry.callsign, entry.grid); // it is not needed to send this - Qlog receives the change via WSJTX
-    emit reply(entry.decode);
+    emit reply(entry);
 }
 
 void WsjtxWidget::callsignClicked(QString callsign)
 {
     FCT_IDENTIFICATION;
 
-    const WsjtxEntry &entry = wsjtxTableModel->getEntry(callsign);
+    const WsjtxEntry entry = wsjtxTableModel->getEntry(callsign);
     if ( entry.callsign.isEmpty() )
         return;
 
     emit callsignSelected(callsign, entry.grid, entry.decode.id);
-    emit reply(entry.decode);
+    emit reply(entry);
 }
 
 void WsjtxWidget::tableViewClicked(QModelIndex)
