@@ -242,7 +242,11 @@ HEADERS += \
         data/WCYSpot.h \
         data/WWFFEntity.h \
         data/WWVSpot.h \
+        data/WsjtxDecode.h \
         data/WsjtxEntry.h \
+        data/WsjtxLog.h \
+        data/WsjtxLogADIF.h \
+        data/WsjtxStatus.h \
         logformat/AdiFormat.h \
         logformat/AdxFormat.h \
         logformat/CSVFormat.h \

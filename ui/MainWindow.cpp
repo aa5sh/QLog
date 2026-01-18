@@ -35,6 +35,7 @@
 #include "ui/UploadQSODialog.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
+#include "data/WsjtxEntry.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 

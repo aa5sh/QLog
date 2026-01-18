@@ -10,6 +10,7 @@
 #include "component/ShutdownAwareWidget.h"
 
 #include "core/LogLocale.h"
+#include "data/WsjtxStatus.h"
 
 namespace Ui {
 class WsjtxWidget;

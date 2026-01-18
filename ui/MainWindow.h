@@ -15,6 +15,7 @@ class MainWindow;
 }
 
 class QLabel;
+class WsjtxUDPReceiver;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT

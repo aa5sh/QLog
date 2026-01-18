@@ -1,5 +1,6 @@
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlRecord>
 
 #include "AlertEvaluator.h"
 #include "debug.h"

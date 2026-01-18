@@ -1,4 +1,6 @@
 #include <QColor>
+#include <QSqlRecord>
+
 #include "AlertTableModel.h"
 #include "data/Data.h"
 #include "rig/macros.h"

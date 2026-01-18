@@ -16,6 +16,7 @@
 #include "data/BandPlan.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
+#include "core/WsjtxUDPReceiver.h"
 
 MODULE_IDENTIFICATION("qlog.ui.wsjtxswidget");
 

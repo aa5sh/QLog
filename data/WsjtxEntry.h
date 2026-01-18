@@ -1,7 +1,7 @@
 #ifndef QLOG_DATA_WSJTXENTRY_H
 #define QLOG_DATA_WSJTXENTRY_H
 
-#include "core/WsjtxUDPReceiver.h"
+#include "data/WsjtxDecode.h"
 #include "data/DxSpot.h"
 
 class WsjtxEntry : public DxSpot
