@@ -3,7 +3,7 @@ TBC - 0.48.0
 - [NEW] - Awards - Added User Filter Combo (issue #870)
 - [NEW] - Statistics - Added User Filter; new Dialog layout (issue #870)
 - [NEW] - Alerts - Added detailed Log Status settings (issue #817)
-- [NEW] - WSJTX - Add callsign highlighting for decoded CQ WSJT-X messages (issue #885)
+- [NEW] - WSJTX - Add callsign highlighting for decoded CQ WSJT-X messages (issue #885 @aa5sh @foldynl)
 - [CHANGED] - Omnirig Drivers: Removed QT AXContainers - pure Windows API code
 - [CHANGED] - Enabled Chekbox in Alerts Table (issue #867)
 - [CHANGED] - Serial Port Completer contains Horizontal ScrollBar
