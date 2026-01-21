@@ -1,0 +1,287 @@
+name: macOS Release Build (Qt6 + WebEngine fixed)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+
+jobs:
+  macos:
+    runs-on: macos-latest
+
+    env:
+      APP_NAME: QLog
+      APP_BUNDLE: QLog.app
+      BIN_NAME: qlog
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install build deps (Homebrew)
+        run: |
+          set -euo pipefail
+          unset HOMEBREW_NO_INSTALL_FROM_API
+          brew update
+          brew upgrade || true
+
+          brew install qt6
+          brew link qt6 --force
+
+          brew install qtkeychain dbus-glib brotli icu4c pkg-config autoconf automake libtool libusb
+          echo "Qt bin: $(brew --prefix qt6)/bin"
+          echo "$(brew --prefix qt6)/bin" >> "$GITHUB_PATH"
+
+      - name: Build Hamlib (Hamlib-4.7) to /usr/local
+        run: |
+          set -euo pipefail
+          rm -rf hamlib-src
+          git clone https://github.com/Hamlib/Hamlib.git hamlib-src
+          cd hamlib-src
+          git fetch origin --prune
+          git switch -C Hamlib-4.7 origin/Hamlib-4.7
+          git reset --hard origin/Hamlib-4.7
+
+          ./bootstrap
+          ./configure --prefix=/usr/local
+          make -j"$(sysctl -n hw.logicalcpu)"
+          sudo make install
+
+          echo "Hamlib installed to /usr/local"
+          ls -l /usr/local/lib | grep -i hamlib || true
+
+      - name: Configure + build (qmake)
+        run: |
+          set -euo pipefail
+
+          mkdir -p build
+          cd build
+
+          qmake ../qlog.pro \
+            HAMLIBINCLUDEPATH=/usr/local/include \
+            HAMLIBLIBPATH=/usr/local/lib \
+            HAMLIBVERSION_MAJOR=4 \
+            HAMLIBVERSION_MINOR=7 \
+            HAMLIBVERSION_PATCH=0
+
+          make -j"$(sysctl -n hw.logicalcpu)"
+
+      - name: macdeployqt + WebEngine + rpath fixes + bundle brotli
+        run: |
+          set -euo pipefail
+
+          QT_PREFIX="$(brew --prefix qt6)"
+          MACDEPLOYQT="$QT_PREFIX/bin/macdeployqt"
+
+          APP="$GITHUB_WORKSPACE/build/${APP_BUNDLE}"
+
+          "$MACDEPLOYQT" "$APP" \
+            -executable="$APP/Contents/MacOS/${BIN_NAME}" \
+            -qmldir="$GITHUB_WORKSPACE" \
+            -always-overwrite
+
+          # Ensure app Frameworks exists
+          mkdir -p "$APP/Contents/Frameworks"
+
+          # --- Fix main executable rpath (matches your local script) ---
+          APP_BIN="$APP/Contents/MacOS/${BIN_NAME}"
+          MAIN_RPATH="@executable_path/../Frameworks"
+          if ! otool -l "$APP_BIN" | grep -A2 LC_RPATH | grep -q "$MAIN_RPATH"; then
+            install_name_tool -add_rpath "$MAIN_RPATH" "$APP_BIN"
+          fi
+
+          # --- Fix QtWebEngineProcess rpaths + remove hardcoded Homebrew paths ---
+          QWEP="$APP/Contents/Frameworks/QtWebEngineCore.framework/Versions/A/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+
+          echo "QtWebEngineProcess deps BEFORE:"
+          otool -L "$QWEP" | sed 's/^/  /'
+
+          install_name_tool -add_rpath "@executable_path/../../../../Frameworks" "$QWEP" || true
+
+          # Rewrite any hardcoded Homebrew Qt framework references -> @rpath
+          while read -r dep; do
+            fw="$(basename "$dep")"
+            fwdir="$(basename "$(dirname "$(dirname "$(dirname "$dep")")")")"
+            install_name_tool -change "$dep" "@rpath/$fwdir/Versions/A/$fw" "$QWEP" || true
+          done < <(otool -L "$QWEP" | awk '{print $1}' | grep -E '^/opt/homebrew/opt/qt.*/lib/Qt.*\.framework/')
+
+          # Remove brew rpaths if present
+          install_name_tool -delete_rpath "/opt/homebrew/opt/qtbase/lib" "$QWEP" || true
+          install_name_tool -delete_rpath "/opt/homebrew/opt/qtdeclarative/lib" "$QWEP" || true
+
+          echo "QtWebEngineProcess deps AFTER:"
+          otool -L "$QWEP" | sed 's/^/  /'
+          otool -l "$QWEP" | grep -A2 LC_RPATH || true
+
+          # --- Bundle brotli dylibs (matches your local script intent) ---
+          cp /opt/homebrew/lib/libbrotli*.dylib "$APP/Contents/Frameworks/" || true
+
+          for lib in libbrotlicommon libbrotlidec libbrotlienc; do
+            if [ -f "$APP/Contents/Frameworks/$lib.1.dylib" ]; then
+              install_name_tool -id "@rpath/$lib.1.dylib" "$APP/Contents/Frameworks/$lib.1.dylib"
+            fi
+          done
+
+          if [ -f "$APP/Contents/Frameworks/libbrotlidec.1.dylib" ]; then
+            install_name_tool -change "/opt/homebrew/lib/libbrotlicommon.1.dylib" "@rpath/libbrotlicommon.1.dylib" \
+              "$APP/Contents/Frameworks/libbrotlidec.1.dylib" || true
+          fi
+          if [ -f "$APP/Contents/Frameworks/libbrotlienc.1.dylib" ]; then
+            install_name_tool -change "/opt/homebrew/lib/libbrotlicommon.1.dylib" "@rpath/libbrotlicommon.1.dylib" \
+              "$APP/Contents/Frameworks/libbrotlienc.1.dylib" || true
+          fi
+
+      - name: Codesign app bundle
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}            # base64 p12
+          MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}    # p12 password
+          MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}  # "Developer ID Application: ... (TEAMID)"
+          MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+        run: |
+          set -euo pipefail
+
+          APP="$GITHUB_WORKSPACE/build/${APP_BUNDLE}"
+          ENT="$GITHUB_WORKSPACE/entitlements.xml"
+          KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
+
+          security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+          security default-keychain -d user -s "$KEYCHAIN"
+
+          echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+
+          security find-identity -v -p codesigning "$KEYCHAIN" || true
+
+          # 1) Sign all Mach-O files (NO entitlements), excluding WebEngine helper binary
+          while IFS= read -r -d '' F; do
+            /usr/bin/codesign --force --timestamp --options runtime -s "$MACOS_CERTIFICATE_NAME" "$F"
+          done < <(
+            find "$APP" -type f -print0 | while IFS= read -r -d '' F; do
+              if file "$F" | grep -q "Mach-O"; then
+                if [[ "$F" == *"/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess" ]]; then
+                  continue
+                fi
+                printf '%s\0' "$F"
+              fi
+            done
+          )
+
+          # 2) Sign WebEngine helper binary WITH entitlements
+          mapfile -t WEBENGINE_BINS < <(find "$APP" -path "*QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess" -type f)
+          if [[ "${#WEBENGINE_BINS[@]}" -eq 0 ]]; then
+            echo "ERROR: no QtWebEngineProcess binary found"
+            exit 1
+          fi
+          for BIN in "${WEBENGINE_BINS[@]}"; do
+            /usr/bin/codesign --force --timestamp --options runtime \
+              --entitlements "$ENT" \
+              -s "$MACOS_CERTIFICATE_NAME" "$BIN"
+          done
+
+          # 3) Sign WebEngine helper .app WITH entitlements
+          mapfile -t WEBENGINE_APPS < <(find "$APP" -path "*QtWebEngineProcess.app" -type d)
+          for HAPP in "${WEBENGINE_APPS[@]}"; do
+            /usr/bin/codesign --force --timestamp --options runtime \
+              --entitlements "$ENT" \
+              -s "$MACOS_CERTIFICATE_NAME" "$HAPP"
+          done
+
+          # 4) Sign top-level app WITH entitlements
+          /usr/bin/codesign --force --timestamp --options runtime \
+            --entitlements "$ENT" \
+            -s "$MACOS_CERTIFICATE_NAME" "$APP"
+
+          /usr/bin/codesign --verify --deep --strict --verbose=4 "$APP"
+          spctl -a -t exec -vv "$APP"
+
+      - name: Notarize app bundle (zip)
+        env:
+          PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+          PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+        run: |
+          set -euo pipefail
+
+          APP="$GITHUB_WORKSPACE/build/${APP_BUNDLE}"
+
+          xcrun notarytool store-credentials "notarytool-profile" \
+            --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" \
+            --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" \
+            --password "$PROD_MACOS_NOTARIZATION_PWD"
+
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "QLog.zip"
+
+          xcrun notarytool submit "QLog.zip" \
+            --keychain-profile "notarytool-profile" \
+            --wait
+
+          xcrun stapler staple "$APP"
+          xcrun stapler validate "$APP"
+
+      - name: Create DMG (match local naming: "QLog vX.Y.Z.dmg")
+        run: |
+          set -euo pipefail
+
+          # Prefer VERSION from qlog.pro (your local script does this)
+          VERSION="$(grep -E '^VERSION\s*=' qlog.pro | awk -F'=' '{print $2}' | tr -d '[:space:]' || true)"
+          if [[ -z "${VERSION:-}" ]]; then
+            # fallback to tag-like version
+            TAGVERSION="$(git describe --tags || echo unknown)"
+            VERSION="${TAGVERSION#v}"
+            VERSION="${VERSION%%-*}"
+          fi
+
+          DMG_NAME="QLog v${VERSION}.dmg"
+          echo "DMG_NAME=$DMG_NAME" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+          rm -rf dmg-staging
+          mkdir -p dmg-staging
+          cp -R "$GITHUB_WORKSPACE/build/${APP_BUNDLE}" dmg-staging/
+          ln -s /Applications dmg-staging/Applications
+
+          hdiutil create \
+            -volname "$DMG_NAME" \
+            -srcfolder dmg-staging \
+            -ov -format UDZO \
+            "$GITHUB_WORKSPACE/build/$DMG_NAME"
+
+          ls -lh "$GITHUB_WORKSPACE/build/$DMG_NAME"
+
+      - name: Notarize + staple DMG
+        env:
+          PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+          PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+        run: |
+          set -euo pipefail
+
+          DMG="$GITHUB_WORKSPACE/build/$DMG_NAME"
+          test -f "$DMG"
+
+          xcrun notarytool store-credentials "notarytool-profile" \
+            --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" \
+            --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" \
+            --password "$PROD_MACOS_NOTARIZATION_PWD"
+
+          ditto -c -k "$DMG" "dmg_notarize.zip"
+
+          xcrun notarytool submit "dmg_notarize.zip" \
+            --keychain-profile "notarytool-profile" \
+            --wait
+
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QLog-macos-${{ env.VERSION }}
+          path: ${{ github.workspace }}/build/${{ env.DMG_NAME }}
