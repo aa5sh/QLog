@@ -495,42 +495,42 @@
 <context>
     <name>AlertTableModel</name>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="62"/>
+        <location filename="../models/AlertTableModel.cpp" line="64"/>
         <source>Rule Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="63"/>
+        <location filename="../models/AlertTableModel.cpp" line="65"/>
         <source>Callsign</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="64"/>
+        <location filename="../models/AlertTableModel.cpp" line="66"/>
         <source>Frequency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="65"/>
+        <location filename="../models/AlertTableModel.cpp" line="67"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="66"/>
+        <location filename="../models/AlertTableModel.cpp" line="68"/>
         <source>Updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="67"/>
+        <location filename="../models/AlertTableModel.cpp" line="69"/>
         <source>Last Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="68"/>
+        <location filename="../models/AlertTableModel.cpp" line="70"/>
         <source>Last Comment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/AlertTableModel.cpp" line="69"/>
+        <location filename="../models/AlertTableModel.cpp" line="71"/>
         <source>Member</source>
         <translation type="unfinished"></translation>
     </message>
@@ -736,62 +736,62 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="172"/>
+        <location filename="../ui/AwardsDialog.cpp" line="173"/>
         <source>DELETED</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="222"/>
+        <location filename="../ui/AwardsDialog.cpp" line="223"/>
         <source>North America</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="223"/>
+        <location filename="../ui/AwardsDialog.cpp" line="224"/>
         <source>South America</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="224"/>
+        <location filename="../ui/AwardsDialog.cpp" line="225"/>
         <source>Europe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="225"/>
+        <location filename="../ui/AwardsDialog.cpp" line="226"/>
         <source>Africa</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="226"/>
+        <location filename="../ui/AwardsDialog.cpp" line="227"/>
         <source>Oceania</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="227"/>
+        <location filename="../ui/AwardsDialog.cpp" line="228"/>
         <source>Asia</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="228"/>
+        <location filename="../ui/AwardsDialog.cpp" line="229"/>
         <source>Antarctica</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="418"/>
+        <location filename="../ui/AwardsDialog.cpp" line="416"/>
         <source>TOTAL Worked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="425"/>
+        <location filename="../ui/AwardsDialog.cpp" line="423"/>
         <source>TOTAL Confirmed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="427"/>
+        <location filename="../ui/AwardsDialog.cpp" line="425"/>
         <source>Confirmed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AwardsDialog.cpp" line="434"/>
+        <location filename="../ui/AwardsDialog.cpp" line="432"/>
         <source>Worked</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6298,7 +6298,7 @@
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="124"/>
-        <location filename="../ui/MainWindow.cpp" line="1458"/>
+        <location filename="../ui/MainWindow.cpp" line="1462"/>
         <source>Contest</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6673,84 +6673,84 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="58"/>
+        <location filename="../ui/MainWindow.cpp" line="59"/>
         <source>Color Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="81"/>
+        <location filename="../ui/MainWindow.cpp" line="82"/>
         <source>Not enabled for non-Fusion style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="156"/>
+        <location filename="../ui/MainWindow.cpp" line="157"/>
         <source>Press to tune the alert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="400"/>
+        <location filename="../ui/MainWindow.cpp" line="404"/>
         <source>Clublog Immediately Upload Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="620"/>
-        <location filename="../ui/MainWindow.cpp" line="630"/>
-        <location filename="../ui/MainWindow.cpp" line="640"/>
+        <location filename="../ui/MainWindow.cpp" line="624"/>
+        <location filename="../ui/MainWindow.cpp" line="634"/>
+        <location filename="../ui/MainWindow.cpp" line="644"/>
         <source>&lt;b&gt;Error Detail:&lt;/b&gt; </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="664"/>
+        <location filename="../ui/MainWindow.cpp" line="668"/>
         <source>op: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="841"/>
+        <location filename="../ui/MainWindow.cpp" line="845"/>
         <source>A New Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="842"/>
+        <location filename="../ui/MainWindow.cpp" line="846"/>
         <source>A new version %1 is available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="846"/>
+        <location filename="../ui/MainWindow.cpp" line="850"/>
         <source>Remind Me Later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="847"/>
+        <location filename="../ui/MainWindow.cpp" line="851"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1207"/>
+        <location filename="../ui/MainWindow.cpp" line="1211"/>
         <source>Classic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1459"/>
+        <location filename="../ui/MainWindow.cpp" line="1463"/>
         <source>Do you want to remove the Contest filter %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1490"/>
+        <location filename="../ui/MainWindow.cpp" line="1494"/>
         <source>Contest: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1668"/>
+        <location filename="../ui/MainWindow.cpp" line="1672"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1699"/>
+        <location filename="../ui/MainWindow.cpp" line="1703"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1750"/>
+        <location filename="../ui/MainWindow.cpp" line="1754"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7451,9 +7451,9 @@
         <location filename="../core/Migration.cpp" line="424"/>
         <location filename="../ui/ExportDialog.cpp" line="130"/>
         <location filename="../ui/ImportDialog.cpp" line="240"/>
-        <location filename="../ui/MainWindow.cpp" line="618"/>
-        <location filename="../ui/MainWindow.cpp" line="628"/>
-        <location filename="../ui/MainWindow.cpp" line="638"/>
+        <location filename="../ui/MainWindow.cpp" line="622"/>
+        <location filename="../ui/MainWindow.cpp" line="632"/>
+        <location filename="../ui/MainWindow.cpp" line="642"/>
         <location filename="../ui/NewContactWidget.cpp" line="1352"/>
         <location filename="../ui/SettingsDialog.cpp" line="317"/>
         <location filename="../ui/SettingsDialog.cpp" line="327"/>
@@ -7650,17 +7650,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="619"/>
+        <location filename="../ui/MainWindow.cpp" line="623"/>
         <source>&lt;b&gt;Rig Error:&lt;/b&gt; </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="629"/>
+        <location filename="../ui/MainWindow.cpp" line="633"/>
         <source>&lt;b&gt;Rotator Error:&lt;/b&gt; </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="639"/>
+        <location filename="../ui/MainWindow.cpp" line="643"/>
         <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt; </source>
         <translation type="unfinished"></translation>
     </message>
@@ -8962,17 +8962,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../ui/RigWidget.ui" line="193"/>
+        <source>Disconnected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../ui/RigWidget.ui" line="199"/>
         <source> MHz</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="219"/>
+        <location filename="../ui/RigWidget.ui" line="222"/>
         <source>RIT: 0.00000 MHz</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="226"/>
+        <location filename="../ui/RigWidget.ui" line="229"/>
         <source>XIT: 0.00000 MHz</source>
         <translation type="unfinished"></translation>
     </message>
