@@ -190,7 +190,7 @@
         <enum>QAbstractSpinBox::NoButtons</enum>
        </property>
        <property name="specialValueText">
-        <string notr="true">Disconnected</string>
+        <string>Disconnected</string>
        </property>
        <property name="showGroupSeparator" stdset="0">
         <bool>false</bool>
