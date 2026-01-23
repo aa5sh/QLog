@@ -112,19 +112,7 @@ OmnirigV2RigDrv::OmnirigV2RigDrv(const RigProfile &profile,
         emitDisconnect();
     });
 
-    // COM: creating OmniRigX via ProgID
-    CLSID clsidOmniRigX;
-
-    hr = CLSIDFromProgID(L"OmniRig.OmniRigX", &clsidOmniRigX);
-
-    if ( FAILED(hr) )
-    {
-        qCWarning(runtime) << "CLSIDFromProgID(OmniRig.OmniRigX) failed, hr =" << QString::number(hr, 16);
-        lastErrorText = tr("Initialization Error");
-        return;
-    }
-
-    hr = CoCreateInstance(clsidOmniRigX,
+    hr = CoCreateInstance(__uuidof(OmnirigV2::OmniRigX),
                           nullptr,
                           CLSCTX_LOCAL_SERVER,
                           __uuidof(OmnirigV2::IOmniRigX),
@@ -586,7 +574,7 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
     else
     {
         qCDebug(runtime) << "Getting VFO A Freq";
-        rig->get_FreqB(&tmp);
+        rig->get_FreqA(&tmp);
         if ( !tmp )
         {
             qCDebug(runtime) << "FreqA returned 0, falling back to Freq()";
@@ -829,7 +817,7 @@ void OmnirigV2RigDrv::emitDisconnect()
 
 void OmnirigV2RigDrv::commandSleep()
 {
-    QThread::msleep(100);
+    QThread::msleep(200);
 }
 
 const QString OmnirigV2RigDrv::getModeNormalizedText(const QString &rawMode,

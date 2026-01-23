@@ -108,19 +108,7 @@ OmnirigRigDrv::OmnirigRigDrv(const RigProfile &profile,
         emitDisconnect();
     });
 
-    // COM: creating OmniRigX via ProgID
-    CLSID clsidOmniRigX;
-
-    hr = CLSIDFromProgID(L"OmniRig.OmniRigX", &clsidOmniRigX);
-
-    if ( FAILED(hr) )
-    {
-        qCWarning(runtime) << "CLSIDFromProgID(OmniRig.OmniRigX) failed, hr =" << QString::number(hr, 16);
-        lastErrorText = tr("Initialization Error");
-        return;
-    }
-
-    hr = CoCreateInstance(clsidOmniRigX,
+    hr = CoCreateInstance(__uuidof(OmnirigV1::OmniRigX),
                           nullptr,
                           CLSCTX_LOCAL_SERVER,
                           __uuidof(OmnirigV1::IOmniRigX),
