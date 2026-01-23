@@ -66,8 +66,6 @@ AwardsDialog::~AwardsDialog()
     FCT_IDENTIFICATION;
 
     delete ui;
-    detailedViewModel->deleteLater();
-    entityCallsignModel->deleteLater();
 }
 
 void AwardsDialog::refreshTable(int)
@@ -459,55 +457,22 @@ void AwardsDialog::awardTableDoubleClicked(QModelIndex idx)
     {
         QString band;
         QString country;
-        if ( awardSelected == "dxcc" )
-        {
-            country = detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString();
-        }
-        else if ( awardSelected == "itu" )
-        {
-            addlFilters << QString("ituz = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "iota" )
-        {
-            addlFilters << QString("iota = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "wac" )
-        {
-            addlFilters << QString("cont = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),2),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "was" )
-        {
-            addlFilters << QString("state = '%1' and dxcc in (6, 110, 291)").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),2),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "waz" )
-        {
-            addlFilters << QString("cqz = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "wpx" )
-        {
-            addlFilters << QString("pfx = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "potah" )
-        {
-            addlFilters << QString("pota_ref LIKE '%%1%'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "potaa" )
-        {
-            addlFilters << QString("my_pota_ref LIKE = '%%1%'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "sota" )
-        {
-            addlFilters << QString("sota_ref = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
-        else if ( awardSelected == "wwff" )
-        {
-            addlFilters << QString("wwff_ref = '%1'").arg(detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString());
-        }
+        const QString col1Value = detailedViewModel->data(detailedViewModel->index(idx.row(),1),Qt::DisplayRole).toString();
+        const QString col2Value = detailedViewModel->data(detailedViewModel->index(idx.row(),2),Qt::DisplayRole).toString();
 
-        if ( idx.column() > 2 )
-        {
-            band = detailedViewModel->headerData( idx.column(), Qt::Horizontal ).toString();
-        }
+        if ( awardSelected == "dxcc" ) country = col1Value;
+        else if ( awardSelected == "itu" )   addlFilters << QString("ituz = '%1'").arg(col1Value);
+        else if ( awardSelected == "iota" )  addlFilters << QString("iota = '%1'").arg(col1Value);
+        else if ( awardSelected == "wac" )   addlFilters << QString("cont = '%1'").arg(col2Value);
+        else if ( awardSelected == "was" )   addlFilters << QString("state = '%1' and dxcc in (6, 110, 291)").arg(col2Value);
+        else if ( awardSelected == "waz" )   addlFilters << QString("cqz = '%1'").arg(col1Value);
+        else if ( awardSelected == "wpx" )   addlFilters << QString("pfx = '%1'").arg(col1Value);
+        else if ( awardSelected == "potah" ) addlFilters << QString("pota_ref LIKE '%%1%'").arg(col1Value);
+        else if ( awardSelected == "potaa" ) addlFilters << QString("my_pota_ref LIKE = '%%1%'").arg(col1Value);
+        else if ( awardSelected == "sota" )  addlFilters << QString("sota_ref = '%1'").arg(col1Value);
+        else if ( awardSelected == "wwff" )  addlFilters << QString("wwff_ref = '%1'").arg(col1Value);
+
+        if ( idx.column() > 2 ) band = detailedViewModel->headerData( idx.column(), Qt::Horizontal ).toString();
 
         emit AwardConditionSelected(country, band, QString("(") + addlFilters.join(" and ") + QString(")"));
     }
@@ -519,18 +484,18 @@ const QString AwardsDialog::getSelectedEntity() const
 
     int row = ui->myEntityComboBox->currentIndex();
     const QModelIndex &idx = ui->myEntityComboBox->model()->index(row,0);
-    const QVariant &comboData = ui->myEntityComboBox->model()->data(idx);
+    const QString comboData = ui->myEntityComboBox->model()->data(idx).toString();
 
-    qCDebug(runtime) << comboData.toString();
+    qCDebug(runtime) << comboData;
 
-    return comboData.toString();
+    return comboData;
 }
 
 const QString AwardsDialog::getSelectedAward() const
 {
     FCT_IDENTIFICATION;
 
-    QString ret = ui->awardComboBox->itemData(ui->awardComboBox->currentIndex()).toString();
+    const QString ret = ui->awardComboBox->itemData(ui->awardComboBox->currentIndex()).toString();
     qCDebug(runtime) << ret;
     return ret;
 }
