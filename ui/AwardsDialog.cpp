@@ -157,9 +157,12 @@ void AwardsDialog::refreshTable(int)
     stmt_any_worked << " MAX(d.'SAT') > 0"
                     << " MAX(d.'EME') > 0";
 
-    sourceContactsTable = " source_contacts AS ("
-                          "  SELECT * "
-                          "  FROM contacts )";
+    const QString addlContactFilter = ( ui->userFilterComboBox->currentIndex() > 0 ) ? "AND " + QSOFilterManager::instance()->getWhereClause(ui->userFilterComboBox->currentText())
+                                                                                     : "";
+    sourceContactsTable = QString(" source_contacts AS "
+                                  " (SELECT * "
+                                  "  FROM contacts "
+                                  "  WHERE 1=1 %1 ) ").arg(addlContactFilter);
 
     if ( awardSelected == "dxcc" )
     {
@@ -296,7 +299,7 @@ void AwardsDialog::refreshTable(int)
                     "   SELECT id, callsign, station_callsign, my_dxcc, band, "
                     "          dxcc, eqsl_qsl_rcvd, lotw_qsl_rcvd, qsl_rcvd,prop_mode,mode, "
                     "          '', pota_ref||',' "
-                    "   FROM contacts "
+                    "   FROM contacts WHERE 1=1 " + addlContactFilter +
                     "   UNION ALL "
                     "   SELECT id, callsign, station_callsign, my_dxcc, band, "
                     "          dxcc, eqsl_qsl_rcvd, lotw_qsl_rcvd, qsl_rcvd,prop_mode,mode, "
@@ -321,7 +324,7 @@ void AwardsDialog::refreshTable(int)
                     "   SELECT id, callsign, station_callsign, my_dxcc, band, "
                     "          dxcc, eqsl_qsl_rcvd, lotw_qsl_rcvd, qsl_rcvd,prop_mode,mode, "
                     "          '', my_pota_ref||',' "
-                    "   FROM contacts "
+                    "   FROM contacts WHERE 1=1 " + addlContactFilter +
                     "   UNION ALL "
                     "   SELECT id, callsign, station_callsign, my_dxcc, band, "
                     "          dxcc, eqsl_qsl_rcvd, lotw_qsl_rcvd, qsl_rcvd, prop_mode, mode, "
@@ -353,9 +356,6 @@ void AwardsDialog::refreshTable(int)
                           "     INNER JOIN source_contacts c ON c.wwff_ref = w.reference "
                           "     INNER JOIN modes m on c.mode = m.name ";
     }
-
-    if ( ui->userFilterComboBox->currentIndex() > 0 )
-        addWherePart += " AND " + QSOFilterManager::instance()->getWhereClause(ui->userFilterComboBox->currentText(), "c");
 
     qCDebug(runtime) << "addWherePart" << addWherePart;
 
