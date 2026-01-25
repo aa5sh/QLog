@@ -24,9 +24,9 @@ public:
     explicit MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    void closeEvent(QCloseEvent* event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
     QList<QAction *> getUserDefinedShortcutActionList();
     QStringList getBuiltInStaticShortcutList() const;
@@ -116,8 +116,9 @@ private:
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
     QMetaObject::Connection alertTextButtonConn;
-
+    bool firstRun = false;
     void setupActivitiesMenu();
+
 
     void restoreUserDefinedShortcuts();
     void saveUserDefinedShortcuts();
@@ -135,6 +136,8 @@ private:
     bool setNativeTheme();
     void setLightTheme();
     void setDarkTheme();
+
+    void showEvent(QShowEvent *event) override;
 };
 
 #endif // QLOG_UI_MAINWINDOW_H

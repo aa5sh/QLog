@@ -407,7 +407,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(clublogRT, &ClubLogUploader::uploadedQSO, ui->logbookWidget, &LogbookWidget::updateTable);
 
     if ( StationProfilesManager::instance()->profileNameList().isEmpty() )
-        showSettings();
+        firstRun = true;
     else
         MembershipQE::instance()->updateLists();
 
@@ -884,6 +884,19 @@ void MainWindow::setDarkTheme()
     darkPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, disabledColor);
 
     qApp->setPalette(darkPalette);
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+    FCT_IDENTIFICATION;
+
+    QMainWindow::showEvent(event);
+
+    if ( firstRun )
+    {
+        firstRun = false;
+        showSettings();
+    }
 }
 
 void MainWindow::setLightTheme()
