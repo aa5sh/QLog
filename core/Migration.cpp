@@ -409,9 +409,10 @@ void Migration::updateExternalResourceProgress(QProgressDialog& progress,
         stringInfo = tr("List of Values");
     }
 
+    progress.setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
     progress.setLabelText(tr("Updating ") + stringInfo + " " + counter +" ...");
     progress.setMinimum(0);
-
+    progress.setModal(true);
     progress.show();
 
     downloader.update(sourceType);
