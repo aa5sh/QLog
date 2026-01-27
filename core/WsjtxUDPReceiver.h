@@ -34,6 +34,8 @@ public:
     static QString getConfigMulticastAddress();
     static void saveConfigMulticastTTL(int);
     static int getConfigMulticastTTL();
+    static bool getConfigOutputColorCQSpot();
+    static void saveConfigOutputColorCQSpot(bool);
 
     // identification of different variants of the WSJTX protocol based on packet ID
     static bool isJTDXId(const QString &id)
@@ -71,7 +73,7 @@ private:
     QUdpSocket* socket;
     QHostAddress wsjtxAddress;
     quint16 wsjtxPort;
-
+    bool isOutputColorCQSpotEnabled;
     UpdatableSQLRecord wsjtSQLRecord;
 
     static const int DEFAULT_PORT = 2237;

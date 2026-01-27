@@ -22,11 +22,13 @@ MODULE_IDENTIFICATION("qlog.core.wsjtx");
 
 WsjtxUDPReceiver::WsjtxUDPReceiver(QObject *parent) :
     QObject(parent),
-    socket(nullptr)
+    socket(new QUdpSocket(this)),
+    isOutputColorCQSpotEnabled(false)
 {
     FCT_IDENTIFICATION;
-    socket = new QUdpSocket(this);
-    openPort();
+
+    reloadSetting();
+
     connect(socket, &QUdpSocket::readyRead, this, &WsjtxUDPReceiver::readPendingDatagrams);
     connect(&wsjtSQLRecord, &UpdatableSQLRecord::recordReady, this, &WsjtxUDPReceiver::contactReady);
 }
@@ -222,6 +224,16 @@ int WsjtxUDPReceiver::getConfigMulticastTTL()
     FCT_IDENTIFICATION;
 
     return LogParam::getNetworkWsjtxListenerMulticastTTL();
+}
+
+bool WsjtxUDPReceiver::getConfigOutputColorCQSpot()
+{
+    return LogParam::getWsjtxOutputColorCQSpot();
+}
+
+void WsjtxUDPReceiver::saveConfigOutputColorCQSpot(bool status)
+{
+    LogParam::setWsjtxOutputColorCQSpot(status);
 }
 
 void WsjtxUDPReceiver::readPendingDatagrams()
@@ -659,11 +671,17 @@ void WsjtxUDPReceiver::sendHighlightCallsignColor(const WsjtxEntry &entry,
 {
     FCT_IDENTIFICATION;
 
+    if ( !socket ) return;
+
+    if ( !isOutputColorCQSpotEnabled )
+    {
+        qCDebug(runtime) << "HighlightCallsign is disabled";
+        return;
+    }
+
     const WsjtxDecode &decode = entry.decode;
 
     qCDebug(function_parameters) << decode << fgColor << bgColor << highlightLast;
-
-    if (!socket) return;
 
     /* sending to WSJT to UDP address, not multicast address because
      * WSJTX does not listen multicast address */
@@ -725,4 +743,5 @@ void WsjtxUDPReceiver::reloadSetting()
 {
     FCT_IDENTIFICATION;
     openPort();
+    isOutputColorCQSpotEnabled = getConfigOutputColorCQSpot();
 }

@@ -844,6 +844,16 @@ void LogParam::setWsjtxWidgetState(const QByteArray &state)
     setParam("wsjtx/widgetstate", state.toBase64());
 }
 
+bool LogParam::getWsjtxOutputColorCQSpot()
+{
+    return getParam("wsjtx/output/colorcqspot", false).toBool();
+}
+
+void LogParam::setWsjtxOutputColorCQSpot(bool state)
+{
+    setParam("wsjtx/output/colorcqspot", state);
+}
+
 uint LogParam::getDXCFilterDxccStatus()
 {
     return getParam("dxc/filter/dx/dxccstatus", (DxccStatus::NewEntity | DxccStatus::NewBand |
