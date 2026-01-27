@@ -43,14 +43,6 @@ LOVDownloader::LOVDownloader(QObject *parent) :
 LOVDownloader::~LOVDownloader()
 {
     FCT_IDENTIFICATION;
-
-    if ( currentReply )
-    {
-        currentReply->abort();
-        currentReply->deleteLater();
-    }
-
-    nam->deleteLater();
 }
 
 void LOVDownloader::update(const SourceType & sourceType)
