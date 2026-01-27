@@ -147,7 +147,7 @@ C:/Qt/6.4.1/msvc2019_64/bin/qmake.exe C:\Users\devel\development\QLog\QLog.pro -
 
 Prerequisites
 
-- [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
+- [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/)
 - QT with source codes (6.x, Qt Webengine, OpenSSL Toolkit)
 - [Omnirig v1](https://www.dxatlas.com/omnirig/)
 - [Omnirig v2](https://www.hb9ryz.ch/omnirig/)
