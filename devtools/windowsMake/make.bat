@@ -46,7 +46,7 @@ rem -- VC Compiler Settings
 set "VS_VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat"
 
 rem -- QT Settings
-set "QT_BASE=C:\Qt\6.10.1\msvc2022_64"
+set "QT_BASE=C:\Qt\6.10.2\msvc2022_64"
 set "QTIFW_BIN=C:\Qt\Tools\QtInstallerFramework\4.6\bin"
 set "JOM=C:\Qt\Tools\QtCreator\bin\jom\jom.exe"
 
