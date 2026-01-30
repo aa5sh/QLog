@@ -2439,6 +2439,7 @@ void SettingsDialog::readSettings()
     ui->wsjtMulticastCheckbox->setChecked(WsjtxUDPReceiver::getConfigMulticastJoin());
     ui->wsjtMulticastAddressEdit->setText(WsjtxUDPReceiver::getConfigMulticastAddress());
     ui->wsjtMulticastTTLSpin->setValue(WsjtxUDPReceiver::getConfigMulticastTTL());
+    ui->wsjtColorCqSpotsCheckbox->setChecked(WsjtxUDPReceiver::getConfigOutputColorCQSpot());
 
     ui->notifLogIDEdit->setText(LogParam::getLogID());
     ui->notifQSOEdit->setText(NetworkNotification::getNotifQSOAdiAddrs());
@@ -2571,7 +2572,7 @@ void SettingsDialog::writeSettings()
     WsjtxUDPReceiver::saveConfigMulticastJoin(ui->wsjtMulticastCheckbox->isChecked());
     WsjtxUDPReceiver::saveConfigMulticastAddress(ui->wsjtMulticastAddressEdit->text());
     WsjtxUDPReceiver::saveConfigMulticastTTL(ui->wsjtMulticastTTLSpin->value());
-
+    WsjtxUDPReceiver::saveConfigOutputColorCQSpot(ui->wsjtColorCqSpotsCheckbox->isChecked());
     NetworkNotification::saveNotifQSOAdiAddrs(ui->notifQSOEdit->text());
     NetworkNotification::saveNotifDXSpotAddrs(ui->notifDXSpotsEdit->text());
     NetworkNotification::saveNotifWSJTXCQSpotAddrs(ui->notifWSJTXCQSpotsEdit->text());

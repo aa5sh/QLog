@@ -20,7 +20,7 @@ public:
 private:
     Ui::DxFilterDialog *ui;
     QList<QCheckBox*> memberListCheckBoxes;
-
+    const quint8 MAXCOLUMNS = 6;
     void generateMembershipCheckboxes();
 
 };

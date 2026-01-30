@@ -22,6 +22,8 @@ namespace Ui {
 class QSODetailDialog;
 }
 
+class ModeSelectionController;
+
 class QSOEditMapperDelegate : public QItemDelegate
 {
         Q_OBJECT
@@ -151,6 +153,7 @@ private:
     QScopedPointer<QCompleter> wwffCompleter;
     QScopedPointer<QCompleter> myWWFFCompleter;
     QScopedPointer<QCompleter> sigCompleter;
+    QScopedPointer<ModeSelectionController> modeController;
     QWebChannel channel;
     MapWebChannelHandler layerControlHandler;
     LogLocale locale;

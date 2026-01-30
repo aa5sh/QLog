@@ -51,6 +51,25 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.48.0" date="2026-01-30">
+      <description>
+        <ul>
+          <li>[NEW] - Rig Widget - tuning rig with mouse (issue #855)</li>
+          <li>[NEW] - Awards - Added User Filter Combo (issue #870)</li>
+          <li>[NEW] - Statistics - Added User Filter; new Dialog layout (issue #870)</li>
+          <li>[NEW] - Alerts - Added detailed Log Status settings (issue #817)</li>
+          <li>[NEW] - Settings - Enable/Disable sending color-coded status indicators back to WSJT-X (issue #885 @aa5sh @foldynl)</li>
+          <li>[CHANGED] - Omnirig Drivers: Removed QT AXContainers - pure Windows API code</li>
+          <li>[CHANGED] - Enabled Chekbox in Alerts Table (issue #867)</li>
+          <li>[CHANGED] - Serial Port Completer contains Horizontal ScrollBar</li>
+          <li>[CHANGED] - TCI - Settings - Default PWR defines the maximum output power</li>
+          <li>Fixed Omnirig drivers keep sending frequency change (issue #872)</li>
+          <li>Fixed ADIF import does not accept a default operator name (issue #884)</li>
+          <li>Fixed HamQTH URL from http to https (PR #886 @aa5sh)</li>
+          <li>Fixed Missing Band value when QSO from FLDigi (issue #892)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.47.1" date="2025-12-19">
       <description>
         <ul>

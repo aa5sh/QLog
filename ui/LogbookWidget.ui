@@ -58,6 +58,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
            <property name="contextMenuPolicy">
             <enum>Qt::NoContextMenu</enum>
            </property>
@@ -114,7 +117,11 @@
         </widget>
        </item>
        <item>
-        <widget class="SmartSearchBox" name="modeSelectFilter" native="true"/>
+        <widget class="SmartSearchBox" name="modeSelectFilter" native="true">
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="SmartSearchBox" name="countrySelectFilter" native="true">

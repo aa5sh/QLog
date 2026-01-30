@@ -16,11 +16,9 @@
 #include "core/debug.h"
 #include "models/SqlListModel.h"
 #include "data/Gridsquare.h"
+#include "core/QSOFilterManager.h"
 
 MODULE_IDENTIFICATION("qlog.ui.statisticswidget");
-
-// default statistics interval [in days]
-#define DEFAULT_STAT_RANGE -1
 
 void StatisticsWidget::mainStatChanged(int idx)
 {
@@ -31,7 +29,6 @@ void StatisticsWidget::mainStatChanged(int idx)
      setSubTypesCombo(idx);
      refreshGraph();
 }
-
 
 void StatisticsWidget::refreshWidget()
 {
@@ -88,6 +85,9 @@ void StatisticsWidget::refreshGraph()
      if ( ui->useDateRangeCheckBox->isChecked() )
          genericFilter << " (datetime(start_time) BETWEEN datetime('" + ui->startDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss")
                           + "') AND datetime('" + ui->endDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "') ) ";
+
+     if ( ui->userFilterCombo->currentIndex() > 0 )
+         genericFilter <<  QSOFilterManager::instance()->getWhereClause(ui->userFilterCombo->currentText());
 
      qCDebug(runtime) << "main " << ui->statTypeMainCombo->currentIndex()
                       << " secondary " << ui->statTypeSecCombo->currentIndex();
@@ -250,8 +250,7 @@ void StatisticsWidget::refreshGraph()
          {
          case 0:  // Countries
              stmt = "SELECT translate_to_locale(COALESCE(d.name, c.dxcc)) as dxcc_display, COUNT(1) AS cnt "
-                    "FROM contacts c LEFT JOIN dxcc_entities_clublog d ON c.dxcc = d.id "
-                    "WHERE " + genericFilter.join(" AND ") + " "
+                    "FROM ( SELECT * FROM contacts WHERE " + genericFilter.join(" AND ") + ") c LEFT JOIN dxcc_entities_clublog d ON c.dxcc = d.id "
                     "GROUP BY dxcc_display ORDER BY cnt DESC LIMIT 10";
              break;
          case 1:  // Big squares
@@ -435,6 +434,8 @@ StatisticsWidget::StatisticsWidget(QWidget *parent) :
     ui->myRigCombo->setModel(new QStringListModel(this));
     ui->myAntennaCombo->setModel(new QStringListModel(this));
     ui->bandCombo->setModel(new QStringListModel(this));
+    ui->userFilterCombo->setModel(QSOFilterManager::QSOFilterModel(tr("No User Filter"),
+                                                                   ui->userFilterCombo));
 
     ui->startDateEdit->setDisplayFormat(locale.formatDateTimeShortWithYYYY());
     ui->startDateEdit->setDate(QDate::currentDate().addDays(DEFAULT_STAT_RANGE));
@@ -480,6 +481,9 @@ bool StatisticsWidget::event(QEvent *event)
         ui->myAntennaCombo->blockSignals(true);
         ui->myAntennaCombo->setCurrentIndex(0);
         ui->myAntennaCombo->blockSignals(false);
+        ui->userFilterCombo->blockSignals(true);
+        ui->userFilterCombo->setCurrentIndex(0);
+        ui->userFilterCombo->blockSignals(false);
         refreshGraph();
     }
     return QWidget::event(event);  // Propagate the event further
@@ -642,9 +646,12 @@ void StatisticsWidget::drawPointsOnMap(QSqlQuery &query)
 
     QString javaScript = QString("grids_confirmed = [];"
                                  "grids_worked = [];"
-                                 "drawPoints([%1]);"
-                                 "drawShortPaths([%2]);"
-                                 "maidenheadConfWorked.redraw();").arg(stations.join(","), shortPaths.join(","));
+                                 "drawPointsBusy([%1], '%2');"
+                                 "drawShortPathsBusy([%3], '%4');"
+                                 "maidenheadConfWorked.redraw();").arg(stations.join(","),
+                                                                       tr("Rendering QSOs..."),
+                                                                       shortPaths.join(","),
+                                                                       tr("Rendering QSOs..."));
 
     qCDebug(runtime) << javaScript;
 
@@ -675,8 +682,8 @@ void StatisticsWidget::drawFilledGridsOnMap(QSqlQuery &query)
     QString javaScript = QString("grids_confirmed = [ %1 ]; "
                                  "grids_worked = [ %2 ];"
                                  "mylocations = [];"
-                                 "drawPoints([]);"
-                                 "drawShortPaths([]);"
+                                 "drawPointsBusy([], '');"
+                                 "drawShortPathsBusy([], '');"
                                  "maidenheadConfWorked.redraw();").arg(confirmedGrids.join(","), workedGrids.join(","));
 
     qCDebug(runtime) << javaScript;
@@ -696,6 +703,8 @@ void StatisticsWidget::refreshCombos()
     refreshCombo(ui->myAntennaCombo, QLatin1String("SELECT DISTINCT my_antenna FROM contacts ORDER BY my_antenna"));
     refreshCombo(ui->bandCombo, QLatin1String("SELECT DISTINCT band FROM contacts c, bands b WHERE c.band = b.name ORDER BY b.start_freq;"));
     refreshCombo(ui->myGridCombo, QLatin1String("SELECT DISTINCT UPPER(my_gridsquare) FROM contacts ORDER BY my_gridsquare"));
+    SqlListModel *sqlModel = qobject_cast<SqlListModel*>(ui->userFilterCombo->model());
+    if ( sqlModel ) sqlModel->refresh();
 }
 
 void StatisticsWidget::setSubTypesCombo(int mainTypeIdx)

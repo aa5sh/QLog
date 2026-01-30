@@ -10,6 +10,7 @@
 #include "component/ShutdownAwareWidget.h"
 
 #include "core/LogLocale.h"
+#include "data/WsjtxStatus.h"
 
 namespace Ui {
 class WsjtxWidget;
@@ -38,9 +39,10 @@ private slots:
 
 signals:
     void callsignSelected(QString callsign, QString grid, QString id);
-    void reply(WsjtxDecode);
+    void reply(WsjtxEntry);
     void CQSpot(WsjtxEntry);
     void filteredCQSpot(WsjtxEntry);
+    void updatedCQSpot(WsjtxEntry);
     void spotsCleared();
     void frequencyChanged(VFOID, double, double, double);
     void modeChanged(VFOID, QString, QString, QString, qint32);

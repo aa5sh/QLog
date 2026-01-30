@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.47.1
+VERSION = 0.48.0
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -47,6 +47,7 @@ DEFINES += QT_DEPRECATED_WARNINGS QT_MESSAGELOGCONTEXT
 macx:QT_CONFIG -= no-pkg-config
 
 CONFIG += c++11 force_debug_info
+#CONFIG += sanitizer sanitize_address
 CONFIG *= link_pkgconfig
 
 SOURCES += \
@@ -158,6 +159,7 @@ SOURCES += \
         ui/MainWindow.cpp \
         ui/MapWebChannelHandler.cpp \
         ui/MapWidget.cpp \
+        ui/ModeSelectionController.cpp \
         ui/NewContactWidget.cpp \
         ui/OnlineMapWidget.cpp \
         ui/PaperQSLDialog.cpp \
@@ -240,7 +242,11 @@ HEADERS += \
         data/WCYSpot.h \
         data/WWFFEntity.h \
         data/WWVSpot.h \
+        data/WsjtxDecode.h \
         data/WsjtxEntry.h \
+        data/WsjtxLog.h \
+        data/WsjtxLogADIF.h \
+        data/WsjtxStatus.h \
         logformat/AdiFormat.h \
         logformat/AdxFormat.h \
         logformat/CSVFormat.h \
@@ -306,6 +312,7 @@ HEADERS += \
         ui/MainWindow.h \
         ui/MapWebChannelHandler.h \
         ui/MapWidget.h \
+        ui/ModeSelectionController.h \
         ui/NewContactWidget.h \
         ui/OnlineMapWidget.h \
         ui/PaperQSLDialog.h \
@@ -394,6 +401,7 @@ OTHER_FILES += \
 TRANSLATIONS = i18n/qlog_cs.ts \
                i18n/qlog_de.ts \
                i18n/qlog_es.ts \
+               i18n/qlog_fr.ts \
                i18n/qlog_it.ts \
                i18n/qlog_zh_CN.ts
 
@@ -512,19 +520,6 @@ macx: {
 }
 
 win32: {
-   QT += axcontainer
-   TYPELIBS = $$system($$[QT_INSTALL_BINS]/dumpcpp -getfile {4FE359C5-A58F-459D-BE95-CA559FB4F270})
-   isEmpty(TYPELIBS){
-       error("Omnirig v1 is not found - required")
-   }
-
-   !exists( $$OUT_PWD/OmniRig2.* ) {
-      OMNIRIG2 = $$system($$[QT_INSTALL_BINS]/dumpcpp {959819FF-B57B-468A-9F30-BBA6BE319987} -n OmniRigV2 -o $$OUT_PWD/OmniRig2)
-      isEmpty(OMNIRIG2){
-          error("Omnirig v2 is not found - required")
-      }
-   }
-
    INCLUDEPATH += \
         /usr/local/include \
         $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/
@@ -532,14 +527,13 @@ win32: {
    SOURCES += \
         rig/drivers/OmnirigRigDrv.cpp \
         rig/drivers/Omnirigv2RigDrv.cpp \
-        OmniRig2.cpp \
         $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.c
 
 
    HEADERS += \
         rig/drivers/OmnirigRigDrv.h \
         rig/drivers/Omnirigv2RigDrv.h \
-        OmniRig2.h \
+        rig/drivers/OmniRigEventSink.h \
         $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.h
 
    TARGET = qlog

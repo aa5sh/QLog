@@ -148,6 +148,6 @@ void MigrationSqlTest::migrateVersion()
     QCOMPARE(currentVersion(), targetVersion);
 }
 
-QTEST_APPLESS_MAIN(MigrationSqlTest)
+QTEST_MAIN(MigrationSqlTest)
 
 #include "tst_migration.moc"

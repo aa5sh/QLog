@@ -19,6 +19,7 @@
 #include <QTimeZone>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QAbstractItemView>
 
 #include "core/LogLocale.h"
 #include "data/Gridsquare.h"
@@ -379,13 +380,13 @@ class CheckBoxDelegate: public QItemDelegate
 {
     Q_OBJECT
 public:
-    CheckBoxDelegate(QObject *parent = nullptr ) : QItemDelegate(parent), theCheckBox(nullptr) {};
+    CheckBoxDelegate(QObject *parent = nullptr ) : QItemDelegate(parent) {};
 
     void paint( QPainter *painter,
                 const QStyleOptionViewItem &option,
                 const QModelIndex &index ) const
     {
-        bool is_enabled = index.model()->data(index, Qt::DisplayRole).toBool();
+        bool is_enabled = index.model()->data(index, Qt::EditRole).toBool();
         if ( !is_enabled) painter->fillRect(option.rect, option.palette.dark());
         drawDisplay(painter,option,option.rect,is_enabled? QString("     ").append(tr("Enabled"))
                                                          : QString("     ").append(tr("Disabled")));
@@ -394,50 +395,49 @@ public:
     };
 
     QWidget *createEditor( QWidget *parent,
-                        const QStyleOptionViewItem &option,
-                        const QModelIndex &index ) const
+                        const QStyleOptionViewItem &,
+                        const QModelIndex &) const
     {
-        (void)option;
-        (void)index;
-
-        theCheckBox = new QCheckBox( parent );
-        QObject::connect(theCheckBox,&QCheckBox::toggled,this,&CheckBoxDelegate::setData);
+        QCheckBox *theCheckBox = new QCheckBox(parent);
+        connect(theCheckBox, &QCheckBox::toggled, this, &CheckBoxDelegate::setData);
         return theCheckBox;
     };
 
     void setEditorData( QWidget *editor,
                         const QModelIndex &index ) const
     {
-        bool val = index.model()->data( index, Qt::DisplayRole ).toBool();
-
-        (static_cast<QCheckBox*>( editor ))->setChecked(val);
-
+        bool val = index.model()->data( index, Qt::EditRole ).toBool();
+        QCheckBox *theCheckBox =  static_cast<QCheckBox*>(editor);
+        theCheckBox->blockSignals(true);
+        theCheckBox->setChecked(val);
+        theCheckBox->blockSignals(false);
     }
 
     void setModelData( QWidget *editor,
                         QAbstractItemModel *model,
                         const QModelIndex &index ) const
     {
-        model->setData( index, (bool)(static_cast<QCheckBox*>( editor )->isChecked() ) );
+        model->setData(index,
+                       static_cast<QCheckBox*>(editor)->isChecked(),
+                       Qt::EditRole);
     }
 
 
     void updateEditorGeometry( QWidget *editor,
                         const QStyleOptionViewItem &option,
-                        const QModelIndex &index ) const
+                        const QModelIndex & ) const
     {
-        (void)index;
         editor->setGeometry( option.rect );
     }
 
-    mutable QCheckBox * theCheckBox;
-
 private slots:
 
-    void setData(bool val)
+    void setData(bool )
     {
-        (void)val;
-        emit commitData(theCheckBox);
+        QCheckBox *cb = qobject_cast<QCheckBox*>(sender());
+        if (!cb) return;
+        emit commitData(cb);
+        emit closeEditor(cb, QAbstractItemDelegate::NoHint);
     }
 };
 
@@ -445,15 +445,13 @@ class TextBoxDelegate: public QItemDelegate
 {
     Q_OBJECT
 public:
-    TextBoxDelegate(QObject *parent = 0 ) :QItemDelegate(parent), theText(nullptr){};
+    TextBoxDelegate(QObject *parent = 0 ) :QItemDelegate(parent){};
 
     QWidget* createEditor(QWidget* parent,
                           const QStyleOptionViewItem&,
                           const QModelIndex&) const
     {
-        theText = new QTextEdit(parent);
-
-        return theText;
+        return new QTextEdit(parent);
     }
 
     void updateEditorGeometry(QWidget* editor,
@@ -486,16 +484,6 @@ public:
         drawDisplay(painter,option,option.rect, line);
         drawFocus(painter, option, option.rect);
     }
-
-    mutable QTextEdit *theText;
-
-private slots:
-
-    void setData(bool val)
-    {
-        (void)val;
-        emit commitData(theText);
-    }
 };
 
 class KeySequenceEdit : public QWidget
@@ -518,8 +506,10 @@ public:
         layout->addWidget(clearButton);
         connect(clearButton, &QPushButton::clicked, this, [=]()
         {
+            keySequenceEdit->blockSignals(true);
             keySequenceEdit->clear();
-            emit editingFinished();
+            keySequenceEdit->blockSignals(false);
+            emit clearPress();
         });
         connect(keySequenceEdit, &QKeySequenceEdit::editingFinished, this, [=]()
         {
@@ -541,6 +531,7 @@ public:
 
 signals:
     void editingFinished();
+    void clearPress();
 
 private:
      QKeySequenceEdit* keySequenceEdit;
@@ -551,8 +542,7 @@ class ShortcutDelegate : public QStyledItemDelegate
      Q_OBJECT
 
 public:
-    ShortcutDelegate(QObject* parent = nullptr) :
-        QStyledItemDelegate(parent) { }
+    ShortcutDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) { }
 
     QWidget* createEditor(QWidget* parent,
                           const QStyleOptionViewItem&,
@@ -560,6 +550,8 @@ public:
     {
         KeySequenceEdit *editor = new KeySequenceEdit(parent);
         connect(editor, &KeySequenceEdit::editingFinished, this,
+                &ShortcutDelegate::commitAndCloseEditor);
+        connect(editor, &KeySequenceEdit::clearPress, this,
                 &ShortcutDelegate::commitAndCloseEditor);
         return editor;
     }
@@ -574,17 +566,15 @@ public:
     void setEditorData(QWidget* editor, const QModelIndex& index) const
     {
         KeySequenceEdit *keySequenceEdit = static_cast<KeySequenceEdit *>(editor);
-        if ( keySequenceEdit )
-            keySequenceEdit->setKeySequence(index.model()->data(index, Qt::EditRole).toString());
+        keySequenceEdit->blockSignals(true);
+        keySequenceEdit->setKeySequence(index.model()->data(index, Qt::EditRole).toString());
+        keySequenceEdit->blockSignals(false);
     }
 
     void setModelData(QWidget* editor, QAbstractItemModel* model,
                       const QModelIndex& index) const
     {
         const KeySequenceEdit *keySequenceEdit = static_cast<KeySequenceEdit *>(editor);
-        if ( ! keySequenceEdit )
-            return;
-
         model->setData(index, keySequenceEdit->keySequence().toString(QKeySequence::NativeText));
     }
 
@@ -592,8 +582,15 @@ private slots:
     void commitAndCloseEditor()
     {
         KeySequenceEdit *editor = static_cast<KeySequenceEdit *>(sender());
+        QAbstractItemView* view = qobject_cast<QAbstractItemView*>(parent());
+        if ( view && view->indexWidget(view->currentIndex()) != editor )
+        {
+            // if parent view is not active do nothing
+            // otherwise it produces a warning QAbstractItemView::commitData called with an editor that does not belong to this view
+            return;
+        }
         emit commitData(editor);
-        emit closeEditor(editor);
+        emit closeEditor(editor, QAbstractItemDelegate::NoHint);
     }
 };
 
@@ -605,7 +602,7 @@ public:
 
     QWidget *createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const override
     {
-            return nullptr;
+        return nullptr;
     }
 };
 

@@ -22,11 +22,13 @@ MODULE_IDENTIFICATION("qlog.core.wsjtx");
 
 WsjtxUDPReceiver::WsjtxUDPReceiver(QObject *parent) :
     QObject(parent),
-    socket(nullptr)
+    socket(new QUdpSocket(this)),
+    isOutputColorCQSpotEnabled(false)
 {
     FCT_IDENTIFICATION;
-    socket = new QUdpSocket(this);
-    openPort();
+
+    reloadSetting();
+
     connect(socket, &QUdpSocket::readyRead, this, &WsjtxUDPReceiver::readPendingDatagrams);
     connect(&wsjtSQLRecord, &UpdatableSQLRecord::recordReady, this, &WsjtxUDPReceiver::contactReady);
 }
@@ -222,6 +224,16 @@ int WsjtxUDPReceiver::getConfigMulticastTTL()
     FCT_IDENTIFICATION;
 
     return LogParam::getNetworkWsjtxListenerMulticastTTL();
+}
+
+bool WsjtxUDPReceiver::getConfigOutputColorCQSpot()
+{
+    return LogParam::getWsjtxOutputColorCQSpot();
+}
+
+void WsjtxUDPReceiver::saveConfigOutputColorCQSpot(bool status)
+{
+    LogParam::setWsjtxOutputColorCQSpot(status);
 }
 
 void WsjtxUDPReceiver::readPendingDatagrams()
@@ -551,11 +563,14 @@ void WsjtxUDPReceiver::insertContact(WsjtxLogADIF log)
     //emit addContact(record);
 }
 
-void WsjtxUDPReceiver::startReply(WsjtxDecode decode)
+void WsjtxUDPReceiver::sendReply(const WsjtxEntry &entry)
 {
     FCT_IDENTIFICATION;
 
+    const WsjtxDecode &decode = entry.decode;
     qCDebug(function_parameters) << decode;
+
+    if (!socket) return;
 
     /* sending to WSJT to UDP address, not multicast address because
      * WSJTX does not listen multicast address */
@@ -563,9 +578,54 @@ void WsjtxUDPReceiver::startReply(WsjtxDecode decode)
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::ReadWrite);
-    stream << static_cast<quint32>(0xadbccbda);
-    stream << static_cast<quint32>(3);
-    stream << static_cast<quint32>(4);
+    stream.setVersion(QDataStream::Qt_5_4); // UDP_DEFAULT_SCHEMA_VERSION 3
+
+    stream << UDP_MAGIC_NUMBER;
+    stream << UDP_DEFAULT_SCHEMA_VERSION;
+
+    /*
+     * from WSJTX: Network/NetworkMessage.hpp
+     * Reply         In        4                      quint32
+     *                         Id (target unique key) utf8
+     *                         Time                   QTime
+     *                         snr                    qint32
+     *                         Delta time (S)         float (serialized as double)
+     *                         Delta frequency (Hz)   quint32
+     *                         Mode                   utf8
+     *                         Message                utf8
+     *                         Low confidence         bool
+     *                         Modifiers              quint8
+     *
+     *  In order for a server  to provide a useful cooperative service
+     *  to WSJT-X it  is possible for it to initiate  a QSO by sending
+     *  this message to a client. WSJT-X filters this message and only
+     *  acts upon it  if the message exactly describes  a prior decode
+     *  and that decode  is a CQ or QRZ message.   The action taken is
+     *  exactly equivalent to the user  double clicking the message in
+     *  the "Band activity" window. The  intent of this message is for
+     *  servers to be able to provide an advanced look up of potential
+     *  QSO partners, for example determining if they have been worked
+     *  before  or if  working them  may advance  some objective  like
+     *  award progress.  The  intention is not to  provide a secondary
+     *  user  interface for  WSJT-X,  it is  expected  that after  QSO
+     *  initiation the rest  of the QSO is carried  out manually using
+     *  the normal WSJT-X user interface.
+     *
+     *  The  Modifiers   field  allows  the  equivalent   of  keyboard
+     *  modifiers to be sent "as if" those modifier keys where pressed
+     *  while  double-clicking  the  specified  decoded  message.  The
+     *  modifier values (hexadecimal) are as follows:
+     *
+     *          no modifier     0x00
+     *          SHIFT           0x02
+     *          CTRL            0x04  CMD on Mac
+     *          ALT             0x08
+     *          META            0x10  Windows key on MS Windows
+     *          KEYPAD          0x20  Keypad or arrows
+     *          Group switch    0x40  X11 only
+     */
+
+    stream << UDP_COMMANDS::REPLY_CMD;
     stream << decode.id.toUtf8();
     stream << decode.time;
     stream << decode.snr;
@@ -574,16 +634,114 @@ void WsjtxUDPReceiver::startReply(WsjtxDecode decode)
     stream << decode.mode.toUtf8();
     stream << decode.message.toUtf8();
     stream << decode.low_confidence;
-    stream << static_cast<quint8>(0);
+    stream << quint8(0);
 
     socket->writeDatagram(data, wsjtxAddress, wsjtxPort);
 }
+
+void WsjtxUDPReceiver::sendHighlightCallsign(const WsjtxEntry &entry)
+{
+    FCT_IDENTIFICATION;
+
+    // QColor() means that WSJTX clears the color
+    sendHighlightCallsignColor(entry, Qt::black, Data::statusToColor(entry.status, false, QColor()));
+}
+
+void WsjtxUDPReceiver::sendClearHighlightCallsign(const WsjtxEntry &entry)
+{
+    FCT_IDENTIFICATION;
+
+    // QColor() means that WSJTX clears the color
+    sendHighlightCallsignColor(entry, QColor(), QColor());
+}
+
+void WsjtxUDPReceiver::sendClearAllHighlightCallsign()
+{
+    FCT_IDENTIFICATION;
+
+    WsjtxEntry tmp;
+    tmp.callsign = "CLEARALL!";
+    sendHighlightCallsignColor(tmp, QColor(), QColor(), false);
+}
+
+void WsjtxUDPReceiver::sendHighlightCallsignColor(const WsjtxEntry &entry,
+                                                  const QColor &fgColor,
+                                                  const QColor &bgColor,
+                                                  bool highlightLast)
+{
+    FCT_IDENTIFICATION;
+
+    if ( !socket ) return;
+
+    if ( !isOutputColorCQSpotEnabled )
+    {
+        qCDebug(runtime) << "HighlightCallsign is disabled";
+        return;
+    }
+
+    const WsjtxDecode &decode = entry.decode;
+
+    qCDebug(function_parameters) << decode << fgColor << bgColor << highlightLast;
+
+    /* sending to WSJT to UDP address, not multicast address because
+     * WSJTX does not listen multicast address */
+    qCDebug(runtime) << "Sending to" << wsjtxAddress;
+
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_4); // UDP_DEFAULT_SCHEMA_VERSION 3
+
+    out << UDP_MAGIC_NUMBER;
+    out << UDP_DEFAULT_SCHEMA_VERSION;
+    /*
+     * from WSJTX: Network/NetworkMessage.hpp
+     * Highlight Callsign In  13                     quint32
+     *                        Id (unique key)        utf8
+     *                        Callsign               utf8
+     *                        Background Color       QColor
+     *                        Foreground Color       QColor
+     *                        Highlight last         bool
+     *
+     *  The server  may send  this message at  any time.   The message
+     *  specifies  the background  and foreground  color that  will be
+     *  used  to  highlight  the  specified callsign  in  the  decoded
+     *  messages  printed  in the  Band  Activity  panel.  The  WSJT-X
+     *  clients maintain a list of such instructions and apply them to
+     *  all decoded  messages in the  band activity window.   To clear
+     *  and  cancel  highlighting send  an  invalid  QColor value  for
+     *  either or both  of the background and  foreground fields. When
+     *  using  this mode  the  total number  of callsign  highlighting
+     *  requests should be limited otherwise the performance of WSJT-X
+     *  decoding may be  impacted. A rough rule of thumb  might be too
+     *  limit the  number of active  highlighting requests to  no more
+     *  than 100.
+     *
+     *  Using a callsign of "CLEARALL!" and anything for the
+     *  color values will clear the internal highlighting data. It will
+     *  NOT remove the highlighting on the screen, however. The exclamation
+     *  symbol is used to avoid accidental clearing of all highlighting
+     *  data via a decoded callsign, since an exclamation symbol is not
+     *  a valid character in a callsign.
+     *
+     *  The "Highlight last"  field allows the sender  to request that
+     *  all instances of  "Callsign" in the last  period only, instead
+     *  of all instances in all periods, be highlighted.
+     */
+
+    out << UDP_COMMANDS::HIGHLIGHT_CALLSIGN_CMD;
+    out << decode.id.toUtf8();
+    out << entry.callsign.toUtf8();
+    out << bgColor; // Background Color
+    out << fgColor; // Foreground Color
+    out << true;    // Highlight last
+
+    socket->writeDatagram(data, wsjtxAddress, wsjtxPort);
+}
+
 
 void WsjtxUDPReceiver::reloadSetting()
 {
     FCT_IDENTIFICATION;
     openPort();
+    isOutputColorCQSpotEnabled = getConfigOutputColorCQSpot();
 }
-
-int     WsjtxUDPReceiver::DEFAULT_PORT = 2237;
-QString WsjtxUDPReceiver::CONFIG_MULTICAST_TTL = "network/wsjtx_multicast_ttl";

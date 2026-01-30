@@ -59,6 +59,11 @@ private:
     QWebChannel channel;
     MapWebChannelHandler layerControlHandler;
     LogLocale locale;
+
+
+    // default statistics interval [in days]
+    const int DEFAULT_STAT_RANGE = -1;
+
 };
 
 #endif // QLOG_UI_STATISTICSWIDGET_H

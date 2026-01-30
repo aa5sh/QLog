@@ -147,7 +147,7 @@ C:/Qt/6.4.1/msvc2019_64/bin/qmake.exe C:\Users\devel\development\QLog\QLog.pro -
 
 Prerequisites
 
-- [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
+- [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/)
 - QT with source codes (6.x, Qt Webengine, OpenSSL Toolkit)
 - [Omnirig v1](https://www.dxatlas.com/omnirig/)
 - [Omnirig v2](https://www.hb9ryz.ch/omnirig/)
@@ -267,7 +267,7 @@ NOTE: if it is necessary then use `qmake` input parameters described above to af
 
 Copyright (C) 2020  Thomas Gatzweiler
 
-Copyright (C) 2021-2025  Ladislav Foldyna
+Copyright (C) 2021-2026  Ladislav Foldyna
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

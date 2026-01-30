@@ -303,7 +303,8 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
         setIfEmpty(LogbookModel::COLUMN_MY_DXCC, QString::number(defaultStationProfile->dxcc));
         setIfEmpty(LogbookModel::COLUMN_STATION_CALLSIGN, defaultStationProfile->callsign);
         setIfEmpty(LogbookModel::COLUMN_MY_GRIDSQUARE, defaultStationProfile->locator);
-        setIfEmpty(LogbookModel::COLUMN_MY_NAME, defaultStationProfile->operatorName);
+        setIfEmpty(LogbookModel::COLUMN_MY_NAME, Data::removeAccents(defaultStationProfile->operatorName));
+        setIfEmpty(LogbookModel::COLUMN_MY_NAME_INTL, defaultStationProfile->operatorName);
         setIfEmpty(LogbookModel::COLUMN_OPERATOR, defaultStationProfile->operatorCallsign);
         setIfEmpty(LogbookModel::COLUMN_MY_CITY_INTL, defaultStationProfile->qthName);
         setIfEmpty(LogbookModel::COLUMN_MY_CITY, Data::removeAccents(defaultStationProfile->qthName));

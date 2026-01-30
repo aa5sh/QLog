@@ -272,6 +272,8 @@ public:
     static void setWsjtxMemberlists(const QStringList &list);
     static QByteArray getWsjtxWidgetState();
     static void setWsjtxWidgetState(const QByteArray &state);
+    static bool getWsjtxOutputColorCQSpot();
+    static void setWsjtxOutputColorCQSpot(bool state);
 
     /******************
      * DXCluster Dialog

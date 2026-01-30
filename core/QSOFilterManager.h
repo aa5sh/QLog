@@ -6,6 +6,7 @@
 #include <QDateTime>
 
 #include "models/LogbookModel.h"
+#include "models/SqlListModel.h"
 
 struct QSOFilterRule
 {
@@ -72,7 +73,8 @@ public:
         return &instance;
     }
 
-    static QString getWhereClause(const QString &filterName);
+    static QString getWhereClause(const QString &filterName, const QString &columnPrefix = {});
+    static SqlListModel* QSOFilterModel(const QString &firstValue, QObject *parent = nullptr);
     bool save(const QSOFilter &filter);
     bool remove(const QString &filterName);
     QStringList getFilterList() const;

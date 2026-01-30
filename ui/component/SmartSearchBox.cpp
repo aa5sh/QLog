@@ -9,7 +9,6 @@
 #include <QTimer>
 #include <QCoreApplication>
 #include "models/SqlListModel.h"
-#include "core/debug.h"
 
 SmartSearchBox::SmartSearchBox(QWidget *parent)
     : QWidget(parent),
@@ -64,6 +63,8 @@ SmartSearchBox::SmartSearchBox(QWidget *parent)
     {
         searchField->clear();
     });
+
+    setFocusProxy(openButton);
 }
 
 void SmartSearchBox::setModel(QAbstractItemModel *model)

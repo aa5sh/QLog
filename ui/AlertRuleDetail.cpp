@@ -29,80 +29,46 @@ AlertRuleDetail::AlertRuleDetail(const QString &ruleName, QWidget *parent) :
     /*************/
     /* Get Bands */
     /*************/
-    int row = 0;
-    int band_index = 0;
-    SqlListModel *bands = new SqlListModel("SELECT name FROM bands WHERE enabled = 1 ORDER BY start_freq", "Band", this);
-
-    while ( band_index < bands->rowCount() )
+    const QList<Band> bands = BandPlan::bandsList(false, true);
+    int i = 0;
+    for ( const Band &enabledBand : bands )
     {
-        for ( int i = 0; i < 6; i++ )
-        {
-            band_index++;
+        const QString &bandName = enabledBand.name;
+        QCheckBox *bandCheckbox = new QCheckBox(ui->band_group->parentWidget());
+        bandCheckbox->setText(bandName);
+        bandCheckbox->setObjectName("band_" + bandName);
 
-            if ( band_index >= bands->rowCount() )
-                break;
-
-            QCheckBox *bandcheckbox=new QCheckBox(this);
-            QString band_name = bands->data(bands->index(band_index,0)).toString();
-            QString band_object_name = "band_" + band_name;
-            bandcheckbox->setText(band_name);
-            bandcheckbox->setObjectName(band_object_name);
-            ui->band_group->addWidget(bandcheckbox, row, i );
-        }
-        row++;
+        int row = i / MAXCOLUMNS;
+        int column = i % MAXCOLUMNS;
+        ui->band_group->addWidget(bandCheckbox, row, column);
+        i++;
     }
 
     /****************/
     /* DX Countries */
     /****************/
-    SqlListModel *countryModel = new SqlListModel("SELECT id, translate_to_locale(name) "
-                                                  "FROM dxcc_entities_ad1c "
-                                                  "ORDER BY 2 COLLATE LOCALEAWARE ASC;",
-                                                  tr("All"), this);
-    while (countryModel->canFetchMore())
-    {
-        countryModel->fetchMore();
-    }
+    const QLatin1String countryStmt("SELECT id, translate_to_locale(name) "
+                                    "FROM dxcc_entities_ad1c "
+                                    "ORDER BY 2 COLLATE LOCALEAWARE ASC;");
+
+    SqlListModel *countryModel = new SqlListModel(countryStmt, tr("All"), ui->countryCombo);
+    while (countryModel->canFetchMore()) countryModel->fetchMore();
     ui->countryCombo->setModel(countryModel);
     ui->countryCombo->setModelColumn(1);
+    ui->countryCombo->adjustMaxSize();
 
     /********************/
     /* Spotter Coutries */
     /********************/
-    SqlListModel *countryModel2 = new SqlListModel("SELECT id, translate_to_locale(name) "
-                                                  "FROM dxcc_entities_ad1c "
-                                                  "ORDER BY 2 COLLATE LOCALEAWARE ASC;",
-                                                  tr("All"), this);
-    while (countryModel2->canFetchMore())
-    {
-        countryModel2->fetchMore();
-    }
+    SqlListModel *countryModel2 = new SqlListModel(countryStmt, tr("All"), ui->spotterCountryCombo);
+    while (countryModel2->canFetchMore()) countryModel2->fetchMore();
     ui->spotterCountryCombo->setModel(countryModel2);
-    ui->spotterCountryCombo->setModelColumn(1);
-
-    /**************/
-    /* Log Status */
-    /**************/
-    ui->logStatusCombo->addItem("All", (DxccStatus::NewEntity
-                                        | DxccStatus::NewBand
-                                        | DxccStatus::NewMode
-                                        | DxccStatus::NewBandMode
-                                        | DxccStatus::NewSlot
-                                        | DxccStatus::Worked
-                                        | DxccStatus::Confirmed
-                                        | DxccStatus::UnknownStatus) );
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::NewEntity), DxccStatus::NewEntity);
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::NewBand), DxccStatus::NewBand);
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::NewMode), DxccStatus::NewMode);
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::NewBandMode), DxccStatus::NewBandMode);
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::NewSlot), DxccStatus::NewSlot);
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::Worked), DxccStatus::Worked);
-    ui->logStatusCombo->addItem(Data::statusToText(DxccStatus::Confirmed), DxccStatus::Confirmed);
+    ui->spotterCountryCombo->setModelColumn(1);    
+    ui->spotterCountryCombo->adjustMaxSize();
 
     /**************************************/
     /* Load or Prepare Rule Dialog Values */
     /**************************************/
-
     if ( ! ruleName.isEmpty() )
     {
         loadRule(ruleName);
@@ -119,17 +85,12 @@ AlertRuleDetail::AlertRuleDetail(const QString &ruleName, QWidget *parent) :
         else
         {
             if ( ruleStmt.exec() )
-            {
                 while (ruleStmt.next())
-                {
                     ruleNamesList << ruleStmt.value(0).toString();
-                }
-            }
             else
-            {
-                qInfo()<< "Cannot get filters names from DB" << ruleStmt.lastError();
-            }
+                qWarning()<< "Cannot get filters names from DB" << ruleStmt.lastError();
         }
+        setDefaultValues();
         generateMembershipCheckboxes();
     }
 }
@@ -176,7 +137,6 @@ void AlertRuleDetail::save()
     }
 
     AlertRule rule;
-
     /*************
      * Rule Name *
      *************/
@@ -185,23 +145,14 @@ void AlertRuleDetail::save()
     /***********
      * Enabled *
      ***********/
-
     rule.enabled = ui->ruleEnabledCheckBox->isChecked();
 
     /**********
      * Source *
      **********/
     int finalSource = 0;
-
-    if ( ui->dxcCheckBox->isChecked() )
-    {
-        finalSource |= SpotAlert::DXSPOT;
-    }
-
-    if ( ui->wsjtxCheckBox->isChecked() )
-    {
-        finalSource |= SpotAlert::WSJTXCQSPOT;
-    }
+    finalSource |= (ui->dxcCheckBox->isChecked()   ? SpotAlert::DXSPOT      : 0)
+                |  (ui->wsjtxCheckBox->isChecked() ? SpotAlert::WSJTXCQSPOT : 0);
 
     rule.sourceMap = finalSource;
 
@@ -213,20 +164,9 @@ void AlertRuleDetail::save()
     /**************
      * DX Country *
      **************/
-    int row = ui->countryCombo->currentIndex();
-    QVariant data;
-
-    if ( row == 0 )
-    {
-        data = 0; //all
-    }
-    else
-    {
-        QModelIndex idx = ui->countryCombo->model()->index(row,0);
-        data = ui->countryCombo->model()->data(idx);
-    }
-
-    rule.dxCountry = data.toInt();
+    bool OK = false;
+    int countryCode = ui->countryCombo->currentValue(1).toInt(&OK);
+    rule.dxCountry = ( OK && countryCode > 0 ) ? countryCode : 0; // 0 = all
 
     /*************
      * DX Member *
@@ -235,31 +175,30 @@ void AlertRuleDetail::save()
 
     if ( ui->memberGroupBox->isChecked() )
     {
-        for ( QCheckBox* item: static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
-        {
-            if ( item->isChecked() )
-            {
-                dxMember.append(QString("%1").arg(item->text()));
-            }
-        }
+        for ( QCheckBox* item : static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
+            if ( item->isChecked() ) dxMember.append(QString("%1").arg(item->text()));
     }
     else
-    {
         dxMember.append("*");
-    }
 
     rule.dxMember = dxMember;
 
     /*****************
      * DX Log Status *
      *****************/
-
-    rule.dxLogStatusMap = ui->logStatusCombo->currentData().toInt();
+    int status = 0;
+    if ( ui->newEntityCheckbox->isChecked() ) status |=  DxccStatus::NewEntity;
+    if ( ui->newBandCheckbox->isChecked() )   status |=  DxccStatus::NewBand;
+    if ( ui->newModeCheckbox->isChecked() )   status |=  DxccStatus::NewMode;
+    if ( ui->newSlotCheckbox->isChecked() )   status |=  DxccStatus::NewSlot;
+    if ( ui->workedCheckbox->isChecked() )    status |=  DxccStatus::Worked;
+    if ( ui->confirmedCheckbox->isChecked() ) status |=  DxccStatus::Confirmed;
+    if ( ui->allCheckbox->isChecked() )       status = DxccStatus::All;
+    rule.dxLogStatusMap = status;
 
     /****************
      * DX Continent *
      ****************/
-
     QString continentRE("*");
 
     if ( ui->continent->isChecked() )
@@ -285,7 +224,6 @@ void AlertRuleDetail::save()
     /********
      * Mode *
      ********/
-
     QString modeRE("*");
 
     if ( ui->modes->isChecked() )
@@ -311,10 +249,7 @@ void AlertRuleDetail::save()
         for ( int i = 0; i < ui->band_group->count(); i++)
         {
             QLayoutItem *item = ui->band_group->itemAt(i);
-            if ( !item || !item->widget() )
-            {
-                continue;
-            }
+            if ( !item || !item->widget() ) continue;
             QCheckBox *bandcheckbox = qobject_cast<QCheckBox*>(item->widget());
 
             if ( bandcheckbox )
@@ -323,7 +258,6 @@ void AlertRuleDetail::save()
                 {
                     //NOTHING|20m|40m
                     bandRE.append("|" + bandcheckbox->objectName().split("_").at(1));
-
                 }
             }
         }
@@ -334,20 +268,9 @@ void AlertRuleDetail::save()
     /*******************
      * Spotter Country *
      *******************/
-    int tmp = ui->spotterCountryCombo->currentIndex();
-    QVariant dataSpotter;
-
-    if ( tmp == 0 )
-    {
-        dataSpotter = 0; //all
-    }
-    else
-    {
-        QModelIndex idx2 = ui->spotterCountryCombo->model()->index(tmp,0);
-        dataSpotter = ui->spotterCountryCombo->model()->data(idx2);
-    }
-
-    rule.spotterCountry = dataSpotter.toInt();
+    OK = false;
+    int countryCodeSpotter = ui->spotterCountryCombo->currentValue(1).toInt(&OK);
+    rule.spotterCountry = ( OK && countryCodeSpotter > 0 ) ? countryCodeSpotter : 0; // 0 = all
 
     /*********************
      * Spotter Continent *
@@ -446,6 +369,36 @@ void AlertRuleDetail::spotCommentChanged(const QString &enteredRE)
     ui->spotCommentEdit->setPalette(p);
 }
 
+void AlertRuleDetail::enabledLogStatusAll(bool enabled)
+{
+    FCT_IDENTIFICATION;
+
+    if ( enabled )
+    {
+        ui->newEntityCheckbox->setChecked(enabled);
+        ui->newBandCheckbox->setChecked(enabled);
+        ui->newModeCheckbox->setChecked(enabled);
+        ui->newSlotCheckbox->setChecked(enabled);
+        ui->workedCheckbox->setChecked(enabled);
+        ui->confirmedCheckbox->setChecked(enabled);
+    }
+
+    ui->newEntityCheckbox->setEnabled(!enabled);
+    ui->newBandCheckbox->setEnabled(!enabled);
+    ui->newModeCheckbox->setEnabled(!enabled);
+    ui->newSlotCheckbox->setEnabled(!enabled);
+    ui->workedCheckbox->setEnabled(!enabled);
+    ui->confirmedCheckbox->setEnabled(!enabled);
+}
+
+void AlertRuleDetail::setDefaultValues()
+{
+    FCT_IDENTIFICATION;
+
+    ui->allCheckbox->setChecked(true);
+    ui->countryCombo->setCurrentValue(ALLCOUNTRYIDX, 1);
+}
+
 bool AlertRuleDetail::ruleExists(const QString &ruleName)
 {
     FCT_IDENTIFICATION;
@@ -453,7 +406,6 @@ bool AlertRuleDetail::ruleExists(const QString &ruleName)
     qCDebug(function_parameters) << ruleName;
 
     return ruleNamesList.contains(ruleName);
-
 }
 
 void AlertRuleDetail::loadRule(const QString &ruleName)
@@ -487,51 +439,26 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
         /**************
          * DX Country *
          **************/
-        if ( rule.dxCountry == 0 )
-        {
-            ui->countryCombo->setCurrentIndex(0);
-        }
-        else
-        {
-            QModelIndexList countryIndex = ui->countryCombo->model()->match(ui->countryCombo->model()->index(0,0),
-                                                                            Qt::DisplayRole,
-                                                                            rule.dxCountry,
-                                                                            1, Qt::MatchExactly);
-
-            if ( countryIndex.size() >= 1 )
-            {
-                ui->countryCombo->setCurrentIndex(countryIndex.at(0).row());
-            }
-        }
+        ui->countryCombo->setCurrentValue(rule.dxCountry, 1);
 
         /*************
          * DX Member *
          *************/
-
         generateMembershipCheckboxes(&rule);
-
-        if ( rule.dxMember == QStringList("*") )
-        {
-            ui->memberGroupBox->setChecked(false);
-        }
-        else
-        {
-            ui->memberGroupBox->setChecked(true);
-        }
+        const bool isDefaultAny = (rule.dxMember.size() == 1 && rule.dxMember.front() == "*");
+        ui->memberGroupBox->setChecked(!isDefaultAny);
 
         /*****************
          * DX Log Status *
          *****************/
-        int statusIdx = ui->logStatusCombo->findData(rule.dxLogStatusMap);
-
-        if ( statusIdx != -1 )
-        {
-            ui->logStatusCombo->setCurrentIndex(statusIdx);
-        }
-        else
-        {
-            ui->logStatusCombo->setCurrentIndex(0);
-        }
+        uint statusSetting = rule.dxLogStatusMap;
+        ui->allCheckbox->setChecked(statusSetting == DxccStatus::All);
+        ui->newEntityCheckbox->setChecked(statusSetting & DxccStatus::NewEntity);
+        ui->newBandCheckbox->setChecked(statusSetting & DxccStatus::NewBand);
+        ui->newModeCheckbox->setChecked(statusSetting & DxccStatus::NewMode);
+        ui->newSlotCheckbox->setChecked(statusSetting & DxccStatus::NewSlot);
+        ui->workedCheckbox->setChecked(statusSetting & DxccStatus::Worked);
+        ui->confirmedCheckbox->setChecked(statusSetting & DxccStatus::Confirmed);
 
         /*************
          * Continent *
@@ -595,10 +522,7 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
             for ( int i = 0; i < ui->band_group->count(); i++)
             {
                 QLayoutItem *item = ui->band_group->itemAt(i);
-                if ( !item || !item->widget() )
-                {
-                    continue;
-                }
+                if ( !item || !item->widget() ) continue;
                 QCheckBox *bandcheckbox = qobject_cast<QCheckBox*>(item->widget());
 
                 if (bandcheckbox)
@@ -613,27 +537,11 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
         /*******************
          * Spotter Country *
          *******************/
-        if ( rule.spotterCountry == 0 )
-        {
-            ui->spotterCountryCombo->setCurrentIndex(0);
-        }
-        else
-        {
-            QModelIndexList countryIndex = ui->spotterCountryCombo->model()->match(ui->spotterCountryCombo->model()->index(0,0),
-                                                                                   Qt::DisplayRole,
-                                                                                   rule.spotterCountry,
-                                                                                   1, Qt::MatchExactly);
-
-            if ( countryIndex.size() >= 1 )
-            {
-                ui->spotterCountryCombo->setCurrentIndex(countryIndex.at(0).row());
-            }
-        }
+        ui->spotterCountryCombo->setCurrentValue(rule.spotterCountry, 1);
 
         /*********************
          * Spotter Continent *
          *********************/
-
         QString spotterContinentRE = rule.spotterContinent;
 
         if ( spotterContinentRE == "*" )
@@ -684,29 +592,24 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
         ui->wwffCheckbox->setChecked(rule.wwff);
     }
     else
-    {
         qCDebug(runtime) << "Cannot load rule " << ruleName;
-    }
 }
 
 void AlertRuleDetail::generateMembershipCheckboxes(const AlertRule * rule)
 {
     FCT_IDENTIFICATION;
 
-    QStringList enabledLists = MembershipQE::getEnabledClubLists();
+    const QStringList enabledLists = MembershipQE::getEnabledClubLists();
 
-    for ( int i = 0 ; i < enabledLists.size(); i++)
+    for ( const QString &enabledClub : enabledLists )
     {
-        QCheckBox *columnCheckbox = new QCheckBox(this);
-
-        QString shortDesc = enabledLists.at(i);
-
-        columnCheckbox->setText(shortDesc);
-        if ( rule ) columnCheckbox->setChecked(rule->dxMember.contains(shortDesc));
+        QCheckBox *columnCheckbox = new QCheckBox(ui->dxMemberGrid->parentWidget());
+        columnCheckbox->setText(enabledClub);
+        if ( rule ) columnCheckbox->setChecked(rule->dxMember.contains(enabledClub));
         memberListCheckBoxes.append(columnCheckbox);
     }
 
-    if ( memberListCheckBoxes.size() == 0 )
+    if ( memberListCheckBoxes.isEmpty() )
     {
         ui->dxMemberGrid->addWidget(new QLabel(tr("No Club List is enabled"), this));
     }
@@ -714,9 +617,9 @@ void AlertRuleDetail::generateMembershipCheckboxes(const AlertRule * rule)
     {
         int elementIndex = 0;
 
-        for ( QCheckBox* item: static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
+        for ( QCheckBox* item : static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
         {
-            ui->dxMemberGrid->addWidget(item, elementIndex / 6, elementIndex % 6);
+            ui->dxMemberGrid->addWidget(item, elementIndex / MAXCOLUMNS, elementIndex % MAXCOLUMNS);
             elementIndex++;
         }
     }

@@ -12,6 +12,7 @@ public:
 
     enum ALERTSOURCETYPE
     {
+        UKNOWN = 0,
         DXSPOT = 0b1,
         WSJTXCQSPOT = 0b10
     };

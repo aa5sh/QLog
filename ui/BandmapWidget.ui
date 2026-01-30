@@ -49,6 +49,9 @@
       </property>
       <item>
        <widget class="QPushButton" name="newBandmapButton">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
         <property name="toolTip">
          <string>Create an additional Bandmap Window</string>
         </property>
@@ -142,7 +145,7 @@
         <x>0</x>
         <y>0</y>
         <width>283</width>
-        <height>591</height>
+        <height>590</height>
        </rect>
       </property>
       <property name="sizePolicy">

@@ -23,24 +23,25 @@ DxFilterDialog::DxFilterDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-    const int columns = 6;
     const QList<Band> &bands = BandPlan::bandsList(false, true);
     const QStringList &excludedBandFilter = LogParam::getDXCExcludedBands();
     /********************/
     /* Bands Checkboxes */
     /********************/
-    for (int i = 0; i < bands.size(); ++i)
+    int i = 0;
+    for ( const Band &enabledBand : bands )
     {
-        const QString &bandName = bands.at(i).name;
-        QCheckBox *bandCheckbox = new QCheckBox(this);
+        const QString &bandName = enabledBand.name;
+        QCheckBox *bandCheckbox = new QCheckBox(ui->band_group->parentWidget());
         bandCheckbox->setText(bandName);
         bandCheckbox->setProperty("bandName", bandName); // just to be sure that Bandmap is not translated
         bandCheckbox->setObjectName("bandCheckBox_" + bandName);
         bandCheckbox->setChecked(!excludedBandFilter.contains(bandName));
 
-        int row = i / columns;
-        int column = i % columns;
+        int row = i / MAXCOLUMNS;
+        int column = i % MAXCOLUMNS;
         ui->band_group->addWidget(bandCheckbox, row, column);
+        i++;
     }
 
     /*********************/
@@ -185,7 +186,7 @@ void DxFilterDialog::accept()
     {
         memberList.append("DUMMYCLUB");
 
-        for ( QCheckBox* item: static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
+        for ( QCheckBox* item : static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
             if ( item->isChecked() ) memberList.append(item->text());
     }
     LogParam::setDXCFilterMemberlists(memberList);
@@ -200,13 +201,11 @@ void DxFilterDialog::generateMembershipCheckboxes()
     const QStringList &currentFilter = LogParam::getDXCFilterMemberlists();
     const QStringList &enabledLists = MembershipQE::getEnabledClubLists();
 
-    for ( int i = 0 ; i < enabledLists.size(); i++)
+    for ( const QString &enabledClub : enabledLists )
     {
-        QCheckBox *columnCheckbox = new QCheckBox(this);
-        const QString &shortDesc = enabledLists.at(i);
-
-        columnCheckbox->setText(shortDesc);
-        columnCheckbox->setChecked(currentFilter.contains(shortDesc));
+        QCheckBox *columnCheckbox = new QCheckBox(ui->memberGroupBox->parentWidget());
+        columnCheckbox->setText(enabledClub);
+        columnCheckbox->setChecked(currentFilter.contains(enabledClub));
         memberListCheckBoxes.append(columnCheckbox);
     }
 
@@ -218,9 +217,9 @@ void DxFilterDialog::generateMembershipCheckboxes()
     {
         int elementIndex = 0;
 
-        for ( QCheckBox* item: static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
+        for ( QCheckBox* item : static_cast<const QList<QCheckBox*>&>(memberListCheckBoxes) )
         {
-            ui->dxMemberGrid->addWidget(item, elementIndex / 3, elementIndex % 3);
+            ui->dxMemberGrid->addWidget(item, elementIndex / MAXCOLUMNS, elementIndex % MAXCOLUMNS);
             elementIndex++;
         }
     }

@@ -30,328 +30,415 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Options</string>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="topMargin">
+      <number>0</number>
      </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="leftMargin">
-       <number>6</number>
-      </property>
-      <property name="topMargin">
-       <number>6</number>
-      </property>
-      <property name="rightMargin">
-       <number>6</number>
-      </property>
-      <property name="bottomMargin">
-       <number>6</number>
-      </property>
-      <property name="spacing">
-       <number>4</number>
-      </property>
-      <item row="6" column="2">
-       <widget class="QComboBox" name="myRigCombo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3">
-       <widget class="QLabel" name="myAntennaLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>My Antenna</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="myGridLabel">
-        <property name="text">
-         <string>My Gridsquare</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QComboBox" name="myGridCombo"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="statTypeMainCombo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="insertPolicy">
-         <enum>QComboBox::NoInsert</enum>
-        </property>
-        <item>
-         <property name="text">
-          <string>QSOs per</string>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>9</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string/>
          </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Percents</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Top 10</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Histogram</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Show on Map</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QComboBox" name="myCallCombo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QComboBox" name="statTypeSecCombo"/>
-      </item>
-      <item row="1" column="0" colspan="4">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="statTypeLabel">
-          <property name="text">
-           <string>Graph Type</string>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>3</number>
+          </property>
+          <item row="2" column="0">
+           <widget class="QLabel" name="rangeLabel">
+            <property name="text">
+             <string>Date Range</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="userFilterCombo"/>
+          </item>
+          <item row="2" column="1" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="useDateRangeCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDateTimeEdit" name="startDateEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
+              <property name="specialValueText">
+               <string/>
+              </property>
+              <property name="keyboardTracking">
+               <bool>true</bool>
+              </property>
+              <property name="showGroupSeparator" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="date">
+               <date>
+                <year>1999</year>
+                <month>12</month>
+                <day>25</day>
+               </date>
+              </property>
+              <property name="displayFormat">
+               <string notr="true">yyyy-MM-dd HH:mm</string>
+              </property>
+              <property name="calendarPopup">
+               <bool>true</bool>
+              </property>
+              <property name="timeSpec">
+               <enum>Qt::UTC</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="toLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>to</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDateTimeEdit" name="endDateEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="wrapping">
+               <bool>false</bool>
+              </property>
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <property name="keyboardTracking">
+               <bool>true</bool>
+              </property>
+              <property name="showGroupSeparator" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="displayFormat">
+               <string notr="true">yyyy-MM-dd HH:mm</string>
+              </property>
+              <property name="calendarPopup">
+               <bool>true</bool>
+              </property>
+              <property name="timeSpec">
+               <enum>Qt::UTC</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="bandLabel">
+            <property name="text">
+             <string>Band</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="userFilterLabel">
+            <property name="text">
+             <string>User Filter</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QComboBox" name="bandCombo"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Confirmed by</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QCheckBox" name="lotwCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>LoTW</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="eqslCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>eQSL</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="paperCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Paper</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Graph Type</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="statTypeMainCombo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="insertPolicy">
+             <enum>QComboBox::NoInsert</enum>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+            </property>
+            <item>
+             <property name="text">
+              <string>QSOs per</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Percents</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Top 10</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Histogram</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Show on Map</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="statTypeSecCombo"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string/>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="horizontalSpacing">
+         <number>3</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>10</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="myCalLabel">
+          <property name="text">
+           <string>My Callsign</string>
           </property>
          </widget>
         </item>
-       </layout>
-      </item>
-      <item row="10" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QCheckBox" name="useDateRangeCheckBox">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDateTimeEdit" name="startDateEdit">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="myCallCombo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::UpDownArrows</enum>
-          </property>
-          <property name="specialValueText">
-           <string/>
-          </property>
-          <property name="keyboardTracking">
-           <bool>true</bool>
-          </property>
-          <property name="showGroupSeparator" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="date">
-           <date>
-            <year>1999</year>
-            <month>12</month>
-            <day>26</day>
-           </date>
-          </property>
-          <property name="displayFormat">
-           <string notr="true">yyyy-MM-dd HH:mm</string>
-          </property>
-          <property name="calendarPopup">
-           <bool>true</bool>
-          </property>
-          <property name="timeSpec">
-           <enum>Qt::UTC</enum>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="myGridLabel">
+          <property name="text">
+           <string>My Gridsquare</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="toLabel">
+        <item row="1" column="1">
+         <widget class="QComboBox" name="myGridCombo"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="myRigLabel">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="text">
-           <string>to</string>
+           <string>My Rig</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QDateTimeEdit" name="endDateEdit">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="myRigCombo">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="wrapping">
-           <bool>false</bool>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="myAntennaLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="frame">
-           <bool>true</bool>
+          <property name="text">
+           <string>My Antenna</string>
           </property>
-          <property name="keyboardTracking">
-           <bool>true</bool>
-          </property>
-          <property name="showGroupSeparator" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="displayFormat">
-           <string notr="true">yyyy-MM-dd HH:mm</string>
-          </property>
-          <property name="calendarPopup">
-           <bool>true</bool>
-          </property>
-          <property name="timeSpec">
-           <enum>Qt::UTC</enum>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="myAntennaCombo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="myRigLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>My Rig</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="myCalLabel">
-        <property name="text">
-         <string>My Callsign</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="2">
-       <widget class="QLabel" name="bandLabel">
-        <property name="text">
-         <string>Band</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QComboBox" name="myAntennaCombo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QLabel" name="rangeLabel">
-        <property name="text">
-         <string>Date Range</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2">
-       <widget class="QComboBox" name="bandCombo"/>
-      </item>
-      <item row="12" column="1" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="confirmedLabel">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Confirmed by:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="lotwCheckBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>LoTW</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="eqslCheckBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>eQSL</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="paperCheckBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Paper</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
@@ -423,19 +510,20 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>userFilterCombo</tabstop>
+  <tabstop>bandCombo</tabstop>
+  <tabstop>lotwCheckBox</tabstop>
+  <tabstop>eqslCheckBox</tabstop>
+  <tabstop>paperCheckBox</tabstop>
+  <tabstop>useDateRangeCheckBox</tabstop>
+  <tabstop>startDateEdit</tabstop>
+  <tabstop>endDateEdit</tabstop>
   <tabstop>statTypeMainCombo</tabstop>
   <tabstop>statTypeSecCombo</tabstop>
   <tabstop>myCallCombo</tabstop>
   <tabstop>myGridCombo</tabstop>
   <tabstop>myRigCombo</tabstop>
   <tabstop>myAntennaCombo</tabstop>
-  <tabstop>useDateRangeCheckBox</tabstop>
-  <tabstop>startDateEdit</tabstop>
-  <tabstop>endDateEdit</tabstop>
-  <tabstop>bandCombo</tabstop>
-  <tabstop>lotwCheckBox</tabstop>
-  <tabstop>eqslCheckBox</tabstop>
-  <tabstop>paperCheckBox</tabstop>
   <tabstop>graphView</tabstop>
  </tabstops>
  <resources/>
@@ -645,6 +733,22 @@
     <hint type="destinationlabel">
      <x>657</x>
      <y>504</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userFilterCombo</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>StatisticsWidget</receiver>
+   <slot>refreshGraph()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>364</y>
     </hint>
    </hints>
   </connection>

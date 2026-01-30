@@ -40,6 +40,21 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_metainfodir}/*
 
 %changelog
+* Fri Jan 30 2026 Ladislav Foldyna - 0.48.0-1
+- [NEW] - Rig Widget - tuning rig with mouse (issue #855)
+- [NEW] - Awards - Added User Filter Combo (issue #870)
+- [NEW] - Statistics - Added User Filter; new Dialog layout (issue #870)
+- [NEW] - Alerts - Added detailed Log Status settings (issue #817)
+- [NEW] - Settings - Enable/Disable sending color-coded status indicators back to WSJT-X (issue #885 @aa5sh @foldynl)
+- [CHANGED] - Omnirig Drivers: Removed QT AXContainers - pure Windows API code
+- [CHANGED] - Enabled Chekbox in Alerts Table (issue #867)
+- [CHANGED] - Serial Port Completer contains Horizontal ScrollBar
+- [CHANGED] - TCI - Settings - Default PWR defines the maximum output power
+- Fixed Omnirig drivers keep sending frequency change (issue #872)
+- Fixed ADIF import does not accept a default operator name (issue #884)
+- Fixed HamQTH URL from http to https (PR #886 @aa5sh)
+- Fixed Missing Band value when QSO from FLDigi (issue #892)
+
 * Fri Dec 19 2025 Ladislav Foldyna - 0.47.1-1
 - [CHANGED] - DXC - VE7CC-type Cluster is correctly detected (PR #851 @kyleboyle)
 - [CHANGED] - Chat - Changed ON4KST URL (issue #857)

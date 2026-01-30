@@ -35,6 +35,7 @@
 #include "ui/UploadQSODialog.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
+#include "data/WsjtxEntry.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 
@@ -56,6 +57,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
     themeButton = new QPushButton(this);
     themeButton->setToolTip(tr("Color Theme"));
+    themeButton->setObjectName("themeButton");
+    themeButton->setFocusPolicy(Qt::ClickFocus);
     themeButton->setIcon(QIcon(QPixmap(":/icons/color-palette-dark.svg")));
     themeButton->setFlat(true);
 
@@ -121,6 +124,7 @@ MainWindow::MainWindow(QWidget* parent) :
     activityButton = new QPushButton("", ui->statusBar);
     activityButton->setFlat(true);
     activityButton->setFocusPolicy(Qt::NoFocus);
+    activityButton->setObjectName("activityButton");
     QMenu *activityMenu = new QMenu(activityButton);
     activityButton->setMenu(activityMenu);
 
@@ -147,6 +151,7 @@ MainWindow::MainWindow(QWidget* parent) :
     alertButton->setMenu(menuAlert);
 
     alertTextButton = new QPushButton(" ", ui->statusBar);
+    alertTextButton->setObjectName("alertTextButton");
     alertTextButton->setFlat(true);
     alertTextButton->setFocusPolicy(Qt::NoFocus);
     alertTextButton->setToolTip(tr("Press to tune the alert"));
@@ -272,9 +277,12 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(wsjtx, &WsjtxUDPReceiver::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
     connect(ui->wsjtxWidget, &WsjtxWidget::CQSpot, &networknotification, &NetworkNotification::WSJTXCQSpot);
     connect(ui->wsjtxWidget, &WsjtxWidget::CQSpot, &alertEvaluator, &AlertEvaluator::WSJTXCQSpot);
+    connect(ui->wsjtxWidget, &WsjtxWidget::filteredCQSpot, wsjtx, &WsjtxUDPReceiver::sendHighlightCallsign);
     connect(ui->wsjtxWidget, &WsjtxWidget::filteredCQSpot, ui->onlineMapWidget, &OnlineMapWidget::drawWSJTXSpot);
+    connect(ui->wsjtxWidget, &WsjtxWidget::updatedCQSpot, wsjtx, &WsjtxUDPReceiver::sendClearHighlightCallsign);
+    connect(ui->wsjtxWidget, &WsjtxWidget::spotsCleared, wsjtx, &WsjtxUDPReceiver::sendClearAllHighlightCallsign);
     connect(ui->wsjtxWidget, &WsjtxWidget::spotsCleared, ui->onlineMapWidget, &OnlineMapWidget::clearWSJTXSpots);
-    connect(ui->wsjtxWidget, &WsjtxWidget::reply, wsjtx, &WsjtxUDPReceiver::startReply);
+    connect(ui->wsjtxWidget, &WsjtxWidget::reply, wsjtx, &WsjtxUDPReceiver::sendReply);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
     connect(ui->wsjtxWidget, &WsjtxWidget::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
@@ -378,7 +386,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->alertsWidget, &AlertWidget::rulesChanged, &alertEvaluator, &AlertEvaluator::loadRules);
     connect(ui->alertsWidget, &AlertWidget::alertsCleared, this, &MainWindow::clearAlertEvent);
     connect(ui->alertsWidget, &AlertWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
-    connect(ui->alertsWidget, &AlertWidget::tuneWsjtx, wsjtx, &WsjtxUDPReceiver::startReply);
+    connect(ui->alertsWidget, &AlertWidget::tuneWsjtx, wsjtx, &WsjtxUDPReceiver::sendReply);
 
     conditions = new PropConditions();
 
@@ -399,7 +407,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(clublogRT, &ClubLogUploader::uploadedQSO, ui->logbookWidget, &LogbookWidget::updateTable);
 
     if ( StationProfilesManager::instance()->profileNameList().isEmpty() )
-        showSettings();
+        firstRun = true;
     else
         MembershipQE::instance()->updateLists();
 
@@ -878,6 +886,19 @@ void MainWindow::setDarkTheme()
     qApp->setPalette(darkPalette);
 }
 
+void MainWindow::showEvent(QShowEvent *event)
+{
+    FCT_IDENTIFICATION;
+
+    QMainWindow::showEvent(event);
+
+    if ( firstRun )
+    {
+        firstRun = false;
+        showSettings();
+    }
+}
+
 void MainWindow::setLightTheme()
 {
     FCT_IDENTIFICATION;
@@ -981,20 +1002,17 @@ void MainWindow::processSpotAlert(SpotAlert alert)
     ui->alertsWidget->addAlert(alert);
     alertButton->setText(QString::number(ui->alertsWidget->alertCount()));
     alertTextButton->setText(alert.ruleNameList.join(", ") + ": " + alert.spot.callsign + ", " + alert.spot.band + ", " + alert.spot.modeGroupString);
-    alertTextButton->disconnect();
+    if (alertTextButtonConn) QObject::disconnect(alertTextButtonConn);
 
-    connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
+    alertTextButtonConn = connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
     {
         if ( alert.source == SpotAlert::WSJTXCQSPOT )
-            wsjtx->startReply(alert.spot.decode);
+            wsjtx->sendReply(alert.spot);
         else
             ui->newContactWidget->tuneDx(alert.getDxSpot());
     });
 
-    if ( ui->actionBeepSettingAlert->isChecked() )
-    {
-        QApplication::beep();
-    }
+    if ( ui->actionBeepSettingAlert->isChecked() ) QApplication::beep();
 }
 
 void MainWindow::clearAlertEvent()
@@ -1008,7 +1026,7 @@ void MainWindow::clearAlertEvent()
     if ( newCount == 0 )
     {
         alertTextButton->setText(" ");
-        alertTextButton->disconnect();
+        if (alertTextButtonConn) QObject::disconnect(alertTextButtonConn);
     }
 }
 
@@ -1666,9 +1684,9 @@ void MainWindow::showAbout()
 
     QString aboutText = tr("<h1>QLog %1</h1>"
                            "<p>&copy; 2019 Thomas Gatzweiler DL2IC<br/>"
-                           "&copy; 2021-2025 Ladislav Foldyna OK1MLG<br/>"
-                           "&copy; 2025 Michael Morgan AA5SH<br/>"
-                           "&copy; 2025 Kyle Boyle VE9KZ</p>"
+                           "&copy; 2021-2026 Ladislav Foldyna OK1MLG<br/>"
+                           "&copy; 2025-2026 Michael Morgan AA5SH<br/>"
+                           "&copy; 2025-2026 Kyle Boyle VE9KZ</p>"
                            "<p>Based on Qt %2<br/>"
                            "%3<br/>"
                            "%4<br/>"
@@ -1815,6 +1833,7 @@ void MainWindow::QSOFilterSetting()
     QSOFilterDialog dialog(this);
     dialog.exec();
     ui->logbookWidget->refreshUserFilter();
+    stats->refreshWidget();
 }
 
 void MainWindow::alertRuleSetting()

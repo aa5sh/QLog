@@ -31,10 +31,17 @@ private:
     QList<QCheckBox*> memberListCheckBoxes;
 
 
+private slots:
+    void enabledLogStatusAll(bool enabled);
+
 private:
+    void setDefaultValues();
     bool ruleExists(const QString &ruleName);
     void loadRule(const QString &ruleName);
     void generateMembershipCheckboxes(const AlertRule * rule = nullptr);
+
+    const quint8 MAXCOLUMNS = 8;
+    const quint8 ALLCOUNTRYIDX = 0;
 };
 
 #endif // QLOG_UI_ALERTRULEDETAIL_H

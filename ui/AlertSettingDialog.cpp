@@ -16,6 +16,8 @@ AlertSettingDialog::AlertSettingDialog(QWidget *parent) :
     rulesModel->setTable("alert_rules");
     rulesModel->setHeaderData(0, Qt::Horizontal, tr("Name"));
     rulesModel->setHeaderData(1, Qt::Horizontal, tr("State"));
+    rulesModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+    rulesModel->setSort(0, Qt::AscendingOrder);
 
     ui->rulesTableView->setModel(rulesModel);
 
@@ -29,6 +31,7 @@ AlertSettingDialog::AlertSettingDialog(QWidget *parent) :
 
     ui->rulesTableView->setColumnWidth(0,300);
 
+    ui->rulesTableView->setItemDelegateForColumn(0, new ReadOnlyDelegate(ui->rulesTableView));
     ui->rulesTableView->setItemDelegateForColumn(1,new CheckBoxDelegate(ui->rulesTableView));
 
     rulesModel->select();
@@ -60,6 +63,8 @@ void AlertSettingDialog::removeRule()
 void AlertSettingDialog::editRule(QModelIndex idx)
 {
     FCT_IDENTIFICATION;
+
+    if (idx.column() != 0) return;
 
     QModelIndex nameIdx = ui->rulesTableView->model()->index(idx.row(),0);
 

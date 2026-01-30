@@ -212,15 +212,18 @@ QSOFilter QSOFilterManager::getFilter(const QString &filterName) const
     return ret;
 }
 
-QString QSOFilterManager::getWhereClause(const QString &filterName)
+QString QSOFilterManager::getWhereClause(const QString &filterName, const QString &columnPrefix)
 {
     FCT_IDENTIFICATION;
 
     QSqlQuery userFilterQuery;
     QString ret;
+    QString finalColumnPfx = columnPrefix;
+    finalColumnPfx += finalColumnPfx.isEmpty() ? "" : ".";
+
     if ( ! userFilterQuery.prepare(
-                  QLatin1String ("SELECT "
-                                 "'(' || GROUP_CONCAT( ' ' || c.name || ' ' || CASE WHEN r.value IS NULL AND o.sql_operator IN ('=', 'like') THEN 'IS' "
+                  QString(       "SELECT "
+                                 "'(' || GROUP_CONCAT( ' ' || '" + finalColumnPfx + "' || c.name || ' ' || CASE WHEN r.value IS NULL AND o.sql_operator IN ('=', 'like') THEN 'IS' "
                                  "                                                  WHEN r.value IS NULL and r.operator_id NOT IN ('=', 'like') THEN 'IS NOT' "
                                  "                                                  WHEN o.sql_operator = ('starts with') THEN 'like' "
                                  "                                                  ELSE o.sql_operator END || "
@@ -262,5 +265,16 @@ QString QSOFilterManager::getWhereClause(const QString &filterName)
     // Fortunately, both sides are strings in the same format, except that Timeon/Timeoff
     // includes a timezone at the end. Therefore, string comparison of the dates still works.
     return ret;
+}
+
+SqlListModel *QSOFilterManager::QSOFilterModel(const QString &firstValue, QObject *parent)
+{
+    FCT_IDENTIFICATION;
+
+    return new SqlListModel("SELECT filter_name "
+                            "FROM qso_filters "
+                            "ORDER BY filter_name COLLATE LOCALEAWARE ASC",
+                            firstValue,
+                            parent);
 }
 

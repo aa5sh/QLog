@@ -77,7 +77,7 @@ void AlertWidget::entryDoubleClicked(QModelIndex index)
     const AlertTableModel::AlertTableRecord &record = alertTableModel->getTableRecord(source_index);
 
     if ( record.alert.source == SpotAlert::WSJTXCQSPOT )
-        emit tuneWsjtx(record.alert.spot.decode);
+        emit tuneWsjtx(record.alert.spot);
     else
         emit tuneDx(record.alert.getDxSpot());
 }

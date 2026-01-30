@@ -42,7 +42,7 @@ protected:
     void processReply(QNetworkReply* reply) override;
 
 private:
-    const QString API_URL = "http://www.hamqth.com/xml.php";
+    const QString API_URL = "https://www.hamqth.com/xml.php";
     QString sessionId;
     QString queuedCallsign;
     bool incorrectLogin;

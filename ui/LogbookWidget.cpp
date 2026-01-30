@@ -278,11 +278,8 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     refreshClubFilter();
 
     ui->userSelectFilter->blockSignals(true);
-    ui->userSelectFilter->setModel(new SqlListModel("SELECT filter_name "
-                                                    "FROM qso_filters "
-                                                    "ORDER BY filter_name COLLATE LOCALEAWARE ASC",
-                                                    tr("No User Filter"),
-                                                    ui->userSelectFilter));
+    ui->userSelectFilter->setModel(QSOFilterManager::QSOFilterModel(tr("No User Filter"),
+                                                                    ui->userSelectFilter));
     ui->userSelectFilter->adjustMaxSize();
     ui->userSelectFilter->setHighlightWhenEnable(true);
     ui->userSelectFilter->blockSignals(false);

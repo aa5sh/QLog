@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
-    <height>598</height>
+    <width>577</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,33 +32,59 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="ruleNameEdit"/>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="ruleNameEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Maximum</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="ruleEnabledCheckBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Enabled</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="ruleEnabledLabel">
-         <property name="text">
-          <string>Enabled</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="ruleEnabledCheckBox">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
         <widget class="QLabel" name="sourceLabel">
          <property name="text">
           <string>Sources</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QCheckBox" name="dxcCheckBox">
@@ -79,6 +105,19 @@
             <bool>true</bool>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -124,13 +163,76 @@
           <number>2</number>
          </property>
          <item row="0" column="0">
+          <widget class="QLabel" name="logStatusLabel">
+           <property name="text">
+            <string>Log Status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QGridLayout" name="gridLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="workedCheckbox">
+             <property name="text">
+              <string>Worked</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="newSlotCheckbox">
+             <property name="text">
+              <string>New Slot</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QCheckBox" name="confirmedCheckbox">
+             <property name="text">
+              <string>Confirmed</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="newEntityCheckbox">
+             <property name="text">
+              <string>New Entity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QCheckBox" name="newModeCheckbox">
+             <property name="text">
+              <string>New Mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QCheckBox" name="newBandCheckbox">
+             <property name="text">
+              <string>New Band</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="allCheckbox">
+             <property name="text">
+              <string>All</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
           <widget class="QLabel" name="dxCallsignLabel">
            <property name="text">
             <string>DX Callsign</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="QLineEdit" name="dxCallsignEdit">
            <property name="toolTip">
             <string>Use Perl-like regular expression</string>
@@ -143,60 +245,63 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="countryLabel">
            <property name="text">
             <string>Country</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="countryCombo"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="logStatusLabel">
-           <property name="text">
-            <string>Log Status</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1">
-          <widget class="QComboBox" name="logStatusCombo"/>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="spotCommentLabel">
-           <property name="text">
-            <string>Spot Comment</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="spotCommentEdit">
-           <property name="toolTip">
-            <string>Use Perl-like regular expression</string>
-           </property>
-           <property name="text">
-            <string>.*</string>
-           </property>
-           <property name="placeholderText">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <property name="spacing">
-            <number>9</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="SmartSearchBox" name="countryCombo">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item>
             <widget class="QLabel" name="ituLabel">
              <property name="text">
               <string>ITU</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item>
             <widget class="QLineEdit" name="ituEdit">
@@ -218,11 +323,43 @@
             </widget>
            </item>
            <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QLabel" name="cqzLabel">
              <property name="text">
               <string>CQZ</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Maximum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item>
             <widget class="QLineEdit" name="cqzEdit">
@@ -244,7 +381,7 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_2">
+            <spacer name="horizontalSpacer_3">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -258,7 +395,34 @@
            </item>
           </layout>
          </item>
-         <item row="5" column="1">
+         <item row="3" column="0">
+          <widget class="QLabel" name="spotCommentLabel">
+           <property name="text">
+            <string>Spot Comment</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="spotCommentEdit">
+           <property name="toolTip">
+            <string>Use Perl-like regular expression</string>
+           </property>
+           <property name="text">
+            <string>.*</string>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Special Programs</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <property name="spacing">
             <number>9</number>
@@ -291,43 +455,17 @@
              </property>
             </widget>
            </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
           </layout>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Special Programs</string>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="modes">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>701</width>
-           <height>356</height>
-          </size>
          </property>
          <property name="title">
           <string>Modes</string>
@@ -362,6 +500,32 @@
             <property name="verticalSpacing">
              <number>2</number>
             </property>
+            <item row="0" column="3">
+             <widget class="QCheckBox" name="ft8checkbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>FT8</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QCheckBox" name="digitalcheckbox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Digital</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
              <widget class="QCheckBox" name="phonecheckbox">
               <property name="sizePolicy">
@@ -385,32 +549,6 @@
               </property>
               <property name="text">
                <string>CW</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QCheckBox" name="digitalcheckbox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Digital</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QCheckBox" name="ft8checkbox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>FT8</string>
               </property>
              </widget>
             </item>
@@ -605,7 +743,14 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="spotterCountryCombo"/>
+          <widget class="SmartSearchBox" name="spotterCountryCombo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -727,18 +872,31 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SmartSearchBox</class>
+   <extends>QComboBox</extends>
+   <header>ui/component/SmartSearchBox.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>ruleNameEdit</tabstop>
   <tabstop>ruleEnabledCheckBox</tabstop>
   <tabstop>dxcCheckBox</tabstop>
   <tabstop>wsjtxCheckBox</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>allCheckbox</tabstop>
+  <tabstop>newEntityCheckbox</tabstop>
+  <tabstop>newBandCheckbox</tabstop>
+  <tabstop>newModeCheckbox</tabstop>
+  <tabstop>newSlotCheckbox</tabstop>
+  <tabstop>workedCheckbox</tabstop>
+  <tabstop>confirmedCheckbox</tabstop>
   <tabstop>dxCallsignEdit</tabstop>
   <tabstop>countryCombo</tabstop>
-  <tabstop>logStatusCombo</tabstop>
-  <tabstop>spotCommentEdit</tabstop>
   <tabstop>ituEdit</tabstop>
   <tabstop>cqzEdit</tabstop>
+  <tabstop>spotCommentEdit</tabstop>
   <tabstop>iotaCheckbox</tabstop>
   <tabstop>sotaCheckbox</tabstop>
   <tabstop>potaCheckbox</tabstop>
@@ -751,22 +909,22 @@
   <tabstop>bands</tabstop>
   <tabstop>continent</tabstop>
   <tabstop>afcheckbox</tabstop>
-  <tabstop>ascheckbox</tabstop>
   <tabstop>ancheckbox</tabstop>
-  <tabstop>eucheckbox</tabstop>
   <tabstop>nacheckbox</tabstop>
-  <tabstop>occheckbox</tabstop>
   <tabstop>sacheckbox</tabstop>
+  <tabstop>ascheckbox</tabstop>
+  <tabstop>eucheckbox</tabstop>
+  <tabstop>occheckbox</tabstop>
   <tabstop>memberGroupBox</tabstop>
   <tabstop>spotterCountryCombo</tabstop>
   <tabstop>continent_spotter</tabstop>
   <tabstop>afcheckbox_spotter</tabstop>
-  <tabstop>ascheckbox_spotter</tabstop>
   <tabstop>ancheckbox_spotter</tabstop>
-  <tabstop>eucheckbox_spotter</tabstop>
   <tabstop>nacheckbox_spotter</tabstop>
-  <tabstop>occheckbox_spotter</tabstop>
   <tabstop>sacheckbox_spotter</tabstop>
+  <tabstop>ascheckbox_spotter</tabstop>
+  <tabstop>eucheckbox_spotter</tabstop>
+  <tabstop>occheckbox_spotter</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -850,11 +1008,28 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>allCheckbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AlertRuleDetail</receiver>
+   <slot>enabledLogStatusAll(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>203</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>288</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>save()</slot>
   <slot>ruleNameChanged(QString)</slot>
   <slot>callsignChanged(QString)</slot>
   <slot>spotCommentChanged(QString)</slot>
+  <slot>enabledLogStatusAll(bool)</slot>
  </slots>
 </ui>

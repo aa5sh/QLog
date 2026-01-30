@@ -44,8 +44,12 @@ public slots:
 
 private slots:
     void sendOnAirState();
+    void freqChanged(double);
 
 private:
+
+    // On AIR pinging to HRDLog [in sec]
+    const int ONAIR_INTERVAL = 60;
 
     void resetRigInfo();
     void saveLastSeenFreq();

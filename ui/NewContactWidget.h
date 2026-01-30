@@ -32,6 +32,8 @@ namespace Ui {
 class NewContactWidget;
 }
 
+class ModeSelectionController;
+
 enum CoordPrecision {
     COORD_NONE = 0,
     COORD_DXCC = 1,
@@ -392,6 +394,7 @@ private:
     bool isPrevQSOBaseCallMatchQuery;
     DxSpot nearestSpot;
     QToolButton *tabCollapseBtn;
+    ModeSelectionController *modeController;
 };
 
 #endif // QLOG_UI_NEWCONTACTWIDGET_H
