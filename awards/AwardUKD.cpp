@@ -1,0 +1,33 @@
+#include <QCoreApplication>
+#include "AwardUKD.h"
+
+QString AwardUKD::displayName() const
+{
+    return QCoreApplication::translate("AwardsDialog", "Ukrainian Districts");
+}
+
+QString AwardUKD::headersColumns(const QString &) const
+{
+    return QStringLiteral("d.subdivision_name col1, d.code col2 ");
+}
+
+QString AwardUKD::sqlDetailTable(const QString &) const
+{
+    return " FROM adif_enum_secondary_subdivision d "
+           "   LEFT OUTER JOIN (SELECT * FROM source_contacts "
+           "                    WHERE dxcc = 288 "
+           "                      AND cnty IS NOT NULL AND cnty != '') c "
+           "     ON d.dxcc = c.dxcc AND upper(d.code) = upper(c.cnty) "
+           "   LEFT OUTER JOIN modes m ON c.mode = m.name "
+           " WHERE d.dxcc = 288 ";
+}
+
+QString AwardUKD::additionalWhere(const QString &) const
+{
+    return QString();
+}
+
+QString AwardUKD::clickFilter(const QString &, const QString &col2Value) const
+{
+    return QString("upper(cnty) = upper('%1') and dxcc = 288").arg(col2Value);
+}

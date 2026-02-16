@@ -1872,12 +1872,13 @@ void MainWindow::showAwards()
 {
     FCT_IDENTIFICATION;
 
-    AwardsDialog dialog(this);
-    connect(&dialog, &AwardsDialog::AwardConditionSelected,
+    AwardsDialog* dialog = new AwardsDialog (this);
+    connect(dialog, &AwardsDialog::awardConditionSelected,
             ui->logbookWidget, &LogbookWidget::filterCountryBand);
-    connect(&dialog, &AwardsDialog::finished,
+    connect(dialog, &AwardsDialog::finished,
             ui->logbookWidget, &LogbookWidget::restoreFilters);
-    dialog.exec();
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 }
 
 void MainWindow::showAbout()
