@@ -30,8 +30,7 @@ QString AwardGridsquare::headersColumns(const QString &) const
 QString AwardGridsquare::sqlDetailTable(const QString &entity) const
 {
     return " FROM source_contacts c"
-           "      INNER JOIN modes m ON c.mode = m.name"
-           " WHERE c.my_dxcc = '" + entity + "' ";
+           "      INNER JOIN modes m ON c.mode = m.name AND c.my_dxcc = '" + entity + "' ";
 }
 
 QString AwardGridsquare::additionalWhere(const QString &entity) const

@@ -14,9 +14,8 @@ QString AwardWAZ::headersColumns(const QString &) const
 QString AwardWAZ::sqlDetailTable(const QString &entity) const
 {
     return " FROM cqzCTE d "
-           "   LEFT OUTER JOIN source_contacts c ON d.n = c.cqz"
-           "   LEFT OUTER JOIN modes m on c.mode = m.name "
-           " WHERE (c.id IS NULL OR c.my_dxcc = '" + entity + "') ";
+           "   LEFT OUTER JOIN source_contacts c ON d.n = c.cqz AND c.my_dxcc = '" + entity + "'"
+           "   LEFT OUTER JOIN modes m on c.mode = m.name ";
 }
 
 QString AwardWAZ::additionalWhere(const QString &entity) const

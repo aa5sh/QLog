@@ -14,9 +14,8 @@ QString AwardITU::headersColumns(const QString &) const
 QString AwardITU::sqlDetailTable(const QString &entity) const
 {
     return " FROM ituzCTE d "
-           "   LEFT OUTER JOIN source_contacts c ON d.n = c.ituz"
-           "   LEFT OUTER JOIN modes m on c.mode = m.name"
-           " WHERE (c.id is NULL or c.my_dxcc = '" + entity + "') ";
+           "   LEFT OUTER JOIN source_contacts c ON d.n = c.ituz AND c.my_dxcc = '" + entity + "'"
+           "   LEFT OUTER JOIN modes m on c.mode = m.name";
 }
 
 QString AwardITU::additionalWhere(const QString &entity) const

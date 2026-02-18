@@ -14,9 +14,8 @@ QString AwardWAC::headersColumns(const QString &) const
 QString AwardWAC::sqlDetailTable(const QString &entity) const
 {
     return " FROM continents d "
-           "   LEFT OUTER JOIN source_contacts c ON d.column1 = c.cont "
-           "   LEFT OUTER JOIN modes m on c.mode = m.name "
-           " WHERE (c.id is NULL or c.my_dxcc = '" + entity + "') ";
+           "   LEFT OUTER JOIN source_contacts c ON d.column1 = c.cont AND c.my_dxcc = '" + entity + "'"
+           "   LEFT OUTER JOIN modes m on c.mode = m.name ";
 }
 
 QString AwardWAC::additionalWhere(const QString &entity) const

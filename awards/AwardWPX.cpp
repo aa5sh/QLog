@@ -14,9 +14,7 @@ QString AwardWPX::headersColumns(const QString &) const
 QString AwardWPX::sqlDetailTable(const QString &entity) const
 {
     return " FROM source_contacts c"
-           "      INNER JOIN modes m ON c.mode = m.name"
-           " WHERE c.pfx is not null"
-           "       AND c.my_dxcc = '" + entity + "'";
+           "      INNER JOIN modes m ON c.mode = m.name AND c.my_dxcc = '" + entity + "'";
 }
 
 QString AwardWPX::additionalWhere(const QString &entity) const
