@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.49.0dev
+VERSION = 0.49.0
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -527,7 +527,7 @@ unix:!macx {
    desktop.path = $$PREFIX/share/applications/
    desktop.files += res/$${TARGET}.desktop
 
-   manpage.path = $$PREFIX/usr/share/man/man1
+   manpage.path = $$PREFIX/share/man/man1
    manpage.files += res/$${TARGET}.1
 
    icon.path = $$PREFIX/share/icons/hicolor/256x256/apps
@@ -536,7 +536,7 @@ unix:!macx {
    metainfo.path = $$PREFIX/share/metainfo/
    metainfo.files += res/io.github.foldynl.QLog.metainfo.xml
 
-   INSTALLS += target desktop icon metainfo
+   INSTALLS += target desktop icon metainfo manpage
 
    INCLUDEPATH += /usr/local/include
    LIBS += -L/usr/local/lib -lhamlib -lsqlite3 -lz -lssl -lcrypto

@@ -234,7 +234,7 @@ void HamlibRotDrv::setPosition(double in_azimuth, double in_elevation)
             newAzimuth -= 360.0;
         }
     }
-    else if ( rot->caps->max_az == 359.9 && newAzimuth > 359.9 )
+    else if ( rot->caps->max_az == 359.9f && newAzimuth > 359.9f )
     {
         // exception for Green Heron RT-21
         newAzimuth = 0;
