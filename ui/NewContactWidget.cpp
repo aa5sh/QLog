@@ -51,6 +51,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     bandwidthFilter(BANDWIDTH_UNKNOWN),
     rigOnline(false),
     isManualEnterMode(false),
+    rigSplitEnabled(false),
     callbookSearchPaused(false),
     modeController(nullptr)
 {
@@ -2304,6 +2305,14 @@ void NewContactWidget::frequencyTXChanged()
         return;
     }
 
+    if ( rigSplitEnabled )
+    {
+        // In split mode, TX frequency change goes to VFO2
+        updateTXBand(xitFreq);
+        qCDebug(runtime) << "split TX freq: " << xitFreq;
+        rig->setFrequency(VFO2, MHz(xitFreq));
+        return;
+    }
 
     realRigFreq = xitFreq - RigProfilesManager::instance()->getCurProfile1().xitOffset;
     double ritFreq = (isManualEnterMode) ? ui->freqRXEdit->value()
@@ -2315,16 +2324,9 @@ void NewContactWidget::frequencyTXChanged()
     // cleared
     // queryMemberList();
 
-    if ( ! isManualEnterMode )
-    {
-        qCDebug(runtime) << "rig real freq: " << realRigFreq;
-        rig->setFrequency(MHz(realRigFreq));  // set rig frequency
-        emit userFrequencyChanged(VFO1, realRigFreq, ritFreq, xitFreq);
-    }
-    else
-    {
-
-    }
+    qCDebug(runtime) << "rig real freq: " << realRigFreq;
+    rig->setFrequency(MHz(realRigFreq));  // set rig frequency
+    emit userFrequencyChanged(VFO1, realRigFreq, ritFreq, xitFreq);
 }
 
 /* the function is called when a newcontact RX frequecy spinbox is changed */
@@ -2361,6 +2363,22 @@ void NewContactWidget::changeFrequency(VFOID vfoid, double vfoFreq, double ritFr
 {
     FCT_IDENTIFICATION;
 
+    qCDebug(function_parameters) << vfoid << vfoFreq << ritFreq << xitFreq;
+
+    if ( vfoid == VFO2 )
+    {
+        // TX VFO frequency update (split mode)
+        if ( isManualEnterMode )
+            return;
+
+        ui->freqTXEdit->blockSignals(true);
+        ui->freqTXEdit->setValue(vfoFreq);
+        updateTXBand(vfoFreq);
+        ui->freqTXEdit->blockSignals(false);
+        return;
+    }
+
+    // VFO1 — RX frequency
     realFreqForManualExit = vfoFreq;
 
     if ( isManualEnterMode )
@@ -2368,7 +2386,31 @@ void NewContactWidget::changeFrequency(VFOID vfoid, double vfoFreq, double ritFr
         qCDebug(runtime) << "Manual mode enabled - ignore event";
         return;
     }
-    __changeFrequency (vfoid, vfoFreq, ritFreq, xitFreq);
+    __changeFrequency(vfoid, vfoFreq, ritFreq, xitFreq);
+}
+
+void NewContactWidget::changeSplit(VFOID, bool enabled)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << enabled;
+
+    rigSplitEnabled = enabled;
+
+    if ( !enabled )
+    {
+        // Split turned off — sync TX freq back to VFO1 + XIT
+        double xitFreq = realRigFreq + RigProfilesManager::instance()->getCurProfile1().xitOffset;
+        ui->freqTXEdit->blockSignals(true);
+        ui->freqTXEdit->setValue(xitFreq);
+        updateTXBand(xitFreq);
+        ui->freqTXEdit->blockSignals(false);
+    }
+
+    showRXTXFreqs(enabled
+                  || RigProfilesManager::instance()->getCurProfile1().ritOffset != 0.0
+                  || RigProfilesManager::instance()->getCurProfile1().xitOffset != 0.0
+                  || isManualEnterMode);
 }
 
 void NewContactWidget::changeModeWithoutSignals(const QString &mode, const QString &subMode)
@@ -2419,17 +2461,22 @@ void NewContactWidget::__changeFrequency(VFOID, double vfoFreq, double ritFreq, 
 
     realRigFreq = vfoFreq;
 
-    ui->freqTXEdit->blockSignals(true);
-    ui->freqTXEdit->setValue(xitFreq);
-    updateTXBand(xitFreq);
-    ui->freqTXEdit->blockSignals(false);
+    // When split is active, TX freq comes via VFO2 — don't overwrite it here
+    if ( !rigSplitEnabled )
+    {
+        ui->freqTXEdit->blockSignals(true);
+        ui->freqTXEdit->setValue(xitFreq);
+        updateTXBand(xitFreq);
+        ui->freqTXEdit->blockSignals(false);
+    }
 
     ui->freqRXEdit->blockSignals(true);
     ui->freqRXEdit->setValue(ritFreq);
     updateRXBand(ritFreq);
     ui->freqRXEdit->blockSignals(false);
 
-    showRXTXFreqs(( ritFreq != xitFreq
+    showRXTXFreqs(( rigSplitEnabled
+                    || ritFreq != xitFreq
                     || RigProfilesManager::instance()->getCurProfile1().ritOffset != 0.0
                     || RigProfilesManager::instance()->getCurProfile1().xitOffset != 0.0
                     || isManualEnterMode ));
@@ -2500,6 +2547,7 @@ void NewContactWidget::rigDisconnected()
     uiDynamic->powerEdit->setValue(RigProfilesManager::instance()->getCurProfile1().defaultPWR);
 
     rigOnline = false;
+    rigSplitEnabled = false;
 }
 
 void NewContactWidget::setNearestSpot(const DxSpot &spot)

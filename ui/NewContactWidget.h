@@ -244,6 +244,7 @@ public slots:
 
     // to receive RIG instructions
     void changeFrequency(VFOID, double, double, double);
+    void changeSplit(VFOID, bool);
     void changeModeWithoutSignals(const QString &mode, const QString &subMode);
     void changeModefromRig(VFOID, const QString &rawMode, const QString &mode,
                     const QString &subMode, qint32 width);
@@ -385,6 +386,7 @@ private:
     POTAEntity lastPOTA;
     WWFFEntity lastWWFF;
     bool isManualEnterMode;
+    bool rigSplitEnabled;
     LogLocale locale;
     QDateTime timeOff;
     bool callbookSearchPaused;

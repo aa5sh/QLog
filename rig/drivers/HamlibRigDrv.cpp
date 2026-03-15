@@ -150,7 +150,9 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
       currRIT(0.0),
       currXIT(0.0),
       keySpeed(0),
-      morseOverCatSupported(false)
+      morseOverCatSupported(false),
+      currSplitEnabled(false),
+      currTxFreq(Hz(0))
 {
     FCT_IDENTIFICATION;
 
@@ -329,12 +331,16 @@ void HamlibRigDrv::setFrequency(double newFreq)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << newFreq;
+    setFrequency(VFO1, newFreq);
+}
+
+void HamlibRigDrv::setFrequency(VFOID vfoid, double newFreq)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << vfoid << newFreq;
 
     if ( !rigProfile.getFreqInfo )
-        return;
-
-    if ( newFreq == currFreq )
         return;
 
     MUTEXLOCKER;
@@ -345,8 +351,37 @@ void HamlibRigDrv::setFrequency(double newFreq)
         return;
     }
 
-    int status = rig_set_freq(rig, RIG_VFO_CURR, newFreq);
+    vfo_t targetVfo = ( vfoid == VFO2 ) ? RIG_VFO_TX : RIG_VFO_CURR;
+
+    if ( vfoid == VFO1 && newFreq == currFreq )
+        return;
+
+    if ( vfoid == VFO2 && newFreq == currTxFreq )
+        return;
+
+    int status = rig_set_freq(rig, targetVfo, newFreq);
     isRigRespOK(status, tr("Set Frequency Error"), false);
+
+    commandSleep();
+}
+
+void HamlibRigDrv::setSplit(bool enabled)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << enabled;
+
+    MUTEXLOCKER;
+
+    if ( !rig )
+    {
+        qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    split_t splitVal = enabled ? RIG_SPLIT_ON : RIG_SPLIT_OFF;
+    int status = rig_set_split_vfo(rig, RIG_VFO_CURR, splitVal, RIG_VFO_SUB);
+    isRigRespOK(status, tr("Set Split Error"), false);
 
     commandSleep();
 }
@@ -592,6 +627,7 @@ void HamlibRigDrv::checkChanges()
         return;
 
     checkVFOChange();
+    checkSplitChange();
     checkPWRChange();
     checkRITChange();
     checkXITChange();
@@ -951,6 +987,66 @@ void HamlibRigDrv::checkXITChange()
     }
     else
         qCDebug(runtime) << "Get XIT is disabled";
+}
+
+void HamlibRigDrv::checkSplitChange()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !rig )
+    {
+        qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    split_t splitStatus = RIG_SPLIT_OFF;
+    vfo_t splitVfo = RIG_VFO_NONE;
+
+    int status = rig_get_split_vfo(rig, RIG_VFO_CURR, &splitStatus, &splitVfo);
+
+    if ( !isRigRespOK(status, tr("Get Split Error"), false) )
+    {
+        qCDebug(runtime) << "Get Split is not supported or failed";
+        return;
+    }
+
+    bool newSplitEnabled = (splitStatus == RIG_SPLIT_ON);
+
+    qCDebug(runtime) << "Rig Split:" << newSplitEnabled << "Split VFO:" << splitVfo;
+    qCDebug(runtime) << "Object Split:" << currSplitEnabled;
+
+    if ( newSplitEnabled != currSplitEnabled || forceSendState )
+    {
+        currSplitEnabled = newSplitEnabled;
+
+        qCDebug(runtime) << "emitting SPLIT changed" << currSplitEnabled;
+        emit splitChanged(currSplitEnabled);
+    }
+
+    if ( currSplitEnabled )
+    {
+        // Read TX VFO frequency
+        freq_t txFreq;
+        status = rig_get_freq(rig, RIG_VFO_TX, &txFreq);
+
+        if ( isRigRespOK(status, tr("Get TX Frequency Error"), false) )
+        {
+            qCDebug(runtime) << "Rig TX Freq:" << QSTRING_FREQ(Hz2MHz(txFreq));
+            qCDebug(runtime) << "Object TX Freq:" << QSTRING_FREQ(Hz2MHz(currTxFreq));
+
+            if ( txFreq != currTxFreq || forceSendState )
+            {
+                currTxFreq = txFreq;
+                qCDebug(runtime) << "emitting TX FREQ changed";
+                emit txFrequencyChanged(Hz2MHz(currTxFreq));
+            }
+        }
+    }
+    else if ( currTxFreq != Hz(0) )
+    {
+        // Split was turned off — reset TX freq
+        currTxFreq = Hz(0);
+    }
 }
 
 void HamlibRigDrv::checkKeySpeedChange()

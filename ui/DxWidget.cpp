@@ -1439,11 +1439,15 @@ void DxWidget::trendDoubleClicked(int row, int column)
     emit tuneBand(trendBandList[row]);
 }
 
-void DxWidget::setTunedFrequency(VFOID, double vfoFreq, double ritFreq, double xitFreq)
+void DxWidget::setTunedFrequency(VFOID vfoid, double vfoFreq, double ritFreq, double xitFreq)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << vfoFreq << ritFreq << xitFreq;
+    qCDebug(function_parameters) << vfoid << vfoFreq << ritFreq << xitFreq;
+
+    // DX widget tracks the RX frequency only
+    if ( vfoid == VFO2 )
+        return;
 
     const QString& newBand = BandPlan::freq2Band(xitFreq).name;
     const QBrush &defaultBrush = ui->trendTable->horizontalHeaderItem(0)->background();

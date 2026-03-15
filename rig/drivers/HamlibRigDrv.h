@@ -27,6 +27,8 @@ public:
     virtual QStringList getAvailableModes() override;
 
     virtual void setFrequency(double) override;
+    virtual void setFrequency(VFOID, double) override;
+    virtual void setSplit(bool) override;
     virtual void setRawMode(const QString &) override;
     virtual void setMode(const QString &, const QString &, bool) override;
     virtual void setPTT(bool) override;
@@ -55,6 +57,7 @@ private:
     bool checkFreqChange();
     bool checkModeChange();
     void checkVFOChange();
+    void checkSplitChange();
     void checkPWRChange();
     void checkRITChange();
     void checkXITChange();
@@ -96,6 +99,8 @@ private:
     double currXIT;
     unsigned int keySpeed;
     bool morseOverCatSupported;
+    bool currSplitEnabled;
+    double currTxFreq;
     QMutex drvLock;
     QHash<QString, QString>postponedErrors;
     QStringList modeList;
