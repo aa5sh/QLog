@@ -22,6 +22,7 @@
 #include "ui/NewContactWidget.h"
 #include "ui/QSOFilterDialog.h"
 #include "ui/AwardsDialog.h"
+#include "ui/DXCCSubmissionDialog.h"
 #include "core/PropConditions.h"
 #include "data/MainLayoutProfile.h"
 #include "ui/EditActivitiesDialog.h"
@@ -1908,6 +1909,14 @@ void MainWindow::showAwards()
             ui->logbookWidget, &LogbookWidget::restoreFilters);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
+}
+
+void MainWindow::showDXCCSubmission()
+{
+    FCT_IDENTIFICATION;
+
+    DXCCSubmissionDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::showAbout()

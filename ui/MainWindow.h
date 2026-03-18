@@ -59,6 +59,7 @@ private slots:
     void importLog();
     void exportLog();
     void showAwards();
+    void showDXCCSubmission();
     void showAbout();
     void showWhatsNew();
     void showWikiHelp();
