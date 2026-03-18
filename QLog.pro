@@ -154,6 +154,7 @@ SOURCES += \
         ui/ChatWidget.cpp \
         ui/ClockWidget.cpp \
         ui/ColumnSettingDialog.cpp \
+        ui/DuplicateContactsDialog.cpp \
         ui/DownloadQSLDialog.cpp \
         ui/DxFilterDialog.cpp \
         ui/DxWidget.cpp \
@@ -318,6 +319,7 @@ HEADERS += \
         ui/ChatWidget.h \
         ui/ClockWidget.h \
         ui/ColumnSettingDialog.h \
+        ui/DuplicateContactsDialog.h \
         ui/DownloadQSLDialog.h \
         ui/DxFilterDialog.h \
         ui/DxWidget.h \
@@ -383,6 +385,7 @@ FORMS += \
         ui/ClockWidget.ui \
         ui/ColumnSettingDialog.ui \
         ui/ColumnSettingSimpleDialog.ui \
+        ui/DuplicateContactsDialog.ui \
         ui/DownloadQSLDialog.ui \
         ui/DxFilterDialog.ui \
         ui/DxWidget.ui \
