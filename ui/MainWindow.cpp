@@ -20,6 +20,7 @@
 #include "ui/NewContactWidget.h"
 #include "ui/QSOFilterDialog.h"
 #include "ui/AwardsDialog.h"
+#include "ui/DXCCSubmissionDialog.h"
 #include "core/PropConditions.h"
 #include "data/MainLayoutProfile.h"
 #include "ui/EditActivitiesDialog.h"
@@ -1877,6 +1878,14 @@ void MainWindow::showAwards()
             ui->logbookWidget, &LogbookWidget::filterCountryBand);
     connect(&dialog, &AwardsDialog::finished,
             ui->logbookWidget, &LogbookWidget::restoreFilters);
+    dialog.exec();
+}
+
+void MainWindow::showDXCCSubmission()
+{
+    FCT_IDENTIFICATION;
+
+    DXCCSubmissionDialog dialog(this);
     dialog.exec();
 }
 

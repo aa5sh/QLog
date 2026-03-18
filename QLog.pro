@@ -149,6 +149,7 @@ SOURCES += \
         ui/AlertSettingDialog.cpp \
         ui/AlertWidget.cpp \
         ui/AwardsDialog.cpp \
+        ui/DXCCSubmissionDialog.cpp \
         ui/BandmapWidget.cpp \
         ui/CWConsoleWidget.cpp \
         ui/ChatWidget.cpp \
@@ -313,6 +314,7 @@ HEADERS += \
         ui/AlertSettingDialog.h \
         ui/AlertWidget.h \
         ui/AwardsDialog.h \
+        ui/DXCCSubmissionDialog.h \
         ui/BandmapWidget.h \
         ui/CWConsoleWidget.h \
         ui/ChatWidget.h \
@@ -377,6 +379,7 @@ FORMS += \
         ui/AlertSettingDialog.ui \
         ui/AlertWidget.ui \
         ui/AwardsDialog.ui \
+        ui/DXCCSubmissionDialog.ui \
         ui/BandmapWidget.ui \
         ui/CWConsoleWidget.ui \
         ui/ChatWidget.ui \

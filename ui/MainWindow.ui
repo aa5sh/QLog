@@ -77,6 +77,7 @@
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionAwards"/>
+    <addaction name="actionDXCCSubmission"/>
     <addaction name="actionStatistics"/>
     <addaction name="separator"/>
     <addaction name="actionQSLGallery"/>
@@ -517,6 +518,18 @@
    </property>
    <property name="text">
     <string>&amp;Awards</string>
+   </property>
+  </action>
+  <action name="actionDXCCSubmission">
+   <property name="icon">
+    <iconset theme="application-certificate">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>DXCC &amp;Submission List</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate a list of contacts to submit for ARRL DXCC award credit</string>
    </property>
   </action>
   <action name="actionEditAlertRules">
@@ -1386,6 +1399,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>actionDXCCSubmission</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showDXCCSubmission()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionAwards</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -1751,6 +1780,7 @@
   <slot>rotConnect()</slot>
   <slot>QSOFilterSetting()</slot>
   <slot>showAwards()</slot>
+  <slot>showDXCCSubmission()</slot>
   <slot>alertRuleSetting()</slot>
   <slot>showAlerts()</slot>
   <slot>clearAlerts()</slot>
