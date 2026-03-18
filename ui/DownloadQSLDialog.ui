@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>300</height>
+    <height>290</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,12 +110,9 @@
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
-    <widget class="QGroupBox" name="lotwDXCCGroupBox">
-     <property name="title">
+    <widget class="QCheckBox" name="lotwDXCCCheckBox">
+     <property name="text">
       <string>LoTW DXCC Credits</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -140,7 +137,7 @@
   <tabstop>lotwDateTypeCombo</tabstop>
   <tabstop>lotwDateEdit</tabstop>
   <tabstop>lotwMyCallsignCombo</tabstop>
-  <tabstop>lotwDXCCGroupBox</tabstop>
+  <tabstop>lotwDXCCCheckBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

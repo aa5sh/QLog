@@ -45,9 +45,9 @@ DownloadQSLDialog::DownloadQSLDialog(QWidget *parent)
         ui->lotwGroupBox->setChecked(false);
         ui->lotwGroupBox->setEnabled(false);
         ui->lotwGroupBox->setToolTip(tr("LoTW is not configured properly.<p> Please, use <b>Settings</b> dialog to configure it.</p>"));
-        ui->lotwDXCCGroupBox->setChecked(false);
-        ui->lotwDXCCGroupBox->setEnabled(false);
-        ui->lotwDXCCGroupBox->setToolTip(tr("LoTW is not configured properly.<p> Please, use <b>Settings</b> dialog to configure it.</p>"));
+        ui->lotwDXCCCheckBox->setChecked(false);
+        ui->lotwDXCCCheckBox->setEnabled(false);
+        ui->lotwDXCCCheckBox->setToolTip(tr("LoTW is not configured properly.<p> Please, use <b>Settings</b> dialog to configure it.</p>"));
     }
 
     if ( EQSLBase::getUsername().isEmpty() )
@@ -102,10 +102,8 @@ void DownloadQSLDialog::loadDialogState()
 
     ui->eqslQTHProfileEdit->setText(LogParam::getDownloadQSLeQSLLastProfile());
 
-    /*************/
-    /* LoTW DXCC */
-    /*************/
-    ui->lotwDXCCGroupBox->setChecked(LogParam::getDownloadQSLServiceState("lotwdxcc"));
+    /* LoTW DXCC Credits checkbox always starts unchecked — this is a one-off task. */
+    ui->lotwDXCCCheckBox->setChecked(false);
 }
 
 void DownloadQSLDialog::saveDialogState()
@@ -126,11 +124,6 @@ void DownloadQSLDialog::saveDialogState()
     LogParam::setDownloadQSLServiceLastDate("eqsl", QDateTime::currentDateTimeUtc().date());
     LogParam::setDownloadQSLServiceLastQSOQSL("eqsl", ui->eqslDateTypeCombo->currentIndex() == 0);
     LogParam::setDownloadQSLeQSLLastProfile(ui->eqslQTHProfileEdit->text());
-
-    /*************/
-    /* LoTW DXCC */
-    /*************/
-    LogParam::setDownloadQSLServiceState("lotwdxcc", ui->lotwDXCCGroupBox->isChecked());
 }
 
 void DownloadQSLDialog::prepareDownload(GenericQSLDownloader *service,
@@ -219,7 +212,7 @@ void DownloadQSLDialog::downloadQSLs()
             lotw->receiveQSL(ui->lotwDateEdit->date(), !qslSinceActive, ui->lotwMyCallsignCombo->currentText());
         });
 
-    if ( ui->lotwDXCCGroupBox->isChecked() )
+    if ( ui->lotwDXCCCheckBox->isChecked() )
         downloadQueue.enqueue([=]()
         {
             LotwQSLDownloader* lotw = new LotwQSLDownloader(this);

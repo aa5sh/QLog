@@ -825,13 +825,16 @@ void LogFormat::runQSOCreditImport(QSLFrom /*fromService*/)
             continue;
         }
 
-        /* Match on callsign + band + date (day only) + must already have a QSL confirmed.
+        /* Match on callsign + band + date + must already have a QSL confirmed.
          * Mode is intentionally omitted because DXCC credit records may use generic
-         * mode group names that do not precisely match the logged mode. */
+         * mode group names that do not precisely match the logged mode.
+         * A ±1 day tolerance is applied because the credit file may record the QSO
+         * date in the operator's local time zone while the DB stores UTC, causing a
+         * one-day discrepancy for QSOs made near midnight. */
         const QString matchFilter = QString(
             "callsign=upper('%1') AND upper(band)=upper('%2') AND "
             "COALESCE(sat_name, '') = upper('%3') AND "
-            "date(start_time)=date('%4') AND "
+            "ABS(JULIANDAY(date(start_time)) - JULIANDAY(date('%4'))) <= 1 AND "
             "(qsl_rcvd = 'Y' OR lotw_qsl_rcvd = 'Y')"
         ).arg(call.toString(),
               band.toString(),
@@ -841,55 +844,57 @@ void LogFormat::runQSOCreditImport(QSLFrom /*fromService*/)
         model.setFilter(matchFilter);
         model.select();
 
-        if ( model.rowCount() != 1 )
+        if ( model.rowCount() < 1 )
         {
             stats.unmatchedQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), ""));
             continue;
         }
 
-        QSqlRecord originalRecord = model.record(0);
+        qCDebug(runtime) << "DXCC credit: found" << model.rowCount() << "match(es) for"
+                         << call.toString() << band.toString() << start_time.toString();
 
-        QStringList updatedFields;
-        bool callUpdate = false;
-
-        qCDebug(runtime) << "DXCC credit: attempting update for" << call.toString()
-                         << band.toString() << start_time.toString();
-
-        auto conditionUpdate = [&](const QString &contactKey,
-                                   const QString &qslKey)
+        /* Update every matching contact — multiple QSOs on the same date/band are possible. */
+        for ( int row = 0; row < model.rowCount(); ++row )
         {
-            if ( !QSLRecord.value(qslKey).toString().isEmpty()
-                 && originalRecord.value(contactKey).toString().isEmpty() )
+            QSqlRecord originalRecord = model.record(row);
+
+            QStringList updatedFields;
+            bool callUpdate = false;
+
+            auto conditionUpdate = [&](const QString &contactKey,
+                                       const QString &qslKey)
             {
-                qCDebug(runtime) << "Updating:" << contactKey
-                                 << "to" << QSLRecord.value(qslKey).toString();
-                updatedFields.append(contactKey + "(" + QSLRecord.value(qslKey).toString() + ")");
-                originalRecord.setValue(contactKey, QSLRecord.value(qslKey));
-                return true;
+                if ( !QSLRecord.value(qslKey).toString().isEmpty()
+                     && originalRecord.value(contactKey).toString().isEmpty() )
+                {
+                    qCDebug(runtime) << "Updating:" << contactKey
+                                     << "to" << QSLRecord.value(qslKey).toString();
+                    updatedFields.append(contactKey + "(" + QSLRecord.value(qslKey).toString() + ")");
+                    originalRecord.setValue(contactKey, QSLRecord.value(qslKey));
+                    return true;
+                }
+                return false;
+            };
+
+            callUpdate |= conditionUpdate("credit_granted",            "credit_granted");
+            callUpdate |= conditionUpdate("credit_submitted",          "credit_submitted");
+            callUpdate |= conditionUpdate("app_lotw_credit_granted",   "app_lotw_credit_granted");
+            callUpdate |= conditionUpdate("app_lotw_credit_submitted", "app_lotw_credit_submitted");
+
+            if ( callUpdate )
+            {
+                if ( !model.setRecord(row, originalRecord) )
+                {
+                    qWarning() << "Cannot update a Contact record - " << model.lastError();
+                    qCDebug(runtime) << originalRecord;
+                }
+                stats.updatedQSOs.append(reportFormatter(start_time.toDateTime(), call.toString(), "", updatedFields));
             }
-            return false;
-        };
+        }
 
-        callUpdate |= conditionUpdate("credit_granted",            "credit_granted");
-        callUpdate |= conditionUpdate("credit_submitted",          "credit_submitted");
-        callUpdate |= conditionUpdate("app_lotw_credit_granted",   "app_lotw_credit_granted");
-        callUpdate |= conditionUpdate("app_lotw_credit_submitted", "app_lotw_credit_submitted");
-
-        if ( callUpdate )
+        if ( !model.submitAll() )
         {
-            qCDebug(runtime) << "Calling update for" << call << band << start_time << satName;
-            if ( !model.setRecord(0, originalRecord) )
-            {
-                qWarning() << "Cannot update a Contact record - " << model.lastError();
-                qCDebug(runtime) << originalRecord;
-            }
-
-            if ( !model.submitAll() )
-            {
-                qWarning() << "Cannot commit changes to Contact Table - " << model.lastError();
-            }
-
-            stats.updatedQSOs.append(reportFormatter(start_time.toDateTime(), call.toString(), "", updatedFields));
+            qWarning() << "Cannot commit changes to Contact Table - " << model.lastError();
         }
     }
 
