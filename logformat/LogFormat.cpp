@@ -878,8 +878,6 @@ void LogFormat::runQSOCreditImport(QSLFrom /*fromService*/)
 
             callUpdate |= conditionUpdate("credit_granted",            "credit_granted");
             callUpdate |= conditionUpdate("credit_submitted",          "credit_submitted");
-            callUpdate |= conditionUpdate("app_lotw_credit_granted",   "app_lotw_credit_granted");
-            callUpdate |= conditionUpdate("app_lotw_credit_submitted", "app_lotw_credit_submitted");
 
             if ( callUpdate )
             {

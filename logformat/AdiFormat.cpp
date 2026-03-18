@@ -329,8 +329,6 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("country_intl",contact.take("country_intl"));
     record.setValue("credit_submitted",contact.take("credit_submitted"));
     record.setValue("credit_granted",contact.take("credit_granted"));
-    record.setValue("app_lotw_credit_submitted",contact.take("app_lotw_credit_submitted"));
-    record.setValue("app_lotw_credit_granted",contact.take("app_lotw_credit_granted"));
     record.setValue("darc_dok",contact.take("darc_dok").toString().toUpper());
     record.setValue("dcl_qslrdate",parseDate(contact.take("dcl_qslrdate").toString()));
     record.setValue("dcl_qslsdate",parseDate(contact.take("dcl_qslsdate").toString()));
@@ -916,8 +914,6 @@ QHash<QString, AdiFormat::ExportParams> AdiFormat::DB2ADIFExportParams =
     { "contest_id", ExportParams("contest_id")},
     { "credit_submitted", ExportParams("credit_submitted")},
     { "credit_granted", ExportParams("credit_granted")},
-    { "app_lotw_credit_submitted", ExportParams("app_lotw_credit_submitted")},
-    { "app_lotw_credit_granted", ExportParams("app_lotw_credit_granted")},
     { "darc_dok", ExportParams("darc_dok")},
     { "dcl_qslrdate", ExportParams("dcl_qslrdate", OutputFieldFormatter::TODATE)},
     { "dcl_qslsdate", ExportParams("dcl_qslsdate", OutputFieldFormatter::TODATE)},
