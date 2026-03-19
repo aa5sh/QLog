@@ -306,7 +306,7 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="168"/>
         <source>Log Status</source>
-        <translation></translation>
+        <translation>Protokollstatus</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="401"/>
@@ -346,7 +346,7 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="421"/>
         <source>Special Programs</source>
-        <translation>Special</translation>
+        <translation>Sonderprogramme</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="471"/>
@@ -713,17 +713,17 @@
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="47"/>
         <source>Gridsquare 2-Chars</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator 2 Zeichen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="48"/>
         <source>Gridsquare 4-Chars</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator 4 Zeichen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="49"/>
         <source>Gridsquare 6-Chars</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator 6 Zeichen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="50"/>
@@ -889,7 +889,7 @@
     <message>
         <location filename="../ui/BandmapWidget.cpp" line="619"/>
         <source>Bandmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Bandplan</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.cpp" line="950"/>
@@ -909,7 +909,7 @@
     <message>
         <location filename="../ui/BandmapWidget.cpp" line="1088"/>
         <source>SOS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1229,7 +1229,7 @@
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="461"/>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="501"/>
         <source>Keyer is not connected</source>
-        <translation type="unfinished">Keyer nicht verbunden</translation>
+        <translation>Keyer nicht verbunden</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="431"/>
