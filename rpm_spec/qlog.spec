@@ -52,6 +52,12 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_mandir}/man1/*
 
 %changelog
+* Thu Mar 19 2026 Ladislav Foldyna - 0.49.1-1
+- Fixed Online Map OSM Access Blocked banner (issue #956)
+- Fixed Package build process issue - openssl-dev is missing (issue #957)
+- Fixed Missing dependence for QTKeychain (issue #964)
+- Added French Translation (PR #969 thx @fillods)
+
 * Fri Mar 13 2026 Ladislav Foldyna - 0.49.0-1
 - [NEW] - Added Pack and Unpack Data and Setting - Computer to Computer Migration (issue #535)
 - [NEW] - Added Rig Sharing via Rigctld (PR #736 issue #159 @aa5sh @foldynl)
