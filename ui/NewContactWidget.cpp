@@ -48,6 +48,8 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     prop_cond(nullptr),
     countyCompleter(nullptr),
     QSOFreq(0.0),
+    QSOTxFreq(0.0),
+    prevQSOTxFreq(0.0),
     bandwidthFilter(BANDWIDTH_UNKNOWN),
     rigOnline(false),
     isManualEnterMode(false),
@@ -1045,6 +1047,8 @@ void NewContactWidget::resetContact()
     dxccEntity = DxccEntity();
     coordPrec = COORD_NONE;
     QSOFreq = 0.0;
+    QSOTxFreq = 0.0;
+    prevQSOTxFreq = 0.0;
 
     emit filterCallsign(QString());
     emit newTarget(qQNaN(), qQNaN());
@@ -1460,19 +1464,31 @@ void NewContactWidget::QSYContactWiping(double newFreq)
 
     qCDebug(runtime) << "Rig online: " << rigOnline << " "
                      << "QSO Freq: " << QSOFreq << " "
+                     << "QSO TX Freq: " << QSOTxFreq << " "
+                     << "QSO prev TX Freq: " << prevQSOTxFreq << " "
                      << "QSO Time: " << isQSOTimeStarted() << " "
                      << "Mode/submode: " << ui->modeEdit->currentText() << ui->submodeEdit->currentText()
                      << "RIG Filter width: " << bandwidthFilter
                      << "QSYWipingWidth: " << QSYWipingWidth << QSTRING_FREQ(Hz2MHz(QSYWipingWidth))
-                     << "Diff: " << qAbs(QSOFreq - newFreq)
+                     << "Diff RX: " << qAbs(QSOFreq - newFreq)
+                     << "Diff TX: " << qAbs(QSOTxFreq - newFreq)
+                     << "Diff prevTX: " << qAbs(prevQSOTxFreq - newFreq)
                      << "Rig Profile QSO Wiping: " << RigProfilesManager::instance()->getCurProfile1().QSYWiping;
 
+    double threshold = Hz2MHz(QSYWipingWidth) / 1.5; //1.5 is a magic constant - determined experimentally
+
+    // Wipe only if the new freq is far from ALL known frequencies (RX, TX, and previous TX).
+    // During VFO swap, VFO1/VFO2 updates arrive asynchronously in any order:
+    //   - VFO1 first: QSOTxFreq still holds the old TX freq -> matches new VFO1 → no wipe
+    //   - VFO2 first: QSOTxFreq is overwritten, but prevQSOTxFreq holds the old TX freq -> matches -> no wipe
     if ( RigProfilesManager::instance()->getCurProfile1().QSYWiping
          && rigOnline            // only if Rig is connected
          && QSOFreq > 0.0        // it means that Form is "dirty" and contain freq when it got dirty
          && !isQSOTimeStarted()  // operator is not in QSO
          && QSYWipingWidth != BANDWIDTH_UNKNOWN
-         && qAbs(QSOFreq - newFreq) > Hz2MHz(QSYWipingWidth) / 1.5 )  //1.5 is a magic constant - determined experimentally
+         && qAbs(QSOFreq - newFreq) > threshold
+         && ( QSOTxFreq <= 0.0 || qAbs(QSOTxFreq - newFreq) > threshold )
+         && ( prevQSOTxFreq <= 0.0 || qAbs(prevQSOTxFreq - newFreq) > threshold ) )
     {
         resetContact();
     }
@@ -2368,6 +2384,11 @@ void NewContactWidget::changeFrequency(VFOID vfoid, double vfoFreq, double ritFr
     if ( vfoid == VFO2 )
     {
         // TX VFO frequency update (split mode)
+        // Keep previous TX freq — during VFO swap, VFO1/VFO2 updates
+        // arrive asynchronously; prevQSOTxFreq prevents false QSY Wipe
+        prevQSOTxFreq = QSOTxFreq;
+        QSOTxFreq = vfoFreq;
+
         if ( isManualEnterMode )
             return;
 
@@ -3776,6 +3797,15 @@ void NewContactWidget::formFieldChangedString(const QString &)
     FCT_IDENTIFICATION;
 
     QSOFreq = ui->freqRXEdit->value();
+
+    // Initialize QSOTxFreq from display when form becomes dirty.
+    // Rig drivers only emit VFO2 signals when TX freq CHANGES —
+    // after resetContact() zeroes QSOTxFreq, the driver won't re-emit
+    // an unchanged TX freq, leaving QSOTxFreq at 0. This causes false
+    // QSY Wipe on the first VFO swap. Reading from the display provides
+    // the correct TX freq even before the next VFO2 signal arrives.
+    if ( QSOTxFreq <= 0.0 && rigSplitEnabled )
+        QSOTxFreq = ui->freqTXEdit->value();
 }
 
 void NewContactWidget::formFieldChanged()
@@ -3866,6 +3896,10 @@ void NewContactWidget::changeCallsignManually(const QString &callsign, double fr
     FCT_IDENTIFICATION;
 
     QSOFreq = freq; // Important !!! - to prevent QSY Contact Reset when the frequency is set
+
+    // Initialize TX freq for QSY Wipe protection — see formFieldChangedString comment
+    if ( QSOTxFreq <= 0.0 && rigSplitEnabled )
+        QSOTxFreq = ui->freqTXEdit->value();
     ui->callsignEdit->setText(callsign);
     ui->callsignEdit->end(false);
     handleCallsignFromUser();

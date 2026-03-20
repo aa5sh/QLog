@@ -379,6 +379,8 @@ private:
     QCompleter *contestCompleter;
     QTimeZone partnerTimeZone;
     double QSOFreq;
+    double QSOTxFreq;
+    double prevQSOTxFreq;
     qint32 bandwidthFilter;
     bool rigOnline;
     CallbookResponseData lastCallbookQueryData;
