@@ -140,12 +140,12 @@
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1260"/>
         <source>New QSO Rows</source>
-        <translation>Neues QSO Zeilen</translation>
+        <translation>Neue QSO Zeilen</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1265"/>
         <source>New QSO Detail Columns</source>
-        <translation>Neues QSO Detail-Spalten</translation>
+        <translation>Neue Spalten in den QSO Details</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1278"/>
@@ -228,7 +228,7 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="71"/>
         <source>Enabled</source>
-        <translation>Aktiv</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="83"/>
@@ -540,7 +540,7 @@
     <message>
         <location filename="../ui/AlertWidget.ui" line="14"/>
         <source>Alerts</source>
-        <translation></translation>
+        <translation>Benachrichtigungen</translation>
     </message>
     <message>
         <location filename="../ui/AlertWidget.ui" line="86"/>
@@ -578,7 +578,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="14"/>
         <source>Awards</source>
-        <translation></translation>
+        <translation>Auszeichnungen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="35"/>
@@ -588,7 +588,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="59"/>
         <source>Award</source>
-        <translation></translation>
+        <translation><Auszeichnung/translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="94"/>
@@ -648,7 +648,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="289"/>
         <source>Not-Confirmed Only</source>
-        <translation>Nicht bestätigt</translation>
+        <translation>Nur unbestätigt</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="273"/>
@@ -693,12 +693,12 @@
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="43"/>
         <source>POTA Hunter</source>
-        <translation type="unfinished"></translation>
+        <translation>POTA Jaeger</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="44"/>
         <source>POTA Activator</source>
-        <translation type="unfinished"></translation>
+        <translation>POTA Aktivierer</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="45"/>
@@ -859,12 +859,12 @@
     <message>
         <location filename="../ui/BandmapWidget.ui" line="56"/>
         <source>Create an additional Bandmap Window</source>
-        <translation>Ein zusätzliches Bandmap-Fenster erstellen</translation>
+        <translation>Ein zusätzliches Bandplan-Fenster erstellen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="83"/>
         <source>Clear older</source>
-        <translation>Löschen älter</translation>
+        <translation>Ältere löschen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="102"/>
@@ -874,12 +874,12 @@
     <message>
         <location filename="../ui/BandmapWidget.ui" line="118"/>
         <source>Clear All</source>
-        <translation>Alle Löschen</translation>
+        <translation>Alle löschen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="216"/>
         <source>Clear the current band</source>
-        <translation>Löschen das aktuelle Band</translation>
+        <translation>Aktuelles Band löschen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="105"/>
@@ -951,7 +951,7 @@
         <location filename="../cwkey/drivers/CWCatKey.cpp" line="136"/>
         <location filename="../cwkey/drivers/CWCatKey.cpp" line="143"/>
         <source>Cannot set Keyer Speed</source>
-        <translation>Kann Keyer-WPM nicht einstellen</translation>
+        <translation>Kann Keyer Geschwindigkeit nicht einstellen</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWCatKey.cpp" line="161"/>
@@ -975,7 +975,7 @@
     </message>
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="106"/>
-        <source> WPM</source>
+        <source>WPM</source>
         <translation></translation>
     </message>
     <message>
@@ -1006,7 +1006,7 @@
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="183"/>
         <source>Text to send</source>
-        <translation>Zu sendender Text</translation>
+        <translation>Zu versendender Text</translation>
     </message>
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="233"/>
@@ -1111,7 +1111,7 @@
     <message>
         <location filename="../cwkey/drivers/CWDaemonKey.cpp" line="106"/>
         <source>Cannot set Keyer Speed</source>
-        <translation>Kann Keyer-WPM nicht einstellen</translation>
+        <translation>Kann Keyer-Geschwindigkeit nicht einstellen</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWDaemonKey.cpp" line="124"/>
@@ -1130,7 +1130,7 @@
         <location filename="../cwkey/drivers/CWFldigiKey.cpp" line="110"/>
         <location filename="../cwkey/drivers/CWFldigiKey.cpp" line="176"/>
         <source>Keyer is not connected</source>
-        <translation>Keyer nicht verbunden</translation>
+        <translation>Keyer ist nicht verbunden</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWFldigiKey.cpp" line="111"/>
@@ -1239,7 +1239,7 @@
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="461"/>
         <source>Cannot set Keyer Speed</source>
-        <translation>Kann Keyer-WPM nicht einstellen</translation>
+        <translation>Kann Keyer-Geschwindigkeit nicht einstellen</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="501"/>
@@ -1254,47 +1254,47 @@
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="712"/>
         <source>2000 Hz</source>
-        <translation type="unfinished">4000 Hz {2000 ?}</translation>
+        <translation>2000 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="713"/>
         <source>1333 Hz</source>
-        <translation type="unfinished">4000 Hz {1333 ?}</translation>
+        <translation>1333 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="714"/>
         <source>1000 Hz</source>
-        <translation type="unfinished">4000 Hz {1000 ?}</translation>
+        <translation>1000 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="715"/>
         <source>800 Hz</source>
-        <translation type="unfinished">4000 Hz {800 ?}</translation>
+        <translation>800 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="716"/>
         <source>666 Hz</source>
-        <translation type="unfinished">4000 Hz {666 ?}</translation>
+        <translation>666 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="717"/>
         <source>571 Hz</source>
-        <translation type="unfinished">4000 Hz {571 ?}</translation>
+        <translation>571 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="718"/>
         <source>500 Hz</source>
-        <translation type="unfinished">4000 Hz {500 ?}</translation>
+        <translation>500 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="719"/>
         <source>444 Hz</source>
-        <translation type="unfinished">4000 Hz {444 ?}</translation>
+        <translation>444 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="720"/>
         <source>400 Hz</source>
-        <translation type="unfinished">4000 Hz {400 ?}</translation>
+        <translation>400 Hz</translation>
     </message>
 </context>
 <context>
@@ -1315,7 +1315,7 @@
     <message>
         <location filename="../ui/ChatWidget.ui" line="117"/>
         <source>Chat Room</source>
-        <translation></translation>
+        <translation>Chatraum</translation>
     </message>
     <message>
         <location filename="../ui/ChatWidget.ui" line="130"/>
