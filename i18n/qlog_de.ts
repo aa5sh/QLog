@@ -588,7 +588,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="59"/>
         <source>Award</source>
-        <translation><Auszeichnung/translation>
+        <translation>Auszeichnung</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="94"/>
