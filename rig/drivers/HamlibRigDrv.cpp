@@ -334,6 +334,19 @@ QStringList HamlibRigDrv::getAvailableModes()
     return modeList;
 }
 
+vfo_t HamlibRigDrv::getTxVfo() const
+{
+    FCT_IDENTIFICATION;
+
+    // TX VFO is always B/SUB — setSplit() forces RX to A/MAIN before
+    // enabling split, so we always know where TX lives.
+    vfo_t txVfo = (rig->state.vfo_list & RIG_VFO_B) ? RIG_VFO_B : RIG_VFO_SUB;
+
+    qCDebug(runtime) << "txVfo:" << hamlibVFO2String(txVfo);
+
+    return txVfo;
+}
+
 void HamlibRigDrv::setFrequency(double newFreq)
 {
     FCT_IDENTIFICATION;
@@ -358,16 +371,30 @@ void HamlibRigDrv::setFrequency(VFOID vfoid, double newFreq)
         return;
     }
 
-    vfo_t targetVfo = ( vfoid == VFO2 ) ? RIG_VFO_TX : RIG_VFO_CURR;
-
     if ( vfoid == VFO1 && newFreq == currFreq )
         return;
 
     if ( vfoid == VFO2 && newFreq == currTxFreq )
         return;
 
-    int status = rig_set_freq(rig, targetVfo, newFreq);
-    isRigRespOK(status, tr("Set Frequency Error"), false);
+    if ( vfoid == VFO2 )
+    {
+        // Patch rig->state.tx_vfo so that rig_set_freq(RIG_VFO_TX)
+        // targets B/SUB — setSplit() ensures RX is on A/MAIN.
+        vfo_t txVfo = getTxVfo();
+        vfo_t savedTxVfo = rig->state.tx_vfo;
+        rig->state.tx_vfo = txVfo;
+
+        int status = rig_set_freq(rig, RIG_VFO_TX, newFreq);
+        isRigRespOK(status, tr("Set TX Frequency Error"), false);
+
+        rig->state.tx_vfo = savedTxVfo;
+    }
+    else
+    {
+        int status = rig_set_freq(rig, RIG_VFO_CURR, newFreq);
+        isRigRespOK(status, tr("Set Frequency Error"), false);
+    }
 
     commandSleep();
 }
@@ -386,8 +413,21 @@ void HamlibRigDrv::setSplit(bool enabled)
         return;
     }
 
+    // Force RX to A/MAIN before enabling split — this guarantees
+    // a known VFO state regardless of rig's get_vfo support.
+    // Same strategy as WSJT-X (HamlibTransceiver::do_start).
+    if ( enabled )
+    {
+        vfo_t rxVfo = (rig->state.vfo_list & RIG_VFO_A) ? RIG_VFO_A : RIG_VFO_MAIN;
+        int rcVfo = rig_set_vfo(rig, rxVfo);
+        qCDebug(runtime) << "Forced RX VFO to" << hamlibVFO2String(rxVfo)
+                         << "result:" << rcVfo;
+        commandSleep();
+    }
+
+    vfo_t txVfo = getTxVfo();
     split_t splitVal = enabled ? RIG_SPLIT_ON : RIG_SPLIT_OFF;
-    int status = rig_set_split_vfo(rig, RIG_VFO_CURR, splitVal, RIG_VFO_SUB);
+    int status = rig_set_split_vfo(rig, RIG_VFO_CURR, splitVal, txVfo);
     isRigRespOK(status, tr("Set Split Error"), false);
 
     commandSleep();

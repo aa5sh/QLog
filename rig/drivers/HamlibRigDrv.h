@@ -80,6 +80,7 @@ private:
                                         QString &submode) const;
     const QString hamlibMode2String(const rmode_t mode) const;
     const QString hamlibVFO2String(const vfo_t vfo) const;
+    vfo_t getTxVfo() const;
     serial_handshake_e stringToHamlibFlowControl(const QString &in_flowcontrol);
     serial_parity_e stringToHamlibParity(const QString &in_parity);
     serial_control_state_e stringToHamlibSerialSignal(const QString &flowcontrol);

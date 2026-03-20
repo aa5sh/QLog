@@ -2902,6 +2902,29 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
 
     frequency = ( frequency > 0.0 ) ? frequency : ui->freqRXEdit->value();
 
+    // Enable split BEFORE setting RX frequency — setSplit(true) forces
+    // VFO A as primary, so the subsequent RX freq goes to the correct VFO.
+    // All rig commands are queued, so order of calls here = execution order.
+    double txFreq = 0.0;
+
+    if ( spot.freqTX > 0.0 && rigOnline )
+    {
+        txFreq = spot.freqTX;
+
+        // For relative offsets (UP/DOWN), add random jitter ±250 Hz
+        // so that all QLog users don't call on the exact same frequency.
+        // Absolute QSX frequencies (where freqTX differs significantly from freq)
+        // are left unchanged — the spotter gave a precise frequency.
+        if ( spot.freq > 0.0 && qAbs(spot.freqTX - spot.freq) < 0.1 )
+        {
+            double jitterMHz = Hz2MHz(QRandomGenerator::global()->bounded(501) - 250);
+            txFreq += jitterMHz;
+        }
+
+        qCDebug(runtime) << "Setting split from DX spot: TX" << txFreq;
+        rig->setSplit(true);
+    }
+
     // Fix #453
     // it is necessary to have the sequence of Set Freq and Set Mode.
     // Otherwise  it may happen that the mode is not set correctly on the Rig
@@ -2942,26 +2965,9 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         }
     }
 
-    // Set split on the rig if the DX spot contains TX frequency info
-    // (parsed from comment patterns like "UP 5", "QSX 14250", "1 UP")
-    if ( spot.freqTX > 0.0 && rigOnline )
-    {
-        double txFreq = spot.freqTX;
-
-        // For relative offsets (UP/DOWN), add random jitter ±250 Hz
-        // so that all QLog users don't call on the exact same frequency.
-        // Absolute QSX frequencies (where freqTX differs significantly from freq)
-        // are left unchanged — the spotter gave a precise frequency.
-        if ( spot.freq > 0.0 && qAbs(spot.freqTX - spot.freq) < 0.1 )
-        {
-            double jitterMHz = Hz2MHz(QRandomGenerator::global()->bounded(501) - 250);
-            txFreq += jitterMHz;
-        }
-
-        qCDebug(runtime) << "Setting split from DX spot: TX" << txFreq;
-        rig->setSplit(true);
+    // Set TX frequency after RX frequency — split is already enabled above
+    if ( txFreq > 0.0 )
         rig->setFrequency(VFO2, MHz(txFreq));
-    }
 
     resetContact();
     changeCallsignManually(spot.callsign, frequency);
