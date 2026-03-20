@@ -9,6 +9,7 @@
 #include <QKeyEvent>
 #include <QToolButton>
 #include <QStackedWidget>
+#include <QRandomGenerator>
 
 #include "rig/Rig.h"
 #include "rig/macros.h"
@@ -2939,6 +2940,27 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
             }
             emit userModeChanged(VFO1, QString(), mode, subMode, bandwidthFilter);
         }
+    }
+
+    // Set split on the rig if the DX spot contains TX frequency info
+    // (parsed from comment patterns like "UP 5", "QSX 14250", "1 UP")
+    if ( spot.freqTX > 0.0 && rigOnline )
+    {
+        double txFreq = spot.freqTX;
+
+        // For relative offsets (UP/DOWN), add random jitter ±250 Hz
+        // so that all QLog users don't call on the exact same frequency.
+        // Absolute QSX frequencies (where freqTX differs significantly from freq)
+        // are left unchanged — the spotter gave a precise frequency.
+        if ( spot.freq > 0.0 && qAbs(spot.freqTX - spot.freq) < 0.1 )
+        {
+            double jitterMHz = Hz2MHz(QRandomGenerator::global()->bounded(501) - 250);
+            txFreq += jitterMHz;
+        }
+
+        qCDebug(runtime) << "Setting split from DX spot: TX" << txFreq;
+        rig->setSplit(true);
+        rig->setFrequency(VFO2, MHz(txFreq));
     }
 
     resetContact();

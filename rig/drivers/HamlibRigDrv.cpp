@@ -276,6 +276,13 @@ bool HamlibRigDrv::open()
         // return false; ignore the error - no critical
     }
 
+    if ( rig_set_conf(rig, rig_token_lookup(rig, "no_xchg"), "1") != RIG_OK )
+    {
+        lastErrorText = tr("Cannot set no_xchg to 1");
+        qCDebug(runtime) << "Rig Open Error" << lastErrorText;
+        // return false; ignore the error - no critical
+    }
+
     int status = rig_open(rig);
 
     if ( !isRigRespOK(status, tr("Rig Open Error"), false) )

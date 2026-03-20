@@ -1844,6 +1844,7 @@ void DxWidget::processDxSpot(const QString &spotter,
     potaRefFromComment(spot);
     sotaRefFromComment(spot);
     iotaRefFromComment(spot);
+    splitFreqFromComment(spot);
 
 #if 0
     if ( !spot.sotaRef.isEmpty() )
@@ -2049,6 +2050,100 @@ void DxWidget::iotaRefFromComment(DxSpot &spot) const
                                  QRegularExpression::CaseInsensitiveOption);
     spot.iotaRef = refFromComment(spot.comment, spot.containsIOTA,
                                   iotaRegEx, QStringLiteral("IOTA"), 3);
+}
+
+void DxWidget::splitFreqFromComment(DxSpot &spot) const
+{
+    FCT_IDENTIFICATION;
+
+    if ( spot.comment.isEmpty() || spot.freq <= 0.0 )
+        return;
+
+    // Absolute TX frequency: "QSX 14250", "QSX 14.250", "LISTENING 28510", "LSN 28.510"
+    static QRegularExpression absFreqRx(QStringLiteral("\\b(?:QSX|LISTENING|LSN)\\s+(\\d+\\.?\\d*)\\b"),
+                                        QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match = absFreqRx.match(spot.comment);
+    if ( match.hasMatch() )
+    {
+        double freq = match.captured(1).toDouble();
+        if ( freq > 1000.0 )
+            freq = freq / 1000.0; // kHz → MHz
+        if ( freq > 0.0 )
+        {
+            spot.freqTX = freq;
+            qCDebug(runtime) << "Split absolute TX:" << spot.freqTX << "from:" << spot.comment;
+            return;
+        }
+    }
+
+    // Relative offset UP: "UP 5", "UP 5-10", "UP5" (kHz above spot freq)
+    static QRegularExpression upNRx(QStringLiteral("\\bUP\\s*(\\d+(?:\\.\\d+)?)(?:\\s*[-/]\\s*\\d+(?:\\.\\d+)?)?\\b"),
+                                    QRegularExpression::CaseInsensitiveOption);
+    match = upNRx.match(spot.comment);
+    if ( match.hasMatch() )
+    {
+        double offsetKHz = match.captured(1).toDouble();
+        if ( offsetKHz > 0.0 )
+        {
+            spot.freqTX = spot.freq + offsetKHz / 1000.0;
+            qCDebug(runtime) << "Split UP" << offsetKHz << "kHz, TX:" << spot.freqTX;
+            return;
+        }
+    }
+
+    // Relative offset UP reversed: "1 UP", "5 UP", "5UP"
+    static QRegularExpression nUpRx(QStringLiteral("\\b(\\d+(?:\\.\\d+)?)\\s*UP\\b"),
+                                    QRegularExpression::CaseInsensitiveOption);
+    match = nUpRx.match(spot.comment);
+    if ( match.hasMatch() )
+    {
+        double offsetKHz = match.captured(1).toDouble();
+        if ( offsetKHz > 0.0 )
+        {
+            spot.freqTX = spot.freq + offsetKHz / 1000.0;
+            qCDebug(runtime) << "Split" << offsetKHz << "UP kHz, TX:" << spot.freqTX;
+            return;
+        }
+    }
+
+    // Relative offset DOWN: "DN 5", "DOWN 5", "DWN 5"
+    static QRegularExpression dnNRx(QStringLiteral("\\b(?:DN|DOWN|DWN)\\s*(\\d+(?:\\.\\d+)?)\\b"),
+                                    QRegularExpression::CaseInsensitiveOption);
+    match = dnNRx.match(spot.comment);
+    if ( match.hasMatch() )
+    {
+        double offsetKHz = match.captured(1).toDouble();
+        if ( offsetKHz > 0.0 )
+        {
+            spot.freqTX = spot.freq - offsetKHz / 1000.0;
+            qCDebug(runtime) << "Split DOWN" << offsetKHz << "kHz, TX:" << spot.freqTX;
+            return;
+        }
+    }
+
+    // Relative offset DOWN reversed: "5 DN", "5 DOWN"
+    static QRegularExpression nDnRx(QStringLiteral("\\b(\\d+(?:\\.\\d+)?)\\s*(?:DN|DOWN|DWN)\\b"),
+                                    QRegularExpression::CaseInsensitiveOption);
+    match = nDnRx.match(spot.comment);
+    if ( match.hasMatch() )
+    {
+        double offsetKHz = match.captured(1).toDouble();
+        if ( offsetKHz > 0.0 )
+        {
+            spot.freqTX = spot.freq - offsetKHz / 1000.0;
+            qCDebug(runtime) << "Split" << offsetKHz << "DOWN kHz, TX:" << spot.freqTX;
+            return;
+        }
+    }
+
+    // Bare "UP" without number → 1 kHz default offset
+    static QRegularExpression bareUpRx(QStringLiteral("\\bUP\\b"),
+                                       QRegularExpression::CaseInsensitiveOption);
+    if ( bareUpRx.match(spot.comment).hasMatch() )
+    {
+        spot.freqTX = spot.freq + 1.0 / 1000.0;
+        qCDebug(runtime) << "Split bare UP, TX:" << spot.freqTX;
+    }
 }
 
 DxWidget::~DxWidget()
