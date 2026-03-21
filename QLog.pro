@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql network xml charts webenginewidgets serialport dbus quickwidgets webchannel websockets
+QT       += core gui sql network xml charts webenginewidgets serialport dbus quickwidgets webchannel websockets printsupport
 
 greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
@@ -74,6 +74,7 @@ SOURCES += \
         core/PropConditions.cpp \
         core/QSLStorage.cpp \
         core/QSOFilterManager.cpp \
+        core/QslPrintLabelRenderer.cpp \
         core/WsjtxUDPReceiver.cpp \
         core/debug.cpp \
         core/EmergencyFrequency.cpp \
@@ -164,6 +165,7 @@ SOURCES += \
         ui/LoadDatabaseDialog.cpp \
         ui/PlatformSettingsDialog.cpp \
         ui/QSLGalleryDialog.cpp \
+        ui/QslPrintLabelDialog.cpp \
         ui/RigctldAdvancedDialog.cpp \
         ui/ImportDialog.cpp \
         ui/InputPasswordDialog.cpp \
@@ -221,6 +223,7 @@ HEADERS += \
         core/PropConditions.h \
         core/QSLStorage.h \
         core/QSOFilterManager.h \
+        core/QslPrintLabelRenderer.h \
         core/QuadKeyCache.h \
         core/WsjtxUDPReceiver.h \
         core/debug.h \
@@ -328,6 +331,7 @@ HEADERS += \
         ui/LoadDatabaseDialog.h \
         ui/PlatformSettingsDialog.h \
         ui/QSLGalleryDialog.h \
+        ui/QslPrintLabelDialog.h \
         ui/RigctldAdvancedDialog.h \
         ui/ImportDialog.h \
         ui/InputPasswordDialog.h \
@@ -392,6 +396,7 @@ FORMS += \
         ui/LoadDatabaseDialog.ui \
         ui/PlatformSettingsDialog.ui \
         ui/QSLGalleryDialog.ui \
+        ui/QslPrintLabelDialog.ui \
         ui/RigctldAdvancedDialog.ui \
         ui/ImportDialog.ui \
         ui/InputPasswordDialog.ui \
