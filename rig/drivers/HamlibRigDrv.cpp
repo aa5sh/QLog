@@ -1072,9 +1072,14 @@ void HamlibRigDrv::checkSplitChange()
 
     if ( currSplitEnabled )
     {
-        // Read TX VFO frequency
+        // Use rig_get_split_freq instead of rig_get_freq(RIG_VFO_TX).
+        // On rigs without get_vfo (e.g. Icom), rig_get_split_vfo returns
+        // a hardcoded splitVfo, so rig_get_freq(RIG_VFO_TX)
+        // reads the wrong VFO
+        // rig_get_split_freq uses the backend's CI-V "unselected VFO" read,
+        // which correctly returns the other VFO's frequency.
         freq_t txFreq;
-        status = rig_get_freq(rig, RIG_VFO_TX, &txFreq);
+        status = rig_get_split_freq(rig, RIG_VFO_CURR, &txFreq);
 
         if ( isRigRespOK(status, tr("Get TX Frequency Error"), false) )
         {
@@ -1091,7 +1096,7 @@ void HamlibRigDrv::checkSplitChange()
     }
     else if ( currTxFreq != Hz(0) )
     {
-        // Split was turned off — reset TX freq
+        // Split was turned off - reset TX freq
         currTxFreq = Hz(0);
     }
 }
