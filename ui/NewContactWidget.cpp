@@ -2911,13 +2911,15 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
     {
         txFreq = spot.freqTX;
 
-        // For relative offsets (UP/DOWN), add random jitter ±250 Hz
+        // For relative offsets (UP/DOWN), add random jitter within +- mode bandwidth
         // so that all QLog users don't call on the exact same frequency.
         // Absolute QSX frequencies (where freqTX differs significantly from freq)
         // are left unchanged — the spotter gave a precise frequency.
         if ( spot.freq > 0.0 && qAbs(spot.freqTX - spot.freq) < 0.1 )
         {
-            double jitterMHz = Hz2MHz(QRandomGenerator::global()->bounded(501) - 250);
+            qint32 bw = Rig::getNormalBandwidth(ui->modeEdit->currentText(),
+                                                ui->submodeEdit->currentText());
+            double jitterMHz = Hz2MHz(QRandomGenerator::global()->bounded(bw) - bw / 2);
             txFreq += jitterMHz;
         }
 
