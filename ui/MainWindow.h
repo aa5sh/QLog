@@ -89,6 +89,7 @@ private slots:
     void saveContestMenuLinkExchangeType(QAction *action);
     void startContest(const QString contestID, const QDateTime);
     void stopContest();
+    void exportCabrillo();
     void setContestMode(const QString &contestID);
 
     void handleActivityChange(const QString name);

@@ -106,6 +106,7 @@ SOURCES += \
         data/UpdatableSQLRecord.cpp \
         logformat/AdiFormat.cpp \
         logformat/AdxFormat.cpp \
+        logformat/CabrilloFormat.cpp \
         logformat/CSVFormat.cpp \
         logformat/JsonFormat.cpp \
         logformat/LogFormat.cpp \
@@ -159,6 +160,8 @@ SOURCES += \
         ui/DxWidget.cpp \
         ui/DxccTableWidget.cpp \
         ui/EditActivitiesDialog.cpp \
+        ui/CabrilloExportDialog.cpp \
+        ui/CabrilloTemplateDialog.cpp \
         ui/ExportDialog.cpp \
         ui/ExportPasswordDialog.cpp \
         ui/LoadDatabaseDialog.cpp \
@@ -269,6 +272,7 @@ HEADERS += \
         data/WsjtxStatus.h \
         logformat/AdiFormat.h \
         logformat/AdxFormat.h \
+        logformat/CabrilloFormat.h \
         logformat/CSVFormat.h \
         logformat/JsonFormat.h \
         logformat/LogFormat.h \
@@ -323,6 +327,8 @@ HEADERS += \
         ui/DxWidget.h \
         ui/DxccTableWidget.h \
         ui/EditActivitiesDialog.h \
+        ui/CabrilloExportDialog.h \
+        ui/CabrilloTemplateDialog.h \
         ui/ExportDialog.h \
         ui/ExportPasswordDialog.h \
         ui/LoadDatabaseDialog.h \
@@ -387,6 +393,8 @@ FORMS += \
         ui/DxFilterDialog.ui \
         ui/DxWidget.ui \
         ui/EditActivitiesDialog.ui \
+        ui/CabrilloExportDialog.ui \
+        ui/CabrilloTemplateDialog.ui \
         ui/ExportDialog.ui \
         ui/ExportPasswordDialog.ui \
         ui/LoadDatabaseDialog.ui \

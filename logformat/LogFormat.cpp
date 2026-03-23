@@ -6,6 +6,7 @@
 #include "PotaAdiFormat.h"
 #include "JsonFormat.h"
 #include "CSVFormat.h"
+#include "CabrilloFormat.h"
 #include "data/Data.h"
 #include "core/debug.h"
 #include "data/Gridsquare.h"
@@ -51,7 +52,7 @@ LogFormat* LogFormat::open(QString type, QTextStream& stream) {
         return open(LogFormat::CSV, stream);
     }
     else if (type == "cabrillo") {
-        return open(LogFormat::JSON, stream);
+        return open(LogFormat::CABRILLO, stream);
     }
     else if (type == "pota") {
         return open(LogFormat::POTA, stream);
@@ -80,7 +81,7 @@ LogFormat* LogFormat::open(LogFormat::Type type, QTextStream& stream) {
         return new CSVFormat(stream);
 
     case LogFormat::CABRILLO:
-        return nullptr;
+        return new CabrilloFormat(stream);
 
     case LogFormat::POTA:
         return new PotaAdiFormat(stream);
