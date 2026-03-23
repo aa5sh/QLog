@@ -87,6 +87,7 @@ private:
 
     void openPort();
     void forwardDatagram(const QNetworkDatagram &);
+    void applyStationProfile(QSqlRecord &record);
     void sendHighlightCallsignColor(const WsjtxEntry &entry,
                                     const QColor &fgColor,
                                     const QColor &bgColor,

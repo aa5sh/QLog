@@ -17,6 +17,7 @@
 #include "data/BandPlan.h"
 #include "logformat/AdiFormat.h"
 #include "core/LogParam.h"
+#include "data/StationProfile.h"
 
 MODULE_IDENTIFICATION("qlog.core.wsjtx");
 
@@ -516,12 +517,78 @@ void WsjtxUDPReceiver::insertContact(WsjtxLog log)
         record.setValue("station_callsign", log.my_call);
     }
 
+    applyStationProfile(record);
+
     // The QSO record can be received in two formats from WSJTX (raw and ADIF).
     // Therefore, it is necessary to save the first record and possibly update it
     // with the second record and then emit the result.
     // For this we create an updatable SQLRecord
     wsjtSQLRecord.updateRecord(record);
     //emit addContact(record);
+}
+
+void WsjtxUDPReceiver::applyStationProfile(QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
+
+    // Always use profile values for station_callsign and my_gridsquare so that
+    // getContactInnerJoin station profile filters match these contacts.
+    //if ( !profile.callsign.isEmpty() )
+    //    record.setValue("station_callsign", profile.callsign.toUpper());
+
+    //if ( !profile.locator.isEmpty() )
+    //    record.setValue("my_gridsquare", profile.locator.toUpper());
+
+    // Fill remaining profile fields only if not already set in the record
+    if ( record.value("my_name_intl").toString().isEmpty() && !profile.operatorName.isEmpty() )
+        record.setValue("my_name_intl", profile.operatorName);
+
+    if ( record.value("my_city_intl").toString().isEmpty() && !profile.qthName.isEmpty() )
+        record.setValue("my_city_intl", profile.qthName);
+
+    if ( record.value("my_iota").toString().isEmpty() && !profile.iota.isEmpty() )
+        record.setValue("my_iota", profile.iota.toUpper());
+
+    if ( record.value("my_sota_ref").toString().isEmpty() && !profile.sota.isEmpty() )
+        record.setValue("my_sota_ref", profile.sota.toUpper());
+
+    if ( record.value("my_sig_intl").toString().isEmpty() && !profile.sig.isEmpty() )
+        record.setValue("my_sig_intl", profile.sig);
+
+    if ( record.value("my_sig_info_intl").toString().isEmpty() && !profile.sigInfo.isEmpty() )
+        record.setValue("my_sig_info_intl", profile.sigInfo);
+
+    if ( record.value("my_vucc_grids").toString().isEmpty() && !profile.vucc.isEmpty() )
+        record.setValue("my_vucc_grids", profile.vucc.toUpper());
+
+    if ( record.value("my_wwff_ref").toString().isEmpty() && !profile.wwff.isEmpty() )
+        record.setValue("my_wwff_ref", profile.wwff.toUpper());
+
+    if ( record.value("my_pota_ref").toString().isEmpty() && !profile.pota.isEmpty() )
+        record.setValue("my_pota_ref", profile.pota.toUpper());
+
+    if ( record.value("my_itu_zone").toString().isEmpty() && profile.ituz != 0 )
+        record.setValue("my_itu_zone", profile.ituz);
+
+    if ( record.value("my_cq_zone").toString().isEmpty() && profile.cqz != 0 )
+        record.setValue("my_cq_zone", profile.cqz);
+
+    if ( record.value("my_dxcc").toString().isEmpty() && profile.dxcc != 0 )
+    {
+        record.setValue("my_dxcc", profile.dxcc);
+        record.setValue("my_country_intl", profile.country);
+    }
+
+    if ( record.value("my_cnty").toString().isEmpty() && !profile.county.isEmpty() )
+        record.setValue("my_cnty", profile.county);
+
+    if ( record.value("operator").toString().isEmpty() && !profile.operatorCallsign.isEmpty() )
+        record.setValue("operator", profile.operatorCallsign.toUpper());
+
+    if ( record.value("my_darc_dok").toString().isEmpty() && !profile.darcDOK.isEmpty() )
+        record.setValue("my_darc_dok", profile.darcDOK);
 }
 
 void WsjtxUDPReceiver::contactReady(QSqlRecord record)
@@ -558,6 +625,8 @@ void WsjtxUDPReceiver::insertContact(WsjtxLogADIF log)
     record.remove(record.indexOf("qsl_sent"));
     record.remove(record.indexOf("lotw_qsl_sent"));
     record.remove(record.indexOf("eqsl_qsl_sent"));
+
+    applyStationProfile(record);
 
     // The QSO record can be received in two formats from WSJTX (raw and ADIF).
     // Therefore, it is necessary to save the first record and possibly update it

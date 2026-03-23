@@ -220,7 +220,7 @@ QString StationProfile::getContactInnerJoin() const
     addIfNoEmpty(operatorName, "my_name_intl", "operator_name");
     addIfNoEmpty(qthName, "my_city_intl", "qth_name");
     addIfNoEmpty(iota, "my_iota", "iota");
-    addIfNoEmpty(sota, "my_sota", "sota");
+    addIfNoEmpty(sota, "my_sota_ref", "sota");
     addIfNoEmpty(sig, "my_sig_intl", "sig");
     addIfNoEmpty(sigInfo, "my_sig_info_intl", "sig_info");
     addIfNoEmpty(vucc, "my_vucc_grids", "vucc");
