@@ -261,6 +261,8 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::xitChanged, ui->rigWidget, &RigWidget::updateXIT);
     connect(Rig::instance(), &Rig::ritChanged, ui->rigWidget, &RigWidget::updateRIT);
     connect(Rig::instance(), &Rig::pttChanged, ui->rigWidget, &RigWidget::updatePTT);
+    connect(Rig::instance(), &Rig::splitChanged, ui->rigWidget, &RigWidget::updateSplit);
+    connect(Rig::instance(), &Rig::splitChanged, ui->newContactWidget, &NewContactWidget::changeSplit);
     connect(Rig::instance(), &Rig::rigStatusChanged, &networknotification, &NetworkNotification::rigStatus);
     connect(Rig::instance(), &Rig::rigStatusHeartBeat, &networknotification, &NetworkNotification::rigStatus);
 

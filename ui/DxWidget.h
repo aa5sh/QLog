@@ -262,6 +262,7 @@ private:
     void potaRefFromComment(DxSpot &spot) const;
     void sotaRefFromComment(DxSpot &spot) const;
     void iotaRefFromComment(DxSpot &spot) const;
+    void splitFreqFromComment(DxSpot &spot) const;
 
     QColor getHeatmapColor(int value, int maxValue);
 
