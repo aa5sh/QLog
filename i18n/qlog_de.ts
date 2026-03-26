@@ -1516,12 +1516,12 @@
     </message>
     <message>
         <location filename="../core/Migration.cpp" line="423"/>
-        <source>Updating </source>
+        <source>Updating</source>
         <translation>Aktualisieren </translation>
     </message>
     <message>
         <location filename="../core/Migration.cpp" line="436"/>
-        <source> Update Failed</source>
+        <source>Update Failed</source>
         <translation> Aktualisierung fehlgeschlagen</translation>
     </message>
 </context>
@@ -1635,7 +1635,7 @@
     <message>
         <location filename="dbstrings.tri" line="22"/>
         <source>Austral Islands</source>
-        <translation>Australinseln</translation>
+        <translation>Austral-Inseln</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="23"/>
@@ -2560,7 +2560,7 @@
     <message>
         <location filename="dbstrings.tri" line="207"/>
         <source>N.Z. Subantarctic Is.</source>
-        <translation type="unfinished"></translation>
+        <translation>Subantarktische Inseln Neuseelands</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="208"/>
@@ -2790,7 +2790,7 @@
     <message>
         <location filename="dbstrings.tri" line="253"/>
         <source>Saba &amp; St. Eustatius</source>
-        <translation type="unfinished"></translation>
+        <translation>Saba und St. Eustatius (Statia)</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="254"/>
@@ -2820,7 +2820,7 @@
     <message>
         <location filename="dbstrings.tri" line="259"/>
         <source>Sao Tome &amp; Principe</source>
-        <translation type="unfinished"></translation>
+        <translation>São Tomé und Príncipe</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="260"/>
@@ -2925,7 +2925,7 @@
     <message>
         <location filename="dbstrings.tri" line="280"/>
         <source>Sov Mil Order of Malta</source>
-        <translation type="unfinished"></translation>
+        <translation>Souveräner Malteserorden</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="281"/>
@@ -3060,7 +3060,7 @@
     <message>
         <location filename="dbstrings.tri" line="307"/>
         <source>Togo</source>
-        <translation type="unfinished"></translation>
+        <translation>Togo</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="308"/>
@@ -3115,12 +3115,12 @@
     <message>
         <location filename="dbstrings.tri" line="318"/>
         <source>UK Base Areas on Cyprus</source>
-        <translation type="unfinished"></translation>
+        <translation>Souveräne Militärbasen Akrotiri und Dekelia </translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="319"/>
         <source>US Virgin Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>Amerikanische Jungferninseln</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="320"/>
@@ -3140,7 +3140,7 @@
     <message>
         <location filename="dbstrings.tri" line="323"/>
         <source>United Nations HQ</source>
-        <translation type="unfinished"></translation>
+        <translation>Vereinte Nationen HQ</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="324"/>
@@ -3180,7 +3180,7 @@
     <message>
         <location filename="dbstrings.tri" line="331"/>
         <source>Wake Island</source>
-        <translation type="unfinished"></translation>
+        <translation>Wake Island</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="332"/>
@@ -3358,7 +3358,7 @@
     <message>
         <location filename="../data/Data.h" line="60"/>
         <source>Grayline</source>
-        <translation></translation>
+        <translation>Grayline</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="61"/>
@@ -3388,37 +3388,37 @@
     <message>
         <location filename="../data/Data.h" line="79"/>
         <source>Straight Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Straight Key</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="80"/>
         <source>Sideswiper</source>
-        <translation type="unfinished"></translation>
+        <translation>Sideswiper</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="81"/>
         <source>Mechanical semi-automatic keyer or Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Mechanical semi-automatic keyer or Bug</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="82"/>
         <source>Mechanical fully-automatic keyer or Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Mechanical fully-automatic keyer or Bug</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="83"/>
         <source>Single Paddle</source>
-        <translation type="unfinished"></translation>
+        <translation>Single Paddle</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="84"/>
         <source>Dual Paddle</source>
-        <translation type="unfinished"></translation>
+        <translation>Dual Paddle</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="85"/>
         <source>Computer Driven</source>
-        <translation type="unfinished"></translation>
+        <translation>Computergesteuert</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="96"/>
@@ -3444,67 +3444,67 @@
     <message>
         <location filename="datastrings.tri" line="2"/>
         <source>Aurora-E</source>
-        <translation type="unfinished"></translation>
+        <translation>Aurora-E</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="3"/>
         <source>Aurora</source>
-        <translation type="unfinished"></translation>
+        <translation>Aurora</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="4"/>
         <source>Back scatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Back scatter</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="5"/>
         <source>EchoLink</source>
-        <translation type="unfinished"></translation>
+        <translation>EchoLink</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="6"/>
         <source>Earth-Moon-Earth</source>
-        <translation type="unfinished"></translation>
+        <translation>Erde-Mond-Erde</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="7"/>
         <source>Sporadic E</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporadic E</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="8"/>
         <source>F2 Reflection</source>
-        <translation type="unfinished"></translation>
+        <translation>F2 Reflektion</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="9"/>
         <source>Field Aligned Irregularities</source>
-        <translation type="unfinished"></translation>
+        <translation>Feldbedingte Unregelmäßigkeiten</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="10"/>
         <source>Ground Wave</source>
-        <translation type="unfinished"></translation>
+        <translation>Bodenwelle</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="11"/>
         <source>Internet-assisted</source>
-        <translation type="unfinished"></translation>
+        <translation>Internet-assisted</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="12"/>
         <source>Ionoscatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ionoscatter</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="13"/>
         <source>IRLP</source>
-        <translation type="unfinished"></translation>
+        <translation>IRLP</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="14"/>
         <source>Line of Sight</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtlinie</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="15"/>
