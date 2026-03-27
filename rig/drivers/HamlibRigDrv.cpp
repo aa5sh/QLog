@@ -152,6 +152,7 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
       keySpeed(0),
       morseOverCatSupported(false),
       currSplitEnabled(false),
+      futureSplit(false),
       currTxFreq(Hz(0))
 {
     FCT_IDENTIFICATION;
@@ -275,14 +276,14 @@ bool HamlibRigDrv::open()
         qCDebug(runtime) << "Rig Open Error" << lastErrorText;
         // return false; ignore the error - no critical
     }
-
+#if 0
     if ( rig_set_conf(rig, rig_token_lookup(rig, "no_xchg"), "1") != RIG_OK )
     {
         lastErrorText = tr("Cannot set no_xchg to 1");
         qCDebug(runtime) << "Rig Open Error" << lastErrorText;
         // return false; ignore the error - no critical
     }
-
+#endif
     int status = rig_open(rig);
 
     if ( !isRigRespOK(status, tr("Rig Open Error"), false) )
@@ -379,16 +380,8 @@ void HamlibRigDrv::setFrequency(VFOID vfoid, double newFreq)
 
     if ( vfoid == VFO2 )
     {
-        // Patch rig->state.tx_vfo so that rig_set_freq(RIG_VFO_TX)
-        // targets B/SUB — setSplit() ensures RX is on A/MAIN.
-        vfo_t txVfo = getTxVfo();
-        vfo_t savedTxVfo = rig->state.tx_vfo;
-        rig->state.tx_vfo = txVfo;
-
         int status = rig_set_freq(rig, RIG_VFO_TX, newFreq);
         isRigRespOK(status, tr("Set TX Frequency Error"), false);
-
-        rig->state.tx_vfo = savedTxVfo;
     }
     else
     {
@@ -427,8 +420,9 @@ void HamlibRigDrv::setSplit(bool enabled)
 
     vfo_t txVfo = getTxVfo();
     split_t splitVal = enabled ? RIG_SPLIT_ON : RIG_SPLIT_OFF;
-    int status = rig_set_split_vfo(rig, RIG_VFO_CURR, splitVal, txVfo);
+    int status = rig_set_split_vfo(rig, RIG_VFO_TX, splitVal, txVfo);
     isRigRespOK(status, tr("Set Split Error"), false);
+    futureSplit = (status == RIG_OK && enabled);
 
     commandSleep();
 }
@@ -479,6 +473,22 @@ void HamlibRigDrv::__setMode(rmode_t newModeID)
         isRigRespOK(status, tr("Set Mode Error"), false);
         commandSleep();
     }
+
+#if 0 // SPLIT MODE
+    // sync Split VFO mode
+
+    // The information about the split change may not
+    // have arrived yet, but the VFO can now be set.
+    // That's why futureSplit was used
+    if ( futureSplit )
+    {
+        // There muse be VFO_B otherwise it does not work on 4.5.x. RIG_VFO_TX does not work too.
+        // But no problem because primary is switched to VFOA
+        int status = rig_set_split_mode(rig, RIG_VFO_B, newModeID, RIG_PASSBAND_NOCHANGE);
+        isRigRespOK(status, tr("Set Split Mode Error"), false);
+        commandSleep();
+    }
+#endif
 }
 
 void HamlibRigDrv::setPTT(bool newPTTState)
@@ -1065,6 +1075,7 @@ void HamlibRigDrv::checkSplitChange()
     if ( newSplitEnabled != currSplitEnabled || forceSendState )
     {
         currSplitEnabled = newSplitEnabled;
+        futureSplit = newSplitEnabled;
 
         qCDebug(runtime) << "emitting SPLIT changed" << currSplitEnabled;
         emit splitChanged(currSplitEnabled);

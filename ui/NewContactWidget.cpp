@@ -2890,9 +2890,7 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
 {
     FCT_IDENTIFICATION;
 
-    double frequency = spot.freq;
-
-    qCDebug(function_parameters) << spot.callsign<< frequency << spot.bandPlanMode;
+    qCDebug(function_parameters) << spot.callsign<< spot.freq << spot.bandPlanMode;
 
     if ( isManualEnterMode )
     {
@@ -2900,12 +2898,22 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         return;
     }
 
-    frequency = ( frequency > 0.0 ) ? frequency : ui->freqRXEdit->value();
+    const double frequency = (spot.freq > 0.0) ? spot.freq : ui->freqRXEdit->value();
 
+#if 0 // DX SPLIT MODE
     // Enable split BEFORE setting RX frequency — setSplit(true) forces
     // VFO A as primary, so the subsequent RX freq goes to the correct VFO.
     // All rig commands are queued, so order of calls here = execution order.
     double txFreq = 0.0;
+
+
+    // DX SPLIT MODE : Removed due to the inability of rig drivers to consistently manage split mode.
+    // Example: the IC-7300 has an incorrectly implemented frequency setting when
+    // enabling split on VFO B in Hamlib. It appears to be fixed in version 4.7,
+    // but previous versions are broken. The same issue applies to Omnirig.
+    // Because this would require a significant number of exceptions in the code and
+    // would result in unreliable behavior, split configuration for DX is postponed
+    // indefinitely for now.
 
     if ( spot.freqTX > 0.0 && rigOnline )
     {
@@ -2926,6 +2934,7 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         qCDebug(runtime) << "Setting split from DX spot: TX" << txFreq;
         rig->setSplit(true);
     }
+#endif
 
     // Fix #453
     // it is necessary to have the sequence of Set Freq and Set Mode.
@@ -2934,10 +2943,15 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
 
     if ( frequency > 0.0 )
     {
+#if 0 // SPLIT MODE
+        // Set TX frequency after RX frequency — split is already enabled above
+        if ( txFreq > 0.0 )
+            rig->setFrequency(VFO2, MHz(txFreq));
+#endif
+
         QString subMode;
         QString mode = BandPlan::bandPlanMode2ExpectedMode(spot.bandPlanMode,
                                                            subMode);
-
         if ( mode.isEmpty() )
         {
             qCDebug(runtime) << "mode not found" << spot.bandPlanMode;
@@ -2967,39 +2981,22 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         }
     }
 
-    // Set TX frequency after RX frequency — split is already enabled above
-    if ( txFreq > 0.0 )
-        rig->setFrequency(VFO2, MHz(txFreq));
-
     resetContact();
     changeCallsignManually(spot.callsign, frequency);
 
-    if ( uiDynamic->potaEdit->text().isEmpty()
-          && !spot.potaRef.isEmpty() )
+    auto fillRef = [&](QLineEdit* edit, const QString& value, std::function<void()> finishSlot = nullptr)
     {
-        uiDynamic->potaEdit->setText(spot.potaRef);
-        potaEditFinished();
-    }
+        if ( edit->text().isEmpty() && !value.isEmpty() )
+        {
+            edit->setText(value);
+            if (finishSlot) finishSlot();
+        }
+    };
 
-    if ( uiDynamic->sotaEdit->text().isEmpty()
-        && !spot.sotaRef.isEmpty() )
-    {
-        uiDynamic->sotaEdit->setText(spot.sotaRef);
-        sotaEditFinished();
-    }
-
-    if ( uiDynamic->wwffEdit->text().isEmpty()
-        && !spot.wwffRef.isEmpty() )
-    {
-        uiDynamic->wwffEdit->setText(spot.wwffRef);
-        wwffEditFinished();
-    }
-
-    if ( uiDynamic->iotaEdit->text().isEmpty()
-        && !spot.iotaRef.isEmpty() )
-    {
-        uiDynamic->iotaEdit->setText(spot.iotaRef);
-    }
+    fillRef(uiDynamic->potaEdit, spot.potaRef, [this] { potaEditFinished(); });
+    fillRef(uiDynamic->sotaEdit, spot.sotaRef, [this] { sotaEditFinished(); });
+    fillRef(uiDynamic->wwffEdit, spot.wwffRef, [this] { wwffEditFinished(); });
+    fillRef(uiDynamic->iotaEdit, spot.iotaRef);
 }
 
 void NewContactWidget::fillCallsignGrid(const QString &callsign, const QString &grid)
