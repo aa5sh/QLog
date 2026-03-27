@@ -2429,6 +2429,8 @@ void NewContactWidget::changeSplit(VFOID, bool enabled)
         ui->freqTXEdit->blockSignals(false);
     }
 
+    ui->freqTXEdit->setEnabled(!enabled);
+
     showRXTXFreqs(enabled
                   || RigProfilesManager::instance()->getCurProfile1().ritOffset != 0.0
                   || RigProfilesManager::instance()->getCurProfile1().xitOffset != 0.0
@@ -2565,11 +2567,11 @@ void NewContactWidget::rigDisconnected()
         return;
     }
 
+    changeSplit(VFO1, false);
     uiDynamic->powerEdit->setEnabled(true);
     uiDynamic->powerEdit->setValue(RigProfilesManager::instance()->getCurProfile1().defaultPWR);
 
     rigOnline = false;
-    rigSplitEnabled = false;
 }
 
 void NewContactWidget::setNearestSpot(const DxSpot &spot)
