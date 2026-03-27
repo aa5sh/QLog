@@ -20,6 +20,7 @@ RigCaps FlrigRigDrv::getCaps(int)
     ret.canGetKeySpeed = true;
     ret.canSendMorse = true;
     ret.needPolling = true;
+    ret.canGetSplit = true;
 
     return ret;
 }
@@ -116,7 +117,7 @@ void FlrigRigDrv::setSplit(bool enabled)
 
     qCDebug(function_parameters) << enabled;
 
-    if ( !rigReady ) return;
+    if ( !rigProfile.getSplitInfo || !rigReady  ) return;
 
     sendXmlRpcCommand("rig.set_split", { enabled ? 1 : 0 });
 }
@@ -541,7 +542,7 @@ void FlrigRigDrv::reqGET_SPLIT()
 {
     FCT_IDENTIFICATION;
 
-    sendXmlRpcCommand("rig.get_split", {}, false);
+    if ( rigProfile.getSplitInfo ) sendXmlRpcCommand("rig.get_split", {}, false);
 }
 
 void FlrigRigDrv::rspGET_SPLIT(const QVariant &value)

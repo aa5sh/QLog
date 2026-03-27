@@ -112,6 +112,7 @@ RigCaps HamlibRigDrv::getCaps(int model)
         ret.canSendMorse = ( caps->send_morse != nullptr );
         ret.canProcessDXSpot = isSmartSDRSlice(caps);
         ret.isCIVAddrSupported = isCIVAddrRig(caps);
+        ret.canGetSplit = ( caps->get_split_vfo && caps->get_split_freq );
 
         if ( ret.isNetworkOnly )
         {
@@ -397,6 +398,9 @@ void HamlibRigDrv::setSplit(bool enabled)
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << enabled;
+
+    if ( !rigProfile.getSplitInfo )
+        return;
 
     MUTEXLOCKER;
 
@@ -1053,6 +1057,12 @@ void HamlibRigDrv::checkSplitChange()
     if ( !rig )
     {
         qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    if ( !rigProfile.getSplitInfo )
+    {
+        qCDebug(runtime) << "Get SPLIT is disabled";
         return;
     }
 

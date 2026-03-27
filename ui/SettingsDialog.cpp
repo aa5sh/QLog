@@ -539,6 +539,7 @@ void SettingsDialog::addRigProfile()
     profile.getKeySpeed = ui->rigGetKeySpeedCheckBox->isChecked();
     profile.keySpeedSync = ui->rigKeySpeedSyncCheckBox->isChecked();
     profile.dxSpot2Rig = ui->rigDXSpots2RigCheckBox->isChecked();
+    profile.getSplitInfo = ui->rigGetSplitCheckBox->isChecked();
 
     // Rigctld sharing settings
     profile.shareRigctld = ui->rigShareCheckBox->isChecked();
@@ -621,6 +622,7 @@ void SettingsDialog::doubleClickRigProfile(QModelIndex i)
     ui->rigGetKeySpeedCheckBox->setChecked(profile.getKeySpeed);
     ui->rigKeySpeedSyncCheckBox->setChecked(profile.keySpeedSync);
     ui->rigDXSpots2RigCheckBox->setChecked(profile.dxSpot2Rig);
+    ui->rigGetSplitCheckBox->setChecked(profile.getSplitInfo);
 
     int flowControlIndex = ui->rigFlowControlSelect->findData(profile.flowcontrol.toLower());
     ui->rigFlowControlSelect->setCurrentIndex((flowControlIndex < 0) ? 0 : flowControlIndex);
@@ -695,6 +697,7 @@ void SettingsDialog::clearRigProfileForm()
     ui->rigAddProfileButton->setText(tr("Add"));
     ui->rigPTTPortEdit->clear();
     ui->rigCIVAddrSpinBox->setValue(CIVADDR_DISABLED_VALUE);
+    ui->rigGetSplitCheckBox->setChecked(false);
 
     // Rigctld sharing settings
     ui->rigShareCheckBox->setChecked(false);
@@ -1865,6 +1868,9 @@ void SettingsDialog::rigChanged(int index)
     ui->rigDXSpots2RigCheckBox->setEnabled(true);
     ui->rigDXSpots2RigCheckBox->setChecked(false);
 
+    ui->rigGetSplitCheckBox->setEnabled(true);
+    ui->rigGetSplitCheckBox->setChecked(true);
+
     setUIBasedOnRigCaps(caps);
 }
 
@@ -2835,6 +2841,12 @@ void SettingsDialog::setUIBasedOnRigCaps(const RigCaps &caps)
     {
         ui->rigDXSpots2RigCheckBox->setChecked(false);
         ui->rigDXSpots2RigCheckBox->setEnabled(false);
+    }
+
+    if ( ! caps.canGetSplit )
+    {
+        ui->rigGetSplitCheckBox->setChecked(false);
+        ui->rigGetSplitCheckBox->setEnabled(false);
     }
 
     if ( ui->rigAssignedCWKeyCombo->currentText() != EMPTY_CWKEY_PROFILE )

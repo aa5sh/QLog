@@ -1936,6 +1936,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QCheckBox" name="rigGetSplitCheckBox">
+                     <property name="text">
+                      <string>Split</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </item>
                  <item row="9" column="1">
@@ -5004,6 +5011,7 @@
   <tabstop>rigGetPTTStateCheckBox</tabstop>
   <tabstop>rigGetXITCheckBox</tabstop>
   <tabstop>rigGetRITCheckBox</tabstop>
+  <tabstop>rigGetSplitCheckBox</tabstop>
   <tabstop>rigGetKeySpeedCheckBox</tabstop>
   <tabstop>rigKeySpeedSyncCheckBox</tabstop>
   <tabstop>rigDXSpots2RigCheckBox</tabstop>
@@ -6373,7 +6381,7 @@
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>
