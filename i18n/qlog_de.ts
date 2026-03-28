@@ -5466,7 +5466,7 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
         <location filename="../models/LogbookModel.cpp" line="75"/>
         <location filename="../models/LogbookModel.cpp" line="601"/>
         <source>Gridsquare</source>
-        <translation>Gitterfeld</translation>
+        <translation>Locator</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="602"/>
@@ -5502,7 +5502,7 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     <message>
         <location filename="../models/LogbookModel.cpp" line="600"/>
         <source>QTH (ASCII)</source>
-        <translation></translation>
+        <translation>QTH (ASCII)</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="603"/>
@@ -5979,7 +5979,7 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     <message>
         <location filename="../models/LogbookModel.cpp" line="675"/>
         <source>CW Key Info</source>
-        <translation>CW Key</translation>
+        <translation>CW Key Information</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="676"/>
@@ -6019,12 +6019,12 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     <message>
         <location filename="../models/LogbookModel.cpp" line="691"/>
         <source>My Gridsquare</source>
-        <translation>Eigenes Gitterfeld</translation>
+        <translation>Eigener Locator</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="692"/>
         <source>My Gridsquare Extended</source>
-        <translation>Eigenes erweitertes Gitterfeld</translation>
+        <translation>Eigener erweiterter Locator</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="693"/>
@@ -6321,8 +6321,8 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     </message>
     <message>
         <location filename="../ui/LogbookWidget.ui" line="300"/>
-        <source>Column Visibility </source>
-        <translation>Spaltensichtbarkeit </translation>
+        <source>Column Visibility</source>
+        <translation>Spaltensichtbarkeit</translation>
     </message>
     <message>
         <location filename="../ui/LogbookWidget.ui" line="303"/>
@@ -7045,8 +7045,8 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
         <location filename="../ui/MainWindow.cpp" line="636"/>
         <location filename="../ui/MainWindow.cpp" line="646"/>
         <location filename="../ui/MainWindow.cpp" line="656"/>
-        <source>&lt;b&gt;Error Detail:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Fehler-Detail:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;Error Detail:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Fehler-Detail:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="680"/>
@@ -7549,8 +7549,8 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="4028"/>
-        <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW)) </source>
-        <translation type="unfinished"></translation>
+        <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW))</source>
+        <translation>Es handelt sich nicht um den Namen des Wettbewerbs, sondern um eine zugewiesene&lt;br&gt;Wettbewerbs-ID (z. B. CQ-WW-CW für den CQ WW DX Contest (CW))</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="4043"/>
@@ -8126,18 +8126,18 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="635"/>
-        <source>&lt;b&gt;Rig Error:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Rig Fehler:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;Rig Error:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Rig Fehler:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="645"/>
-        <source>&lt;b&gt;Rotator Error:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Rotor Fehler:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;Rotator Error:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Rotor Fehler:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="655"/>
-        <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;CW-Keyer Fehler:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;CW-Keyer Fehler:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/KSTChatWidget.cpp" line="312"/>
@@ -9197,23 +9197,23 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="896"/>
-        <source>Based on callsign, DXCC Country is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-Land vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC Country is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-Land vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="900"/>
-        <source>Based on callsign, DXCC Continent is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich der DXCC-Kontinent vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC Continent is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich der DXCC-Kontinent vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="904"/>
-        <source>Based on callsign, DXCC ITU is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-ITU vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC ITU is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-ITU vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="908"/>
-        <source>Based on callsign, DXCC CQZ is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich die DXCC-CQZ vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC CQZ is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich die DXCC-CQZ vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="912"/>
@@ -9222,8 +9222,8 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="918"/>
-        <source>Based on Frequencies, Sat Mode should be </source>
-        <translation>Aufgrund der Frequenzen unterscheidet sich die Satellit-Betriebsart vom eingegebenen Wert - erwartend </translation>
+        <source>Based on Frequencies, Sat Mode should be</source>
+        <translation>Aufgrund der Frequenzen unterscheidet sich die Satellit-Betriebsart vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="918"/>
@@ -9252,18 +9252,18 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="944"/>
-        <source>Based on own callsign, own DXCC ITU is different from the entered value - expecting </source>
-        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC ITU unterschiedlich vom eingegebenen Wert - erwartet </translation>
+        <source>Based on own callsign, own DXCC ITU is different from the entered value - expecting</source>
+        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC ITU unterschiedlich vom eingegebenen Wert - erwartet</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="948"/>
-        <source>Based on own callsign, own DXCC CQZ is different from the entered value - expecting </source>
-        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC CQZ unterschiedlich vom eingegebenen Wert - erwartet </translation>
+        <source>Based on own callsign, own DXCC CQZ is different from the entered value - expecting</source>
+        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC CQZ unterschiedlich vom eingegebenen Wert - erwartet</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="952"/>
-        <source>Based on own callsign, own DXCC Country is different from the entered value - expecting </source>
-        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC-Land unterschiedlich vom eingegebenen Wert - erwartet </translation>
+        <source>Based on own callsign, own DXCC Country is different from the entered value - expecting</source>
+        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC-Land unterschiedlich vom eingegebenen Wert - erwartet</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1043"/>
@@ -9312,38 +9312,38 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="980"/>
-        <source>Based on SOTA Summit, Grid does not match SOTA Grid - expecting </source>
-        <translation>Auf Grundlage der SOTA-Daten, stimmt das Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend </translation>
+        <source>Based on SOTA Summit, Grid does not match SOTA Grid - expecting</source>
+        <translation>Auf Grundlage der SOTA-Daten, stimmt das Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="986"/>
-        <source>Based on POTA record, QTH does not match POTA Name - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das QTH nicht mit dem POTA-Namen überein - erwartend </translation>
+        <source>Based on POTA record, QTH does not match POTA Name - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das QTH nicht mit dem POTA-Namen überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="995"/>
-        <source>Based on POTA record, Grid does not match POTA Grid - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend </translation>
+        <source>Based on POTA record, Grid does not match POTA Grid - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1014"/>
-        <source>Based on SOTA Summit, my QTH does not match SOTA Summit Name - expecting </source>
-        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene QTH nicht mit dem SOTA Gipfelnamen überein - erwartend </translation>
+        <source>Based on SOTA Summit, my QTH does not match SOTA Summit Name - expecting</source>
+        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene QTH nicht mit dem SOTA Gipfelnamen überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1023"/>
-        <source>Based on SOTA Summit, my Grid does not match SOTA Grid - expecting </source>
-        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend </translation>
+        <source>Based on SOTA Summit, my Grid does not match SOTA Grid - expecting</source>
+        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1029"/>
-        <source>Based on POTA record, my QTH does not match POTA Name - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das eigene QTH nicht mit dem POTA-Namen überein - erwartend </translation>
+        <source>Based on POTA record, my QTH does not match POTA Name - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das eigene QTH nicht mit dem POTA-Namen überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1038"/>
-        <source>Based on POTA record, my Grid does not match POTA Grid - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das eigene Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend </translation>
+        <source>Based on POTA record, my Grid does not match POTA Grid - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das eigene Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1206"/>
@@ -11612,13 +11612,13 @@ Bitte installieren Sie TQSL oder geben Sie den Pfad manuell an.</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="236"/>
-        <source>Confirmed </source>
-        <translation>Bestätigt </translation>
+        <source>Confirmed</source>
+        <translation>Bestätigt</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="237"/>
-        <source>Not Confirmed </source>
-        <translation>Nicht Bestätigt </translation>
+        <source>Not Confirmed</source>
+        <translation>Nicht Bestätigt</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="437"/>
@@ -11667,7 +11667,7 @@ Bitte installieren Sie TQSL oder geben Sie den Pfad manuell an.</translation>
     <message>
         <location filename="../rig/drivers/TCIRigDrv.cpp" line="343"/>
         <source>Error Occurred</source>
-        <translation>Fehler ist aufgetreten</translation>
+        <translation>Fehler aufgetreten</translation>
     </message>
     <message>
         <location filename="../rig/drivers/TCIRigDrv.cpp" line="573"/>
@@ -11776,7 +11776,24 @@ Bitte installieren Sie TQSL oder geben Sie den Pfad manuell an.</translation>
         <location filename="../ui/UploadQSODialog.ui" line="269"/>
         <source>Include QSOs Status</source>
         <translation>QSOs mit Sendestatus</translation>
+    </message>        <source>By updating, all selected rows will be affected.&lt;br&gt;The value currently edited in the column will be applied to all selected rows.&lt;br&gt;&lt;br&gt;Do you want to edit them?</source>
+        <translation>Durch die Aktualisierung werden alle ausgewählten Zeilen beeinflusst.&lt;br&gt;Der aktuell bearbeitete Wert in der Spalte wird auf alle ausgewählten Zeilen angewendet.&lt;br&gt;Möchten Sie fortfahren?</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../ui/LogbookWidget.cpp" line="1038"/>
+        <source>Count: %n</source>
+        <translation>
+            <numerusform>Anzahl: %n</numerusform>
+            <numerusform>Anzahl: %n</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../ui/LogbookWidget.cpp" line="1095"/>
+        <source>Downloading eQSL Image</source>
+        <translation>eQSL-Bild herunterladen</translation>
+    </message>
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+
     <message>
         <location filename="../ui/UploadQSODialog.ui" line="278"/>
         <source>Under normal circumstances this status means &lt;b&gt;&quot;do not send&quot;&lt;/b&gt;.&lt;br/&gt;However, it may sometimes be wanted to ignore this setting when sending a QSL.</source>
