@@ -79,6 +79,8 @@ public slots:
     void displayedColumns();
     void saveTableHeaderState();
     void showTableHeaderContextMenu(const QPoint& point);
+    void markQslReceived();
+    void markQslRequested();
     void doubleClickColumn(QModelIndex);
     void handleBeforeUpdate(int, QSqlRecord&);
     void handleBeforeDelete(int);
