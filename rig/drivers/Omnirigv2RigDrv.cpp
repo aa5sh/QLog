@@ -62,6 +62,7 @@ RigCaps OmnirigV2RigDrv::getCaps(int)
     //ret.canGetRIT = true; // temporary disabled because there is not rig with the implemented RitOffset
     //XIT is not supported by Omnirig lib now
     ret.canGetPTT = true;
+    ret.canGetSplit = true;
 
     return ret;
 }
@@ -373,7 +374,7 @@ void OmnirigV2RigDrv::setSplit(bool enabled)
 
     qCDebug(function_parameters) << enabled;
 
-    if ( !rig ) return;
+    if ( !rigProfile.getSplitInfo || !rig ) return;
 
     MUTEXLOCKER;
 
@@ -652,7 +653,7 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
     }
 
     // TX frequency (the non-active VFO) when split is active
-    if ( currSplitEnabled )
+    if ( rigProfile.getSplitInfo && currSplitEnabled )
     {
         long txTmp = 0L;
         if ( vfoIsB )
@@ -861,6 +862,12 @@ void OmnirigV2RigDrv::checkSplitChange(int params, bool force)
     if ( !rig )
     {
         qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    if ( !rigProfile.getSplitInfo )
+    {
+        qCDebug(runtime) << "Get SPLIT is disabled";
         return;
     }
 

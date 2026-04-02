@@ -83,6 +83,7 @@ void RigWidget::updateFrequency(VFOID vfoid, double vfoFreq, double ritFreq, dou
         ui->txFreqLabel->blockSignals(true);
         ui->txFreqLabel->setValue(vfoFreq);
         ui->txFreqLabel->blockSignals(false);
+        ui->txFreqLabel->setReadOnly(true);
         return;
     }
 

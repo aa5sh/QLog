@@ -43,6 +43,7 @@ RigCaps TCIRigDrv::getCaps(int)
     ret.canGetKeySpeed = true;
     ret.canGetPWR = true;
     ret.canProcessDXSpot = true;
+    ret.canGetSplit = true;
 
     return ret;
 }
@@ -153,6 +154,8 @@ void TCIRigDrv::setSplit(bool enabled)
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << enabled;
+
+    if ( !rigProfile.getSplitInfo ) return;
 
     if ( receivedOnly )
     {
@@ -658,6 +661,9 @@ void TCIRigDrv::rspVFO(const QStringList &cmdArgs)
     if ( cmdArgs.at(1) == "1" )
     {
         // VFO 1 — TX frequency (relevant when split is active)
+        if ( !rigProfile.getSplitInfo )
+            return;
+
         bool ok;
         double txFreq = cmdArgs.at(2).toDouble(&ok);
         if ( ok )
@@ -964,6 +970,9 @@ void TCIRigDrv::rspSPLIT_ENABLE(const QStringList &cmdArgs)
     // arg1 - status indicator.
 
     CHECK_PARAMS_COUNT(cmdArgs.size(), 2);
+
+    if ( !rigProfile.getSplitInfo )
+        return;
 
     if ( cmdArgs.at(0) != QString::number(rigProfile.model - 1) )
     {

@@ -61,6 +61,7 @@ RigCaps OmnirigRigDrv::getCaps(int)
     //ret.canGetRIT = true; // temporary disabled because there is not rig with the implemented RitOffset
     //XIT is not supported by Omnirig lib now
     ret.canGetPTT = true;
+    ret.canGetSplit = true;
 
     return ret;
 }
@@ -74,6 +75,7 @@ OmnirigRigDrv::OmnirigRigDrv(const RigProfile &profile,
       currXIT(0),
       currPTT(false),
       currSplitEnabled(false),
+      futureSplit(false),
       omniInterface(nullptr),
       rig(nullptr),
       eventSink(nullptr),
@@ -345,18 +347,37 @@ void OmnirigRigDrv::setFrequency(VFOID vfoid, double newFreq)
 
     MUTEXLOCKER;
 
-    OmnirigV1::RigParamX vfo = OmnirigV1::PM_UNKNOWN;
-    rig->get_Vfo(&vfo);
+    OmnirigV1::RigParamX currentVfo = OmnirigV1::PM_UNKNOWN;
+    rig->get_Vfo(&currentVfo);
 
-    if ( vfo & VFO_B_MASK )
+    const bool isBActive = (currentVfo & VFO_B_MASK);
+    const bool targetIsA = isBActive;
+
+    qCDebug(runtime) << "Active VFO is" << (isBActive ? "B" : "A")
+                     << ", setting TX freq to VFO" << (targetIsA ? "A" : "B");
+
+    const bool canDirect =targetIsA ? (writableParams & OmnirigV1::PM_FREQA)
+                                    : (writableParams & OmnirigV1::PM_FREQB);
+
+    if ( canDirect )
     {
-        qCDebug(runtime) << "Active VFO is B, setting TX freq to VFO A";
-        rig->put_FreqA(internalFreq);
+        if ( targetIsA )
+        {
+            qCDebug(runtime) << "Direct FreqA";
+            rig->put_FreqA(internalFreq);
+        }
+        else
+        {
+            qCDebug(runtime) << "Direct FreqB";
+            rig->put_FreqB(internalFreq);
+        }
     }
     else
     {
-        qCDebug(runtime) << "Active VFO is A, setting TX freq to VFO B";
-        rig->put_FreqB(internalFreq);
+        qCDebug(runtime) << "Swap VFOs";
+        rig->put_Vfo(OmnirigV1::PM_VFOSWAP);
+        rig->put_Freq(internalFreq);
+        rig->put_Vfo(OmnirigV1::PM_VFOSWAP);
     }
 
     commandSleep();
@@ -368,11 +389,12 @@ void OmnirigRigDrv::setSplit(bool enabled)
 
     qCDebug(function_parameters) << enabled;
 
-    if ( !rig ) return;
+    if ( !rigProfile.getSplitInfo || !rig ) return;
 
     MUTEXLOCKER;
 
     rig->put_Split(enabled ? OmnirigV1::PM_SPLITON : OmnirigV1::PM_SPLITOFF);
+    futureSplit = enabled;
 
     commandSleep();
 }
@@ -393,12 +415,35 @@ void OmnirigRigDrv::setRawMode(const QString &rawMode)
     {
         OmnirigV1::RigParamX m = static_cast<OmnirigV1::RigParamX>(mappedMode.at(0));
         qCDebug(runtime) << "Mode Found" << m;
-        if ( m & writableParams )
+        if ( !(m & writableParams) ) return;
+
+        qCDebug(runtime) << "Setting Mode";
+        rig->put_Mode(m);
+
+#if 0 // SPLIT MODE
+        // sync Split VFO mode
+
+        // The information about the split change may not
+        // have arrived yet, but the VFO can now be set.
+        // That's why futureSplit was used
+
+        if ( futureSplit )
         {
-            qCDebug(runtime) << "Setting Mode";
-            rig->put_Mode(m);
-            commandSleep();
+            if (writableParams & (OmnirigV1::PM_VFOA | OmnirigV1::PM_VFOB))
+            {
+                OmnirigV1::RigParamX currentVfo = OmnirigV1::PM_UNKNOWN;
+                rig->get_Vfo(&currentVfo);
+                const bool isA = (currentVfo & VFO_A_MASK);
+                const auto targetVfo = isA ? OmnirigV1::PM_VFOB : OmnirigV1::PM_VFOA;
+                const auto returnVfo = isA ? OmnirigV1::PM_VFOA : OmnirigV1::PM_VFOB;
+
+                rig->put_Vfo(targetVfo);
+                rig->put_Mode(m);
+                rig->put_Vfo(returnVfo);
+            }
         }
+#endif
+        commandSleep();
     }
 }
 
@@ -704,7 +749,7 @@ bool OmnirigRigDrv::checkFreqChange(int params, bool force)
     }
 
     // TX frequency (the non-active VFO) when split is active
-    if ( currSplitEnabled )
+    if ( rigProfile.getSplitInfo && currSplitEnabled )
     {
         long txTmp = 0L;
         if ( vfoIsB )
@@ -917,6 +962,12 @@ void OmnirigRigDrv::checkSplitChange(int params, bool force)
         return;
     }
 
+    if ( !rigProfile.getSplitInfo )
+    {
+        qCDebug(runtime) << "Get SPLIT is disabled";
+        return;
+    }
+
     if ( (params & SPLIT_MASK) || force )
     {
         int inParams = params;
@@ -935,6 +986,8 @@ void OmnirigRigDrv::checkSplitChange(int params, bool force)
         if ( splitEnabled != currSplitEnabled || force )
         {
             currSplitEnabled = splitEnabled;
+            futureSplit = splitEnabled;
+
             qCDebug(runtime) << "emitting SPLIT changed" << currSplitEnabled;
             emit splitChanged(currSplitEnabled);
 

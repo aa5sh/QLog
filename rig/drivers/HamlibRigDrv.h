@@ -101,6 +101,7 @@ private:
     unsigned int keySpeed;
     bool morseOverCatSupported;
     bool currSplitEnabled;
+    bool futureSplit;
     double currTxFreq;
     QMutex drvLock;
     QHash<QString, QString>postponedErrors;

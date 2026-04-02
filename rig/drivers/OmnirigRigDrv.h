@@ -86,6 +86,7 @@ private:
     unsigned int currXIT;
     bool currPTT;
     bool currSplitEnabled;
+    bool futureSplit;
 
     // COM Objects
     OmnirigV1::IOmniRigX *omniInterface;   // the main OmniRigX COM object
