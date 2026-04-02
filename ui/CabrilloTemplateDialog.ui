@@ -142,7 +142,7 @@
        </column>
        <column>
         <property name="text">
-         <string>Output Label</string>
+         <string>Label</string>
         </property>
        </column>
       </widget>

@@ -69,8 +69,7 @@ CabrilloTemplateDialog::CabrilloTemplateDialog(QWidget *parent) :
 
     populateContestCombo();
 
-    connect(ui->nameEdit, &QLineEdit::textChanged,
-            this, [this](const QString &text)
+    connect(ui->nameEdit, &QLineEdit::textChanged, this, [this](const QString &text)
     {
         QListWidgetItem *item = ui->templateList->currentItem();
         if ( item && currentTemplateIndex >= 0
