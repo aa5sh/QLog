@@ -140,12 +140,12 @@
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1260"/>
         <source>New QSO Rows</source>
-        <translation>Neues QSO Zeilen</translation>
+        <translation>Neue QSO Zeilen</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1265"/>
         <source>New QSO Detail Columns</source>
-        <translation>Neues QSO Detail-Spalten</translation>
+        <translation>Neue Spalten in den QSO Details</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1278"/>
@@ -228,7 +228,7 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="71"/>
         <source>Enabled</source>
-        <translation>Aktiv</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="83"/>
@@ -306,7 +306,7 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="168"/>
         <source>Log Status</source>
-        <translation></translation>
+        <translation>Protokollstatus</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="401"/>
@@ -346,7 +346,7 @@
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="421"/>
         <source>Special Programs</source>
-        <translation>Special</translation>
+        <translation>Sonderprogramme</translation>
     </message>
     <message>
         <location filename="../ui/AlertRuleDetail.ui" line="471"/>
@@ -540,7 +540,7 @@
     <message>
         <location filename="../ui/AlertWidget.ui" line="14"/>
         <source>Alerts</source>
-        <translation></translation>
+        <translation>Benachrichtigungen</translation>
     </message>
     <message>
         <location filename="../ui/AlertWidget.ui" line="86"/>
@@ -578,7 +578,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="14"/>
         <source>Awards</source>
-        <translation></translation>
+        <translation>Auszeichnungen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="35"/>
@@ -588,7 +588,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="59"/>
         <source>Award</source>
-        <translation></translation>
+        <translation>Auszeichnung</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="94"/>
@@ -648,7 +648,7 @@
     <message>
         <location filename="../ui/AwardsDialog.ui" line="289"/>
         <source>Not-Confirmed Only</source>
-        <translation>Nicht bestätigt</translation>
+        <translation>Nur unbestätigt</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.ui" line="273"/>
@@ -693,12 +693,12 @@
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="43"/>
         <source>POTA Hunter</source>
-        <translation type="unfinished"></translation>
+        <translation>POTA Jaeger</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="44"/>
         <source>POTA Activator</source>
-        <translation type="unfinished"></translation>
+        <translation>POTA Aktivierer</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="45"/>
@@ -713,17 +713,17 @@
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="47"/>
         <source>Gridsquare 2-Chars</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator 2 Zeichen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="48"/>
         <source>Gridsquare 4-Chars</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator 4 Zeichen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="49"/>
         <source>Gridsquare 6-Chars</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator 6 Zeichen</translation>
     </message>
     <message>
         <location filename="../ui/AwardsDialog.cpp" line="50"/>
@@ -859,12 +859,12 @@
     <message>
         <location filename="../ui/BandmapWidget.ui" line="56"/>
         <source>Create an additional Bandmap Window</source>
-        <translation>Ein zusätzliches Bandmap-Fenster erstellen</translation>
+        <translation>Ein zusätzliches Bandplan-Fenster erstellen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="83"/>
         <source>Clear older</source>
-        <translation>Löschen älter</translation>
+        <translation>Ältere löschen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="102"/>
@@ -874,12 +874,12 @@
     <message>
         <location filename="../ui/BandmapWidget.ui" line="118"/>
         <source>Clear All</source>
-        <translation>Alle Löschen</translation>
+        <translation>Alle löschen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="216"/>
         <source>Clear the current band</source>
-        <translation>Löschen das aktuelle Band</translation>
+        <translation>Aktuelles Band löschen</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.ui" line="105"/>
@@ -889,7 +889,7 @@
     <message>
         <location filename="../ui/BandmapWidget.cpp" line="619"/>
         <source>Bandmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Bandplan</translation>
     </message>
     <message>
         <location filename="../ui/BandmapWidget.cpp" line="950"/>
@@ -909,7 +909,7 @@
     <message>
         <location filename="../ui/BandmapWidget.cpp" line="1088"/>
         <source>SOS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -951,7 +951,7 @@
         <location filename="../cwkey/drivers/CWCatKey.cpp" line="136"/>
         <location filename="../cwkey/drivers/CWCatKey.cpp" line="143"/>
         <source>Cannot set Keyer Speed</source>
-        <translation>Kann Keyer-WPM nicht einstellen</translation>
+        <translation>Kann Keyer Geschwindigkeit nicht einstellen</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWCatKey.cpp" line="161"/>
@@ -975,7 +975,7 @@
     </message>
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="106"/>
-        <source> WPM</source>
+        <source>WPM</source>
         <translation></translation>
     </message>
     <message>
@@ -1006,7 +1006,7 @@
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="183"/>
         <source>Text to send</source>
-        <translation>Zu sendender Text</translation>
+        <translation>Zu versendender Text</translation>
     </message>
     <message>
         <location filename="../ui/CWConsoleWidget.ui" line="233"/>
@@ -1111,7 +1111,7 @@
     <message>
         <location filename="../cwkey/drivers/CWDaemonKey.cpp" line="106"/>
         <source>Cannot set Keyer Speed</source>
-        <translation>Kann Keyer-WPM nicht einstellen</translation>
+        <translation>Kann Keyer-Geschwindigkeit nicht einstellen</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWDaemonKey.cpp" line="124"/>
@@ -1130,7 +1130,7 @@
         <location filename="../cwkey/drivers/CWFldigiKey.cpp" line="110"/>
         <location filename="../cwkey/drivers/CWFldigiKey.cpp" line="176"/>
         <source>Keyer is not connected</source>
-        <translation>Keyer nicht verbunden</translation>
+        <translation>Keyer ist nicht verbunden</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWFldigiKey.cpp" line="111"/>
@@ -1229,7 +1229,7 @@
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="461"/>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="501"/>
         <source>Keyer is not connected</source>
-        <translation type="unfinished">Keyer nicht verbunden</translation>
+        <translation>Keyer nicht verbunden</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="431"/>
@@ -1239,7 +1239,7 @@
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="461"/>
         <source>Cannot set Keyer Speed</source>
-        <translation>Kann Keyer-WPM nicht einstellen</translation>
+        <translation>Kann Keyer-Geschwindigkeit nicht einstellen</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="501"/>
@@ -1254,47 +1254,47 @@
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="712"/>
         <source>2000 Hz</source>
-        <translation type="unfinished">4000 Hz {2000 ?}</translation>
+        <translation>2000 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="713"/>
         <source>1333 Hz</source>
-        <translation type="unfinished">4000 Hz {1333 ?}</translation>
+        <translation>1333 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="714"/>
         <source>1000 Hz</source>
-        <translation type="unfinished">4000 Hz {1000 ?}</translation>
+        <translation>1000 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="715"/>
         <source>800 Hz</source>
-        <translation type="unfinished">4000 Hz {800 ?}</translation>
+        <translation>800 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="716"/>
         <source>666 Hz</source>
-        <translation type="unfinished">4000 Hz {666 ?}</translation>
+        <translation>666 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="717"/>
         <source>571 Hz</source>
-        <translation type="unfinished">4000 Hz {571 ?}</translation>
+        <translation>571 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="718"/>
         <source>500 Hz</source>
-        <translation type="unfinished">4000 Hz {500 ?}</translation>
+        <translation>500 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="719"/>
         <source>444 Hz</source>
-        <translation type="unfinished">4000 Hz {444 ?}</translation>
+        <translation>444 Hz</translation>
     </message>
     <message>
         <location filename="../cwkey/drivers/CWWinKey.cpp" line="720"/>
         <source>400 Hz</source>
-        <translation type="unfinished">4000 Hz {400 ?}</translation>
+        <translation>400 Hz</translation>
     </message>
 </context>
 <context>
@@ -1315,7 +1315,7 @@
     <message>
         <location filename="../ui/ChatWidget.ui" line="117"/>
         <source>Chat Room</source>
-        <translation></translation>
+        <translation>Chatraum</translation>
     </message>
     <message>
         <location filename="../ui/ChatWidget.ui" line="130"/>
@@ -1516,12 +1516,12 @@
     </message>
     <message>
         <location filename="../core/Migration.cpp" line="423"/>
-        <source>Updating </source>
+        <source>Updating</source>
         <translation>Aktualisieren </translation>
     </message>
     <message>
         <location filename="../core/Migration.cpp" line="436"/>
-        <source> Update Failed</source>
+        <source>Update Failed</source>
         <translation> Aktualisierung fehlgeschlagen</translation>
     </message>
 </context>
@@ -1635,7 +1635,7 @@
     <message>
         <location filename="dbstrings.tri" line="22"/>
         <source>Austral Islands</source>
-        <translation>Australinseln</translation>
+        <translation>Austral-Inseln</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="23"/>
@@ -2560,7 +2560,7 @@
     <message>
         <location filename="dbstrings.tri" line="207"/>
         <source>N.Z. Subantarctic Is.</source>
-        <translation type="unfinished"></translation>
+        <translation>Subantarktische Inseln Neuseelands</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="208"/>
@@ -2790,7 +2790,7 @@
     <message>
         <location filename="dbstrings.tri" line="253"/>
         <source>Saba &amp; St. Eustatius</source>
-        <translation type="unfinished"></translation>
+        <translation>Saba und St. Eustatius (Statia)</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="254"/>
@@ -2820,7 +2820,7 @@
     <message>
         <location filename="dbstrings.tri" line="259"/>
         <source>Sao Tome &amp; Principe</source>
-        <translation type="unfinished"></translation>
+        <translation>São Tomé und Príncipe</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="260"/>
@@ -2925,7 +2925,7 @@
     <message>
         <location filename="dbstrings.tri" line="280"/>
         <source>Sov Mil Order of Malta</source>
-        <translation type="unfinished"></translation>
+        <translation>Souveräner Malteserorden</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="281"/>
@@ -3060,7 +3060,7 @@
     <message>
         <location filename="dbstrings.tri" line="307"/>
         <source>Togo</source>
-        <translation type="unfinished"></translation>
+        <translation>Togo</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="308"/>
@@ -3115,12 +3115,12 @@
     <message>
         <location filename="dbstrings.tri" line="318"/>
         <source>UK Base Areas on Cyprus</source>
-        <translation type="unfinished"></translation>
+        <translation>Souveräne Militärbasen Akrotiri und Dekelia </translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="319"/>
         <source>US Virgin Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>Amerikanische Jungferninseln</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="320"/>
@@ -3140,7 +3140,7 @@
     <message>
         <location filename="dbstrings.tri" line="323"/>
         <source>United Nations HQ</source>
-        <translation type="unfinished"></translation>
+        <translation>Vereinte Nationen HQ</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="324"/>
@@ -3180,7 +3180,7 @@
     <message>
         <location filename="dbstrings.tri" line="331"/>
         <source>Wake Island</source>
-        <translation type="unfinished"></translation>
+        <translation>Wake Island</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="332"/>
@@ -3358,7 +3358,7 @@
     <message>
         <location filename="../data/Data.h" line="60"/>
         <source>Grayline</source>
-        <translation></translation>
+        <translation>Grayline</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="61"/>
@@ -3388,37 +3388,37 @@
     <message>
         <location filename="../data/Data.h" line="79"/>
         <source>Straight Key</source>
-        <translation type="unfinished"></translation>
+        <translation>Straight Key</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="80"/>
         <source>Sideswiper</source>
-        <translation type="unfinished"></translation>
+        <translation>Sideswiper</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="81"/>
         <source>Mechanical semi-automatic keyer or Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Mechanical semi-automatic keyer or Bug</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="82"/>
         <source>Mechanical fully-automatic keyer or Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Mechanical fully-automatic keyer or Bug</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="83"/>
         <source>Single Paddle</source>
-        <translation type="unfinished"></translation>
+        <translation>Single Paddle</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="84"/>
         <source>Dual Paddle</source>
-        <translation type="unfinished"></translation>
+        <translation>Dual Paddle</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="85"/>
         <source>Computer Driven</source>
-        <translation type="unfinished"></translation>
+        <translation>Computergesteuert</translation>
     </message>
     <message>
         <location filename="../data/Data.h" line="96"/>
@@ -3444,67 +3444,67 @@
     <message>
         <location filename="datastrings.tri" line="2"/>
         <source>Aurora-E</source>
-        <translation type="unfinished"></translation>
+        <translation>Aurora-E</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="3"/>
         <source>Aurora</source>
-        <translation type="unfinished"></translation>
+        <translation>Aurora</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="4"/>
         <source>Back scatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Back scatter</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="5"/>
         <source>EchoLink</source>
-        <translation type="unfinished"></translation>
+        <translation>EchoLink</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="6"/>
         <source>Earth-Moon-Earth</source>
-        <translation type="unfinished"></translation>
+        <translation>Erde-Mond-Erde</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="7"/>
         <source>Sporadic E</source>
-        <translation type="unfinished"></translation>
+        <translation>Sporadic E</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="8"/>
         <source>F2 Reflection</source>
-        <translation type="unfinished"></translation>
+        <translation>F2 Reflektion</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="9"/>
         <source>Field Aligned Irregularities</source>
-        <translation type="unfinished"></translation>
+        <translation>Feldbedingte Unregelmäßigkeiten</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="10"/>
         <source>Ground Wave</source>
-        <translation type="unfinished"></translation>
+        <translation>Bodenwelle</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="11"/>
         <source>Internet-assisted</source>
-        <translation type="unfinished"></translation>
+        <translation>Internet-assisted</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="12"/>
         <source>Ionoscatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ionoscatter</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="13"/>
         <source>IRLP</source>
-        <translation type="unfinished"></translation>
+        <translation>IRLP</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="14"/>
         <source>Line of Sight</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtlinie</translation>
     </message>
     <message>
         <location filename="datastrings.tri" line="15"/>
@@ -5466,7 +5466,7 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
         <location filename="../models/LogbookModel.cpp" line="75"/>
         <location filename="../models/LogbookModel.cpp" line="601"/>
         <source>Gridsquare</source>
-        <translation>Gitterfeld</translation>
+        <translation>Locator</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="602"/>
@@ -5502,7 +5502,7 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     <message>
         <location filename="../models/LogbookModel.cpp" line="600"/>
         <source>QTH (ASCII)</source>
-        <translation></translation>
+        <translation>QTH (ASCII)</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="603"/>
@@ -5979,7 +5979,7 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     <message>
         <location filename="../models/LogbookModel.cpp" line="675"/>
         <source>CW Key Info</source>
-        <translation>CW Key</translation>
+        <translation>CW Key Information</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="676"/>
@@ -6019,12 +6019,12 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     <message>
         <location filename="../models/LogbookModel.cpp" line="691"/>
         <source>My Gridsquare</source>
-        <translation>Eigenes Gitterfeld</translation>
+        <translation>Eigener Locator</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="692"/>
         <source>My Gridsquare Extended</source>
-        <translation>Eigenes erweitertes Gitterfeld</translation>
+        <translation>Eigener erweiterter Locator</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="693"/>
@@ -6321,8 +6321,8 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     </message>
     <message>
         <location filename="../ui/LogbookWidget.ui" line="300"/>
-        <source>Column Visibility </source>
-        <translation>Spaltensichtbarkeit </translation>
+        <source>Column Visibility</source>
+        <translation>Spaltensichtbarkeit</translation>
     </message>
     <message>
         <location filename="../ui/LogbookWidget.ui" line="303"/>
@@ -7045,8 +7045,8 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
         <location filename="../ui/MainWindow.cpp" line="636"/>
         <location filename="../ui/MainWindow.cpp" line="646"/>
         <location filename="../ui/MainWindow.cpp" line="656"/>
-        <source>&lt;b&gt;Error Detail:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Fehler-Detail:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;Error Detail:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Fehler-Detail:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="680"/>
@@ -7549,8 +7549,8 @@ Dieses Passwort wird später benötigt, um sie wiederherzustellen.</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="4028"/>
-        <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW)) </source>
-        <translation type="unfinished"></translation>
+        <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW))</source>
+        <translation>Es handelt sich nicht um den Namen des Wettbewerbs, sondern um eine zugewiesene&lt;br&gt;Wettbewerbs-ID (z. B. CQ-WW-CW für den CQ WW DX Contest (CW))</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="4043"/>
@@ -8126,18 +8126,18 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="635"/>
-        <source>&lt;b&gt;Rig Error:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Rig Fehler:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;Rig Error:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Rig Fehler:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="645"/>
-        <source>&lt;b&gt;Rotator Error:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Rotor Fehler:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;Rotator Error:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Rotor Fehler:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="655"/>
-        <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;CW-Keyer Fehler:&lt;/b&gt; </translation>
+        <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;CW-Keyer Fehler:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/KSTChatWidget.cpp" line="312"/>
@@ -9197,23 +9197,23 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="896"/>
-        <source>Based on callsign, DXCC Country is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-Land vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC Country is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-Land vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="900"/>
-        <source>Based on callsign, DXCC Continent is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich der DXCC-Kontinent vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC Continent is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich der DXCC-Kontinent vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="904"/>
-        <source>Based on callsign, DXCC ITU is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-ITU vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC ITU is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich das DXCC-ITU vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="908"/>
-        <source>Based on callsign, DXCC CQZ is different from the entered value - expecting </source>
-        <translation>Aufgrund des Rufzeichens unterscheidet sich die DXCC-CQZ vom eingegebenen Wert - erwartend </translation>
+        <source>Based on callsign, DXCC CQZ is different from the entered value - expecting</source>
+        <translation>Aufgrund des Rufzeichens unterscheidet sich die DXCC-CQZ vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="912"/>
@@ -9222,8 +9222,8 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="918"/>
-        <source>Based on Frequencies, Sat Mode should be </source>
-        <translation>Aufgrund der Frequenzen unterscheidet sich die Satellit-Betriebsart vom eingegebenen Wert - erwartend </translation>
+        <source>Based on Frequencies, Sat Mode should be</source>
+        <translation>Aufgrund der Frequenzen unterscheidet sich die Satellit-Betriebsart vom eingegebenen Wert - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="918"/>
@@ -9252,18 +9252,18 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="944"/>
-        <source>Based on own callsign, own DXCC ITU is different from the entered value - expecting </source>
-        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC ITU unterschiedlich vom eingegebenen Wert - erwartet </translation>
+        <source>Based on own callsign, own DXCC ITU is different from the entered value - expecting</source>
+        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC ITU unterschiedlich vom eingegebenen Wert - erwartet</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="948"/>
-        <source>Based on own callsign, own DXCC CQZ is different from the entered value - expecting </source>
-        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC CQZ unterschiedlich vom eingegebenen Wert - erwartet </translation>
+        <source>Based on own callsign, own DXCC CQZ is different from the entered value - expecting</source>
+        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC CQZ unterschiedlich vom eingegebenen Wert - erwartet</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="952"/>
-        <source>Based on own callsign, own DXCC Country is different from the entered value - expecting </source>
-        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC-Land unterschiedlich vom eingegebenen Wert - erwartet </translation>
+        <source>Based on own callsign, own DXCC Country is different from the entered value - expecting</source>
+        <translation>Basierend auf dem eigenen Rufzeichen ist das eigene DXCC-Land unterschiedlich vom eingegebenen Wert - erwartet</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1043"/>
@@ -9312,38 +9312,38 @@ Sie können Felder leer lassen und später in den Einstellungen konfigurieren.</
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="980"/>
-        <source>Based on SOTA Summit, Grid does not match SOTA Grid - expecting </source>
-        <translation>Auf Grundlage der SOTA-Daten, stimmt das Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend </translation>
+        <source>Based on SOTA Summit, Grid does not match SOTA Grid - expecting</source>
+        <translation>Auf Grundlage der SOTA-Daten, stimmt das Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="986"/>
-        <source>Based on POTA record, QTH does not match POTA Name - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das QTH nicht mit dem POTA-Namen überein - erwartend </translation>
+        <source>Based on POTA record, QTH does not match POTA Name - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das QTH nicht mit dem POTA-Namen überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="995"/>
-        <source>Based on POTA record, Grid does not match POTA Grid - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend </translation>
+        <source>Based on POTA record, Grid does not match POTA Grid - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1014"/>
-        <source>Based on SOTA Summit, my QTH does not match SOTA Summit Name - expecting </source>
-        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene QTH nicht mit dem SOTA Gipfelnamen überein - erwartend </translation>
+        <source>Based on SOTA Summit, my QTH does not match SOTA Summit Name - expecting</source>
+        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene QTH nicht mit dem SOTA Gipfelnamen überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1023"/>
-        <source>Based on SOTA Summit, my Grid does not match SOTA Grid - expecting </source>
-        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend </translation>
+        <source>Based on SOTA Summit, my Grid does not match SOTA Grid - expecting</source>
+        <translation>Auf Grundlage der SOTA-Daten stimmt das eigene Gitterfeld nicht mit dem SOTA Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1029"/>
-        <source>Based on POTA record, my QTH does not match POTA Name - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das eigene QTH nicht mit dem POTA-Namen überein - erwartend </translation>
+        <source>Based on POTA record, my QTH does not match POTA Name - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das eigene QTH nicht mit dem POTA-Namen überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1038"/>
-        <source>Based on POTA record, my Grid does not match POTA Grid - expecting </source>
-        <translation>Auf Grundlage der POTA Daten, stimmt das eigene Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend </translation>
+        <source>Based on POTA record, my Grid does not match POTA Grid - expecting</source>
+        <translation>Auf Grundlage der POTA Daten, stimmt das eigene Gitterfeld nicht mit dem POTA-Gitterfeld überein - erwartend</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1206"/>
@@ -11612,13 +11612,13 @@ Bitte installieren Sie TQSL oder geben Sie den Pfad manuell an.</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="236"/>
-        <source>Confirmed </source>
-        <translation>Bestätigt </translation>
+        <source>Confirmed</source>
+        <translation>Bestätigt</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="237"/>
-        <source>Not Confirmed </source>
-        <translation>Nicht Bestätigt </translation>
+        <source>Not Confirmed</source>
+        <translation>Nicht Bestätigt</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="437"/>
@@ -11667,7 +11667,7 @@ Bitte installieren Sie TQSL oder geben Sie den Pfad manuell an.</translation>
     <message>
         <location filename="../rig/drivers/TCIRigDrv.cpp" line="343"/>
         <source>Error Occurred</source>
-        <translation>Fehler ist aufgetreten</translation>
+        <translation>Fehler aufgetreten</translation>
     </message>
     <message>
         <location filename="../rig/drivers/TCIRigDrv.cpp" line="573"/>
@@ -11776,7 +11776,24 @@ Bitte installieren Sie TQSL oder geben Sie den Pfad manuell an.</translation>
         <location filename="../ui/UploadQSODialog.ui" line="269"/>
         <source>Include QSOs Status</source>
         <translation>QSOs mit Sendestatus</translation>
+    </message>        <source>By updating, all selected rows will be affected.&lt;br&gt;The value currently edited in the column will be applied to all selected rows.&lt;br&gt;&lt;br&gt;Do you want to edit them?</source>
+        <translation>Durch die Aktualisierung werden alle ausgewählten Zeilen beeinflusst.&lt;br&gt;Der aktuell bearbeitete Wert in der Spalte wird auf alle ausgewählten Zeilen angewendet.&lt;br&gt;Möchten Sie fortfahren?</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../ui/LogbookWidget.cpp" line="1038"/>
+        <source>Count: %n</source>
+        <translation>
+            <numerusform>Anzahl: %n</numerusform>
+            <numerusform>Anzahl: %n</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../ui/LogbookWidget.cpp" line="1095"/>
+        <source>Downloading eQSL Image</source>
+        <translation>eQSL-Bild herunterladen</translation>
+    </message>
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+
     <message>
         <location filename="../ui/UploadQSODialog.ui" line="278"/>
         <source>Under normal circumstances this status means &lt;b&gt;&quot;do not send&quot;&lt;/b&gt;.&lt;br/&gt;However, it may sometimes be wanted to ignore this setting when sending a QSL.</source>
