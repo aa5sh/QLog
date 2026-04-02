@@ -160,6 +160,7 @@ SOURCES += \
         ui/DxccTableWidget.cpp \
         ui/EditActivitiesDialog.cpp \
         ui/ExportDialog.cpp \
+        ui/SqlQueryDialog.cpp \
         ui/ExportPasswordDialog.cpp \
         ui/LoadDatabaseDialog.cpp \
         ui/PlatformSettingsDialog.cpp \
@@ -199,6 +200,7 @@ SOURCES += \
         ui/component/MultiselectCompleter.cpp \
         ui/component/RepeatButton.cpp \
         ui/component/SmartSearchBox.cpp \
+        ui/component/SqlHighlighter.cpp \
         ui/component/SwitchButton.cpp
 
 HEADERS += \
@@ -324,6 +326,7 @@ HEADERS += \
         ui/DxccTableWidget.h \
         ui/EditActivitiesDialog.h \
         ui/ExportDialog.h \
+        ui/SqlQueryDialog.h \
         ui/ExportPasswordDialog.h \
         ui/LoadDatabaseDialog.h \
         ui/PlatformSettingsDialog.h \
@@ -368,6 +371,7 @@ HEADERS += \
         ui/component/RepeatButton.h \
         ui/component/ShutdownAwareWidget.h \
         ui/component/SmartSearchBox.h \
+        ui/component/SqlHighlighter.h \
         ui/component/StyleItemDelegate.h \
         ui/component/SwitchButton.h
 
@@ -388,6 +392,7 @@ FORMS += \
         ui/DxWidget.ui \
         ui/EditActivitiesDialog.ui \
         ui/ExportDialog.ui \
+        ui/SqlQueryDialog.ui \
         ui/ExportPasswordDialog.ui \
         ui/LoadDatabaseDialog.ui \
         ui/PlatformSettingsDialog.ui \

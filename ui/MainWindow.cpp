@@ -11,6 +11,7 @@
 #include "ui/SettingsDialog.h"
 #include "ui/ImportDialog.h"
 #include "ui/ExportDialog.h"
+#include "ui/SqlQueryDialog.h"
 #include "core/FldigiTCPServer.h"
 #include "rig/Rig.h"
 #include "rotator/Rotator.h"
@@ -1097,6 +1098,14 @@ void MainWindow::showQSLGallery()
     FCT_IDENTIFICATION;
 
     QSLGalleryDialog dialog(this);
+    dialog.exec();
+}
+
+void MainWindow::showSqlQuery()
+{
+    FCT_IDENTIFICATION;
+
+    SqlQueryDialog dialog(this);
     dialog.exec();
 }
 
