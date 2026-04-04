@@ -29,6 +29,9 @@ private slots:
     void exportAsTxt();
     void exportAsCsv();
     void exportAsAdif();
+    void logToFileToggled(bool checked);
+    void applyLoggingRules();
+    void saveDebugLog();
 
 private:
     static const QString READ_ONLY_CONNECTION;
@@ -39,6 +42,7 @@ private:
     QSortFilterProxyModel *sortProxy;
 
     void loadSchema();
+    void updateDebugLogFileLabel();
 };
 
 #endif // QLOG_UI_SQLQUERYDIALOG_H

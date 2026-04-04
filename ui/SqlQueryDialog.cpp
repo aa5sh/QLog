@@ -5,6 +5,7 @@
 #include "core/LogDatabase.h"
 #include "core/debug.h"
 
+#include <QCheckBox>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
@@ -13,6 +14,7 @@
 #include <QFontDatabase>
 #include <QHeaderView>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
@@ -96,6 +98,17 @@ SqlQueryDialog::SqlQueryDialog(QWidget *parent)
 
     // Load db schema into highlighter
     loadSchema();
+
+    // Debug log controls
+    ui->logToFileCheckBox->setChecked(isLogToFileEnabled());
+    updateDebugLogFileLabel();
+
+    connect(ui->logToFileCheckBox, &QCheckBox::toggled,
+            this, &SqlQueryDialog::logToFileToggled);
+    connect(ui->applyRulesButton, &QPushButton::clicked,
+            this, &SqlQueryDialog::applyLoggingRules);
+    connect(ui->saveDebugLogButton, &QPushButton::clicked,
+            this, &SqlQueryDialog::saveDebugLog);
 }
 
 SqlQueryDialog::~SqlQueryDialog()
@@ -498,4 +511,108 @@ void SqlQueryDialog::exportAsAdif()
     // Hand off to the standard ExportDialog (same path as LogbookWidget right-click)
     ExportDialog dialog(records, this);
     dialog.exec();
+}
+
+// ---------------------------------------------------------------------------
+// Debug log controls
+// ---------------------------------------------------------------------------
+
+void SqlQueryDialog::logToFileToggled(bool checked)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << checked;
+
+    if ( !checked )
+    {
+        // Close the current log file so that re-enabling creates a new one
+        setLogToFile(false);
+        closeDebugLogFile();
+    }
+    else
+    {
+        setLogToFile(true);
+        // Force a log message so that the new log file gets created immediately
+        qWarning() << "Debug file logging enabled by user";
+    }
+
+    updateDebugLogFileLabel();
+}
+
+void SqlQueryDialog::applyLoggingRules()
+{
+    FCT_IDENTIFICATION;
+
+    const QString userRules = ui->loggingRulesEdit->text().trimmed();
+
+    if ( userRules.isEmpty() )
+    {
+        // Empty rules - back to production defaults
+        set_debug_level(LEVEL_PRODUCTION);
+        ui->statusLabel->setText(tr("Logging rules cleared (production defaults)"));
+    }
+    else
+    {
+        // Disable all debug first, then apply user rules on top
+        const QString fullRules = "*.debug=false\n" + userRules;
+        QLoggingCategory::setFilterRules(fullRules);
+        ui->statusLabel->setText(tr("Logging rules applied"));
+    }
+}
+
+void SqlQueryDialog::saveDebugLog()
+{
+    FCT_IDENTIFICATION;
+
+    const QString logFilename = currentDebugLogFilename();
+    if ( logFilename.isEmpty() || !QFile::exists(logFilename) )
+    {
+        QMessageBox::information(this, tr("Save Debug Log"),
+            tr("No debug log file is currently being written.\n\n"
+               "Enable 'Log to file' first and perform some actions."));
+        return;
+    }
+
+    QSettings settings;
+    const QString lastDir =
+        settings.value("SqlQueryDialog/lastDir", QDir::homePath()).toString();
+
+    QString destFilename = QFileDialog::getSaveFileName(
+        this, tr("Save Debug Log"),
+        lastDir + "/" + QFileInfo(logFilename).fileName(),
+        tr("Log Files (*.log);;All Files (*)"));
+
+    if ( destFilename.isEmpty() )
+        return;
+
+    if ( !destFilename.endsWith(".log", Qt::CaseInsensitive) )
+        destFilename += ".log";
+
+    if ( QFile::exists(destFilename) )
+        QFile::remove(destFilename);
+
+    if ( QFile::copy(logFilename, destFilename) )
+    {
+        settings.setValue("SqlQueryDialog/lastDir", QFileInfo(destFilename).absolutePath());
+        ui->statusLabel->setText(
+            tr("Debug log saved to %1").arg(QFileInfo(destFilename).fileName()));
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Save Debug Log"),
+            tr("Failed to copy the debug log file."));
+    }
+}
+
+void SqlQueryDialog::updateDebugLogFileLabel()
+{
+    FCT_IDENTIFICATION;
+
+    const QString logFilename = currentDebugLogFilename();
+    if ( logFilename.isEmpty() || !isLogToFileEnabled() )
+        ui->debugLogFileLabel->setText(tr("File logging is disabled"));
+    else
+        ui->debugLogFileLabel->setText(tr("Log file: %1").arg(logFilename));
+
+    ui->saveDebugLogButton->setEnabled(
+        !logFilename.isEmpty() && QFile::exists(logFilename));
 }

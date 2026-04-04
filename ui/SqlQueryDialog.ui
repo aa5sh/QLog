@@ -148,6 +148,122 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QGroupBox" name="debugGroupBox">
+     <property name="title">
+      <string>Debug Log</string>
+     </property>
+     <layout class="QVBoxLayout" name="debugLayout">
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="debugToolbarLayout">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="logToFileCheckBox">
+          <property name="text">
+           <string>Log to file</string>
+          </property>
+          <property name="toolTip">
+           <string>Enable/disable writing debug messages to a log file</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="debugSep1">
+          <property name="frameShape">
+           <enum>QFrame::VLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="saveDebugLogButton">
+          <property name="text">
+           <string>Save Log...</string>
+          </property>
+          <property name="toolTip">
+           <string>Copy the current debug log file to a chosen location</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="debugSep2">
+          <property name="frameShape">
+           <enum>QFrame::VLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="debugToolbarSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="loggingRulesLayout">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="loggingRulesLabel">
+          <property name="text">
+           <string>Logging Rules:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="loggingRulesEdit">
+          <property name="placeholderText">
+           <string>e.g. qlog.ui.*.runtime=true  (*.debug=false is prepended automatically)</string>
+          </property>
+          <property name="toolTip">
+           <string>QT_LOGGING_RULES filter string (semicolons separate rules)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="applyRulesButton">
+          <property name="text">
+           <string>Apply</string>
+          </property>
+          <property name="toolTip">
+           <string>Apply the logging rules immediately</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="debugLogFileLabel">
+        <property name="text">
+         <string></string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
