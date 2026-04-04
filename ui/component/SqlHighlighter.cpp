@@ -42,7 +42,7 @@ const QStringList &SqlHighlighter::sqlFunctions()
 
 SqlHighlighter::SqlHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent),
-      m_isDark(detectDarkMode())
+      isDark(detectDarkMode())
 {
     // -----------------------------------------------------------------------
     // Color palette - two sets so both themes are readable.
@@ -50,11 +50,11 @@ SqlHighlighter::SqlHighlighter(QTextDocument *parent)
     // Dark  colours lifted from VS Code "Dark+" defaults.
     // Light colours lifted from VS Code "Light+" defaults.
     // -----------------------------------------------------------------------
-    const QColor keywordColor  = m_isDark ? QColor(86,  156, 214) : QColor( 0,   0, 187);
-    const QColor functionColor = m_isDark ? QColor(220, 220, 170) : QColor(121,  94,  38);
-    const QColor stringColor   = m_isDark ? QColor(206, 145, 120) : QColor(163,  21,  21);
-    const QColor numberColor   = m_isDark ? QColor(181, 206, 168) : QColor(  9, 134,  88);
-    const QColor commentColor  = m_isDark ? QColor(106, 153,  85) : QColor( 10, 121,  10);
+    const QColor keywordColor  = isDark ? QColor(86,  156, 214) : QColor( 0,   0, 187);
+    const QColor functionColor = isDark ? QColor(220, 220, 170) : QColor(121,  94,  38);
+    const QColor stringColor   = isDark ? QColor(206, 145, 120) : QColor(163,  21,  21);
+    const QColor numberColor   = isDark ? QColor(181, 206, 168) : QColor(  9, 134,  88);
+    const QColor commentColor  = isDark ? QColor(106, 153,  85) : QColor( 10, 121,  10);
 
     // SQL keywords - bold
     QTextCharFormat keywordFormat;
@@ -122,12 +122,13 @@ void SqlHighlighter::setUserIdentifiers(const QStringList &identifiers)
     identifierRules.clear();
 
     // Re-derive the identifier color from m_isDark so it stays in sync.
-    const QColor identifierColor = m_isDark ? QColor(156, 220, 254) : QColor(0, 16, 128);
+    const QColor identifierColor = isDark ? QColor(156, 220, 254) : QColor(0, 16, 128);
 
     QTextCharFormat identifierFormat;
     identifierFormat.setForeground(identifierColor);
 
-    for (const QString &id : identifiers) {
+    for (const QString &id : identifiers)
+    {
         Rule rule;
         rule.pattern = QRegularExpression(
             QString("\\b%1\\b").arg(QRegularExpression::escape(id)),
@@ -145,7 +146,8 @@ void SqlHighlighter::highlightBlock(const QString &text)
     for ( const Rule &rule : static_cast<const QVector<Rule>&>(identifierRules) )
     {
         QRegularExpressionMatchIterator it = rule.pattern.globalMatch(text);
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             QRegularExpressionMatch m = it.next();
             setFormat(m.capturedStart(), m.capturedLength(), rule.format);
         }
@@ -155,7 +157,8 @@ void SqlHighlighter::highlightBlock(const QString &text)
     for ( const Rule &rule : static_cast<const QVector<Rule>&>(rules) )
     {
         QRegularExpressionMatchIterator it = rule.pattern.globalMatch(text);
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             QRegularExpressionMatch m = it.next();
             setFormat(m.capturedStart(), m.capturedLength(), rule.format);
         }
@@ -166,14 +169,18 @@ void SqlHighlighter::highlightBlock(const QString &text)
 
     int startIndex = (previousBlockState() == 1) ? 0 : text.indexOf(blockCommentStart);
 
-    while (startIndex >= 0) {
+    while (startIndex >= 0)
+    {
         QRegularExpressionMatch endMatch = blockCommentEnd.match(text, startIndex);
         int endIndex = endMatch.capturedStart();
         int len;
-        if (endIndex == -1) {
+        if (endIndex == -1)
+        {
             setCurrentBlockState(1);
             len = text.length() - startIndex;
-        } else {
+        }
+        else
+        {
             len = endIndex - startIndex + endMatch.capturedLength();
         }
         setFormat(startIndex, len, multiLineCommentFormat);

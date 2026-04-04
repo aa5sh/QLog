@@ -1,28 +1,28 @@
-#ifndef QLOG_UI_SQLQUERYDIALOG_H
-#define QLOG_UI_SQLQUERYDIALOG_H
+#ifndef QLOG_UI_DEVTOOLSDIALOG_H
+#define QLOG_UI_DEVTOOLSDIALOG_H
 
 #include <QDialog>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 
 namespace Ui {
-class SqlQueryDialog;
+class DevToolsDialog;
 }
 
 class SqlHighlighter;
 
-class SqlQueryDialog : public QDialog
+class DevToolsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SqlQueryDialog(QWidget *parent = nullptr);
-    ~SqlQueryDialog();
+    explicit DevToolsDialog(QWidget *parent = nullptr);
+    ~DevToolsDialog();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
-private slots:
+public slots:
     void openQuery();
     void saveQuery();
     void runQuery();
@@ -35,14 +35,20 @@ private slots:
 
 private:
     static const QString READ_ONLY_CONNECTION;
+    static const int MAX_FETCH_ROWS = 50000;
 
-    Ui::SqlQueryDialog *ui;
+    Ui::DevToolsDialog *ui;
     SqlHighlighter     *highlighter;
     QSqlQueryModel     *queryModel;
     QSortFilterProxyModel *sortProxy;
 
     void loadSchema();
     void updateDebugLogFileLabel();
+    void exportModel(const QString &title,
+                     const QString &filter,
+                     const QString &defaultExt,
+                     const QString &separator,
+                     std::function<QString(const QString&)> formatter);
 };
 
-#endif // QLOG_UI_SQLQUERYDIALOG_H
+#endif // QLOG_UI_DEVTOOLSDIALOG_H

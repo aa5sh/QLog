@@ -1,5 +1,5 @@
-#include "SqlQueryDialog.h"
-#include "ui_SqlQueryDialog.h"
+#include "DevToolsDialog.h"
+#include "ui_DevToolsDialog.h"
 #include "ui/component/SqlHighlighter.h"
 #include "ui/ExportDialog.h"
 #include "core/LogDatabase.h"
@@ -24,17 +24,17 @@
 #include <QSqlRecord>
 #include <QTextStream>
 
-MODULE_IDENTIFICATION("qlog.ui.sqlquerydialog");
+MODULE_IDENTIFICATION("qlog.ui.devtoolsdialog");
 
-const QString SqlQueryDialog::READ_ONLY_CONNECTION("SqlQueryDialog_readonly");
+const QString DevToolsDialog::READ_ONLY_CONNECTION("DevToolsDialog_readonly");
 
 // ---------------------------------------------------------------------------
 // Construction / destruction
 // ---------------------------------------------------------------------------
 
-SqlQueryDialog::SqlQueryDialog(QWidget *parent)
+DevToolsDialog::DevToolsDialog(QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::SqlQueryDialog),
+      ui(new Ui::DevToolsDialog),
       highlighter(nullptr),
       queryModel(new QSqlQueryModel(this)),
       sortProxy(new QSortFilterProxyModel(this))
@@ -42,7 +42,6 @@ SqlQueryDialog::SqlQueryDialog(QWidget *parent)
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
-    setWindowTitle(tr("SQL Query"));
 
     // Open a separate read-only connection to the database.
     // SQLite itself enforces read-only access - no keyword blocklist needed.
@@ -56,11 +55,11 @@ SqlQueryDialog::SqlQueryDialog(QWidget *parent)
 
     // Restore geometry & splitter state
     QSettings settings;
-    restoreGeometry(settings.value("SqlQueryDialog/geometry").toByteArray());
-    ui->splitter->restoreState(settings.value("SqlQueryDialog/splitter").toByteArray());
+    restoreGeometry(settings.value("devtools/geometry").toByteArray());
+    ui->splitter->restoreState(settings.value("devtools/splitter").toByteArray());
     if ( ui->splitter->sizes().value(0, 0) == 0 )
     {
-        // First run - sensible default split
+        // First run - default split
         ui->splitter->setSizes({250, 450});
     }
 
@@ -81,19 +80,13 @@ SqlQueryDialog::SqlQueryDialog(QWidget *parent)
     // Export drop-down menu
     QMenu *exportMenu = new QMenu(this);
     connect(exportMenu->addAction(tr("Export as TXT...")), &QAction::triggered,
-            this, &SqlQueryDialog::exportAsTxt);
+            this, &DevToolsDialog::exportAsTxt);
     connect(exportMenu->addAction(tr("Export as CSV...")), &QAction::triggered,
-            this, &SqlQueryDialog::exportAsCsv);
+            this, &DevToolsDialog::exportAsCsv);
     connect(exportMenu->addAction(tr("Export as ADIF...")), &QAction::triggered,
-            this, &SqlQueryDialog::exportAsAdif);
+            this, &DevToolsDialog::exportAsAdif);
     ui->exportButton->setMenu(exportMenu);
 
-    // Toolbar button signals
-    connect(ui->openButton, &QPushButton::clicked, this, &SqlQueryDialog::openQuery);
-    connect(ui->saveButton, &QPushButton::clicked, this, &SqlQueryDialog::saveQuery);
-    connect(ui->runButton,  &QPushButton::clicked, this, &SqlQueryDialog::runQuery);
-
-    // Install event filter for F5 / Ctrl+Return
     ui->sqlEditor->installEventFilter(this);
 
     // Load db schema into highlighter
@@ -102,20 +95,13 @@ SqlQueryDialog::SqlQueryDialog(QWidget *parent)
     // Debug log controls
     ui->logToFileCheckBox->setChecked(isLogToFileEnabled());
     updateDebugLogFileLabel();
-
-    connect(ui->logToFileCheckBox, &QCheckBox::toggled,
-            this, &SqlQueryDialog::logToFileToggled);
-    connect(ui->applyRulesButton, &QPushButton::clicked,
-            this, &SqlQueryDialog::applyLoggingRules);
-    connect(ui->saveDebugLogButton, &QPushButton::clicked,
-            this, &SqlQueryDialog::saveDebugLog);
 }
 
-SqlQueryDialog::~SqlQueryDialog()
+DevToolsDialog::~DevToolsDialog()
 {
     QSettings settings;
-    settings.setValue("SqlQueryDialog/geometry",  saveGeometry());
-    settings.setValue("SqlQueryDialog/splitter",  ui->splitter->saveState());
+    settings.setValue("devtools/geometry",  saveGeometry());
+    settings.setValue("devtools/splitter",  ui->splitter->saveState());
     delete ui;
 
     // Must be removed after all QSql* objects using it are destroyed
@@ -126,7 +112,7 @@ SqlQueryDialog::~SqlQueryDialog()
 // Schema loading
 // ---------------------------------------------------------------------------
 
-void SqlQueryDialog::loadSchema()
+void DevToolsDialog::loadSchema()
 {
     FCT_IDENTIFICATION;
 
@@ -171,7 +157,7 @@ void SqlQueryDialog::loadSchema()
 // Event filter - keyboard shortcuts
 // ---------------------------------------------------------------------------
 
-bool SqlQueryDialog::eventFilter(QObject *obj, QEvent *event)
+bool DevToolsDialog::eventFilter(QObject *obj, QEvent *event)
 {
     FCT_IDENTIFICATION;
 
@@ -180,9 +166,9 @@ bool SqlQueryDialog::eventFilter(QObject *obj, QEvent *event)
 
     QKeyEvent *ke = static_cast<QKeyEvent *>(event);
 
-    // F5 or Ctrl+Return - run query
-    if ( ke->key() == Qt::Key_F5
-         || (ke->key() == Qt::Key_Return && (ke->modifiers() & Qt::ControlModifier)) )
+    // Ctrl+Return - run query
+    if ( ke->key() == Qt::Key_Return
+         && ( ke->modifiers() & Qt::ControlModifier ) )
     {
         runQuery();
         return true;
@@ -195,13 +181,12 @@ bool SqlQueryDialog::eventFilter(QObject *obj, QEvent *event)
 // File operations
 // ---------------------------------------------------------------------------
 
-void SqlQueryDialog::openQuery()
+void DevToolsDialog::openQuery()
 {
     FCT_IDENTIFICATION;
 
     QSettings settings;
-    const QString lastDir =
-        settings.value("SqlQueryDialog/lastDir", QDir::homePath()).toString();
+    const QString lastDir = settings.value("devtools/lastDir", QDir::homePath()).toString();
 
     const QString filename = QFileDialog::getOpenFileName(
         this, tr("Open SQL Query"), lastDir,
@@ -220,16 +205,15 @@ void SqlQueryDialog::openQuery()
 
     QTextStream in(&file);
     ui->sqlEditor->setPlainText(in.readAll());
-    settings.setValue("SqlQueryDialog/lastDir", QFileInfo(filename).absolutePath());
+    settings.setValue("devtools/lastDir", QFileInfo(filename).absolutePath());
 }
 
-void SqlQueryDialog::saveQuery()
+void DevToolsDialog::saveQuery()
 {
     FCT_IDENTIFICATION;
 
     QSettings settings;
-    const QString lastDir =
-        settings.value("SqlQueryDialog/lastDir", QDir::homePath()).toString();
+    const QString lastDir = settings.value("devtools/lastDir", QDir::homePath()).toString();
 
     QString filename = QFileDialog::getSaveFileName(
         this, tr("Save SQL Query"), lastDir,
@@ -251,7 +235,7 @@ void SqlQueryDialog::saveQuery()
 
     QTextStream out(&file);
     out << ui->sqlEditor->toPlainText();
-    settings.setValue("SqlQueryDialog/lastDir", QFileInfo(filename).absolutePath());
+    settings.setValue("devtools/lastDir", QFileInfo(filename).absolutePath());
     ui->statusLabel->setText(tr("Query saved to %1").arg(QFileInfo(filename).fileName()));
 }
 
@@ -259,11 +243,12 @@ void SqlQueryDialog::saveQuery()
 // Run query
 // ---------------------------------------------------------------------------
 
-void SqlQueryDialog::runQuery()
+void DevToolsDialog::runQuery()
 {
     FCT_IDENTIFICATION;
 
     const QString sql = ui->sqlEditor->toPlainText().trimmed();
+
     if ( sql.isEmpty() )
         return;
 
@@ -277,11 +262,12 @@ void SqlQueryDialog::runQuery()
     {
         ui->statusLabel->setText(
             tr("Error: %1").arg(queryModel->lastError().text()));
+        ui->statusLabel->setStyleSheet("QLabel { color : red; }");
         return;
     }
+    ui->statusLabel->setStyleSheet("");
 
     // Fetch rows in batches; cap at a reasonable limit to avoid blocking UI
-    static const int MAX_FETCH_ROWS = 50000;
     while ( queryModel->canFetchMore() && queryModel->rowCount() < MAX_FETCH_ROWS )
         queryModel->fetchMore();
 
@@ -310,10 +296,10 @@ static bool openFileForWrite(QWidget *parent,
                              QString &outPath)
 {
     QSettings settings;
-    const QString lastDir =
-        settings.value("SqlQueryDialog/lastDir", QDir::homePath()).toString();
+    const QString lastDir = settings.value("devtools/lastDir", QDir::homePath()).toString();
 
     QString path = QFileDialog::getSaveFileName(parent, caption, lastDir, filter);
+
     if ( path.isEmpty() )
         return false;
 
@@ -321,114 +307,104 @@ static bool openFileForWrite(QWidget *parent,
          && !path.endsWith('.' + defaultSuffix, Qt::CaseInsensitive) )
         path += '.' + defaultSuffix;
 
-    settings.setValue("SqlQueryDialog/lastDir", QFileInfo(path).absolutePath());
+    settings.setValue("devtools/lastDir", QFileInfo(path).absolutePath());
     outPath = path;
     return true;
 }
 
-void SqlQueryDialog::exportAsTxt()
+void DevToolsDialog::exportModel( const QString &title,
+                                  const QString &filter,
+                                  const QString &defaultExt,
+                                  const QString &separator,
+                                  std::function<QString(const QString&)> formatter)
 {
     FCT_IDENTIFICATION;
 
     if ( queryModel->rowCount() == 0 )
     {
         QMessageBox::information(this, tr("Export"),
-            tr("No results to export."));
+                                 tr("No results to export."));
         return;
     }
 
     QString filename;
-    if ( !openFileForWrite(this, tr("Export as TXT"),
-                           tr("Text Files (*.txt);;All Files (*)"), "txt", filename) )
+    if ( !openFileForWrite(this, title, filter, defaultExt, filename) )
         return;
 
     QFile file(filename);
-    if ( !file.open(QIODevice::WriteOnly | QIODevice::Text) )
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QMessageBox::warning(this, tr("Export Error"),
-            tr("Cannot open file for writing:\n%1").arg(file.errorString()));
+                             tr("Cannot open file for writing:\n%1")
+                             .arg(file.errorString()));
         return;
     }
 
     QTextStream out(&file);
+    const int rows = queryModel->rowCount();
     const int cols = queryModel->columnCount();
 
-    // Header row
-    QStringList headers;
-    for ( int c = 0; c < cols; ++c )
-        headers << queryModel->headerData(c, Qt::Horizontal).toString();
-    out << headers.join("\t") << "\n";
-
-    // Data rows
-    for ( int r = 0; r < queryModel->rowCount(); ++r )
+    std::function<void(std::function<QString(int)>)>
+            writeRow = [&](std::function<QString(int)> dataProvider)
     {
         QStringList row;
-        for ( int c = 0; c < cols; ++c )
-            row << queryModel->data(queryModel->index(r, c)).toString();
-        out << row.join("\t") << "\n";
+        row.reserve(cols);
+
+        for (int c = 0; c < cols; ++c)
+            row << formatter(dataProvider(c));
+
+        out << row.join(separator) << "\n";
+    };
+
+    // header
+    writeRow([&](int c)
+    {
+        return queryModel->headerData(c, Qt::Horizontal).toString();
+    });
+
+    // data
+    for ( int r = 0; r < rows; ++r )
+    {
+        writeRow([&](int c)
+        {
+            return queryModel->data(queryModel->index(r, c)).toString();
+        });
     }
 
-    ui->statusLabel->setText(
-        tr("Exported %1 row(s) to %2")
-        .arg(queryModel->rowCount())
-        .arg(QFileInfo(filename).fileName()));
+    ui->statusLabel->setText(tr("Exported %1 row(s) to %2").arg(rows)
+                                                           .arg(QFileInfo(filename).fileName()));
 }
 
-void SqlQueryDialog::exportAsCsv()
+void DevToolsDialog::exportAsTxt()
 {
     FCT_IDENTIFICATION;
 
-    if ( queryModel->rowCount() == 0 )
+    exportModel(tr("Export as TXT"),
+                tr("Text Files (*.txt);;All Files (*)"),
+                "txt",
+                "\t",
+                [](const QString &s) { return s; });
+}
+
+void DevToolsDialog::exportAsCsv()
+{
+    FCT_IDENTIFICATION;
+
+    auto csvEscape = [](const QString &s) -> QString
     {
-        QMessageBox::information(this, tr("Export"),
-            tr("No results to export."));
-        return;
-    }
-
-    QString filename;
-    if ( !openFileForWrite(this, tr("Export as CSV"),
-                           tr("CSV Files (*.csv);;All Files (*)"), "csv", filename) )
-        return;
-
-    QFile file(filename);
-    if ( !file.open(QIODevice::WriteOnly | QIODevice::Text) )
-    {
-        QMessageBox::warning(this, tr("Export Error"),
-            tr("Cannot open file for writing:\n%1").arg(file.errorString()));
-        return;
-    }
-
-    QTextStream out(&file);
-    const int cols = queryModel->columnCount();
-
-    auto csvEscape = [](const QString &s) -> QString {
-        if ( s.contains(',') || s.contains('"') || s.contains('\n') || s.contains('\r') )
+        if (s.contains(',') || s.contains('"') || s.contains('\n') || s.contains('\r'))
             return '"' + QString(s).replace('"', "\"\"") + '"';
         return s;
     };
 
-    // Header row
-    QStringList headers;
-    for ( int c = 0; c < cols; ++c )
-        headers << csvEscape(queryModel->headerData(c, Qt::Horizontal).toString());
-    out << headers.join(",") << "\n";
-
-    // Data rows
-    for ( int r = 0; r < queryModel->rowCount(); ++r )
-    {
-        QStringList row;
-        for ( int c = 0; c < cols; ++c )
-            row << csvEscape(queryModel->data(queryModel->index(r, c)).toString());
-        out << row.join(",") << "\n";
-    }
-
-    ui->statusLabel->setText(
-        tr("Exported %1 row(s) to %2")
-        .arg(queryModel->rowCount())
-        .arg(QFileInfo(filename).fileName()));
+    exportModel(tr("Export as CSV"),
+                tr("CSV Files (*.csv);;All Files (*)"),
+                "csv",
+                ",",
+                csvEscape);
 }
 
-void SqlQueryDialog::exportAsAdif()
+void DevToolsDialog::exportAsAdif()
 {
     FCT_IDENTIFICATION;
 
@@ -517,7 +493,7 @@ void SqlQueryDialog::exportAsAdif()
 // Debug log controls
 // ---------------------------------------------------------------------------
 
-void SqlQueryDialog::logToFileToggled(bool checked)
+void DevToolsDialog::logToFileToggled(bool checked)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << checked;
@@ -538,7 +514,7 @@ void SqlQueryDialog::logToFileToggled(bool checked)
     updateDebugLogFileLabel();
 }
 
-void SqlQueryDialog::applyLoggingRules()
+void DevToolsDialog::applyLoggingRules()
 {
     FCT_IDENTIFICATION;
 
@@ -548,7 +524,7 @@ void SqlQueryDialog::applyLoggingRules()
     {
         // Empty rules - back to production defaults
         set_debug_level(LEVEL_PRODUCTION);
-        ui->statusLabel->setText(tr("Logging rules cleared (production defaults)"));
+        ui->statusLabel->setText(tr("Logging rules cleared (defaults)"));
     }
     else
     {
@@ -559,22 +535,22 @@ void SqlQueryDialog::applyLoggingRules()
     }
 }
 
-void SqlQueryDialog::saveDebugLog()
+void DevToolsDialog::saveDebugLog()
 {
     FCT_IDENTIFICATION;
 
     const QString logFilename = currentDebugLogFilename();
+
     if ( logFilename.isEmpty() || !QFile::exists(logFilename) )
     {
-        QMessageBox::information(this, tr("Save Debug Log"),
-            tr("No debug log file is currently being written.\n\n"
-               "Enable 'Log to file' first and perform some actions."));
+        QMessageBox::information(this,
+                                 tr("Save Debug Log"),
+                                 tr("No debug log file is currently being written"));
         return;
     }
 
     QSettings settings;
-    const QString lastDir =
-        settings.value("SqlQueryDialog/lastDir", QDir::homePath()).toString();
+    const QString lastDir = settings.value("devtools/lastDir", QDir::homePath()).toString();
 
     QString destFilename = QFileDialog::getSaveFileName(
         this, tr("Save Debug Log"),
@@ -592,7 +568,7 @@ void SqlQueryDialog::saveDebugLog()
 
     if ( QFile::copy(logFilename, destFilename) )
     {
-        settings.setValue("SqlQueryDialog/lastDir", QFileInfo(destFilename).absolutePath());
+        settings.setValue("devtools/lastDir", QFileInfo(destFilename).absolutePath());
         ui->statusLabel->setText(
             tr("Debug log saved to %1").arg(QFileInfo(destFilename).fileName()));
     }
@@ -603,11 +579,12 @@ void SqlQueryDialog::saveDebugLog()
     }
 }
 
-void SqlQueryDialog::updateDebugLogFileLabel()
+void DevToolsDialog::updateDebugLogFileLabel()
 {
     FCT_IDENTIFICATION;
 
     const QString logFilename = currentDebugLogFilename();
+
     if ( logFilename.isEmpty() || !isLogToFileEnabled() )
         ui->debugLogFileLabel->setText(tr("File logging is disabled"));
     else

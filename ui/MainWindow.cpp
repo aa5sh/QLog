@@ -11,7 +11,7 @@
 #include "ui/SettingsDialog.h"
 #include "ui/ImportDialog.h"
 #include "ui/ExportDialog.h"
-#include "ui/SqlQueryDialog.h"
+#include "ui/DevToolsDialog.h"
 #include "core/FldigiTCPServer.h"
 #include "rig/Rig.h"
 #include "rotator/Rotator.h"
@@ -1101,11 +1101,11 @@ void MainWindow::showQSLGallery()
     dialog.exec();
 }
 
-void MainWindow::showSqlQuery()
+void MainWindow::showDevTools()
 {
     FCT_IDENTIFICATION;
 
-    SqlQueryDialog dialog(this);
+    DevToolsDialog dialog(this);
     dialog.exec();
 }
 

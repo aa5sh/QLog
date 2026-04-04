@@ -80,8 +80,6 @@
     <addaction name="actionStatistics"/>
     <addaction name="separator"/>
     <addaction name="actionQSLGallery"/>
-    <addaction name="separator"/>
-    <addaction name="actionSqlQuery"/>
    </widget>
    <widget class="QMenu" name="menuEquipment">
     <property name="title">
@@ -100,6 +98,8 @@
     <addaction name="actionMailingList"/>
     <addaction name="separator"/>
     <addaction name="actionWhatsNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeveloperTools"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
@@ -465,13 +465,12 @@
     <string>QSL &amp;Gallery</string>
    </property>
   </action>
-  <action name="actionSqlQuery">
+  <action name="actionDeveloperTools">
    <property name="icon">
-    <iconset theme="accessories-text-editor">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="applications-science"/>
    </property>
    <property name="text">
-    <string>SQL &amp;Query...</string>
+    <string>Developer Tools</string>
    </property>
    <property name="toolTip">
     <string>Run custom read-only SQL queries against the logbook database</string>
@@ -1752,10 +1751,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionSqlQuery</sender>
+   <sender>actionDeveloperTools</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>showSqlQuery()</slot>
+   <slot>showDevTools()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1800,6 +1799,6 @@
   <slot>showDumpDB()</slot>
   <slot>showLoadDB()</slot>
   <slot>showQSLGallery()</slot>
-  <slot>showSqlQuery()</slot>
+  <slot>showDevTools()</slot>
  </slots>
 </ui>

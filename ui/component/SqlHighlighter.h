@@ -21,7 +21,8 @@ protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    struct Rule {
+    struct Rule
+    {
         QRegularExpression pattern;
         QTextCharFormat format;
     };
@@ -33,7 +34,7 @@ private:
     QRegularExpression blockCommentStart;
     QRegularExpression blockCommentEnd;
 
-    bool m_isDark;
+    bool isDark;
 };
 
 #endif // QLOG_UI_COMPONENT_SQLHIGHLIGHTER_H

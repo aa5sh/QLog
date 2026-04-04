@@ -80,7 +80,7 @@ private slots:
     void showDumpDB();
     void showLoadDB();
     void showQSLGallery();
-    void showSqlQuery();
+    void showDevTools();
 
     void saveProfileLayoutGeometry();
     void setEquipmentKeepOptions(bool);

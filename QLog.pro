@@ -154,13 +154,13 @@ SOURCES += \
         ui/ChatWidget.cpp \
         ui/ClockWidget.cpp \
         ui/ColumnSettingDialog.cpp \
+        ui/DevToolsDialog.cpp \
         ui/DownloadQSLDialog.cpp \
         ui/DxFilterDialog.cpp \
         ui/DxWidget.cpp \
         ui/DxccTableWidget.cpp \
         ui/EditActivitiesDialog.cpp \
         ui/ExportDialog.cpp \
-        ui/SqlQueryDialog.cpp \
         ui/ExportPasswordDialog.cpp \
         ui/LoadDatabaseDialog.cpp \
         ui/PlatformSettingsDialog.cpp \
@@ -320,13 +320,13 @@ HEADERS += \
         ui/ChatWidget.h \
         ui/ClockWidget.h \
         ui/ColumnSettingDialog.h \
+        ui/DevToolsDialog.h \
         ui/DownloadQSLDialog.h \
         ui/DxFilterDialog.h \
         ui/DxWidget.h \
         ui/DxccTableWidget.h \
         ui/EditActivitiesDialog.h \
         ui/ExportDialog.h \
-        ui/SqlQueryDialog.h \
         ui/ExportPasswordDialog.h \
         ui/LoadDatabaseDialog.h \
         ui/PlatformSettingsDialog.h \
@@ -387,12 +387,12 @@ FORMS += \
         ui/ClockWidget.ui \
         ui/ColumnSettingDialog.ui \
         ui/ColumnSettingSimpleDialog.ui \
+        ui/DevToolsDialog.ui \
         ui/DownloadQSLDialog.ui \
         ui/DxFilterDialog.ui \
         ui/DxWidget.ui \
         ui/EditActivitiesDialog.ui \
         ui/ExportDialog.ui \
-        ui/SqlQueryDialog.ui \
         ui/ExportPasswordDialog.ui \
         ui/LoadDatabaseDialog.ui \
         ui/PlatformSettingsDialog.ui \
