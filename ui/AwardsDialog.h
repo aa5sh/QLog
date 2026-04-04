@@ -31,7 +31,7 @@ private:
 
     AwardDefinition* currentAward() const;
     AwardFilterParams buildFilterParams() const;
-    const QString getSelectedEntity() const;
+    QString getSelectedEntity() const;
     void setEntityInputEnabled(bool);
     void setNotWorkedEnabled(bool);
 

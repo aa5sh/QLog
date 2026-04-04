@@ -146,7 +146,7 @@ AwardFilterParams AwardsDialog::buildFilterParams() const
     return params;
 }
 
-const QString AwardsDialog::getSelectedEntity() const
+QString AwardsDialog::getSelectedEntity() const
 {
     FCT_IDENTIFICATION;
 

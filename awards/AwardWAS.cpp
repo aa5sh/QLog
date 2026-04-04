@@ -20,7 +20,7 @@ QString AwardWAS::sqlDetailTable(const QString &entity) const
 
 QString AwardWAS::additionalWhere(const QString &entity) const
 {
-    return " AND (c.id is NULL or c.my_dxcc = '" + entity + "' AND c.dxcc in (6, 110, 291)) ";
+    return " AND (c.id is NULL or (c.my_dxcc = '" + entity + "' AND c.dxcc in (6, 110, 291))) ";
 }
 
 QString AwardWAS::clickFilter(const QString &, const QString &col2Value) const

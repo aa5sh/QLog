@@ -67,8 +67,8 @@ void BandTableAward::updateData(const AwardFilterParams &params)
         stmt_sum_worked << QString("SUM(CASE WHEN a.'%1' > 0 THEN 1 ELSE 0 END) '%2'").arg(band.name, band.name);
         stmt_sum_total << QString("SUM(d.'%1') '%2'").arg(band.name, band.name);
         stmt_having << QString("SUM(d.'%1') = 0").arg(band.name);
-        stmt_total_band_condition_work << QString("e.'%0' > 0").arg(band.name);
-        stmt_total_band_condition_confirmed << QString("e.'%0' > 1").arg(band.name);
+        stmt_total_band_condition_work << QString("e.'%1' > 0").arg(band.name);
+        stmt_total_band_condition_confirmed << QString("e.'%1' > 1").arg(band.name);
         stmt_not_confirmed << QString("MAX(d.'%1') < 2").arg(band.name);
         stmt_any_worked << QString("MAX(d.'%1') > 0").arg(band.name);
     }
@@ -210,9 +210,16 @@ BandTableAward::ConditionResult BandTableAward::getConditionSelected(const QMode
         addlFilters << QString("my_dxcc='%1'").arg(m_currentEntity);
 
     if ( clickUsesCountryName() )
+    {
         result.country = col1Value;
+    }
     else
-        addlFilters << clickFilter(col1Value, col2Value);
+    {
+        const QString filter = clickFilter(col1Value, col2Value);
+        Q_ASSERT_X(!filter.isEmpty(), "BandTableAward::getConditionSelected",
+                    "clickFilter() returned empty string — subclass must override clickFilter() or clickUsesCountryName()");
+        addlFilters << filter;
+    }
 
     if ( clickedIndex.column() > 2 )
         result.band = m_model->headerData(clickedIndex.column(), Qt::Horizontal).toString();
@@ -257,7 +264,7 @@ QString BandTableAward::generateValuesCTE(const QString &name,
                                            const QList<QPair<QString,QString>> &values)
 {
     QStringList rows;
-    for ( const auto &pair : values )
+    for ( const QPair<QString,QString> &pair : values )
         rows << QString("('%1', '%2')").arg(pair.first, pair.second);
 
     return QString(" %1 AS (VALUES %2)").arg(name, rows.join(","));

@@ -69,6 +69,7 @@ SOURCES += \
         awards/AwardPOTAActivator.cpp \
         awards/AwardPOTAHunter.cpp \
         awards/AwardSOTA.cpp \
+        awards/SecondarySubdivisionAward.cpp \
         awards/AwardWAC.cpp \
         awards/AwardWAS.cpp \
         awards/AwardWAZ.cpp \
@@ -236,6 +237,7 @@ HEADERS += \
         awards/AwardPOTAActivator.h \
         awards/AwardPOTAHunter.h \
         awards/AwardSOTA.h \
+        awards/SecondarySubdivisionAward.h \
         awards/AwardWAC.h \
         awards/AwardWAS.h \
         awards/AwardWAZ.h \
