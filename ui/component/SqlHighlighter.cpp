@@ -14,12 +14,38 @@ static bool detectDarkMode()
     return QApplication::palette().window().color().lightness() < 128;
 }
 
+const QStringList &SqlHighlighter::sqlKeywords()
+{
+    static const QStringList keywords = {
+        "SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "IN", "LIKE", "BETWEEN",
+        "IS", "NULL", "ORDER", "BY", "GROUP", "HAVING", "LIMIT", "OFFSET",
+        "DISTINCT", "ALL", "AS", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER",
+        "FULL", "CROSS", "ON", "UNION", "INTERSECT", "EXCEPT", "WITH",
+        "RECURSIVE", "CASE", "WHEN", "THEN", "ELSE", "END", "EXISTS",
+        "ASC", "DESC", "COLLATE", "CAST", "TRUE", "FALSE", "ROWID",
+        "NOCASE", "BINARY"
+    };
+    return keywords;
+}
+
+const QStringList &SqlHighlighter::sqlFunctions()
+{
+    static const QStringList functions = {
+        "COUNT", "SUM", "AVG", "MIN", "MAX", "ABS", "LENGTH", "LOWER", "UPPER",
+        "SUBSTR", "TRIM", "LTRIM", "RTRIM", "REPLACE", "INSTR", "PRINTF",
+        "ROUND", "COALESCE", "NULLIF", "IFNULL", "IIF", "TYPEOF",
+        "DATE", "TIME", "DATETIME", "JULIANDAY", "STRFTIME",
+        "RANDOM", "HEX", "QUOTE", "GROUP_CONCAT", "JSON_EXTRACT"
+    };
+    return functions;
+}
+
 SqlHighlighter::SqlHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent),
       m_isDark(detectDarkMode())
 {
     // -----------------------------------------------------------------------
-    // Color palette — two sets so both themes are readable.
+    // Color palette - two sets so both themes are readable.
     //
     // Dark  colours lifted from VS Code "Dark+" defaults.
     // Light colours lifted from VS Code "Light+" defaults.
@@ -30,22 +56,13 @@ SqlHighlighter::SqlHighlighter(QTextDocument *parent)
     const QColor numberColor   = m_isDark ? QColor(181, 206, 168) : QColor(  9, 134,  88);
     const QColor commentColor  = m_isDark ? QColor(106, 153,  85) : QColor( 10, 121,  10);
 
-    // SQL keywords — bold
+    // SQL keywords - bold
     QTextCharFormat keywordFormat;
     keywordFormat.setForeground(keywordColor);
     keywordFormat.setFontWeight(QFont::Bold);
 
-    const QStringList keywords = {
-        "SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "IN", "LIKE", "BETWEEN",
-        "IS", "NULL", "ORDER", "BY", "GROUP", "HAVING", "LIMIT", "OFFSET",
-        "DISTINCT", "ALL", "AS", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER",
-        "FULL", "CROSS", "ON", "UNION", "INTERSECT", "EXCEPT", "WITH",
-        "RECURSIVE", "CASE", "WHEN", "THEN", "ELSE", "END", "EXISTS",
-        "ASC", "DESC", "COLLATE", "CAST", "TRUE", "FALSE", "ROWID",
-        "NOCASE", "BINARY", "RTRIM"
-    };
-
-    for (const QString &kw : keywords) {
+    for ( const QString &kw : sqlKeywords() )
+    {
         Rule rule;
         rule.pattern = QRegularExpression(
             QString("\\b%1\\b").arg(kw),
@@ -58,15 +75,8 @@ SqlHighlighter::SqlHighlighter(QTextDocument *parent)
     QTextCharFormat functionFormat;
     functionFormat.setForeground(functionColor);
 
-    const QStringList functions = {
-        "COUNT", "SUM", "AVG", "MIN", "MAX", "ABS", "LENGTH", "LOWER", "UPPER",
-        "SUBSTR", "TRIM", "LTRIM", "RTRIM", "REPLACE", "INSTR", "PRINTF",
-        "ROUND", "COALESCE", "NULLIF", "IFNULL", "IIF", "TYPEOF",
-        "DATE", "TIME", "DATETIME", "JULIANDAY", "STRFTIME",
-        "RANDOM", "HEX", "QUOTE", "GROUP_CONCAT", "JSON_EXTRACT"
-    };
-
-    for (const QString &fn : functions) {
+    for ( const QString &fn : sqlFunctions() )
+    {
         Rule rule;
         rule.pattern = QRegularExpression(
             QString("\\b%1\\b").arg(fn),
@@ -111,7 +121,7 @@ void SqlHighlighter::setUserIdentifiers(const QStringList &identifiers)
 {
     identifierRules.clear();
 
-    // Re-derive the identifier colour from m_isDark so it stays in sync.
+    // Re-derive the identifier color from m_isDark so it stays in sync.
     const QColor identifierColor = m_isDark ? QColor(156, 220, 254) : QColor(0, 16, 128);
 
     QTextCharFormat identifierFormat;
@@ -131,8 +141,9 @@ void SqlHighlighter::setUserIdentifiers(const QStringList &identifiers)
 
 void SqlHighlighter::highlightBlock(const QString &text)
 {
-    // Schema identifiers first (lowest priority — keywords override them below)
-    for (const Rule &rule : qAsConst(identifierRules)) {
+    // Schema identifiers first (lowest priority - keywords override them below)
+    for ( const Rule &rule : static_cast<const QVector<Rule>&>(identifierRules) )
+    {
         QRegularExpressionMatchIterator it = rule.pattern.globalMatch(text);
         while (it.hasNext()) {
             QRegularExpressionMatch m = it.next();
@@ -141,7 +152,8 @@ void SqlHighlighter::highlightBlock(const QString &text)
     }
 
     // Keywords, functions, strings, numbers, single-line comments
-    for (const Rule &rule : qAsConst(rules)) {
+    for ( const Rule &rule : static_cast<const QVector<Rule>&>(rules) )
+    {
         QRegularExpressionMatchIterator it = rule.pattern.globalMatch(text);
         while (it.hasNext()) {
             QRegularExpressionMatch m = it.next();
@@ -149,7 +161,7 @@ void SqlHighlighter::highlightBlock(const QString &text)
         }
     }
 
-    // Multi-line block comments — tracked across blocks via block state
+    // Multi-line block comments - tracked across blocks via block state
     setCurrentBlockState(0);
 
     int startIndex = (previousBlockState() == 1) ? 0 : text.indexOf(blockCommentStart);

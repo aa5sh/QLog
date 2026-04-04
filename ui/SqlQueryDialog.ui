@@ -78,7 +78,7 @@
      <item>
       <widget class="QPushButton" name="exportButton">
        <property name="text">
-        <string>Export ▾</string>
+        <string>Export</string>
        </property>
        <property name="toolTip">
         <string>Export query results</string>
@@ -116,7 +116,7 @@
        <enum>QPlainTextEdit::NoWrap</enum>
       </property>
       <property name="placeholderText">
-       <string>Enter SELECT query here...   Ctrl+Space = autocomplete   F5 or Ctrl+Return = run</string>
+       <string>Enter SQL query here...   F5 or Ctrl+Return = run</string>
       </property>
      </widget>
      <widget class="QTableView" name="resultsTable">
@@ -144,7 +144,7 @@
    <item>
     <widget class="QLabel" name="statusLabel">
      <property name="text">
-      <string>Ready — only SELECT queries are permitted</string>
+      <string>Ready (read-only access)</string>
      </property>
     </widget>
    </item>

@@ -2,8 +2,6 @@
 #define QLOG_UI_SQLQUERYDIALOG_H
 
 #include <QDialog>
-#include <QCompleter>
-#include <QStringListModel>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 
@@ -31,21 +29,16 @@ private slots:
     void exportAsTxt();
     void exportAsCsv();
     void exportAsAdif();
-    void insertCompletion(const QString &completion);
-    void onTextChanged();
 
 private:
+    static const QString READ_ONLY_CONNECTION;
+
     Ui::SqlQueryDialog *ui;
     SqlHighlighter     *highlighter;
-    QCompleter         *completer;
-    QStringListModel   *completerModel;
     QSqlQueryModel     *queryModel;
     QSortFilterProxyModel *sortProxy;
 
     void loadSchema();
-    bool isSafeQuery(const QString &sql) const;
-    QString currentWord() const;
-    void showCompleterPopup();
 };
 
 #endif // QLOG_UI_SQLQUERYDIALOG_H

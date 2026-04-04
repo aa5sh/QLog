@@ -14,6 +14,9 @@ public:
     explicit SqlHighlighter(QTextDocument *parent = nullptr);
     void setUserIdentifiers(const QStringList &identifiers);
 
+    static const QStringList &sqlKeywords();
+    static const QStringList &sqlFunctions();
+
 protected:
     void highlightBlock(const QString &text) override;
 
