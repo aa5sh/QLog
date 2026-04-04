@@ -18,9 +18,9 @@ QString AwardWAC::sqlDetailTable(const QString &entity) const
            "   LEFT OUTER JOIN modes m on c.mode = m.name ";
 }
 
-QString AwardWAC::additionalWhere(const QString &entity) const
+QString AwardWAC::additionalWhere(const QString &) const
 {
-    return " AND (c.id is NULL OR c.my_dxcc = '" + entity + "') ";
+    return QString();
 }
 
 QStringList AwardWAC::additionalCTEs(const QString &, const QString &) const

@@ -125,7 +125,7 @@ void BandTableAward::updateData(const AwardFilterParams &params)
               "   detail_table AS ( "
               "     SELECT %2, %3 "
               "     %4"
-              "     %5"
+              "     WHERE 1=1 %5"
               "     GROUP BY  1,2), "
               "   unique_worked AS ("
               "     SELECT DISTINCT col1"

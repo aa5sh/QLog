@@ -18,13 +18,12 @@ QString SecondarySubdivisionAward::sqlDetailTable(const QString &) const
            "                    WHERE dxcc IN (" + m_dxccFilter + ") "
            "                      AND cnty IS NOT NULL AND cnty != '') c "
            "     ON d.dxcc = c.dxcc AND upper(d.code) = upper(c.cnty) "
-           "   LEFT OUTER JOIN modes m ON c.mode = m.name "
-           " WHERE d.dxcc IN (" + m_dxccFilter + ") ";
+           "   LEFT OUTER JOIN modes m ON c.mode = m.name ";
 }
 
 QString SecondarySubdivisionAward::additionalWhere(const QString &) const
 {
-    return QString();
+    return " AND d.dxcc IN (" + m_dxccFilter + ") ";
 }
 
 QString SecondarySubdivisionAward::clickFilter(const QString &, const QString &col2Value) const

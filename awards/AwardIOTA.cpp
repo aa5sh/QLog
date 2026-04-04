@@ -17,10 +17,9 @@ QString AwardIOTA::sqlDetailTable(const QString &entity) const
            "      INNER JOIN modes m ON c.mode = m.name AND c.my_dxcc = '" + entity + "'";
 }
 
-QString AwardIOTA::additionalWhere(const QString &entity) const
+QString AwardIOTA::additionalWhere(const QString &) const
 {
-    return " AND c.iota is not NULL"
-           " AND c.my_dxcc = '" + entity + "' ";
+    return " AND c.iota is not NULL ";
 }
 
 QString AwardIOTA::clickFilter(const QString &col1Value, const QString &) const

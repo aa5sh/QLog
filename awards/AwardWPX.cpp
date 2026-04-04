@@ -17,9 +17,9 @@ QString AwardWPX::sqlDetailTable(const QString &entity) const
            "      INNER JOIN modes m ON c.mode = m.name AND c.my_dxcc = '" + entity + "'";
 }
 
-QString AwardWPX::additionalWhere(const QString &entity) const
+QString AwardWPX::additionalWhere(const QString &) const
 {
-    return " AND c.my_dxcc = '" + entity + "' ";
+    return " AND c.pfx is not null ";
 }
 
 QString AwardWPX::clickFilter(const QString &col1Value, const QString &) const

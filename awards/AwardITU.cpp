@@ -18,9 +18,9 @@ QString AwardITU::sqlDetailTable(const QString &entity) const
            "   LEFT OUTER JOIN modes m on c.mode = m.name";
 }
 
-QString AwardITU::additionalWhere(const QString &entity) const
+QString AwardITU::additionalWhere(const QString &) const
 {
-    return " AND (c.id is NULL OR c.my_dxcc = '" + entity + "') ";
+    return QString();
 }
 
 QStringList AwardITU::additionalCTEs(const QString &, const QString &) const

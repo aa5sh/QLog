@@ -96,38 +96,47 @@ protected:
      * This is inserted into the detail_table CTE after the SELECT clause.
      * Must join to "source_contacts c" and "modes m" (m.dxcc is used for mode filtering).
      *
-     * The join to source_contacts can be:
-     *   - LEFT OUTER JOIN — when all possible entities should appear (even unworked ones).
-     *     Use this for awards with a fixed set of targets (DXCC, WAZ, WAC, WAS, ITU).
-     *   - INNER JOIN — when only worked entities should appear.
-     *     Use this for open-ended awards (WPX, IOTA, POTA, SOTA, WWFF, Gridsquare).
+     * IMPORTANT: Must NOT contain a WHERE clause at the outer level.
+     * The SQL template adds "WHERE 1=1" automatically after this fragment,
+     * followed by additionalWhere(). Place entity filtering in the JOIN ON
+     * conditions, and any other WHERE-level filters in additionalWhere().
      *
-     * May include WHERE conditions that are always needed (e.g. entity-specific filtering).
+     * The join to source_contacts can be:
+     *   - LEFT OUTER JOIN -- when all possible entities should appear (even unworked ones).
+     *     Use this for awards with a fixed set of targets (DXCC, WAZ, WAC, WAS, ITU).
+     *   - INNER JOIN -- when only worked entities should appear.
+     *     Use this for open-ended awards (WPX, IOTA, POTA, SOTA, WWFF, Gridsquare).
      *
      * entity - the selected DXCC entity ID
      *
      * Examples:
      *   " FROM cqzCTE d"
-     *   "   LEFT OUTER JOIN source_contacts c ON d.n = c.cqz"
+     *   "   LEFT OUTER JOIN source_contacts c ON d.n = c.cqz AND c.my_dxcc = '<entity>'"
      *   "   LEFT OUTER JOIN modes m ON c.mode = m.name"
-     *   " WHERE (c.id IS NULL OR c.my_dxcc = '<entity>')"
      *
      *   " FROM sota_summits s"
      *   "     INNER JOIN source_contacts c ON c.sota_ref = s.summit_code"
      *   "     INNER JOIN modes m ON c.mode = m.name" */
     virtual QString sqlDetailTable(const QString &entity) const = 0;
 
-    /* Extra WHERE clause appended after the GROUP BY's source query.
+    /* Extra WHERE conditions appended to the detail_table query.
      *
-     * Used to add entity-specific filters or NULL checks.
+     * The SQL template always emits "WHERE 1=1" before this fragment,
+     * so sqlDetailTable() must NOT contain its own WHERE clause.
+     *
      * Must start with " AND " if non-empty. Return empty QString() if not needed.
+     *
+     * Use this for:
+     *   - filtering the directory/reference table (LEFT OUTER JOIN awards)
+     *   - requiring non-null fields (INNER JOIN awards)
+     * Do NOT duplicate entity filters that are already in sqlDetailTable's JOIN ON.
      *
      * entity - the selected DXCC entity ID
      *
      * Examples:
-     *   " AND (c.id IS NULL OR c.my_dxcc = '291')"   — entity filter
-     *   " AND c.iota is not NULL"                     — require non-null field
-     *   QString()                                     — no extra filter (SOTA, WWFF) */
+     *   " AND d.dxcc IN (6, 110, 291)"   -- filter directory table
+     *   " AND c.iota is not NULL"         -- require non-null field
+     *   QString()                         -- no extra filter (SOTA, WWFF) */
     virtual QString additionalWhere(const QString &entity) const = 0;
 
     // ===================================================================

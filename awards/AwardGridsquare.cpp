@@ -33,9 +33,9 @@ QString AwardGridsquare::sqlDetailTable(const QString &entity) const
            "      INNER JOIN modes m ON c.mode = m.name AND c.my_dxcc = '" + entity + "' ";
 }
 
-QString AwardGridsquare::additionalWhere(const QString &entity) const
+QString AwardGridsquare::additionalWhere(const QString &) const
 {
-    return QString(" AND length(c.gridsquare) >= %1 AND c.my_dxcc = '%2' ").arg(m_chars).arg(entity);
+    return QString(" AND length(c.gridsquare) >= %1 ").arg(m_chars);
 }
 
 QString AwardGridsquare::clickFilter(const QString &col1Value, const QString &) const

@@ -22,9 +22,9 @@ QString AwardDXCC::sqlDetailTable(const QString &entity) const
            "   LEFT OUTER JOIN modes m on c.mode = m.name ";
 }
 
-QString AwardDXCC::additionalWhere(const QString &entity) const
+QString AwardDXCC::additionalWhere(const QString &) const
 {
-    return " AND (c.id is NULL OR c.my_dxcc = '" + entity + "') ";
+    return QString();
 }
 
 QString AwardDXCC::clickFilter(const QString &, const QString &) const
