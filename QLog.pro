@@ -55,6 +55,27 @@ CONFIG += c++11 force_debug_info
 CONFIG *= link_pkgconfig
 
 SOURCES += \
+        awards/AwardDefinition.cpp \
+        awards/AwardDXCC.cpp \
+        awards/AwardGridsquare.cpp \
+        awards/AwardIOTA.cpp \
+        awards/AwardITU.cpp \
+        awards/AwardJapan.cpp \
+        awards/AwardNZ.cpp \
+        awards/AwardRDA.cpp \
+        awards/AwardSpanishDME.cpp \
+        awards/AwardUKD.cpp \
+        awards/AwardUSCounty.cpp \
+        awards/AwardPOTAActivator.cpp \
+        awards/AwardPOTAHunter.cpp \
+        awards/AwardSOTA.cpp \
+        awards/SecondarySubdivisionAward.cpp \
+        awards/AwardWAC.cpp \
+        awards/AwardWAS.cpp \
+        awards/AwardWAZ.cpp \
+        awards/AwardWPX.cpp \
+        awards/AwardWWFF.cpp \
+        awards/BandTableAward.cpp \
         core/AlertEvaluator.cpp \
         core/AppGuard.cpp \
         core/CallbookManager.cpp \
@@ -202,6 +223,27 @@ SOURCES += \
         ui/component/SwitchButton.cpp
 
 HEADERS += \
+        awards/AwardDefinition.h \
+        awards/AwardDXCC.h \
+        awards/AwardGridsquare.h \
+        awards/AwardIOTA.h \
+        awards/AwardITU.h \
+        awards/AwardJapan.h \
+        awards/AwardNZ.h \
+        awards/AwardRDA.h \
+        awards/AwardSpanishDME.h \
+        awards/AwardUKD.h \
+        awards/AwardUSCounty.h \
+        awards/AwardPOTAActivator.h \
+        awards/AwardPOTAHunter.h \
+        awards/AwardSOTA.h \
+        awards/SecondarySubdivisionAward.h \
+        awards/AwardWAC.h \
+        awards/AwardWAS.h \
+        awards/AwardWAZ.h \
+        awards/AwardWPX.h \
+        awards/AwardWWFF.h \
+        awards/BandTableAward.h \
         core/AlertEvaluator.h \
         core/AppGuard.h \
         core/CallbookManager.h \
