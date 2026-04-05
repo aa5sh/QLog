@@ -48,7 +48,7 @@
           <x>0</x>
           <y>0</y>
           <width>393</width>
-          <height>1363</height>
+          <height>1300</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="settingsScrollLayout">
@@ -334,7 +334,7 @@
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QDoubleSpinBox" name="labelWidthSpinBox">
+               <widget class="BaseDoubleSpinBox" name="labelWidthSpinBox">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -363,7 +363,7 @@
                </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QDoubleSpinBox" name="labelHeightSpinBox">
+               <widget class="BaseDoubleSpinBox" name="labelHeightSpinBox">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -392,7 +392,7 @@
                </widget>
               </item>
               <item row="5" column="1">
-               <widget class="QDoubleSpinBox" name="leftMarginSpinBox">
+               <widget class="BaseDoubleSpinBox" name="leftMarginSpinBox">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -421,7 +421,7 @@
                </widget>
               </item>
               <item row="6" column="1">
-               <widget class="QDoubleSpinBox" name="topMarginSpinBox">
+               <widget class="BaseDoubleSpinBox" name="topMarginSpinBox">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -450,7 +450,7 @@
                </widget>
               </item>
               <item row="7" column="1">
-               <widget class="QDoubleSpinBox" name="hSpacingSpinBox">
+               <widget class="BaseDoubleSpinBox" name="hSpacingSpinBox">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -479,7 +479,7 @@
                </widget>
               </item>
               <item row="8" column="1">
-               <widget class="QDoubleSpinBox" name="vSpacingSpinBox">
+               <widget class="BaseDoubleSpinBox" name="vSpacingSpinBox">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -675,7 +675,7 @@
              </widget>
             </item>
             <item row="7" column="1">
-             <widget class="QDoubleSpinBox" name="callsignSizeSpinBox">
+             <widget class="BaseDoubleSpinBox" name="callsignSizeSpinBox">
               <property name="suffix">
                <string notr="true"> pt</string>
               </property>
@@ -704,7 +704,7 @@
              </widget>
             </item>
             <item row="8" column="1">
-             <widget class="QDoubleSpinBox" name="toRadioSizeSpinBox">
+             <widget class="BaseDoubleSpinBox" name="toRadioSizeSpinBox">
               <property name="suffix">
                <string notr="true"> pt</string>
               </property>
@@ -747,7 +747,7 @@
              </widget>
             </item>
             <item row="10" column="1">
-             <widget class="QDoubleSpinBox" name="headerSizeSpinBox">
+             <widget class="BaseDoubleSpinBox" name="headerSizeSpinBox">
               <property name="suffix">
                <string notr="true"> pt</string>
               </property>
@@ -776,7 +776,7 @@
              </widget>
             </item>
             <item row="11" column="1">
-             <widget class="QDoubleSpinBox" name="dataSizeSpinBox">
+             <widget class="BaseDoubleSpinBox" name="dataSizeSpinBox">
               <property name="suffix">
                <string notr="true"> pt</string>
               </property>
@@ -942,7 +942,7 @@
             <x>0</x>
             <y>0</y>
             <width>671</width>
-            <height>564</height>
+            <height>568</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="scrollAreaLayout">
@@ -1140,6 +1140,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BaseDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>ui/component/BaseDoubleSpinBox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
