@@ -453,7 +453,17 @@ void QslPrintLabelDialog::toggleStationProfile()
 
     ui->stationProfileComboBox->setEnabled(ui->stationProfileCheckBox->isChecked());
     if ( ui->stationProfileCheckBox->isChecked() )
+    {
+        const StationProfile &selectedStationProfile = StationProfilesManager::instance()->getProfile(ui->stationProfileComboBox->currentText());
+        const QString toolTip = tr("QSOs matching this station profile")
+                                + "<br/>"
+                                + selectedStationProfile.toHTMLString();
+        ui->stationProfileComboBox->setToolTip(toolTip);
+
         ui->myCallsignCheckBox->setChecked(false);
+    }
+    else
+        ui->stationProfileComboBox->setToolTip({});
     refreshData();
 }
 
