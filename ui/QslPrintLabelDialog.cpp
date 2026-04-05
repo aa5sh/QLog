@@ -58,18 +58,7 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     ui->stationProfileComboBox->setCurrentIndex( ( profileIndex >= 0 ) ? profileIndex : -1 );
 
     /* Populate QSL sent combo */
-    QMapIterator<QString, QString> iter(Data::instance()->qslSentEnum);
-    int iter_index = 0;
-    int value_index = 0;
-    while ( iter.hasNext() )
-    {
-        iter.next();
-        ui->qslSentComboBox->addItem(iter.value(), iter.key());
-        if ( iter.key() == "Q" ) // Queued by default
-            value_index = iter_index;
-        iter_index++;
-    }
-    ui->qslSentComboBox->setCurrentIndex(value_index);
+    populateQSLSentCombo();
 
     /* Populate user filter combo */
     ui->userFilterComboBox->setModel(QSOFilterManager::QSOFilterModel("", ui->userFilterComboBox));
@@ -79,17 +68,7 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     ui->monoFontComboBox->setFontFilters(QFontComboBox::MonospacedFonts);
 
     /* Populate extra column combobox from contacts table columns */
-    // todo: use getting column from LogbookModel
-    ui->extraColumnComboBox->addItem(tr("(None)"), QString());
-    {
-        QSqlQuery pragmaQuery;
-        if ( pragmaQuery.exec("PRAGMA table_info(contacts)") )
-        {
-            while ( pragmaQuery.next() )
-                ui->extraColumnComboBox->addItem(pragmaQuery.value("name").toString(),
-                                                 pragmaQuery.value("name").toString());
-        }
-    }
+    populateExtraColumnCombo();
 
     /* Date edits */
     ui->startDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
@@ -313,6 +292,56 @@ LabelTemplate QslPrintLabelDialog::buildCustomTemplate() const
     tmpl.hSpacingMm = ui->hSpacingSpinBox->value();
     tmpl.vSpacingMm = ui->vSpacingSpinBox->value();
     return tmpl;
+}
+
+void QslPrintLabelDialog::populateExtraColumnCombo()
+{
+    FCT_IDENTIFICATION;
+
+    ui->extraColumnComboBox->addItem(tr("Empty"), QString());
+
+    QSqlRecord contactsRecord = QSqlDatabase::database().record("contacts");
+    QList<QPair<QString, QString>> dbFieldItems;
+    for ( int i = LogbookModel::ColumnID::COLUMN_ID; i < LogbookModel::ColumnID::COLUMN_LAST_ELEMENT; ++i )
+    {
+        LogbookModel::ColumnID columnID = static_cast<LogbookModel::ColumnID>(i);
+        const QString translation = LogbookModel::getFieldNameTranslation(columnID);
+        if ( translation.isEmpty() )
+            continue;
+
+        const QString dbField = contactsRecord.fieldName(i);
+        if ( dbField.isEmpty() )
+            continue;
+
+        dbFieldItems.append({translation, dbField});
+    }
+
+    std::sort(dbFieldItems.begin(), dbFieldItems.end(),
+              [](const QPair<QString, QString> &a,
+                 const QPair<QString, QString> &b)
+    {
+        return a.first.localeAwareCompare(b.first) < 0;
+    });
+
+    for ( const QPair<QString, QString> &item : static_cast<const QList<QPair<QString, QString>>&>(dbFieldItems) )
+        ui->extraColumnComboBox->addItem(item.first, item.second);
+}
+
+void QslPrintLabelDialog::populateQSLSentCombo()
+{
+    FCT_IDENTIFICATION;
+    QMapIterator<QString, QString> iter(Data::instance()->qslSentEnum);
+    int iter_index = 0;
+    int value_index = 0;
+    while ( iter.hasNext() )
+    {
+        iter.next();
+        ui->qslSentComboBox->addItem(iter.value(), iter.key());
+        if ( iter.key() == "Q" ) // Queued by default
+            value_index = iter_index;
+        iter_index++;
+    }
+    ui->qslSentComboBox->setCurrentIndex(value_index);
 }
 
 void QslPrintLabelDialog::toggleDateRange()
@@ -654,9 +683,9 @@ void QslPrintLabelDialog::updatePreview()
     styleOpts.callsignFontSize = ui->callsignSizeSpinBox->value();
     styleOpts.headerFontSize = ui->headerSizeSpinBox->value();
     styleOpts.dataFontSize = ui->dataSizeSpinBox->value();
-    const QString extraCol = ui->extraColumnComboBox->currentData().toString();
+    const QString extraCol = ui->extraColumnComboBox->currentText();
     const QString customHeader = ui->columnHeaderEdit->text().trimmed();
-    styleOpts.extraColumnHeader = extraCol.isEmpty() ? QString()
+    styleOpts.extraColumnHeader = (extraCol.isEmpty() || ui->extraColumnComboBox->currentIndex() == 0) ? QString()
                                   : (customHeader.isEmpty() ? extraCol : customHeader);
     styleOpts.maxQsoRows = ui->maxRowsSpinBox->value();
 

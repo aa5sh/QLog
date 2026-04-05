@@ -55,6 +55,8 @@ private:
     void populateTemplateFields(const LabelTemplate &tmpl);
     void setTemplateFieldsEnabled(bool enabled);
     LabelTemplate buildCustomTemplate() const;
+    void populateExtraColumnCombo();
+    void populateQSLSentCombo();
 };
 
 #endif // QLOG_UI_QSLPRINTLABELDIALOG_H
