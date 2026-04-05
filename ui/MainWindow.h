@@ -81,6 +81,7 @@ private slots:
     void showLoadDB();
     void showQSLGallery();
     void showDevTools();
+    void printQslLabels();
 
     void saveProfileLayoutGeometry();
     void setEquipmentKeepOptions(bool);
