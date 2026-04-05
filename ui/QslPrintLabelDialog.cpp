@@ -52,10 +52,7 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     ui->myCallsignComboBox->setCurrentText(StationProfilesManager::instance()->getCurProfile1().callsign.toUpper());
 
     /* Populate station profile combo */
-    // TODO: use get profileNameList
-    ui->stationProfileComboBox->setModel(new SqlListModel("SELECT DISTINCT profile_name FROM station_profiles ORDER BY profile_name",
-                                                           "",
-                                                           ui->stationProfileComboBox));
+    ui->stationProfileComboBox->addItems(StationProfilesManager::instance()->profileNameList());
     const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
     int profileIndex = ui->stationProfileComboBox->findText(profile.profileName);
     ui->stationProfileComboBox->setCurrentIndex( ( profileIndex >= 0 ) ? profileIndex : -1 );
@@ -812,7 +809,7 @@ void QslPrintLabelDialog::askAndMarkQslSent()
     const QMessageBox::StandardButton answer = QMessageBox::question(
         this,
         tr("Mark as Sent"),
-        tr("Mark printed QSOs as sent?\n(QSL Sent will be set to 'Y' with today's date)"),
+        tr("Mark printed/exported QSOs as sent?"),
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::No);
 
