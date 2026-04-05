@@ -11,6 +11,7 @@
 #include "ui/SettingsDialog.h"
 #include "ui/ImportDialog.h"
 #include "ui/ExportDialog.h"
+#include "ui/DevToolsDialog.h"
 #include "core/FldigiTCPServer.h"
 #include "rig/Rig.h"
 #include "rotator/Rotator.h"
@@ -1099,6 +1100,14 @@ void MainWindow::showQSLGallery()
     FCT_IDENTIFICATION;
 
     QSLGalleryDialog dialog(this);
+    dialog.exec();
+}
+
+void MainWindow::showDevTools()
+{
+    FCT_IDENTIFICATION;
+
+    DevToolsDialog dialog(this);
     dialog.exec();
 }
 

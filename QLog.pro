@@ -175,6 +175,7 @@ SOURCES += \
         ui/ChatWidget.cpp \
         ui/ClockWidget.cpp \
         ui/ColumnSettingDialog.cpp \
+        ui/DevToolsDialog.cpp \
         ui/DownloadQSLDialog.cpp \
         ui/DxFilterDialog.cpp \
         ui/DxWidget.cpp \
@@ -220,6 +221,7 @@ SOURCES += \
         ui/component/MultiselectCompleter.cpp \
         ui/component/RepeatButton.cpp \
         ui/component/SmartSearchBox.cpp \
+        ui/component/SqlHighlighter.cpp \
         ui/component/SwitchButton.cpp
 
 HEADERS += \
@@ -360,6 +362,7 @@ HEADERS += \
         ui/ChatWidget.h \
         ui/ClockWidget.h \
         ui/ColumnSettingDialog.h \
+        ui/DevToolsDialog.h \
         ui/DownloadQSLDialog.h \
         ui/DxFilterDialog.h \
         ui/DxWidget.h \
@@ -410,6 +413,7 @@ HEADERS += \
         ui/component/RepeatButton.h \
         ui/component/ShutdownAwareWidget.h \
         ui/component/SmartSearchBox.h \
+        ui/component/SqlHighlighter.h \
         ui/component/StyleItemDelegate.h \
         ui/component/SwitchButton.h
 
@@ -425,6 +429,7 @@ FORMS += \
         ui/ClockWidget.ui \
         ui/ColumnSettingDialog.ui \
         ui/ColumnSettingSimpleDialog.ui \
+        ui/DevToolsDialog.ui \
         ui/DownloadQSLDialog.ui \
         ui/DxFilterDialog.ui \
         ui/DxWidget.ui \
