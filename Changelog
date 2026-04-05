@@ -1,5 +1,6 @@
 TBC - 0.50.0
 - [NEW] - Added Split detection
+- [NEW] - Added Developer and Support tools (PR #991 @aa5sh @foldynl)
 - Fixed Callsign disappears when calling a DX in a split via VFO-B (issue #799)
 - Updated debian packaging (PR @979 thx @dawkagaming)
 - Awards internal redesign
