@@ -29,7 +29,6 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
-
     /* Sections start collapsed via maxHeight=0 instead of setVisible(false)
      * so that their width still contributes to the scroll area's sizeHint */
     ui->templateSectionContent->setMaximumHeight(0);
@@ -95,55 +94,6 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     ui->endDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
     ui->endDateEdit->setDate(QDate::currentDate());
 
-    /* Filter checkbox toggle connections */
-    connect(ui->dateRangeCheckBox, &QCheckBox::toggled, this, &QslPrintLabelDialog::toggleDateRange);
-    connect(ui->myCallsignCheckBox, &QCheckBox::toggled, this, &QslPrintLabelDialog::toggleMyCallsign);
-    connect(ui->stationProfileCheckBox, &QCheckBox::toggled, this, &QslPrintLabelDialog::toggleStationProfile);
-    connect(ui->qslSentCheckBox, &QCheckBox::toggled, this, &QslPrintLabelDialog::toggleQslSent);
-    connect(ui->userFilterCheckBox, &QCheckBox::toggled, this, &QslPrintLabelDialog::toggleUserFilter);
-
-    /* Filter value change connections -- trigger SQL refresh */
-    connect(ui->startDateEdit, &QDateEdit::dateChanged,
-            this, &QslPrintLabelDialog::refreshData);
-    connect(ui->endDateEdit, &QDateEdit::dateChanged,
-            this, &QslPrintLabelDialog::refreshData);
-    connect(ui->myCallsignComboBox, &QComboBox::currentTextChanged,
-            this, &QslPrintLabelDialog::refreshData);
-    connect(ui->stationProfileComboBox, &QComboBox::currentTextChanged,
-            this, &QslPrintLabelDialog::refreshData);
-    connect(ui->qslSentComboBox, &QComboBox::currentTextChanged,
-            this, &QslPrintLabelDialog::refreshData);
-    connect(ui->userFilterComboBox, &QComboBox::currentTextChanged,
-            this, &QslPrintLabelDialog::refreshData);
-
-    /* Template and skip -- template triggers full refresh, skip only re-renders */
-    connect(ui->templateComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &QslPrintLabelDialog::templateChanged);
-    connect(ui->skipSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::skipChanged);
-
-    /* Footer edits -- only re-render preview, no SQL needed */
-    connect(ui->footerLeftEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->footerRightEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-
-    /* Page navigation */
-    connect(ui->prevPageButton, &QPushButton::clicked,
-            this, &QslPrintLabelDialog::prevPage);
-    connect(ui->nextPageButton, &QPushButton::clicked,
-            this, &QslPrintLabelDialog::nextPage);
-
-    /* Print / Export */
-    connect(ui->printButton, &QPushButton::clicked,
-            this, &QslPrintLabelDialog::print);
-    connect(ui->exportPdfButton, &QPushButton::clicked,
-            this, &QslPrintLabelDialog::exportPdf);
-
-    /* Zoom -- slider<->spinbox sync is handled in UI file; only hook update preview */
-    connect(ui->zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::zoomChanged);
-
     /* Section collapse/expand -- toggle maxHeight and arrow direction.
      * Using maxHeight instead of setVisible keeps the widget in layout
      * calculations so the scroll area's width is always correct. */
@@ -162,72 +112,6 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
         ui->printOptionsSectionButton->setArrowType(checked ? Qt::DownArrow : Qt::RightArrow);
         ui->printOptionsSectionContent->setMaximumHeight(checked ? QWIDGETSIZE_MAX : 0);
     });
-
-    /* Print borders checkbox -- re-render preview only */
-    connect(ui->printBordersCheckBox, &QCheckBox::toggled,
-            this, &QslPrintLabelDialog::updatePreview);
-
-    /* Date format -- affects SQL result formatting, needs full refresh */
-    connect(ui->dateFormatEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::refreshData);
-
-    /* Column header overrides -- re-render only, no SQL change */
-    connect(ui->columnHeaderEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->toRadioTextEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->hdrDateEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->hdrTimeEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->hdrBandEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->hdrModeEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-    connect(ui->hdrQslEdit, &QLineEdit::textChanged,
-            this, &QslPrintLabelDialog::updatePreview);
-
-    /* QSOs per label -- changes label grouping, needs full refresh */
-    connect(ui->maxRowsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::refreshData);
-
-    /* Extra column -- changes SQL query, needs full refresh */
-    connect(ui->extraColumnComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &QslPrintLabelDialog::refreshData);
-
-    /* Font and size changes -- re-render preview only, no SQL change */
-    connect(ui->sansFontComboBox, &QFontComboBox::currentFontChanged,
-            this, [this](const QFont &) { updatePreview(); });
-    connect(ui->monoFontComboBox, &QFontComboBox::currentFontChanged,
-            this, [this](const QFont &) { updatePreview(); });
-    connect(ui->toRadioSizeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, [this](double) { updatePreview(); });
-    connect(ui->callsignSizeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, [this](double) { updatePreview(); });
-    connect(ui->headerSizeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, [this](double) { updatePreview(); });
-    connect(ui->dataSizeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, [this](double) { updatePreview(); });
-
-    /* Custom template field changes -- trigger full refresh */
-    connect(ui->pageSizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->colsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->rowsSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->labelWidthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->labelHeightSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->leftMarginSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->topMarginSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->hSpacingSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
-    connect(ui->vSpacingSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            this, &QslPrintLabelDialog::customTemplateFieldChanged);
 
     /* Load persisted settings and refresh data BEFORE connecting signals
      * to avoid triggering a refresh storm during initialization */

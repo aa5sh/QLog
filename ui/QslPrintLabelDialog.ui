@@ -43,6 +43,14 @@
         <bool>true</bool>
        </property>
        <widget class="QWidget" name="settingsScrollWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>393</width>
+          <height>1363</height>
+         </rect>
+        </property>
         <layout class="QVBoxLayout" name="settingsScrollLayout">
          <property name="spacing">
           <number>2</number>
@@ -929,6 +937,14 @@
           <bool>true</bool>
          </property>
          <widget class="QWidget" name="scrollAreaWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>671</width>
+            <height>564</height>
+           </rect>
+          </property>
           <layout class="QVBoxLayout" name="scrollAreaLayout">
            <item>
             <widget class="QLabel" name="previewLabel">
@@ -1088,7 +1104,8 @@
         <string>Print</string>
        </property>
        <property name="icon">
-        <iconset theme="document-print"/>
+        <iconset theme="document-print">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -1101,7 +1118,8 @@
         <string>Export as PDF</string>
        </property>
        <property name="icon">
-        <iconset theme="document-save-as"/>
+        <iconset theme="document-save-as">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -1172,5 +1190,758 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>dateRangeCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>toggleDateRange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>63</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>myCallsignCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>toggleMyCallsign()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stationProfileCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>toggleStationProfile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>136</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qslSentCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>toggleQslSent()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userFilterCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>toggleUserFilter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>startDateEdit</sender>
+   <signal>dateChanged(QDate)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>212</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>endDateEdit</sender>
+   <signal>dateChanged(QDate)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>334</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>myCallsignComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stationProfileComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qslSentComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userFilterComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>273</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>templateComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>templateChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>206</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>skipSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>skipChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>819</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>footerLeftEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>749</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>footerRightEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>784</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>prevPageButton</sender>
+   <signal>clicked()</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>prevPage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>673</x>
+     <y>636</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nextPageButton</sender>
+   <signal>clicked()</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>nextPage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>846</x>
+     <y>636</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>printButton</sender>
+   <signal>clicked()</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>print()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>837</x>
+     <y>675</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exportPdfButton</sender>
+   <signal>clicked()</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>exportPdf()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>947</x>
+     <y>675</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>zoomChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1059</x>
+     <y>598</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>printBordersCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>679</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateFormatEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>columnHeaderEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toRadioTextEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>997</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hdrDateEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hdrTimeEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1174</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hdrBandEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hdrModeEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1244</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hdrQslEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maxRowsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>713</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>extraColumnComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>refreshData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sansFontComboBox</sender>
+   <signal>currentFontChanged(QFont)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>855</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>monoFontComboBox</sender>
+   <signal>currentFontChanged(QFont)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>890</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toRadioSizeSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>961</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>callsignSizeSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>925</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>headerSizeSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1032</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dataSizeSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>updatePreview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>1068</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pageSizeComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>352</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rowsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>388</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>labelWidthSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>424</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>labelHeightSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>460</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leftMarginSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>496</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>topMarginSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>532</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hSpacingSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>568</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vSpacingSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>QslPrintLabelDialog</receiver>
+   <slot>customTemplateFieldChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>604</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>553</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>toggleDateRange()</slot>
+  <slot>toggleMyCallsign()</slot>
+  <slot>toggleStationProfile()</slot>
+  <slot>toggleQslSent()</slot>
+  <slot>toggleUserFilter()</slot>
+  <slot>refreshData()</slot>
+  <slot>templateChanged(int)</slot>
+  <slot>skipChanged(int)</slot>
+  <slot>updatePreview()</slot>
+  <slot>prevPage()</slot>
+  <slot>nextPage()</slot>
+  <slot>print()</slot>
+  <slot>exportPdf()</slot>
+  <slot>zoomChanged(int)</slot>
+  <slot>customTemplateFieldChanged()</slot>
+ </slots>
 </ui>
