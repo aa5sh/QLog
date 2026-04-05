@@ -12,6 +12,7 @@
 #include "ui/ImportDialog.h"
 #include "ui/ExportDialog.h"
 #include "ui/DevToolsDialog.h"
+#include "ui/CabrilloExportDialog.h"
 #include "core/FldigiTCPServer.h"
 #include "rig/Rig.h"
 #include "rotator/Rotator.h"
@@ -1886,6 +1887,14 @@ void MainWindow::exportLog() {
     ExportDialog dialog(this);
     dialog.exec();
     ui->logbookWidget->updateTable();
+}
+
+void MainWindow::exportCabrillo()
+{
+    FCT_IDENTIFICATION;
+
+    CabrilloExportDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::showAwards()

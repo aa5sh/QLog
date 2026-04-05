@@ -161,6 +161,8 @@
     <addaction name="menuLinkExchange"/>
     <addaction name="separator"/>
     <addaction name="actionContestStop"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportCabrillo"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLogbook"/>
@@ -876,6 +878,11 @@
    </property>
    <property name="text">
     <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionExportCabrillo">
+   <property name="text">
+    <string>Export Cabrillo</string>
    </property>
   </action>
   <action name="actionSeqReset">
@@ -1677,6 +1684,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>actionExportCabrillo</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>exportCabrillo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionSeqReset</sender>
    <signal>triggered()</signal>
    <receiver>newContactWidget</receiver>
@@ -1823,5 +1846,6 @@
   <slot>showQSLGallery()</slot>
   <slot>showDevTools()</slot>
   <slot>printQslLabels()</slot>
+  <slot>exportCabrillo()</slot>
  </slots>
 </ui>
