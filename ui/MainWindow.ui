@@ -470,7 +470,8 @@
   </action>
   <action name="actionDeveloperTools">
    <property name="icon">
-    <iconset theme="applications-science"/>
+    <iconset theme="applications-science">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Developer Tools</string>
@@ -481,7 +482,7 @@
   </action>
   <action name="actionPrintQslLabels">
    <property name="text">
-    <string>Print QSL &amp;Labels...</string>
+    <string>Print QSL &amp;Labels</string>
    </property>
   </action>
   <action name="actionWsjtx">
@@ -1779,7 +1780,7 @@
     </hint>
    </hints>
   </connection>
-   <connection>
+  <connection>
    <sender>actionDeveloperTools</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
