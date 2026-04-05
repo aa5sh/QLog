@@ -122,7 +122,7 @@
        </attribute>
        <column>
         <property name="text">
-         <string>Field Seq.</string>
+         <string>Seq.</string>
         </property>
        </column>
        <column>
@@ -203,6 +203,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>nameEdit</tabstop>
+  <tabstop>contestCombo</tabstop>
+  <tabstop>defaultModeCombo</tabstop>
+  <tabstop>columnsTable</tabstop>
+  <tabstop>newButton</tabstop>
+  <tabstop>copyButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>addColumnButton</tabstop>
+  <tabstop>removeColumnButton</tabstop>
+  <tabstop>moveUpButton</tabstop>
+  <tabstop>moveDownButton</tabstop>
+  <tabstop>templateList</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
