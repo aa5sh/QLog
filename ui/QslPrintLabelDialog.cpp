@@ -18,6 +18,7 @@
 #include "core/QSOFilterManager.h"
 #include "data/StationProfile.h"
 #include "models/SqlListModel.h"
+#include "data/Data.h"
 
 MODULE_IDENTIFICATION("qlog.ui.qslprintlabeldialog");
 
@@ -60,13 +61,18 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     ui->stationProfileComboBox->setCurrentIndex( ( profileIndex >= 0 ) ? profileIndex : -1 );
 
     /* Populate QSL sent combo */
-    // use mapping from data
-    // by default active with value queue - not set is not exact value - better supress to send
-    ui->qslSentComboBox->addItem(tr("Not Sent"), "N");
-    ui->qslSentComboBox->addItem(tr("Sent"), "Y");
-    ui->qslSentComboBox->addItem(tr("Queued"), "Q");
-    ui->qslSentComboBox->addItem(tr("Requested"), "R");
-    ui->qslSentComboBox->addItem(tr("Ignore"), "I");
+    QMapIterator<QString, QString> iter(Data::instance()->qslSentEnum);
+    int iter_index = 0;
+    int value_index = 0;
+    while ( iter.hasNext() )
+    {
+        iter.next();
+        ui->qslSentComboBox->addItem(iter.value(), iter.key());
+        if ( iter.key() == "Q" ) // Queued by default
+            value_index = iter_index;
+        iter_index++;
+    }
+    ui->qslSentComboBox->setCurrentIndex(value_index);
 
     /* Populate user filter combo */
     ui->userFilterComboBox->setModel(QSOFilterManager::QSOFilterModel("", ui->userFilterComboBox));
