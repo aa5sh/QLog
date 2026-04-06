@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>913</width>
-    <height>558</height>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -881,11 +881,6 @@
     <string>Stop</string>
    </property>
   </action>
-  <action name="actionExportCabrillo">
-   <property name="text">
-    <string>Export Cabrillo</string>
-   </property>
-  </action>
   <action name="actionSeqReset">
    <property name="text">
     <string>Reset</string>
@@ -967,6 +962,14 @@
   <action name="actionWhatsNew">
    <property name="text">
     <string>What's New</string>
+   </property>
+  </action>
+  <action name="actionExportCabrillo">
+   <property name="text">
+    <string>Export Cabrillo</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
  </widget>
@@ -1685,22 +1688,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionExportCabrillo</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>exportCabrillo()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>456</x>
-     <y>278</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionSeqReset</sender>
    <signal>triggered()</signal>
    <receiver>newContactWidget</receiver>
@@ -1809,6 +1796,22 @@
     <hint type="destinationlabel">
      <x>456</x>
      <y>278</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExportCabrillo</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>exportCabrillo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>312</y>
     </hint>
    </hints>
   </connection>
