@@ -620,11 +620,11 @@
           </item>
           <item row="1" column="0">
            <widget class="QDateEdit" name="dateEdit">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>30</height>
-             </size>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
@@ -642,6 +642,12 @@
           </item>
           <item row="1" column="1">
            <widget class="QTimeEdit" name="timeOnEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
             </property>
@@ -740,6 +746,12 @@
           </item>
           <item row="1" column="3">
            <widget class="QTimeEdit" name="qsoDurationEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
             </property>
