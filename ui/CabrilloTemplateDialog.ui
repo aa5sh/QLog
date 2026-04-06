@@ -104,53 +104,143 @@
       </widget>
      </item>
      <item>
-      <widget class="QTableWidget" name="columnsTable">
-       <property name="toolTip">
-        <string>Contest name as required by the rules. It is possible to enter a custom string if it is not included in the list.</string>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="columnCount">
-        <number>5</number>
-       </property>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>Seq.</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>QSO Field</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Formatter</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Width</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Label</string>
-        </property>
-       </column>
-      </widget>
+       <item>
+        <widget class="QTableWidget" name="columnsTable">
+         <property name="toolTip">
+          <string>Contest name as required by the rules. It is possible to enter a custom string if it is not included in the list.</string>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="columnCount">
+          <number>5</number>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Seq.</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>QSO Field</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Formatter</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Width</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Label</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="moveUpButton">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="icon">
+            <iconset resource="../res/icons/icons.qrc">
+             <normaloff>:/icons/baseline-play_up-24px.svg</normaloff>:/icons/baseline-play_up-24px.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="moveDownButton">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="icon">
+            <iconset resource="../res/icons/icons.qrc">
+             <normaloff>:/icons/baseline-play_down-24px.svg</normaloff>:/icons/baseline-play_down-24px.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="colButtonLayout">
        <item>
+        <spacer name="colButtonSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
         <widget class="QPushButton" name="addColumnButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Add</string>
          </property>
@@ -164,28 +254,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="moveUpButton">
-         <property name="text">
-          <string>Move Up</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="moveDownButton">
-         <property name="text">
-          <string>Move Down</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="colButtonSpacer">
+        <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>0</width>
-           <height>0</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
         </spacer>
@@ -207,17 +283,16 @@
   <tabstop>nameEdit</tabstop>
   <tabstop>contestCombo</tabstop>
   <tabstop>defaultModeCombo</tabstop>
-  <tabstop>columnsTable</tabstop>
   <tabstop>newButton</tabstop>
   <tabstop>copyButton</tabstop>
   <tabstop>deleteButton</tabstop>
   <tabstop>addColumnButton</tabstop>
   <tabstop>removeColumnButton</tabstop>
-  <tabstop>moveUpButton</tabstop>
-  <tabstop>moveDownButton</tabstop>
   <tabstop>templateList</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../res/icons/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
