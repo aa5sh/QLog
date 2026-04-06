@@ -1091,45 +1091,43 @@ void LogbookWidget::showTableHeaderContextMenu(const QPoint& point)
     contextMenu->exec(point);
 }
 
-void LogbookWidget::markQslReceived()
+void LogbookWidget::updateSelectedRows(std::function<void(int row)> updater)
 {
     FCT_IDENTIFICATION;
 
-    QModelIndexList selectedRows = ui->contactTable->selectionModel()->selectedRows();
+    const QModelIndexList selectedRows = ui->contactTable->selectionModel()->selectedRows();
     if (selectedRows.isEmpty()) return;
 
     const LogbookModel::EditStrategy originEditStrategy = model->editStrategy();
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
-    for (const QModelIndex &index : selectedRows)
-    {
-        model->setData(model->index(index.row(), LogbookModel::COLUMN_QSL_RCVD), "Y", Qt::EditRole);
-        model->setData(model->index(index.row(), LogbookModel::COLUMN_QSL_RCVD_DATE), QDate::currentDate(), Qt::EditRole);
-    }
+    for ( const QModelIndex &index : selectedRows )
+        updater(index.row());
 
     model->submitAll();
     model->setEditStrategy(originEditStrategy);
     updateTable();
 }
 
+void LogbookWidget::markQslReceived()
+{
+    FCT_IDENTIFICATION;
+
+    updateSelectedRows([this](int row)
+    {
+        model->setData(model->index(row, LogbookModel::COLUMN_QSL_RCVD), "Y", Qt::EditRole);
+        model->setData(model->index(row, LogbookModel::COLUMN_QSL_RCVD_DATE), QDate::currentDate(), Qt::EditRole);
+    });
+}
+
 void LogbookWidget::markQslRequested()
 {
     FCT_IDENTIFICATION;
 
-    QModelIndexList selectedRows = ui->contactTable->selectionModel()->selectedRows();
-    if (selectedRows.isEmpty()) return;
-
-    const LogbookModel::EditStrategy originEditStrategy = model->editStrategy();
-    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    for (const QModelIndex &index : selectedRows)
+    updateSelectedRows([this](int row)
     {
-        model->setData(model->index(index.row(), LogbookModel::COLUMN_QSL_SENT), "R", Qt::EditRole);
-    }
-
-    model->submitAll();
-    model->setEditStrategy(originEditStrategy);
-    updateTable();
+        model->setData(model->index(row, LogbookModel::COLUMN_QSL_SENT), "R", Qt::EditRole);
+    });
 }
 
 void LogbookWidget::doubleClickColumn(QModelIndex modelIndex)
