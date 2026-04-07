@@ -5,6 +5,7 @@ TBC - 0.50.0
 - [NEW] - Added Cabrillo contest export
 - [NEW] - Added direct labeling of QSL Requested and QSL Received to the QSO context menu (PR #982 @aa5sh)
 - Fixed Callsign disappears when calling a DX in a split via VFO-B (issue #799)
+- Fixing Rendering issue (issue #989)
 - Updated debian packaging (PR @979 thx @dawkagaming)
 - Awards internal redesign
 
