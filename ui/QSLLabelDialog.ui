@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QSLLabelDialog</class>
+ <widget class="QDialog" name="QSLLabelDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>880</width>
+    <height>680</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Print QSL Labels</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainVLayout">
+   <item>
+    <layout class="QHBoxLayout" name="contentHLayout">
+     <!-- ===== LEFT: Settings tab widget ===== -->
+     <item>
+      <widget class="QTabWidget" name="settingsTab">
+       <property name="minimumWidth">
+        <number>300</number>
+       </property>
+       <property name="maximumWidth">
+        <number>370</number>
+       </property>
+       <!-- Tab 1: Format -->
+       <widget class="QWidget" name="formatTab">
+        <attribute name="title">
+         <string>Format</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="formatTabLayout">
+         <item>
+          <widget class="QGroupBox" name="formatGroup">
+           <property name="title">
+            <string>Label Format</string>
+           </property>
+           <layout class="QVBoxLayout" name="formatVLayout">
+            <item>
+             <layout class="QHBoxLayout" name="radioHLayout">
+              <item>
+               <widget class="QRadioButton" name="sheetRadio">
+                <property name="text">
+                 <string>Sheet Labels (Avery)</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="singleRadio">
+                <property name="text">
+                 <string>Single Labels (Dymo/Brother)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <!-- Sheet Settings -->
+            <item>
+             <widget class="QGroupBox" name="sheetSettingsBox">
+              <property name="title">
+               <string>Sheet Settings</string>
+              </property>
+              <layout class="QFormLayout" name="sheetFormLayout">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::ExpandingFieldsGrow</enum>
+               </property>
+               <item row="0" column="0">
+                <widget class="QLabel" name="presetLabel">
+                 <property name="text">
+                  <string>Preset:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="presetCombo">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="labelWidthLabel">
+                 <property name="text">
+                  <string>Label Width (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="labelWidthSpin">
+                 <property name="minimum">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>300.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>66.68</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="labelHeightLabel">
+                 <property name="text">
+                  <string>Label Height (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="labelHeightSpin">
+                 <property name="minimum">
+                  <double>5.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>200.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>25.40</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="labelsPerRowLabel">
+                 <property name="text">
+                  <string>Labels per row:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSpinBox" name="labelsPerRowSpin">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>20</number>
+                 </property>
+                 <property name="value">
+                  <number>3</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="labelsPerColLabel">
+                 <property name="text">
+                  <string>Labels per column:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QSpinBox" name="labelsPerColSpin">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>30</number>
+                 </property>
+                 <property name="value">
+                  <number>10</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="topMarginLabel">
+                 <property name="text">
+                  <string>Top margin (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QDoubleSpinBox" name="topMarginSpin">
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>12.70</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="leftMarginLabel">
+                 <property name="text">
+                  <string>Left margin (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QDoubleSpinBox" name="leftMarginSpin">
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>4.76</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0">
+                <widget class="QLabel" name="hSpacingLabel">
+                 <property name="text">
+                  <string>H spacing (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="1">
+                <widget class="QDoubleSpinBox" name="hSpacingSpin">
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>30.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>3.18</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="vSpacingLabel">
+                 <property name="text">
+                  <string>V spacing (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="1">
+                <widget class="QDoubleSpinBox" name="vSpacingSpin">
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>30.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>0.00</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QLabel" name="startLabelLabel">
+                 <property name="text">
+                  <string>Start at label #:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="1">
+                <widget class="QSpinBox" name="startLabelSpin">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>300</number>
+                 </property>
+                 <property name="value">
+                  <number>1</number>
+                 </property>
+                 <property name="toolTip">
+                  <string>Skip this many label positions on the first sheet (for partially used sheets)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <!-- Single Label Settings -->
+            <item>
+             <widget class="QGroupBox" name="singleSettingsBox">
+              <property name="title">
+               <string>Single Label Settings</string>
+              </property>
+              <property name="visible">
+               <bool>false</bool>
+              </property>
+              <layout class="QFormLayout" name="singleFormLayout">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::ExpandingFieldsGrow</enum>
+               </property>
+               <item row="0" column="0">
+                <widget class="QLabel" name="singleWidthLabel">
+                 <property name="text">
+                  <string>Label Width (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="singleWidthSpin">
+                 <property name="minimum">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>300.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>101.60</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="singleHeightLabel">
+                 <property name="text">
+                  <string>Label Height (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="singleHeightSpin">
+                 <property name="minimum">
+                  <double>5.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>200.000000000000000</double>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="value">
+                  <double>50.80</double>
+                 </property>
+                </widget>
+               </item>
+               <!-- Detect button spans both columns -->
+               <item row="2" column="0" colspan="2">
+                <widget class="QPushButton" name="detectSizeButton">
+                 <property name="text">
+                  <string>Detect from Printer</string>
+                 </property>
+                 <property name="toolTip">
+                  <string>Query the selected printer for its supported label sizes (requires Qt 5.13+)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="formatTabSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <!-- Tab 2: Content -->
+       <widget class="QWidget" name="contentTab">
+        <attribute name="title">
+         <string>Content</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="contentTabLayout">
+         <!-- Label Content group -->
+         <item>
+          <widget class="QGroupBox" name="contentGroup">
+           <property name="title">
+            <string>Label Content</string>
+           </property>
+           <layout class="QVBoxLayout" name="contentVLayout">
+            <!-- Grouping option first so it's prominent -->
+            <item>
+             <widget class="QCheckBox" name="groupQSOsCheck">
+              <property name="text">
+               <string>Group multiple QSOs by callsign (table layout)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>When checked, all QSOs with the same callsign share one label printed as a table. When unchecked, one label per QSO.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="contentSeparator">
+              <property name="frameShape">
+               <enum>QFrame::HLine</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Sunken</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showCallsignCheck">
+              <property name="text">
+               <string>Callsign (To Radio)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showDateTimeCheck">
+              <property name="text">
+               <string>Date / Time (UTC)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showBandModeCheck">
+              <property name="text">
+               <string>Band / Mode</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showRSTCheck">
+              <property name="text">
+               <string>RST Sent / Received</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showFreqCheck">
+              <property name="text">
+               <string>Frequency</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showNameQthCheck">
+              <property name="text">
+               <string>Name / QTH</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showMyCallsignCheck">
+              <property name="text">
+               <string>My Callsign / Grid</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <!-- Options group -->
+         <item>
+          <widget class="QGroupBox" name="optionsGroup">
+           <property name="title">
+            <string>Options</string>
+           </property>
+           <layout class="QVBoxLayout" name="optionsVLayout">
+            <item>
+             <widget class="QCheckBox" name="markSentCheck">
+              <property name="text">
+               <string>Default to marking as QSL Sent after print / PDF</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="contentTabSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>10</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <!-- ===== RIGHT: Preview ===== -->
+     <item>
+      <widget class="QGroupBox" name="previewGroup">
+       <property name="title">
+        <string>Label Preview</string>
+       </property>
+       <layout class="QVBoxLayout" name="previewVLayout">
+        <item>
+         <widget class="QScrollArea" name="previewScrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+          </property>
+          <widget class="QWidget" name="previewScrollContents">
+           <layout class="QVBoxLayout" name="previewScrollVLayout">
+            <item>
+             <widget class="QLabel" name="previewLabel">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+              </property>
+              <property name="scaledContents">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <!-- ===== Bottom: Status + Printer + Buttons ===== -->
+   <item>
+    <layout class="QHBoxLayout" name="bottomHLayout">
+     <item>
+      <widget class="QLabel" name="contactCountLabel">
+       <property name="text">
+        <string>0 contacts</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="bottomSpacer1">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="printerLabel">
+       <property name="text">
+        <string>Printer:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="printerCombo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumWidth">
+        <number>260</number>
+       </property>
+       <property name="minimumContentsLength">
+        <number>12</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="bottomSpacer2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="savePdfButton">
+       <property name="text">
+        <string>Save PDF...</string>
+       </property>
+       <property name="toolTip">
+        <string>Render all labels to a PDF file for later printing or archiving</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="printButton">
+       <property name="text">
+        <string>Print</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

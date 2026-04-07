@@ -44,6 +44,7 @@
 #include "ui/LoadDatabaseDialog.h"
 #include "ui/PlatformSettingsDialog.h"
 #include "ui/QSLGalleryDialog.h"
+#include "ui/QSLLabelDialog.h"
 #include <QFileDialog>
 #include <QProcess>
 #include <QThread>
@@ -1098,6 +1099,28 @@ void MainWindow::showQSLGallery()
 
     QSLGalleryDialog dialog(this);
     dialog.exec();
+}
+
+void MainWindow::showPrintQSLLabels()
+{
+    FCT_IDENTIFICATION;
+
+    const QList<QSqlRecord> queued = QSLLabelDialog::fetchQueuedContacts();
+
+    if (queued.isEmpty())
+    {
+        QMessageBox::information(this,
+                                 tr("Print QSL Labels"),
+                                 tr("No contacts with QSL Sent status 'Queued' (Q) were found."));
+        return;
+    }
+
+    // Use open() instead of exec() — same reason as LogbookWidget::printQSLLabel():
+    // avoids nested Cocoa run loops that crash the native print panel on macOS 26.
+    QSLLabelDialog *dialog = new QSLLabelDialog(queued, this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &QDialog::finished, this, [this](int) { ui->logbookWidget->updateTable(); });
+    dialog->open();
 }
 
 void MainWindow::showDumpDB()

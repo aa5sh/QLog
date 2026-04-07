@@ -379,6 +379,18 @@
     <string>IOTA</string>
    </property>
   </action>
+  <action name="actionPrintQSLLabel">
+   <property name="icon">
+    <iconset theme="document-print">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Print QSL Label</string>
+   </property>
+   <property name="toolTip">
+    <string>Print QSL label for selected contact(s)</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

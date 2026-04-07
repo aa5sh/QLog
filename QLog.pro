@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql network xml charts webenginewidgets serialport dbus quickwidgets webchannel websockets
+QT       += core gui sql network xml charts webenginewidgets serialport dbus quickwidgets webchannel websockets printsupport
 
 greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
@@ -178,6 +178,7 @@ SOURCES += \
         ui/NewContactWidget.cpp \
         ui/OnlineMapWidget.cpp \
         ui/PaperQSLDialog.cpp \
+        ui/QSLLabelDialog.cpp \
         ui/ProfileImageWidget.cpp \
         ui/QSLImportStatDialog.cpp \
         ui/QSODetailDialog.cpp \
@@ -342,6 +343,7 @@ HEADERS += \
         ui/NewContactWidget.h \
         ui/OnlineMapWidget.h \
         ui/PaperQSLDialog.h \
+        ui/QSLLabelDialog.h \
         ui/ProfileImageWidget.h \
         ui/QSLImportStatDialog.h \
         ui/QSODetailDialog.h \
@@ -402,6 +404,7 @@ FORMS += \
         ui/MainWindow.ui \
         ui/NewContactWidget.ui \
         ui/PaperQSLDialog.ui \
+        ui/QSLLabelDialog.ui \
         ui/ProfileImageWidget.ui \
         ui/QSLImportStatDialog.ui \
         ui/QSODetailDialog.ui \

@@ -25,6 +25,7 @@
 #include "ui/ExportDialog.h"
 #include "service/eqsl/Eqsl.h"
 #include "ui/PaperQSLDialog.h"
+#include "ui/QSLLabelDialog.h"
 #include "ui/QSODetailDialog.h"
 #include "core/MembershipQE.h"
 #include "service/GenericCallbook.h"
@@ -129,11 +130,14 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->addAction(ui->actionSendDXCSpot);
     ui->contactTable->addAction(separator);
     ui->contactTable->addAction(ui->actionExportAs);
+    ui->contactTable->addAction(ui->actionPrintQSLLabel);
     ui->contactTable->addAction(ui->actionCallbookLookup);
     ui->contactTable->addAction(separator1);
     ui->contactTable->addAction(ui->actionDisplayedColumns);
     ui->contactTable->addAction(separator2);
     ui->contactTable->addAction(ui->actionDeleteContact);
+
+    connect(ui->actionPrintQSLLabel, &QAction::triggered, this, &LogbookWidget::printQSLLabel);
 
     ui->contactTable->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->contactTable->horizontalHeader(), &QHeaderView::customContextMenuRequested,
@@ -974,6 +978,29 @@ void LogbookWidget::exportContact()
 
     ExportDialog dialog(QSOs);
     dialog.exec();
+}
+
+void LogbookWidget::printQSLLabel()
+{
+    FCT_IDENTIFICATION;
+
+    const QModelIndexList &selectedIndexes = ui->contactTable->selectionModel()->selectedRows();
+
+    if ( selectedIndexes.isEmpty() )
+        return;
+
+    QList<QSqlRecord> qsos;
+    for ( const QModelIndex &index : selectedIndexes )
+        qsos << model->record(index.row());
+
+    // Use open() instead of exec() so the dialog is shown as a macOS sheet
+    // (window-modal, driven by the main event loop).  This prevents the
+    // native QPrintDialog from running inside a nested Cocoa run loop, which
+    // crashes in PrintingUI on macOS 26 / Qt 6.11.
+    QSLLabelDialog *dialog = new QSLLabelDialog(qsos, this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &QDialog::finished, this, [this](int) { updateTable(); });
+    dialog->open();
 }
 
 void LogbookWidget::editContact()

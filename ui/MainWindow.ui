@@ -80,6 +80,7 @@
     <addaction name="actionStatistics"/>
     <addaction name="separator"/>
     <addaction name="actionQSLGallery"/>
+    <addaction name="actionPrintQSLLabels"/>
    </widget>
    <widget class="QMenu" name="menuEquipment">
     <property name="title">
@@ -461,6 +462,18 @@
   <action name="actionQSLGallery">
    <property name="text">
     <string>QSL &amp;Gallery</string>
+   </property>
+  </action>
+  <action name="actionPrintQSLLabels">
+   <property name="icon">
+    <iconset theme="document-print">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Print QSL &amp;Labels (Queued)...</string>
+   </property>
+   <property name="toolTip">
+    <string>Print QSL labels for all contacts with QSL sent status Queued (Q)</string>
    </property>
   </action>
   <action name="actionWsjtx">
@@ -1737,6 +1750,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPrintQSLLabels</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showPrintQSLLabels()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>settingsChanged()</signal>
@@ -1770,5 +1799,6 @@
   <slot>showDumpDB()</slot>
   <slot>showLoadDB()</slot>
   <slot>showQSLGallery()</slot>
+  <slot>showPrintQSLLabels()</slot>
  </slots>
 </ui>

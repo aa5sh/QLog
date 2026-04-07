@@ -75,6 +75,7 @@ public slots:
     void uploadClublog();
     void deleteContact();
     void exportContact();
+    void printQSLLabel();
     void editContact();
     void displayedColumns();
     void saveTableHeaderState();
