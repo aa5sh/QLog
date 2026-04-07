@@ -584,14 +584,14 @@ void CabrilloTemplateDialog::accept()
         if ( !query.prepare("DELETE FROM cabrillo_templates WHERE id = :id") )
         {
             qCWarning(runtime) << query.lastError().text();
-            db.rollback();
+            Q_UNUSED(db.rollback());
             return;
         }
         query.bindValue(":id", tmpl.id);
         if ( !query.exec() )
         {
             qCWarning(runtime) << query.lastError().text();
-            db.rollback();
+            Q_UNUSED(db.rollback());
             return;
         }
     }
@@ -611,7 +611,7 @@ void CabrilloTemplateDialog::accept()
                                 "VALUES (:name, :contest, :mode)") )
             {
                 qCWarning(runtime) << query.lastError().text();
-                db.rollback();
+                Q_UNUSED(db.rollback());
                 return;
             }
             query.bindValue(":name", tmpl.name);
@@ -623,7 +623,7 @@ void CabrilloTemplateDialog::accept()
                 qCWarning(runtime) << query.lastError().text();
                 QMessageBox::warning(this, tr("QLog Warning"),
                                      tr("Cannot save template '%1': %2").arg(tmpl.name, query.lastError().text()));
-                db.rollback();
+                Q_UNUSED(db.rollback());
                 return;
             }
 
@@ -636,7 +636,7 @@ void CabrilloTemplateDialog::accept()
                                 "WHERE id = :id") )
             {
                 qCWarning(runtime) << query.lastError().text();
-                db.rollback();
+                Q_UNUSED(db.rollback());
                 return;
             }
             query.bindValue(":name", tmpl.name);
@@ -647,7 +647,7 @@ void CabrilloTemplateDialog::accept()
             if ( !query.exec() )
             {
                 qCWarning(runtime) << query.lastError().text();
-                db.rollback();
+                Q_UNUSED(db.rollback());
                 return;
             }
         }
@@ -658,7 +658,7 @@ void CabrilloTemplateDialog::accept()
 
         if ( !saveTemplateColumns(query, targetId, tmpl.columns) )
         {
-            db.rollback();
+            Q_UNUSED(db.rollback());
             return;
         }
     }
@@ -666,7 +666,7 @@ void CabrilloTemplateDialog::accept()
     if ( !db.commit() )
     {
         qCWarning(runtime) << "Failed to commit transaction";
-        db.rollback();
+        Q_UNUSED(db.rollback());
         return;
     }
 

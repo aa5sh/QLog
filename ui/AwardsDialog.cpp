@@ -87,7 +87,7 @@ void AwardsDialog::refreshTable(int)
         QWidget *w = award->createWidget(ui->stackedWidget);
         ui->stackedWidget->addWidget(w);
 
-        QTableView *tableView = qobject_cast<QTableView*>(w);
+        const QTableView *tableView = qobject_cast<QTableView*>(w);
         if ( tableView )
         {
             connect(tableView, &QTableView::doubleClicked, this, [this](const QModelIndex &idx)

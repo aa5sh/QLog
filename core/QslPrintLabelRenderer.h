@@ -68,7 +68,7 @@ public:
     QslPrintLabelRenderer();
 
     void setTemplate(const LabelTemplate &tmpl);
-    void setLabels(const QList<QslLabelData> &labels);
+    void setLabels(const QList<QslLabelData> &inLabels);
     void setFooterLeft(const QString &text);
     void setFooterRight(const QString &text);
     void setSkipLabels(int count);

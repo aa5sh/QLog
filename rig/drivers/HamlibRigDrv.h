@@ -83,7 +83,7 @@ private:
     vfo_t getTxVfo() const;
     serial_handshake_e stringToHamlibFlowControl(const QString &in_flowcontrol);
     serial_parity_e stringToHamlibParity(const QString &in_parity);
-    serial_control_state_e stringToHamlibSerialSignal(const QString &flowcontrol);
+    serial_control_state_e stringToHamlibSerialSignal(const QString &signalString);
     QString hamlibErrorString(int);
     RIG* rig;
     QTimer timer;

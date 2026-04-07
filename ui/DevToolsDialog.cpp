@@ -460,8 +460,11 @@ void DevToolsDialog::exportAsAdif()
         placeholders << "?";
 
     QSqlQuery fetchQ;
-    fetchQ.prepare(QString("SELECT * FROM contacts WHERE id IN (%1) ORDER BY start_time ASC")
-                   .arg(placeholders.join(',')));
+    if ( ! fetchQ.prepare(QString("SELECT * FROM contacts WHERE id IN (%1) ORDER BY start_time ASC").arg(placeholders.join(','))))
+    {
+        qWarning() << "Cannot prepare select statement for contacts table";
+        return;
+    }
     for ( int i = 0; i < ids.size(); ++i )
         fetchQ.addBindValue(ids.at(i));
 

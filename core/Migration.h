@@ -40,7 +40,7 @@ private:
     bool settings2DB();
     bool removeSettings2DB();
     bool setSelectedProfile(const QString &tablename, const QString &profileName);
-    QString fixIntlField(QSqlQuery &query, const QString &columName, const QString &columnNameIntl);
+    QString fixIntlField(const QSqlQuery &query, const QString &columName, const QString &columnNameIntl);
     bool refreshUploadStatusTrigger();
 
     friend class MigrationSqlTest_FriendAccessor;

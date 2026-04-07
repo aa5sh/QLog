@@ -1655,7 +1655,7 @@ void MainWindow::restoreContestMenuLinkExchange()
     addActionToMenu(LogbookModel::COLUMN_RX_PWR);
     addActionToMenu(LogbookModel::COLUMN_STATE);
 
-    std::sort(actions.begin(), actions.end(), [](QAction *a, QAction *b)
+    std::sort(actions.begin(), actions.end(), [](const QAction *a, const QAction *b)
     {
         return a->text().localeAwareCompare(b->text()) < 0;
     });
