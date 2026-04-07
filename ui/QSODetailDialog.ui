@@ -3,21 +3,15 @@
  <class>QSODetailDialog</class>
  <widget class="QDialog" name="QSODetailDialog">
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>758</height>
-   </size>
-  </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>780</height>
+    <height>758</height>
    </size>
   </property>
   <property name="windowTitle">
