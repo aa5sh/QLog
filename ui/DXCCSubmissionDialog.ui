@@ -14,21 +14,6 @@
    <string>DXCC Submission List</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>3</number>
-   </property>
-   <property name="leftMargin">
-    <number>6</number>
-   </property>
-   <property name="topMargin">
-    <number>2</number>
-   </property>
-   <property name="rightMargin">
-    <number>6</number>
-   </property>
-   <property name="bottomMargin">
-    <number>6</number>
-   </property>
    <item>
     <widget class="QGroupBox" name="optionsGroupBox">
      <property name="title">
@@ -53,7 +38,6 @@
       <property name="bottomMargin">
        <number>4</number>
       </property>
-      <!-- Row 0: My Entity + User Filter -->
       <item row="0" column="0">
        <widget class="QLabel" name="myEntityLabel">
         <property name="text">
@@ -137,11 +121,10 @@
         </item>
        </layout>
       </item>
-      <!-- Row 1: Award Category -->
       <item row="1" column="0">
        <widget class="QLabel" name="awardCategoryLabel">
         <property name="text">
-         <string>Award Category</string>
+         <string>Category</string>
         </property>
        </widget>
       </item>
@@ -193,132 +176,14 @@
         </item>
        </layout>
       </item>
-      <!-- Row 2: Band Scope -->
       <item row="2" column="0">
-       <widget class="QLabel" name="bandScopeLabel">
+       <widget class="QLabel" name="confirmedByLabel">
         <property name="text">
-         <string>Band Scope</string>
+         <string>Confirmed by</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <layout class="QHBoxLayout" name="bandScopeLayout">
-        <item>
-         <widget class="QComboBox" name="bandScopeComboBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="hSpacer5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Maximum</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>10</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="fiveBandButton">
-          <property name="text">
-           <string>5-Band DXCC</string>
-          </property>
-          <property name="toolTip">
-           <string>Select 5-Band DXCC preset bands (80/40/20/15/10m)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="allBandsButton">
-          <property name="text">
-           <string>All DXCC Bands</string>
-          </property>
-          <property name="toolTip">
-           <string>Select all DXCC-eligible bands</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="hSpacer6">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <!-- Row 3: Band Checkboxes (shown when custom scope) -->
-      <item row="3" column="0">
-       <widget class="QLabel" name="bandsLabel">
-        <property name="text">
-         <string>Bands</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QScrollArea" name="bandScrollArea">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="maximumHeight">
-         <number>60</number>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
-        </property>
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="bandScrollContents">
-         <layout class="QHBoxLayout" name="bandCheckLayout">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="leftMargin">
-           <number>2</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>2</number>
-          </property>
-          <property name="bottomMargin">
-           <number>2</number>
-          </property>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <!-- Row 4: QSL Confirmation (eQSL not accepted for DXCC) -->
-      <item row="4" column="0">
-       <widget class="QLabel" name="confirmedByLabel">
-        <property name="text">
-         <string>QSL Confirmed by</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
        <layout class="QHBoxLayout" name="qslConfirmLayout">
         <item>
          <widget class="QCheckBox" name="lotwCheckBox">
@@ -333,7 +198,7 @@
         <item>
          <widget class="QCheckBox" name="paperCheckBox">
           <property name="text">
-           <string>Paper / Direct</string>
+           <string>Paper</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -355,15 +220,14 @@
         </item>
        </layout>
       </item>
-      <!-- Row 5: Show Status Filter -->
-      <item row="5" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="showStatusLabel">
         <property name="text">
          <string>Show</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="3" column="1">
        <layout class="QHBoxLayout" name="showStatusLayout">
         <item>
          <widget class="QCheckBox" name="showUnsubmittedCheckBox">
@@ -410,21 +274,164 @@
         </item>
        </layout>
       </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="bandScopeLabel">
+        <property name="text">
+         <string>Band Scope</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <layout class="QHBoxLayout" name="bandScopeLayout">
+        <item>
+         <widget class="QComboBox" name="bandScopeComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="hSpacer5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="fiveBandButton">
+          <property name="toolTip">
+           <string>Select 5-Band DXCC preset bands (80/40/20/15/10m)</string>
+          </property>
+          <property name="text">
+           <string>5-Band DXCC</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="allBandsButton">
+          <property name="toolTip">
+           <string>Select all DXCC-eligible bands</string>
+          </property>
+          <property name="text">
+           <string>All DXCC Bands</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="hSpacer6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="bandsLabel">
+        <property name="text">
+         <string>Bands</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QScrollArea" name="bandScrollArea">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="bandScrollContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>946</width>
+           <height>68</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="bandCheckLayout">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
+         </layout>
+        </widget>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <!-- Status label -->
    <item>
     <widget class="QLabel" name="statusLabel">
      <property name="text">
       <string>Select options above and the list will update automatically.</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <!-- Results table -->
    <item>
     <widget class="QTableView" name="submissionTableView">
      <property name="focusPolicy">
@@ -468,16 +475,18 @@
      </attribute>
     </widget>
    </item>
-   <!-- Bottom row: Export button (left) + Close button (right) -->
    <item>
     <layout class="QHBoxLayout" name="bottomLayout">
      <item>
       <widget class="QPushButton" name="exportADIFButton">
-       <property name="text">
-        <string>Export ADIF...</string>
-       </property>
        <property name="toolTip">
         <string>Export the contacts listed above to an ADIF file</string>
+       </property>
+       <property name="text">
+        <string>Export to ADIF</string>
+       </property>
+       <property name="icon">
+        <iconset theme="document-save-as"/>
        </property>
       </widget>
      </item>
@@ -496,6 +505,12 @@
      </item>
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
