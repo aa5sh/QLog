@@ -456,14 +456,22 @@ QList<LabelTemplate> QslPrintLabelRenderer::predefinedTemplates()
     FCT_IDENTIFICATION;
 
     static const QList<LabelTemplate> templates = {
-        {"Avery Zweckform 3664", QPageLayout::Portrait, QPageSize::A4,
+        {"Avery 3664", QPageLayout::Portrait, QPageSize::A4,
          3, 8, 70.0, 33.8, 4.3, 0.0, 0.0, 0.0},
-        {"Avery Zweckform 3422", QPageLayout::Portrait, QPageSize::A4,
+        {"Avery 3422", QPageLayout::Portrait, QPageSize::A4,
          3, 8, 70.0, 35.0, 8.5, 0.0, 0.0, 0.0},
-        {"Avery Zweckform 3474", QPageLayout::Portrait, QPageSize::A4,
+        {"Avery 3474", QPageLayout::Portrait, QPageSize::A4,
          2, 12, 105.0, 24.0, 4.5, 0.0, 0.0, 0.0},
         {"Avery 5160 / 8160", QPageLayout::Portrait, QPageSize::Letter,
-         3, 10, 66.7, 25.4, 12.7, 4.8, 3.2, 0.0}
+         3, 10, 66.7, 25.4, 12.7, 4.8, 3.2, 0.0},
+        {"Avery 5163 / 8163", QPageLayout::Portrait, QPageSize::Letter,
+         2, 5, 101.6, 50.8, 12.70, 4.762, 3.175, 0.0},
+        {"Avery L7160", QPageLayout::Portrait, QPageSize::A4,
+         3, 7, 63.5, 38.1, 15.15, 7.25, 2.54, 0.0},
+        {"Avery L7161", QPageLayout::Portrait, QPageSize::A4,
+         3, 5, 63.5, 46.6, 15.15, 7.25, 2.54, 0.0},
+        {"Avery 5164", QPageLayout::Portrait, QPageSize::Letter,
+         2, 3, 101.6, 84.67, 12.70, 4.762, 3.175, 0.0},
     };
     return templates;
 }
