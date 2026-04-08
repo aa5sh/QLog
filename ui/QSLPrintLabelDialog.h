@@ -37,6 +37,9 @@ private slots:
     void zoomChanged(int value);
     void customTemplateFieldChanged();
 
+protected:
+    void resizeEvent(QResizeEvent* event);
+
 private:
     Ui::QSLPrintLabelDialog *ui;
     LogLocale locale;

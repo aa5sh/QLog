@@ -453,6 +453,14 @@ void QSLPrintLabelDialog::customTemplateFieldChanged()
     refreshData();
 }
 
+void QSLPrintLabelDialog::resizeEvent(QResizeEvent *event)
+{
+    FCT_IDENTIFICATION;
+
+    QWidget::resizeEvent(event);
+    updatePreview();
+}
+
 QString QSLPrintLabelDialog::buildWhereClause() const
 {
     FCT_IDENTIFICATION;
