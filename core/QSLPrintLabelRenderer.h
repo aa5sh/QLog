@@ -45,7 +45,7 @@ struct LabelStyleOptions
     QString hdrQsl  = "QSL";
 };
 
-struct QslLabelData
+struct QSLLabelData
 {
     QString callsign;
 
@@ -62,13 +62,13 @@ struct QslLabelData
     QList<QsoRow> qsos;
 };
 
-class QslPrintLabelRenderer
+class QSLPrintLabelRenderer
 {
 public:
-    QslPrintLabelRenderer();
+    QSLPrintLabelRenderer();
 
     void setTemplate(const LabelTemplate &tmpl);
-    void setLabels(const QList<QslLabelData> &inLabels);
+    void setLabels(const QList<QSLLabelData> &inLabels);
     void setFooterLeft(const QString &text);
     void setFooterRight(const QString &text);
     void setSkipLabels(int count);
@@ -84,14 +84,14 @@ public:
 
 private:
     void drawLabel(QPainter *painter, const QRectF &labelRect,
-                   const QslLabelData &label);
+                   const QSLLabelData &label);
     void drawPage(QPainter *painter, int pageIndex);
     qreal mmToUnits(qreal mm, QPaintDevice *device) const;
     qreal mmToUnitsY(qreal mm, QPaintDevice *device) const;
     int labelsPerPage() const;
 
     LabelTemplate labelTemplate;
-    QList<QslLabelData> labels;
+    QList<QSLLabelData> labels;
     QString footerLeft;
     QString footerRight;
     int skipLabels = 0;

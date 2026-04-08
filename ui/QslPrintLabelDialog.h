@@ -4,7 +4,7 @@
 #include <QDialog>
 
 #include "core/LogLocale.h"
-#include "core/QslPrintLabelRenderer.h"
+#include "core/QSLPrintLabelRenderer.h"
 
 class QSqlQuery;
 
@@ -40,8 +40,8 @@ private slots:
 private:
     Ui::QslPrintLabelDialog *ui;
     LogLocale locale;
-    QslPrintLabelRenderer renderer;
-    QList<QslLabelData> labelsData;
+    QSLPrintLabelRenderer renderer;
+    QList<QSLLabelData> labelsData;
     int currentPage = 0;
     int zoomPercent = 100;
 

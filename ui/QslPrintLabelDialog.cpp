@@ -36,7 +36,7 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     ui->printOptionsSectionContent->setMaximumHeight(0);
 
     /* Populate template combo: predefined + Custom */
-    const QList<LabelTemplate> templates = QslPrintLabelRenderer::predefinedTemplates();
+    const QList<LabelTemplate> templates = QSLPrintLabelRenderer::predefinedTemplates();
     for ( const LabelTemplate &tmpl : templates )
         ui->templateComboBox->addItem(tmpl.name);
     ui->templateComboBox->addItem(tr("Custom"));
@@ -170,7 +170,7 @@ void QslPrintLabelDialog::loadSettings()
     ui->vSpacingSpinBox->setValue(LogParam::getQslLabelCustomVSpacing());
 
     /* Apply template fields state based on selected template */
-    const QList<LabelTemplate> templates = QslPrintLabelRenderer::predefinedTemplates();
+    const QList<LabelTemplate> templates = QSLPrintLabelRenderer::predefinedTemplates();
     if ( templateIndex >= 0 && templateIndex < templates.size() )
     {
         populateTemplateFields(templates.at(templateIndex));
@@ -404,7 +404,7 @@ void QslPrintLabelDialog::templateChanged(int index)
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << index;
 
-    const QList<LabelTemplate> templates = QslPrintLabelRenderer::predefinedTemplates();
+    const QList<LabelTemplate> templates = QSLPrintLabelRenderer::predefinedTemplates();
 
     if ( index >= 0 && index < templates.size() )
     {
@@ -444,7 +444,7 @@ void QslPrintLabelDialog::customTemplateFieldChanged()
     FCT_IDENTIFICATION;
 
     /* Only respond if Custom template is selected */
-    const QList<LabelTemplate> templates = QslPrintLabelRenderer::predefinedTemplates();
+    const QList<LabelTemplate> templates = QSLPrintLabelRenderer::predefinedTemplates();
     int index = ui->templateComboBox->currentIndex();
 
     if ( index >= 0 && index < templates.size() )
@@ -561,7 +561,7 @@ void QslPrintLabelDialog::buildLabels()
     }
 
     QString currentCallsign;
-    QList<QslLabelData::QsoRow> currentRows;
+    QList<QSLLabelData::QsoRow> currentRows;
 
     while ( query.next() )
     {
@@ -597,7 +597,7 @@ void QslPrintLabelDialog::buildLabels()
                                   || eqslRcvd == "Y"
                                   || dclRcvd == "Y" ) ? "TNX" : "PSE";
 
-        QslLabelData::QsoRow row;
+        QSLLabelData::QsoRow row;
         row.date = startTime.toUTC().toString(effectiveDateFormat);
         row.time = startTime.toUTC().toString("HH:mm");
         row.band = band;
@@ -611,7 +611,7 @@ void QslPrintLabelDialog::buildLabels()
             /* Flush previous callsign's rows */
             while ( !currentRows.isEmpty() )
             {
-                QslLabelData label;
+                QSLLabelData label;
                 label.callsign = currentCallsign;
                 int count = qMin(maxRows, currentRows.size());
                 for ( int i = 0; i < count; ++i )
@@ -626,7 +626,7 @@ void QslPrintLabelDialog::buildLabels()
         /* If we have maxRows rows, emit a label */
         if ( currentRows.size() == maxRows )
         {
-            QslLabelData label;
+            QSLLabelData label;
             label.callsign = currentCallsign;
             for ( int i = 0; i < maxRows; ++i )
                 label.qsos.append(currentRows.takeFirst());
@@ -637,7 +637,7 @@ void QslPrintLabelDialog::buildLabels()
     /* Flush remaining rows for the last callsign */
     while ( !currentRows.isEmpty() )
     {
-        QslLabelData label;
+        QSLLabelData label;
         label.callsign = currentCallsign;
         int count = qMin(maxRows, currentRows.size());
         for ( int i = 0; i < count; ++i )
@@ -653,7 +653,7 @@ void QslPrintLabelDialog::refreshData()
     buildLabels();
 
     /* Set template on renderer */
-    const QList<LabelTemplate> templates = QslPrintLabelRenderer::predefinedTemplates();
+    const QList<LabelTemplate> templates = QSLPrintLabelRenderer::predefinedTemplates();
     int templateIndex = ui->templateComboBox->currentIndex();
 
     if ( templateIndex >= 0 && templateIndex < templates.size() )

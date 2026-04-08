@@ -4,17 +4,17 @@
 #include <QFontMetricsF>
 #include <QPageSize>
 
-#include "QslPrintLabelRenderer.h"
+#include "QSLPrintLabelRenderer.h"
 #include "core/debug.h"
 
 MODULE_IDENTIFICATION("qlog.core.qslprintlabelrenderer");
 
-QslPrintLabelRenderer::QslPrintLabelRenderer()
+QSLPrintLabelRenderer::QSLPrintLabelRenderer()
 {
     FCT_IDENTIFICATION;
 }
 
-void QslPrintLabelRenderer::setTemplate(const LabelTemplate &tmpl)
+void QSLPrintLabelRenderer::setTemplate(const LabelTemplate &tmpl)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << tmpl.name;
@@ -22,7 +22,7 @@ void QslPrintLabelRenderer::setTemplate(const LabelTemplate &tmpl)
     labelTemplate = tmpl;
 }
 
-void QslPrintLabelRenderer::setLabels(const QList<QslLabelData> &inLabels)
+void QSLPrintLabelRenderer::setLabels(const QList<QSLLabelData> &inLabels)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << labels.size();
@@ -30,7 +30,7 @@ void QslPrintLabelRenderer::setLabels(const QList<QslLabelData> &inLabels)
     labels = inLabels;
 }
 
-void QslPrintLabelRenderer::setFooterLeft(const QString &text)
+void QSLPrintLabelRenderer::setFooterLeft(const QString &text)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << text;
@@ -38,7 +38,7 @@ void QslPrintLabelRenderer::setFooterLeft(const QString &text)
     footerLeft = text;
 }
 
-void QslPrintLabelRenderer::setFooterRight(const QString &text)
+void QSLPrintLabelRenderer::setFooterRight(const QString &text)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << text;
@@ -46,7 +46,7 @@ void QslPrintLabelRenderer::setFooterRight(const QString &text)
     footerRight = text;
 }
 
-void QslPrintLabelRenderer::setSkipLabels(int count)
+void QSLPrintLabelRenderer::setSkipLabels(int count)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << count;
@@ -54,7 +54,7 @@ void QslPrintLabelRenderer::setSkipLabels(int count)
     skipLabels = qMax(0, count);
 }
 
-void QslPrintLabelRenderer::setPrintBorders(bool enabled)
+void QSLPrintLabelRenderer::setPrintBorders(bool enabled)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << enabled;
@@ -62,28 +62,28 @@ void QslPrintLabelRenderer::setPrintBorders(bool enabled)
     printBorders = enabled;
 }
 
-void QslPrintLabelRenderer::setStyleOptions(const LabelStyleOptions &opts)
+void QSLPrintLabelRenderer::setStyleOptions(const LabelStyleOptions &opts)
 {
     FCT_IDENTIFICATION;
 
     styleOptions = opts;
 }
 
-int QslPrintLabelRenderer::labelsPerPage() const
+int QSLPrintLabelRenderer::labelsPerPage() const
 {
     FCT_IDENTIFICATION;
 
     return labelTemplate.cols * labelTemplate.rows;
 }
 
-int QslPrintLabelRenderer::labelCount() const
+int QSLPrintLabelRenderer::labelCount() const
 {
     FCT_IDENTIFICATION;
 
     return labels.size();
 }
 
-int QslPrintLabelRenderer::pageCount() const
+int QSLPrintLabelRenderer::pageCount() const
 {
     FCT_IDENTIFICATION;
 
@@ -96,22 +96,22 @@ int QslPrintLabelRenderer::pageCount() const
     return (totalSlots + perPage - 1) / perPage;
 }
 
-qreal QslPrintLabelRenderer::mmToUnits(qreal mm, QPaintDevice *device) const
+qreal QSLPrintLabelRenderer::mmToUnits(qreal mm, QPaintDevice *device) const
 {
     FCT_IDENTIFICATION;
 
     return mm * device->logicalDpiX() / 25.4; // to inch - DPI (px/inch)
 }
 
-qreal QslPrintLabelRenderer::mmToUnitsY(qreal mm, QPaintDevice *device) const
+qreal QSLPrintLabelRenderer::mmToUnitsY(qreal mm, QPaintDevice *device) const
 {
     FCT_IDENTIFICATION;
 
     return mm * device->logicalDpiY() / 25.4;  // to inch - DPI (px/inch)
 }
 
-void QslPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect,
-                                      const QslLabelData &label)
+void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect,
+                                      const QSLLabelData &label)
 {
     FCT_IDENTIFICATION;
 
@@ -277,7 +277,7 @@ void QslPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
     {
         if ( i < maxRows )
         {
-            const QslLabelData::QsoRow &row = label.qsos.at(i);
+            const QSLLabelData::QsoRow &row = label.qsos.at(i);
             colX = contentRect.left();
 
             painter->drawText(QRectF(colX, currentY, colWidthDate, dataRowHeight),
@@ -322,7 +322,7 @@ void QslPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
         painter->drawText(footerRect, Qt::AlignRight | Qt::AlignVCenter, footerRight);
 }
 
-void QslPrintLabelRenderer::drawPage(QPainter *painter, int pageIndex)
+void QSLPrintLabelRenderer::drawPage(QPainter *painter, int pageIndex)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << pageIndex;
@@ -366,7 +366,7 @@ void QslPrintLabelRenderer::drawPage(QPainter *painter, int pageIndex)
     }
 }
 
-QImage QslPrintLabelRenderer::renderPage(int pageIndex, int dpi)
+QImage QSLPrintLabelRenderer::renderPage(int pageIndex, int dpi)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << pageIndex << dpi;
@@ -406,7 +406,7 @@ QImage QslPrintLabelRenderer::renderPage(int pageIndex, int dpi)
     return image;
 }
 
-void QslPrintLabelRenderer::printAll(QPrinter *printer)
+void QSLPrintLabelRenderer::printAll(QPrinter *printer)
 {
     FCT_IDENTIFICATION;
 
@@ -451,7 +451,7 @@ void QslPrintLabelRenderer::printAll(QPrinter *printer)
     painter.end();
 }
 
-QList<LabelTemplate> QslPrintLabelRenderer::predefinedTemplates()
+QList<LabelTemplate> QSLPrintLabelRenderer::predefinedTemplates()
 {
     FCT_IDENTIFICATION;
 

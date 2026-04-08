@@ -93,9 +93,9 @@ SOURCES += \
         core/PlatformParameterManager.cpp \
         core/PotaQE.cpp \
         core/PropConditions.cpp \
+        core/QSLPrintLabelRenderer.cpp \
         core/QSLStorage.cpp \
         core/QSOFilterManager.cpp \
-        core/QslPrintLabelRenderer.cpp \
         core/WsjtxUDPReceiver.cpp \
         core/debug.cpp \
         core/EmergencyFrequency.cpp \
@@ -268,9 +268,9 @@ HEADERS += \
         core/PlatformParameterManager.h \
         core/PotaQE.h \
         core/PropConditions.h \
+        core/QSLPrintLabelRenderer.h \
         core/QSLStorage.h \
         core/QSOFilterManager.h \
-        core/QslPrintLabelRenderer.h \
         core/QuadKeyCache.h \
         core/WsjtxUDPReceiver.h \
         core/debug.h \
