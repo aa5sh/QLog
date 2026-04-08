@@ -1,7 +1,7 @@
 TBC - 0.50.0
 - [NEW] - Added Split detection
 - [NEW] - Added Developer and Support tools (PR #991 @aa5sh @foldynl)
-- [NEW] - Added a simple QSL label printing dialog
+- [NEW] - Added a simple QSL label printing dialog (issue #562)
 - [NEW] - Added Cabrillo contest export
 - [NEW] - Added direct labeling of QSL Requested and QSL Received to the QSO context menu (PR #982 @aa5sh)
 - Fixed Callsign disappears when calling a DX in a split via VFO-B (issue #799)
