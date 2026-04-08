@@ -1115,8 +1115,6 @@ void MainWindow::showPrintQSLLabels()
         return;
     }
 
-    // Use open() instead of exec() — same reason as LogbookWidget::printQSLLabel():
-    // avoids nested Cocoa run loops that crash the native print panel on macOS 26.
     QSLLabelDialog *dialog = new QSLLabelDialog(queued, this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     connect(dialog, &QDialog::finished, this, [this](int) { ui->logbookWidget->updateTable(); });

@@ -221,8 +221,6 @@ void QSLLabelDialog::printLabels()
         return;
     }
 
-    // Apply the printer chosen in the combo (avoids QPrintDialog / native
-    // print-panel which crashes on macOS 26 beta due to a PrintingUI bug).
     const QString chosenName = ui->printerCombo->currentText();
     if (!chosenName.isEmpty())
         m_printer.setPrinterName(chosenName);

@@ -993,10 +993,6 @@ void LogbookWidget::printQSLLabel()
     for ( const QModelIndex &index : selectedIndexes )
         qsos << model->record(index.row());
 
-    // Use open() instead of exec() so the dialog is shown as a macOS sheet
-    // (window-modal, driven by the main event loop).  This prevents the
-    // native QPrintDialog from running inside a nested Cocoa run loop, which
-    // crashes in PrintingUI on macOS 26 / Qt 6.11.
     QSLLabelDialog *dialog = new QSLLabelDialog(qsos, this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     connect(dialog, &QDialog::finished, this, [this](int) { updateTable(); });
