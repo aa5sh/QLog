@@ -610,10 +610,8 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
 
         if (showMyCS)
         {
-            const QString cs   = myCallsign(first);
-            const QString grid = myGrid(first);
+            const QString cs = myCallsign(first);
             QString sig = tr("73 de %1").arg(cs.isEmpty() ? "?" : cs);
-            if (!grid.isEmpty()) sig += "  " + grid;
             lines << Line{ sig, true, 1.1 };
         }
 
@@ -835,13 +833,11 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
             }
         }
 
-        // 5. Footer "73 de MYCALL GRID" — right-aligned
+        // 5. Footer "73 de MYCALL" — right-aligned
         if (showMyCS)
         {
-            const QString cs   = myCallsign(first);
-            const QString grid = myGrid(first);
+            const QString cs = myCallsign(first);
             QString sig = tr("73 de %1").arg(cs.isEmpty() ? "?" : cs);
-            if (!grid.isEmpty()) sig += "   " + grid;
             painter->setFont(makeFont(baseH, true));
             painter->setPen(Qt::black);
             painter->drawText(QRectF(inner.left(), y, W, baseH),
@@ -911,9 +907,12 @@ void QSLLabelDialog::printSingle(QPrinter *printer)
     const double wMm = ui->singleWidthSpin->value();
     const double hMm = ui->singleHeightSpin->value();
 
-    // Set custom page size to match label
+    // Set custom page size to match label.
+    // Use setFullPage(false) so Qt/the driver clips to the hardware-printable
+    // area; this prevents bottom cut-off on Brother and similar label printers
+    // whose printable area is slightly smaller than the physical label.
     printer->setPageSize(QPageSize(QSizeF(wMm, hMm), QPageSize::Millimeter));
-    printer->setFullPage(true);
+    printer->setFullPage(false);
 
     QPainter painter(printer);
     if (!painter.isActive())
@@ -925,13 +924,18 @@ void QSLLabelDialog::printSingle(QPrinter *printer)
     const double dotsPerMM = printer->resolution() / MM_PER_INCH;
     painter.scale(dotsPerMM, dotsPerMM);
 
+    // Use the actual printable rect so content stays within hardware margins.
+    const QSizeF printableMm = printer->pageLayout().paintRect(QPageLayout::Millimeter).size();
+    const double rW = printableMm.width()  > 0 ? printableMm.width()  : wMm;
+    const double rH = printableMm.height() > 0 ? printableMm.height() : hMm;
+
     const QList<CallsignGroup> groups = buildGroups();
 
     for (int gi = 0; gi < groups.size(); ++gi)
     {
         if (gi > 0)
             printer->newPage();
-        renderLabel(&painter, QRectF(0, 0, wMm, hMm), groups.at(gi).contacts);
+        renderLabel(&painter, QRectF(0, 0, rW, rH), groups.at(gi).contacts);
     }
 
     painter.end();
