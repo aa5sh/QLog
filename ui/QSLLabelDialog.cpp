@@ -26,6 +26,7 @@ MODULE_IDENTIFICATION("qlog.ui.qsllabeldialog");
 // All dimensions in millimetres.  Paper sizes use QPageSize::PageSizeId.
 
 static const double MM_PER_INCH = 25.4;
+static const int MAX_QSOS_PER_LABEL = 6;
 
 QSLLabelDialog::QSLLabelDialog(const QList<QSqlRecord> &contacts, QWidget *parent)
     : QDialog(parent),
@@ -642,8 +643,21 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
     // =========================================================
     // PATH B: Multi-QSO table layout (grouped on, N >= 2 QSOs)
     // =========================================================
+    // PATH B: Multi-QSO table layout (grouped on, N >= 2 QSOs)
+    // Font is always sized for MAX_QSOS_PER_LABEL rows so that labels with
+    // fewer QSOs use the same size text and simply leave blank rows at the
+    // bottom — giving a consistent look across 2-7 QSOs.
+    // =========================================================
     else
     {
+        // Helper: make a font whose pixel size fits within a row of height h
+        auto makeFont = [](double h, bool bold) -> QFont {
+            QFont f;
+            f.setPixelSize(qMax(1, qRound(h * 0.78)));
+            f.setBold(bold);
+            return f;
+        };
+
         // ---- Build active column list ----
         struct Col { QString hdr; ColType type; double frac; };
         QVector<Col> cols;
@@ -670,16 +684,17 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
                 for (Col &c : cols) c.frac /= totW;
         }
 
-        // ---- Height budget ----
-        // callsign = 1.5 units, every other text row = 1.0, col-header = 0.9
+        // ---- Height budget — always reserve MAX_QSOS_PER_LABEL data rows ----
+        // This keeps the font size constant regardless of how many QSOs are on
+        // this label; labels with fewer QSOs just have blank rows at the bottom.
         double totalUnits = 0.0;
         if (showCall && !dxCall.isEmpty()) totalUnits += 1.5;
         if (showNQ)                        totalUnits += 1.0;
         totalUnits += 1.0; // "Confirming our N QSOs"
         if (!cols.isEmpty())
         {
-            totalUnits += 0.9;          // table column-header row
-            totalUnits += nQSOs * 1.0;  // one row per QSO
+            totalUnits += 0.9;                      // column-header row
+            totalUnits += MAX_QSOS_PER_LABEL * 1.0; // fixed 7 data rows
         }
         if (showMyCS) totalUnits += 1.0;
 
@@ -687,14 +702,6 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
         const double callH   = unitH * 1.5;
         const double baseH   = unitH * 1.0;
         const double colHdrH = unitH * 0.9;
-
-        // Helper: make a font whose pixel size fits within a row of height h
-        auto makeFont = [](double h, bool bold) -> QFont {
-            QFont f;
-            f.setPixelSize(qMax(1, qRound(h * 0.78)));
-            f.setBold(bold);
-            return f;
-        };
 
         double y = inner.top();
 
@@ -705,7 +712,7 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
             painter->setPen(Qt::black);
             painter->drawText(QRectF(inner.left(), y, W, callH),
                               Qt::AlignLeft | Qt::AlignVCenter,
-                              tr("To Radio:  %1").arg(dxCall));
+                              tr("To Radio  %1").arg(dxCall));
             y += callH;
         }
 
@@ -765,71 +772,73 @@ void QSLLabelDialog::renderLabel(QPainter *painter, const QRectF &rectMm,
             painter->setPen(QPen(Qt::black, 0.2));
             painter->drawLine(QPointF(inner.left(), y), QPointF(inner.right(), y));
 
-            // Data rows
-            for (int qi = 0; qi < nQSOs; ++qi)
+            // Data rows — render nQSOs filled rows; remaining rows stay blank
+            for (int qi = 0; qi < MAX_QSOS_PER_LABEL; ++qi)
             {
-                const QSqlRecord &rec = contacts.at(qi);
-                const double rowH = unitH; // == baseH
-
-                // Alternating row shading
+                // Alternating row shading for all rows (filled and blank)
                 if (qi % 2 == 1)
-                    painter->fillRect(QRectF(inner.left(), y, W, rowH),
+                    painter->fillRect(QRectF(inner.left(), y, W, baseH),
                                       QColor(242, 242, 252));
 
-                painter->setFont(makeFont(rowH, false));
-                painter->setPen(Qt::black);
-
-                double cx = inner.left();
-                for (const Col &col : cols)
+                if (qi < nQSOs)
                 {
-                    const double cw = W * col.frac;
-                    QString cell;
+                    const QSqlRecord &rec = contacts.at(qi);
+                    painter->setFont(makeFont(baseH, false));
+                    painter->setPen(Qt::black);
 
-                    switch (col.type)
+                    double cx = inner.left();
+                    for (const Col &col : cols)
                     {
-                    case ColDateTime:
-                    {
-                        const QString startTime = rec.value("start_time").toString();
-                        QDateTime dt = QDateTime::fromString(startTime, Qt::ISODate);
-                        if (!dt.isValid())
-                            dt = QDateTime::fromString(startTime, "yyyy-MM-dd hh:mm:ss");
-                        cell = dt.isValid()
-                            ? dt.toUTC().toString("dd-MMM-yy  hh:mm")
-                            : startTime.left(16);
-                        break;
-                    }
-                    case ColBandMode:
-                    {
-                        const QString band = rec.value("band").toString();
-                        const QString mode = rec.value("mode").toString();
-                        const QString sub  = rec.value("submode").toString();
-                        if (!band.isEmpty()) cell += band;
-                        if (!mode.isEmpty()) { if (!cell.isEmpty()) cell += "  "; cell += mode; }
-                        if (!sub.isEmpty())  cell += "/" + sub;
-                        break;
-                    }
-                    case ColRST:
-                    {
-                        const QString s = rec.value("rst_sent").toString();
-                        const QString r = rec.value("rst_rcvd").toString();
-                        if (!s.isEmpty()) cell = s;
-                        if (!r.isEmpty()) cell += (cell.isEmpty() ? "" : "/") + r;
-                        break;
-                    }
-                    case ColFreq:
-                    {
-                        const double freq = rec.value("freq").toDouble();
-                        if (freq > 0.0)
-                            cell = QString::number(freq, 'f', 3);
-                        break;
-                    }
-                    }
+                        const double cw = W * col.frac;
+                        QString cell;
 
-                    painter->drawText(QRectF(cx + 0.8, y, cw - 1.6, rowH),
-                                      Qt::AlignLeft | Qt::AlignVCenter, cell);
-                    cx += cw;
+                        switch (col.type)
+                        {
+                        case ColDateTime:
+                        {
+                            const QString startTime = rec.value("start_time").toString();
+                            QDateTime dt = QDateTime::fromString(startTime, Qt::ISODate);
+                            if (!dt.isValid())
+                                dt = QDateTime::fromString(startTime, "yyyy-MM-dd hh:mm:ss");
+                            cell = dt.isValid()
+                                ? dt.toUTC().toString("dd-MMM-yy hh:mm")
+                                : startTime.left(16);
+                            break;
+                        }
+                        case ColBandMode:
+                        {
+                            const QString band = rec.value("band").toString();
+                            const QString mode = rec.value("mode").toString();
+                            const QString sub  = rec.value("submode").toString();
+                            if (!band.isEmpty()) cell += band;
+                            if (!mode.isEmpty()) { if (!cell.isEmpty()) cell += " "; cell += mode; }
+                            if (!sub.isEmpty())  cell += "/" + sub;
+                            break;
+                        }
+                        case ColRST:
+                        {
+                            const QString s = rec.value("rst_sent").toString();
+                            const QString r = rec.value("rst_rcvd").toString();
+                            if (!s.isEmpty()) cell = s;
+                            if (!r.isEmpty()) cell += (cell.isEmpty() ? "" : "/") + r;
+                            break;
+                        }
+                        case ColFreq:
+                        {
+                            const double freq = rec.value("freq").toDouble();
+                            if (freq > 0.0)
+                                cell = QString::number(freq, 'f', 3);
+                            break;
+                        }
+                        }
+
+                        painter->drawText(QRectF(cx + 0.8, y, cw - 1.6, baseH),
+                                          Qt::AlignLeft | Qt::AlignVCenter, cell);
+                        cx += cw;
+                    }
                 }
-                y += rowH;
+
+                y += baseH;
             }
         }
 
