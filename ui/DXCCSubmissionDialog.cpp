@@ -2,6 +2,8 @@
 #include <QSqlError>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QButtonGroup>
+
 #include "DXCCSubmissionDialog.h"
 #include "ui_DXCCSubmissionDialog.h"
 #include "models/SqlListModel.h"
@@ -12,10 +14,6 @@
 
 MODULE_IDENTIFICATION("qlog.ui.dxccsubmissiondialog");
 
-// Five traditional 5-Band DXCC bands
-static const QStringList FIVE_BAND_DXCC = { "80m", "40m", "20m", "15m", "10m" };
-
-// ── Credit-token helpers ──────────────────────────────────────────────────────
 //
 // ADIF credit_submitted / credit_granted are comma-delimited lists, e.g.:
 //   "DXCC,DXCC_MODE,DXCC_BAND"
@@ -34,14 +32,6 @@ static QString creditHas(const QString &field, const QString &token)
                .arg(field, token);
 }
 
-static QString creditMissing(const QString &field, const QString &token)
-{
-    return QString("INSTR(',' || COALESCE(%1,'') || ',', ',%2,') = 0")
-               .arg(field, token);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
 DXCCSubmissionDialog::DXCCSubmissionDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::DXCCSubmissionDialog)
@@ -52,7 +42,9 @@ DXCCSubmissionDialog::DXCCSubmissionDialog(QWidget *parent)
 
     ui->setupUi(this);
 
-    // ── My Entity combo ────────────────────────────────────────────────────
+    /********************/
+    /* My Entity Combo  */
+    /********************/
     entityCallsignModel = new SqlListModel(
         "SELECT my_dxcc, my_country_intl || ' (' || "
         "CASE WHEN LENGTH(GROUP_CONCAT(station_callsign, ', ')) > 50 "
@@ -60,7 +52,7 @@ DXCCSubmissionDialog::DXCCSubmissionDialog(QWidget *parent)
         "ELSE GROUP_CONCAT(station_callsign, ', ') END || ')' "
         "FROM(SELECT DISTINCT my_dxcc, my_country_intl, station_callsign FROM contacts) "
         "GROUP BY my_dxcc ORDER BY my_dxcc;",
-        "", this);
+        "", ui->myEntityComboBox);
 
     ui->myEntityComboBox->blockSignals(true);
     while (entityCallsignModel->canFetchMore())
@@ -69,13 +61,17 @@ DXCCSubmissionDialog::DXCCSubmissionDialog(QWidget *parent)
     ui->myEntityComboBox->setModelColumn(1);
     ui->myEntityComboBox->blockSignals(false);
 
-    // ── User filter combo ──────────────────────────────────────────────────
+    /***************/
+    /* User Filter */
+    /***************/
     ui->userFilterComboBox->blockSignals(true);
-    ui->userFilterComboBox->setModel(
-        QSOFilterManager::QSOFilterModel(tr("No User Filter"), ui->userFilterComboBox));
+    ui->userFilterComboBox->setModel(QSOFilterManager::QSOFilterModel(tr("No User Filter"),
+                                                                      ui->userFilterComboBox));
     ui->userFilterComboBox->blockSignals(false);
 
-    // ── Band scope combo ───────────────────────────────────────────────────
+    /*********/
+    /* Bands */
+    /*********/
     ui->bandScopeComboBox->blockSignals(true);
     ui->bandScopeComboBox->addItem(tr("Any Band (Entity Level)"),
                                    QVariant(static_cast<int>(DXCCBandScope::EntityLevel)));
@@ -87,56 +83,34 @@ DXCCSubmissionDialog::DXCCSubmissionDialog(QWidget *parent)
                                    QVariant(static_cast<int>(DXCCBandScope::Custom)));
     ui->bandScopeComboBox->blockSignals(false);
 
-    // ── Dynamic band checkboxes ────────────────────────────────────────────
+    int i = 0;
     dxccBands = BandPlan::bandsList(false, true);
-    QHBoxLayout *bandLayout = qobject_cast<QHBoxLayout*>(ui->bandScrollContents->layout());
-    for (const Band &band : dxccBands)
+    for ( const Band &band : static_cast<const QList<Band>&>(dxccBands) )
     {
-        QCheckBox *cb = new QCheckBox(band.name, this);
+        const QString &bandName = band.name;
+        QCheckBox *cb = new QCheckBox(bandName, this);
         cb->setChecked(true);
-        bandLayout->addWidget(cb);
+        cb->setObjectName("bandCheckBox_" + bandName);
+
+        int row = i / MAXCOLUMNS;
+        int column = i % MAXCOLUMNS;
+        ui->bandGroup->addWidget(cb, row, column);
+        i++;
+
         bandCheckBoxes.append(cb);
         connect(cb, &QCheckBox::stateChanged, this, &DXCCSubmissionDialog::refreshTable);
     }
-    bandLayout->addStretch(1);
 
     // Band controls only visible when Custom scope is active
-    ui->bandScrollArea->setVisible(false);
-    ui->bandsLabel->setVisible(false);
-    ui->fiveBandButton->setVisible(false);
-    ui->allBandsButton->setVisible(false);
+    setBandControlsVisible(false);
 
-    // ── Table view ─────────────────────────────────────────────────────────
     ui->submissionTableView->setModel(tableModel);
     ui->submissionTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->submissionTableView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    // ── Signal connections ─────────────────────────────────────────────────
-    connect(ui->myEntityComboBox,   QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->userFilterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->bandScopeComboBox,  QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &DXCCSubmissionDialog::onBandScopeChanged);
-
-    connect(ui->mixedRadioButton,   &QRadioButton::toggled, this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->cwRadioButton,      &QRadioButton::toggled, this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->phoneRadioButton,   &QRadioButton::toggled, this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->digitalRadioButton, &QRadioButton::toggled, this, &DXCCSubmissionDialog::refreshTable);
-
-    connect(ui->lotwCheckBox,       &QCheckBox::stateChanged, this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->paperCheckBox,      &QCheckBox::stateChanged, this, &DXCCSubmissionDialog::refreshTable);
-
-    connect(ui->showUnsubmittedCheckBox, &QCheckBox::stateChanged,
-            this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->showSubmittedCheckBox,   &QCheckBox::stateChanged,
-            this, &DXCCSubmissionDialog::refreshTable);
-    connect(ui->showGrantedCheckBox,     &QCheckBox::stateChanged,
-            this, &DXCCSubmissionDialog::refreshTable);
-
-    connect(ui->fiveBandButton,    &QPushButton::clicked, this, &DXCCSubmissionDialog::onFiveBandClicked);
-    connect(ui->allBandsButton,    &QPushButton::clicked, this, &DXCCSubmissionDialog::onAllBandsClicked);
-    connect(ui->exportADIFButton,  &QPushButton::clicked, this, &DXCCSubmissionDialog::exportAsADIF);
+    connect(ui->buttonGroup, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, [this](QAbstractButton*)
+    {
+        refreshTable();
+    });
 
     ui->exportADIFButton->setEnabled(false);  // enabled once table has results
 
@@ -149,24 +123,15 @@ DXCCSubmissionDialog::~DXCCSubmissionDialog()
     delete ui;
 }
 
-// ─── Band scope changed ───────────────────────────────────────────────────────
-void DXCCSubmissionDialog::onBandScopeChanged(int /*index*/)
+void DXCCSubmissionDialog::onBandScopeChanged(int)
 {
     FCT_IDENTIFICATION;
 
-    const DXCCBandScope scope = static_cast<DXCCBandScope>(
-        ui->bandScopeComboBox->currentData().toInt());
-    const bool isCustom = (scope == DXCCBandScope::Custom);
-
-    ui->bandScrollArea->setVisible(isCustom);
-    ui->bandsLabel->setVisible(isCustom);
-    ui->fiveBandButton->setVisible(isCustom);
-    ui->allBandsButton->setVisible(isCustom);
-
+    const DXCCBandScope scope = currentScope();
+    setBandControlsVisible(scope == DXCCBandScope::Custom);
     refreshTable();
 }
 
-// ─── 5-Band preset button ─────────────────────────────────────────────────────
 void DXCCSubmissionDialog::onFiveBandClicked()
 {
     FCT_IDENTIFICATION;
@@ -176,73 +141,70 @@ void DXCCSubmissionDialog::onFiveBandClicked()
         ui->bandScopeComboBox->findData(static_cast<int>(DXCCBandScope::Custom)));
     ui->bandScopeComboBox->blockSignals(false);
 
-    ui->bandScrollArea->setVisible(true);
-    ui->bandsLabel->setVisible(true);
-    ui->fiveBandButton->setVisible(true);
-    ui->allBandsButton->setVisible(true);
+    setBandControlsVisible(true);
 
     selectBandPreset(FIVE_BAND_DXCC);
     refreshTable();
 }
 
-// ─── All bands preset button ──────────────────────────────────────────────────
 void DXCCSubmissionDialog::onAllBandsClicked()
 {
     FCT_IDENTIFICATION;
 
-    for (QCheckBox *cb : bandCheckBoxes)
+    for ( QCheckBox *cb : static_cast<const QList<QCheckBox*>&>(bandCheckBoxes) )
+    {
+        cb->blockSignals(true);
         cb->setChecked(true);
-    // refreshTable() triggered by checkbox stateChanged signals
+        cb->blockSignals(false);
+    }
 }
 
-// ─── Main query builder ───────────────────────────────────────────────────────
 void DXCCSubmissionDialog::refreshTable()
 {
     FCT_IDENTIFICATION;
 
-    if (dxccBands.isEmpty())
+    if ( dxccBands.isEmpty() )
         return;
 
-    const DXCCBandScope scope = static_cast<DXCCBandScope>(
-        ui->bandScopeComboBox->currentData().toInt());
+    const DXCCBandScope scope   = currentScope();
     const bool perBand = (scope != DXCCBandScope::EntityLevel);
     const bool isMixed = ui->mixedRadioButton->isChecked();
 
-    // ── Confirmation filter ────────────────────────────────────────────────
+    const QStringList selectedBands    = getSelectedBands(scope);
+    const QString     modeGroupFilter  = buildModeGroupFilter();
+
+    /**********************/
+    /* Confirmation Level */
+    /**********************/
     // ARRL DXCC accepts LoTW and paper/direct QSL cards only.
     QStringList confConds;
     if (ui->lotwCheckBox->isChecked())   confConds << "c.lotw_qsl_rcvd = 'Y'";
     if (ui->paperCheckBox->isChecked())  confConds << "c.qsl_rcvd = 'Y'";
 
-    if (confConds.isEmpty())
+    if ( confConds.isEmpty() )
     {
-        tableModel->setQuery(QString());
-        updateStatusLabel(0);
+        clearTable();
+        updateStatusLabel(0, selectedBands, scope);
         return;
     }
+
     const QString confFilter = confConds.join(" OR ");
 
-    // ── Mode group filter ──────────────────────────────────────────────────
-    const QString modeGroupFilter = buildModeGroupFilter();
-
-    // ── Band WHERE clause ──────────────────────────────────────────────────
     QString bandWhereClause;
-    if (perBand)
+    if ( perBand )
     {
-        const QStringList bandList = getSelectedBands();
-        if (bandList.isEmpty())
+        if ( selectedBands.isEmpty() )
         {
-            tableModel->setQuery(QString());
-            updateStatusLabel(0);
+            clearTable();
+            updateStatusLabel(0, selectedBands, scope);
             return;
         }
         QStringList quoted;
-        for (const QString &b : bandList)
+        for ( const QString &b : selectedBands )
             quoted << QString("'%1'").arg(b);
         bandWhereClause = QString("AND c.band IN (%1)").arg(quoted.join(","));
     }
 
-    // ── My entity & optional user filter ──────────────────────────────────
     const QString myEntity  = getSelectedEntity();
     const QString userFilter = (ui->userFilterComboBox->currentIndex() > 0)
         ? "AND " + QSOFilterManager::instance()->getWhereClause(
@@ -351,10 +313,10 @@ void DXCCSubmissionDialog::refreshTable()
     if (ui->showGrantedCheckBox->isChecked())
         statusConds << "(sc.slot_granted = 1)";
 
-    if (statusConds.isEmpty())
+    if ( statusConds.isEmpty() )
     {
-        tableModel->setQuery(QString());
-        updateStatusLabel(0);
+        clearTable();
+        updateStatusLabel(0, selectedBands, scope);
         return;
     }
     const QString statusFilter = "(" + statusConds.join(" OR ") + ")";
@@ -387,7 +349,7 @@ void DXCCSubmissionDialog::refreshTable()
 
     tableModel->setQuery(sql);
 
-    if (tableModel->lastError().isValid())
+    if ( tableModel->lastError().isValid() )
         qCWarning(runtime) << "DXCC Submission query error:"
                            << tableModel->lastError().text();
 
@@ -399,24 +361,23 @@ void DXCCSubmissionDialog::refreshTable()
 
     const int count = tableModel->rowCount();
     ui->exportADIFButton->setEnabled(count > 0);
-    updateStatusLabel(count);
+    updateStatusLabel(count, selectedBands, scope);
 }
 
-// ─── Export ADIF ─────────────────────────────────────────────────────────────
 void DXCCSubmissionDialog::exportAsADIF()
 {
     FCT_IDENTIFICATION;
 
     // Collect contact IDs from hidden column 0 of the current result set
     QStringList ids;
-    for (int row = 0; row < tableModel->rowCount(); ++row)
+    for ( int row = 0; row < tableModel->rowCount(); ++row )
     {
         const QString id = tableModel->data(tableModel->index(row, 0)).toString();
-        if (!id.isEmpty())
+        if ( !id.isEmpty() )
             ids << id;
     }
 
-    if (ids.isEmpty())
+    if ( ids.isEmpty() )
     {
         QMessageBox::information(this, tr("Export ADIF"),
                                  tr("No contacts to export."));
@@ -435,18 +396,16 @@ void DXCCSubmissionDialog::exportAsADIF()
     }
 
     QList<QSqlRecord> records;
-    while (query.next())
+    while ( query.next() )
         records << query.record();
 
-    if (records.isEmpty())
+    if ( records.isEmpty() )
         return;
 
     ExportDialog dialog(records, this);
     dialog.setWindowTitle(tr("Export DXCC Submission List as ADIF"));
     dialog.exec();
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const QString DXCCSubmissionDialog::getSelectedEntity() const
 {
@@ -457,30 +416,36 @@ const QString DXCCSubmissionDialog::getSelectedEntity() const
     return ui->myEntityComboBox->model()->data(idx).toString();
 }
 
-QStringList DXCCSubmissionDialog::getSelectedBands() const
+QStringList DXCCSubmissionDialog::getSelectedBands(DXCCBandScope scope) const
 {
     FCT_IDENTIFICATION;
 
-    const DXCCBandScope scope = static_cast<DXCCBandScope>(
-        ui->bandScopeComboBox->currentData().toInt());
-
-    if (scope == DXCCBandScope::FiveBand)
+    switch (scope)
+    {
+    case DXCCBandScope::FiveBand:
         return FIVE_BAND_DXCC;
 
-    if (scope == DXCCBandScope::AllDXCCBands)
+    case DXCCBandScope::AllDXCCBands:
     {
         QStringList all;
+        all.reserve(dxccBands.size());
         for (const Band &b : dxccBands)
             all << b.name;
         return all;
     }
 
-    // Custom: return checked bands
-    QStringList selected;
-    for (const QCheckBox *cb : bandCheckBoxes)
-        if (cb->isChecked())
-            selected << cb->text();
-    return selected;
+    case DXCCBandScope::Custom:
+    {
+        QStringList selected;
+        for ( const QCheckBox *cb : static_cast<const QList<QCheckBox*>&>(bandCheckBoxes) )
+            if (cb->isChecked())
+                selected << cb->text();
+        return selected;
+    }
+
+    default:
+        return {};
+    }
 }
 
 QString DXCCSubmissionDialog::buildModeGroupFilter() const
@@ -497,7 +462,7 @@ void DXCCSubmissionDialog::selectBandPreset(const QStringList &bands)
 {
     FCT_IDENTIFICATION;
 
-    for (QCheckBox *cb : bandCheckBoxes)
+    for ( QCheckBox *cb : static_cast<const QList<QCheckBox*>&>(bandCheckBoxes) )
     {
         cb->blockSignals(true);
         cb->setChecked(bands.contains(cb->text(), Qt::CaseInsensitive));
@@ -505,39 +470,65 @@ void DXCCSubmissionDialog::selectBandPreset(const QStringList &bands)
     }
 }
 
-void DXCCSubmissionDialog::updateStatusLabel(int count)
+void DXCCSubmissionDialog::updateStatusLabel(int count, const QStringList &selectedBands, DXCCBandScope scope)
 {
     FCT_IDENTIFICATION;
 
-    const DXCCBandScope scope = static_cast<DXCCBandScope>(
-        ui->bandScopeComboBox->currentData().toInt());
-    const bool perBand = (scope != DXCCBandScope::EntityLevel);
-
+    const bool perBand = ( scope != DXCCBandScope::EntityLevel) ;
     QString modeStr;
-    if      (ui->cwRadioButton->isChecked())      modeStr = tr("CW");
-    else if (ui->phoneRadioButton->isChecked())   modeStr = tr("Phone");
-    else if (ui->digitalRadioButton->isChecked()) modeStr = tr("Digital");
-    else                                          modeStr = tr("Mixed");
+
+    if      ( ui->cwRadioButton->isChecked() )      modeStr = tr("CW");
+    else if ( ui->phoneRadioButton->isChecked() )   modeStr = tr("Phone");
+    else if ( ui->digitalRadioButton->isChecked() ) modeStr = tr("Digital");
+    else                                            modeStr = tr("Mixed");
 
     QString scopeStr;
-    switch (scope)
+
+    switch ( scope )
     {
     case DXCCBandScope::EntityLevel:  scopeStr = tr("any band");  break;
     case DXCCBandScope::FiveBand:     scopeStr = tr("5-band");    break;
     case DXCCBandScope::AllDXCCBands: scopeStr = tr("all bands"); break;
     case DXCCBandScope::Custom:
-        scopeStr = tr("%1 selected band(s)").arg(getSelectedBands().size());
+        scopeStr = tr("%1 selected band(s)").arg(selectedBands.size());
         break;
     }
 
-    if (count == 0)
+    if ( count == 0 )
         ui->statusLabel->setText(tr("No contacts match the selected criteria."));
     else
         ui->statusLabel->setText(
-            tr("%1 %2 %3 — DXCC %4 / %5")
-                .arg(count)
-                .arg(perBand ? tr("band-slot") : tr("entity"))
-                .arg(count == 1 ? tr("entry") : tr("entries"))
-                .arg(modeStr)
-                .arg(scopeStr));
+                    tr("%1 %2 %3 — DXCC %4 / %5")
+                    .arg(count)
+                    .arg(perBand ? tr("band-slot") : tr("entity"))
+                    .arg(count == 1 ? tr("entry") : tr("entries"))
+                    .arg(modeStr)
+                    .arg(scopeStr));
+}
+
+void DXCCSubmissionDialog::setBandControlsVisible(bool visible)
+{
+    FCT_IDENTIFICATION;
+
+    for (int i = 0; i < ui->bandGroup->count(); ++i)
+    {
+        QLayoutItem *item = ui->bandGroup->itemAt(i);
+        if ( QWidget *w = item->widget() )
+            w->setVisible(visible);
+    }
+    ui->bandsLabel->setVisible(visible);
+    ui->fiveBandButton->setVisible(visible);
+    ui->allBandsButton->setVisible(visible);
+}
+
+DXCCSubmissionDialog::DXCCBandScope DXCCSubmissionDialog::currentScope() const
+{
+    FCT_IDENTIFICATION;
+
+    return static_cast<DXCCBandScope>(ui->bandScopeComboBox->currentData().toInt());
+}
+
+void DXCCSubmissionDialog::clearTable()
+{
+    tableModel->setQuery(QString());
 }
