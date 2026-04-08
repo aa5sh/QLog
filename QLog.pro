@@ -190,7 +190,7 @@ SOURCES += \
         ui/LoadDatabaseDialog.cpp \
         ui/PlatformSettingsDialog.cpp \
         ui/QSLGalleryDialog.cpp \
-        ui/QslPrintLabelDialog.cpp \
+        ui/QSLPrintLabelDialog.cpp \
         ui/RigctldAdvancedDialog.cpp \
         ui/ImportDialog.cpp \
         ui/InputPasswordDialog.cpp \
@@ -382,7 +382,7 @@ HEADERS += \
         ui/LoadDatabaseDialog.h \
         ui/PlatformSettingsDialog.h \
         ui/QSLGalleryDialog.h \
-        ui/QslPrintLabelDialog.h \
+        ui/QSLPrintLabelDialog.h \
         ui/RigctldAdvancedDialog.h \
         ui/ImportDialog.h \
         ui/InputPasswordDialog.h \
@@ -451,7 +451,7 @@ FORMS += \
         ui/LoadDatabaseDialog.ui \
         ui/PlatformSettingsDialog.ui \
         ui/QSLGalleryDialog.ui \
-        ui/QslPrintLabelDialog.ui \
+        ui/QSLPrintLabelDialog.ui \
         ui/RigctldAdvancedDialog.ui \
         ui/ImportDialog.ui \
         ui/InputPasswordDialog.ui \

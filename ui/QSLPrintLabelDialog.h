@@ -9,16 +9,16 @@
 class QSqlQuery;
 
 namespace Ui {
-class QslPrintLabelDialog;
+class QSLPrintLabelDialog;
 }
 
-class QslPrintLabelDialog : public QDialog
+class QSLPrintLabelDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit QslPrintLabelDialog(QWidget *parent = nullptr);
-    ~QslPrintLabelDialog();
+    explicit QSLPrintLabelDialog(QWidget *parent = nullptr);
+    ~QSLPrintLabelDialog();
 
 private slots:
     void toggleDateRange();
@@ -38,7 +38,7 @@ private slots:
     void customTemplateFieldChanged();
 
 private:
-    Ui::QslPrintLabelDialog *ui;
+    Ui::QSLPrintLabelDialog *ui;
     LogLocale locale;
     QSLPrintLabelRenderer renderer;
     QList<QSLLabelData> labelsData;

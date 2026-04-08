@@ -1,5 +1,5 @@
-#include "ui/QslPrintLabelDialog.h"
-#include "ui_QslPrintLabelDialog.h"
+#include "ui/QSLPrintLabelDialog.h"
+#include "ui_QSLPrintLabelDialog.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -22,9 +22,9 @@
 
 MODULE_IDENTIFICATION("qlog.ui.qslprintlabeldialog");
 
-QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
+QSLPrintLabelDialog::QSLPrintLabelDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::QslPrintLabelDialog)
+    ui(new Ui::QSLPrintLabelDialog)
 {
     FCT_IDENTIFICATION;
 
@@ -98,10 +98,10 @@ QslPrintLabelDialog::QslPrintLabelDialog(QWidget *parent) :
     /* Load persisted settings and refresh data BEFORE connecting signals
      * to avoid triggering a refresh storm during initialization */
     loadSettings();
-    QTimer::singleShot(0, this, &QslPrintLabelDialog::refreshData);
+    QTimer::singleShot(0, this, &QSLPrintLabelDialog::refreshData);
 }
 
-QslPrintLabelDialog::~QslPrintLabelDialog()
+QSLPrintLabelDialog::~QSLPrintLabelDialog()
 {
     FCT_IDENTIFICATION;
 
@@ -109,7 +109,7 @@ QslPrintLabelDialog::~QslPrintLabelDialog()
     delete ui;
 }
 
-void QslPrintLabelDialog::loadSettings()
+void QSLPrintLabelDialog::loadSettings()
 {
     FCT_IDENTIFICATION;
 
@@ -182,7 +182,7 @@ void QslPrintLabelDialog::loadSettings()
     }
 }
 
-void QslPrintLabelDialog::saveSettings()
+void QSLPrintLabelDialog::saveSettings()
 {
     FCT_IDENTIFICATION;
 
@@ -221,7 +221,7 @@ void QslPrintLabelDialog::saveSettings()
     LogParam::setQslLabelCustomVSpacing(ui->vSpacingSpinBox->value());
 }
 
-void QslPrintLabelDialog::populateTemplateFields(const LabelTemplate &tmpl)
+void QSLPrintLabelDialog::populateTemplateFields(const LabelTemplate &tmpl)
 {
     FCT_IDENTIFICATION;
 
@@ -260,7 +260,7 @@ void QslPrintLabelDialog::populateTemplateFields(const LabelTemplate &tmpl)
     ui->vSpacingSpinBox->blockSignals(false);
 }
 
-void QslPrintLabelDialog::setTemplateFieldsEnabled(bool enabled)
+void QSLPrintLabelDialog::setTemplateFieldsEnabled(bool enabled)
 {
     FCT_IDENTIFICATION;
 
@@ -275,7 +275,7 @@ void QslPrintLabelDialog::setTemplateFieldsEnabled(bool enabled)
     ui->vSpacingSpinBox->setEnabled(enabled);
 }
 
-LabelTemplate QslPrintLabelDialog::buildCustomTemplate() const
+LabelTemplate QSLPrintLabelDialog::buildCustomTemplate() const
 {
     FCT_IDENTIFICATION;
 
@@ -294,7 +294,7 @@ LabelTemplate QslPrintLabelDialog::buildCustomTemplate() const
     return tmpl;
 }
 
-void QslPrintLabelDialog::populateExtraColumnCombo()
+void QSLPrintLabelDialog::populateExtraColumnCombo()
 {
     FCT_IDENTIFICATION;
 
@@ -327,7 +327,7 @@ void QslPrintLabelDialog::populateExtraColumnCombo()
         ui->extraColumnComboBox->addItem(item.first, item.second);
 }
 
-void QslPrintLabelDialog::populateQSLSentCombo()
+void QSLPrintLabelDialog::populateQSLSentCombo()
 {
     FCT_IDENTIFICATION;
     QMapIterator<QString, QString> iter(Data::instance()->qslSentEnum);
@@ -344,7 +344,7 @@ void QslPrintLabelDialog::populateQSLSentCombo()
     ui->qslSentComboBox->setCurrentIndex(value_index);
 }
 
-void QslPrintLabelDialog::toggleDateRange()
+void QSLPrintLabelDialog::toggleDateRange()
 {
     FCT_IDENTIFICATION;
 
@@ -353,7 +353,7 @@ void QslPrintLabelDialog::toggleDateRange()
     refreshData();
 }
 
-void QslPrintLabelDialog::toggleMyCallsign()
+void QSLPrintLabelDialog::toggleMyCallsign()
 {
     FCT_IDENTIFICATION;
 
@@ -363,7 +363,7 @@ void QslPrintLabelDialog::toggleMyCallsign()
     refreshData();
 }
 
-void QslPrintLabelDialog::toggleStationProfile()
+void QSLPrintLabelDialog::toggleStationProfile()
 {
     FCT_IDENTIFICATION;
 
@@ -383,7 +383,7 @@ void QslPrintLabelDialog::toggleStationProfile()
     refreshData();
 }
 
-void QslPrintLabelDialog::toggleQslSent()
+void QSLPrintLabelDialog::toggleQslSent()
 {
     FCT_IDENTIFICATION;
 
@@ -391,7 +391,7 @@ void QslPrintLabelDialog::toggleQslSent()
     refreshData();
 }
 
-void QslPrintLabelDialog::toggleUserFilter()
+void QSLPrintLabelDialog::toggleUserFilter()
 {
     FCT_IDENTIFICATION;
 
@@ -399,7 +399,7 @@ void QslPrintLabelDialog::toggleUserFilter()
     refreshData();
 }
 
-void QslPrintLabelDialog::templateChanged(int index)
+void QSLPrintLabelDialog::templateChanged(int index)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << index;
@@ -421,7 +421,7 @@ void QslPrintLabelDialog::templateChanged(int index)
     refreshData();
 }
 
-void QslPrintLabelDialog::skipChanged(int value)
+void QSLPrintLabelDialog::skipChanged(int value)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << value;
@@ -430,7 +430,7 @@ void QslPrintLabelDialog::skipChanged(int value)
     updatePreview();
 }
 
-void QslPrintLabelDialog::zoomChanged(int value)
+void QSLPrintLabelDialog::zoomChanged(int value)
 {
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << value;
@@ -439,7 +439,7 @@ void QslPrintLabelDialog::zoomChanged(int value)
     updatePreview();
 }
 
-void QslPrintLabelDialog::customTemplateFieldChanged()
+void QSLPrintLabelDialog::customTemplateFieldChanged()
 {
     FCT_IDENTIFICATION;
 
@@ -453,7 +453,7 @@ void QslPrintLabelDialog::customTemplateFieldChanged()
     refreshData();
 }
 
-QString QslPrintLabelDialog::buildWhereClause() const
+QString QSLPrintLabelDialog::buildWhereClause() const
 {
     FCT_IDENTIFICATION;
 
@@ -491,7 +491,7 @@ QString QslPrintLabelDialog::buildWhereClause() const
     return where.join(" AND ");
 }
 
-void QslPrintLabelDialog::bindWhereClause(QSqlQuery &query) const
+void QSLPrintLabelDialog::bindWhereClause(QSqlQuery &query) const
 {
     FCT_IDENTIFICATION;
 
@@ -519,7 +519,7 @@ void QslPrintLabelDialog::bindWhereClause(QSqlQuery &query) const
         query.bindValue(":qslSent", ui->qslSentComboBox->currentData().toString());
 }
 
-void QslPrintLabelDialog::buildLabels()
+void QSLPrintLabelDialog::buildLabels()
 {
     FCT_IDENTIFICATION;
 
@@ -646,7 +646,7 @@ void QslPrintLabelDialog::buildLabels()
     }
 }
 
-void QslPrintLabelDialog::refreshData()
+void QSLPrintLabelDialog::refreshData()
 {
     FCT_IDENTIFICATION;
 
@@ -668,7 +668,7 @@ void QslPrintLabelDialog::refreshData()
     updatePreview();
 }
 
-void QslPrintLabelDialog::updatePreview()
+void QSLPrintLabelDialog::updatePreview()
 {
     FCT_IDENTIFICATION;
 
@@ -755,7 +755,7 @@ void QslPrintLabelDialog::updatePreview()
     }
 }
 
-void QslPrintLabelDialog::updatePageNavigation()
+void QSLPrintLabelDialog::updatePageNavigation()
 {
     FCT_IDENTIFICATION;
 
@@ -770,7 +770,7 @@ void QslPrintLabelDialog::updatePageNavigation()
         ui->pageLabel->setText(tr("Page 0 of 0"));
 }
 
-void QslPrintLabelDialog::prevPage()
+void QSLPrintLabelDialog::prevPage()
 {
     FCT_IDENTIFICATION;
 
@@ -781,7 +781,7 @@ void QslPrintLabelDialog::prevPage()
     }
 }
 
-void QslPrintLabelDialog::nextPage()
+void QSLPrintLabelDialog::nextPage()
 {
     FCT_IDENTIFICATION;
 
@@ -793,7 +793,7 @@ void QslPrintLabelDialog::nextPage()
     }
 }
 
-void QslPrintLabelDialog::print()
+void QSLPrintLabelDialog::print()
 {
     FCT_IDENTIFICATION;
 
@@ -807,7 +807,7 @@ void QslPrintLabelDialog::print()
     }
 }
 
-void QslPrintLabelDialog::exportPdf()
+void QSLPrintLabelDialog::exportPdf()
 {
     FCT_IDENTIFICATION;
 
@@ -831,7 +831,7 @@ void QslPrintLabelDialog::exportPdf()
     askAndMarkQslSent();
 }
 
-void QslPrintLabelDialog::askAndMarkQslSent()
+void QSLPrintLabelDialog::askAndMarkQslSent()
 {
     FCT_IDENTIFICATION;
 

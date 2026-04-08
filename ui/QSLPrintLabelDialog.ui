@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QslPrintLabelDialog</class>
- <widget class="QDialog" name="QslPrintLabelDialog">
+ <class>QSLPrintLabelDialog</class>
+ <widget class="QDialog" name="QSLPrintLabelDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -46,7 +46,7 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-306</y>
+          <y>0</y>
           <width>393</width>
           <height>1300</height>
          </rect>
@@ -1184,7 +1184,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1200,7 +1200,7 @@
   <connection>
    <sender>dateRangeCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>toggleDateRange()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1216,7 +1216,7 @@
   <connection>
    <sender>myCallsignCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>toggleMyCallsign()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1232,7 +1232,7 @@
   <connection>
    <sender>stationProfileCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>toggleStationProfile()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1248,7 +1248,7 @@
   <connection>
    <sender>qslSentCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>toggleQslSent()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1264,7 +1264,7 @@
   <connection>
    <sender>userFilterCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>toggleUserFilter()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1280,7 +1280,7 @@
   <connection>
    <sender>startDateEdit</sender>
    <signal>dateChanged(QDate)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1296,7 +1296,7 @@
   <connection>
    <sender>endDateEdit</sender>
    <signal>dateChanged(QDate)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1312,7 +1312,7 @@
   <connection>
    <sender>myCallsignComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1328,7 +1328,7 @@
   <connection>
    <sender>stationProfileComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1344,7 +1344,7 @@
   <connection>
    <sender>qslSentComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1360,7 +1360,7 @@
   <connection>
    <sender>userFilterComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1376,7 +1376,7 @@
   <connection>
    <sender>templateComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>templateChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1392,7 +1392,7 @@
   <connection>
    <sender>skipSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>skipChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1408,7 +1408,7 @@
   <connection>
    <sender>footerLeftEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1424,7 +1424,7 @@
   <connection>
    <sender>footerRightEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1440,7 +1440,7 @@
   <connection>
    <sender>prevPageButton</sender>
    <signal>clicked()</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>prevPage()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1456,7 +1456,7 @@
   <connection>
    <sender>nextPageButton</sender>
    <signal>clicked()</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>nextPage()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1472,7 +1472,7 @@
   <connection>
    <sender>printButton</sender>
    <signal>clicked()</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>print()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1488,7 +1488,7 @@
   <connection>
    <sender>exportPdfButton</sender>
    <signal>clicked()</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>exportPdf()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1504,7 +1504,7 @@
   <connection>
    <sender>zoomSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>zoomChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1520,7 +1520,7 @@
   <connection>
    <sender>printBordersCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1536,7 +1536,7 @@
   <connection>
    <sender>dateFormatEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1552,7 +1552,7 @@
   <connection>
    <sender>columnHeaderEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1568,7 +1568,7 @@
   <connection>
    <sender>toRadioTextEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1584,7 +1584,7 @@
   <connection>
    <sender>hdrDateEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1600,7 +1600,7 @@
   <connection>
    <sender>hdrTimeEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1616,7 +1616,7 @@
   <connection>
    <sender>hdrBandEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1632,7 +1632,7 @@
   <connection>
    <sender>hdrModeEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1648,7 +1648,7 @@
   <connection>
    <sender>hdrQslEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1664,7 +1664,7 @@
   <connection>
    <sender>maxRowsSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1680,7 +1680,7 @@
   <connection>
    <sender>extraColumnComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>refreshData()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1696,7 +1696,7 @@
   <connection>
    <sender>sansFontComboBox</sender>
    <signal>currentFontChanged(QFont)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1712,7 +1712,7 @@
   <connection>
    <sender>monoFontComboBox</sender>
    <signal>currentFontChanged(QFont)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1728,7 +1728,7 @@
   <connection>
    <sender>toRadioSizeSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1744,7 +1744,7 @@
   <connection>
    <sender>callsignSizeSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1760,7 +1760,7 @@
   <connection>
    <sender>headerSizeSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1776,7 +1776,7 @@
   <connection>
    <sender>dataSizeSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>updatePreview()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1792,7 +1792,7 @@
   <connection>
    <sender>pageSizeComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1808,7 +1808,7 @@
   <connection>
    <sender>colsSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1824,7 +1824,7 @@
   <connection>
    <sender>rowsSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1840,7 +1840,7 @@
   <connection>
    <sender>labelWidthSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1856,7 +1856,7 @@
   <connection>
    <sender>labelHeightSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1872,7 +1872,7 @@
   <connection>
    <sender>leftMarginSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1888,7 +1888,7 @@
   <connection>
    <sender>topMarginSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1904,7 +1904,7 @@
   <connection>
    <sender>hSpacingSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1920,7 +1920,7 @@
   <connection>
    <sender>vSpacingSpinBox</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>QslPrintLabelDialog</receiver>
+   <receiver>QSLPrintLabelDialog</receiver>
    <slot>customTemplateFieldChanged()</slot>
    <hints>
     <hint type="sourcelabel">

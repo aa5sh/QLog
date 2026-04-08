@@ -46,7 +46,7 @@
 #include "ui/LoadDatabaseDialog.h"
 #include "ui/PlatformSettingsDialog.h"
 #include "ui/QSLGalleryDialog.h"
-#include "ui/QslPrintLabelDialog.h"
+#include "ui/QSLPrintLabelDialog.h"
 #include <QFileDialog>
 #include <QProcess>
 #include <QThread>
@@ -1117,7 +1117,7 @@ void MainWindow::printQslLabels()
 {
     FCT_IDENTIFICATION;
 
-    QslPrintLabelDialog dialog(this);
+    QSLPrintLabelDialog dialog(this);
     dialog.exec();
 }
 
