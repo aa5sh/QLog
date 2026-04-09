@@ -30,6 +30,11 @@ QSLPrintLabelDialog::QSLPrintLabelDialog(QWidget *parent) :
 
     ui->setupUi(this);
 
+    const QList<QWidget*> widgets = findChildren<QWidget*>();
+
+    for ( QWidget *w : widgets )
+        w->blockSignals(true);
+
     /* Sections start collapsed via maxHeight=0 instead of setVisible(false)
      * so that their width still contributes to the scroll area's sizeHint */
     ui->templateSectionContent->setMaximumHeight(0);
@@ -98,6 +103,10 @@ QSLPrintLabelDialog::QSLPrintLabelDialog(QWidget *parent) :
     /* Load persisted settings and refresh data BEFORE connecting signals
      * to avoid triggering a refresh storm during initialization */
     loadSettings();
+
+    for ( QWidget *w : widgets )
+        w->blockSignals(false);
+
     QTimer::singleShot(0, this, &QSLPrintLabelDialog::refreshData);
 }
 
