@@ -1439,13 +1439,16 @@
        <item>
         <widget class="DxccTableWidget" name="dxccTableWidget">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -1501,7 +1504,7 @@
        <item>
         <widget class="DxccTableWidget" name="stationTableWidget">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>

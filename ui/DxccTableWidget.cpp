@@ -29,7 +29,7 @@ void DxccTableWidget::clear()
 
     dxccTableModel->clear();
     dxccTableModel->setQuery(QString());
-    show();
+    setHidden(true);
 }
 
 void DxccTableWidget::updateDxTable(const QString &condition,
