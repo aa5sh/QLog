@@ -85,6 +85,7 @@ public slots:
     void focusSearchCallsign();
     void reloadSetting();
     void sendDXCSpot();
+    void sendEmailQSL();
     void setDefaultSort();
     void actionCallbookLookup();
     void callsignFound(const CallbookResponseData &data);
@@ -127,6 +128,7 @@ private:
     void updateQSORecordFromCallbook(const CallbookResponseData &data);
     void queryNextQSOLookupBatch();
     void finishQSOLookupBatch();
+    void showNextEmailQSLDialog(QList<QSqlRecord> *queue);
     void clearSearchText();
     void setupSearchMenu();
     QModelIndexList callbookLookupBatch;

@@ -135,6 +135,7 @@ SOURCES += \
         service/GenericCallbook.cpp \
         service/GenericQSLDownloader.cpp \
         service/GenericQSOUploader.cpp \
+        service/emailqsl/EmailQSLService.cpp \
         service/cloudlog/Cloudlog.cpp \
         service/clublog/ClubLog.cpp \
         service/eqsl/Eqsl.cpp \
@@ -177,6 +178,8 @@ SOURCES += \
         ui/ModeSelectionController.cpp \
         ui/NewContactWidget.cpp \
         ui/OnlineMapWidget.cpp \
+        ui/EmailQSLDialog.cpp \
+        ui/EmailQSLSettingsWidget.cpp \
         ui/PaperQSLDialog.cpp \
         ui/ProfileImageWidget.cpp \
         ui/QSLImportStatDialog.cpp \
@@ -194,6 +197,7 @@ SOURCES += \
         ui/WsjtxFilterDialog.cpp \
         ui/WsjtxWidget.cpp \
         ui/component/BaseDoubleSpinBox.cpp \
+        ui/component/CardEditorWidget.cpp \
         ui/component/EditLine.cpp \
         ui/component/FreqQSpinBox.cpp \
         ui/component/MultiselectCompleter.cpp \
@@ -299,6 +303,7 @@ HEADERS += \
         service/GenericCallbook.h \
         service/GenericQSLDownloader.h \
         service/GenericQSOUploader.h \
+        service/emailqsl/EmailQSLService.h \
         service/cloudlog/Cloudlog.h \
         service/clublog/ClubLog.h \
         service/eqsl/Eqsl.h \
@@ -320,6 +325,8 @@ HEADERS += \
         ui/ColumnSettingDialog.h \
         ui/DownloadQSLDialog.h \
         ui/DxFilterDialog.h \
+        ui/EmailQSLDialog.h \
+        ui/EmailQSLSettingsWidget.h \
         ui/DxWidget.h \
         ui/DxccTableWidget.h \
         ui/EditActivitiesDialog.h \
@@ -362,6 +369,7 @@ HEADERS += \
         i18n/datastrings.tri \
         ui/component/BaseDoubleSpinBox.h \
         ui/component/ButtonStyle.h \
+        ui/component/CardEditorWidget.h \
         ui/component/EditLine.h \
         ui/component/FreqQSpinBox.h \
         ui/component/MultiselectCompleter.h \
@@ -385,6 +393,8 @@ FORMS += \
         ui/ColumnSettingSimpleDialog.ui \
         ui/DownloadQSLDialog.ui \
         ui/DxFilterDialog.ui \
+        ui/EmailQSLDialog.ui \
+        ui/EmailQSLSettingsWidget.ui \
         ui/DxWidget.ui \
         ui/EditActivitiesDialog.ui \
         ui/ExportDialog.ui \

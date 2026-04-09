@@ -40,6 +40,7 @@
 #include "service/cloudlog/Cloudlog.h"
 #include "ui/RigctldAdvancedDialog.h"
 #include "cwkey/drivers/CWWinKey.h"
+#include "ui/EmailQSLSettingsWidget.h"
 
 #define STACKED_WIDGET_SERIAL_SETTING  0
 #define STACKED_WIDGET_NETWORK_SETTING 1
@@ -2638,6 +2639,11 @@ void SettingsDialog::readSettings()
     ui->unitFormatMetricRadioButton->setChecked(unitFormatMetric);
     ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
 
+    /***************/
+    /* Email QSL   */
+    /***************/
+    ui->emailQSLSettingsWidget->readSettings();
+
     /******************/
     /* END OF Reading */
     /******************/
@@ -2764,6 +2770,11 @@ void SettingsDialog::writeSettings()
         locale.setSettingDateFormat(ui->dateFormatStringEdit->text());
 
     locale.setSettingUseMetric(ui->unitFormatMetricRadioButton->isChecked());
+
+    /***************/
+    /* Email QSL   */
+    /***************/
+    ui->emailQSLSettingsWidget->writeSettings();
 }
 
 /* this function is called when user modify rig progile
