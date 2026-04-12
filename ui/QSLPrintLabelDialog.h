@@ -60,9 +60,6 @@ private:
     LabelTemplate buildCustomTemplate() const;
     void populateExtraColumnCombo();
     void populateQSLSentCombo();
-    void populatePrinterCombo();
-    void updatePrintButtonStatus();
-    void setEnablePrinterSelection(bool enabled);
 };
 
 #endif // QLOG_UI_QSLPRINTLABELDIALOG_H
