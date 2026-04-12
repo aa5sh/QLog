@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>971</width>
-    <height>416</height>
+    <height>425</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1481,10 +1481,10 @@
           <bool>false</bool>
          </attribute>
          <attribute name="verticalHeaderMinimumSectionSize">
-          <number>21</number>
+          <number>23</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
-          <number>21</number>
+          <number>23</number>
          </attribute>
         </widget>
        </item>
@@ -1531,10 +1531,10 @@
           <number>45</number>
          </attribute>
          <attribute name="verticalHeaderMinimumSectionSize">
-          <number>21</number>
+          <number>23</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
-          <number>21</number>
+          <number>23</number>
          </attribute>
         </widget>
        </item>
