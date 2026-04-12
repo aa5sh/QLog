@@ -9,6 +9,7 @@
 #include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QPrinterInfo>
 #include <QSettings>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -103,6 +104,20 @@ QSLPrintLabelDialog::QSLPrintLabelDialog(QWidget *parent) :
     /* Load persisted settings and refresh data BEFORE connecting signals
      * to avoid triggering a refresh storm during initialization */
     loadSettings();
+    populatePrinterCombo();
+
+    /*
+     * Due to an application crash issue, a workaround for macOS
+     * has been implemented here. The issue was that launching QPrintDialog
+     * caused the application to crash on macOS. This problem is observed
+     * only on macOS; on other operating systems, this workaround is not present
+     * and the native QPrintDialog is used.
+     * The workaround adds the option to select a printer directly within the dialog,
+     * thereby avoiding the need to invoke QPrintDialog. See more details #993.
+     */
+#ifndef Q_OS_MAC
+    setEnablePrinterSelection(false);
+#endif
 
     for ( QWidget *w : widgets )
         w->blockSignals(false);
@@ -351,6 +366,51 @@ void QSLPrintLabelDialog::populateQSLSentCombo()
         iter_index++;
     }
     ui->qslSentComboBox->setCurrentIndex(value_index);
+}
+
+void QSLPrintLabelDialog::populatePrinterCombo()
+{
+    FCT_IDENTIFICATION;
+
+    // More details #993
+#ifdef Q_OS_MAC
+    const QList<QPrinterInfo> printers = QPrinterInfo::availablePrinters();
+    const QString defaultName = QPrinterInfo::defaultPrinter().printerName();
+    int defaultIdx = 0;
+
+    updatePrintButtonStatus();
+
+    for ( int i = 0; i < printers.size(); ++i )
+    {
+        ui->printerCombo->addItem(printers.at(i).printerName());
+        if ( printers.at(i).printerName() == defaultName )
+            defaultIdx = i;
+    }
+
+    ui->printerCombo->setCurrentIndex(defaultIdx);
+#endif
+    return;
+}
+
+void QSLPrintLabelDialog::updatePrintButtonStatus()
+{
+    FCT_IDENTIFICATION;
+
+
+    ui->printButton->setEnabled(renderer.labelCount() > 0
+// More details #993
+#ifdef Q_OS_MAC
+                                && ui->printerCombo->count() > 0
+#endif
+                                );
+}
+
+void QSLPrintLabelDialog::setEnablePrinterSelection(bool enabled)
+{
+    FCT_IDENTIFICATION;
+
+    ui->printerLabel->setVisible(enabled);
+    ui->printerCombo->setVisible(enabled);
 }
 
 void QSLPrintLabelDialog::toggleDateRange()
@@ -736,7 +796,7 @@ void QSLPrintLabelDialog::updatePreview()
     int totalLabels = renderer.labelCount();
 
     bool hasLabels = ( totalLabels > 0 );
-    ui->printButton->setEnabled(hasLabels);
+    updatePrintButtonStatus();
     ui->exportPdfButton->setEnabled(hasLabels);
 
     ui->statusLabel->setText(tr("Labels: %1 (%2 pages)")
@@ -814,14 +874,29 @@ void QSLPrintLabelDialog::print()
 {
     FCT_IDENTIFICATION;
 
-    QPrinter printer(QPrinter::HighResolution);
-    QPrintDialog printDialog(&printer, this);
+    QPrinter *printer = new QPrinter(QPrinter::HighResolution);
+// More details #993
+#ifdef Q_OS_MAC
+    const QString chosenName = ui->printerCombo->currentText();
+
+    printer->setPrinterName(chosenName);
+
+    QTimer::singleShot(100, this, [this, printer]()
+    {
+        renderer.printAll(printer);
+        askAndMarkQslSent();
+        delete printer;
+    });
+#else
+    QPrintDialog printDialog(printer, this);
 
     if ( printDialog.exec() == QDialog::Accepted )
     {
-        renderer.printAll(&printer);
+        renderer.printAll(printer);
         askAndMarkQslSent();
     }
+    delete printer;
+#endif
 }
 
 void QSLPrintLabelDialog::exportPdf()
