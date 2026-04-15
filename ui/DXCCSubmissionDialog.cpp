@@ -328,7 +328,7 @@ void DXCCSubmissionDialog::refreshTable()
         "WITH " + slotCreditsCTE + ", " + rankedCTE +
         "SELECT "
         "  bc.id, "                                                                        // col 0 (hidden)
-        "  e.name  AS '" + tr("Entity")    + "', "                                        // col 1
+        "  translate_to_locale(e.name)  AS '" + tr("Entity")    + "', "                   // col 1
         "  e.prefix AS '" + tr("Prefix")   + "', "                                        // col 2
         "  bc.callsign AS '" + tr("Callsign") + "', "                                     // col 3
         "  bc.band  AS '" + tr("Band")     + "', "                                        // col 4
