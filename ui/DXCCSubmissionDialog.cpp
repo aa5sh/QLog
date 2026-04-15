@@ -11,6 +11,7 @@
 #include "core/QSOFilterManager.h"
 #include "data/BandPlan.h"
 #include "ui/ExportDialog.h"
+#include "ui/component/StyleItemDelegate.h"
 
 MODULE_IDENTIFICATION("qlog.ui.dxccsubmissiondialog");
 
@@ -114,6 +115,7 @@ DXCCSubmissionDialog::DXCCSubmissionDialog(QWidget *parent)
 
     ui->exportADIFButton->setEnabled(false);  // enabled once table has results
 
+    ui->submissionTableView->setItemDelegateForColumn(6, new DateFormatDelegate(ui->submissionTableView));
     refreshTable();
 }
 
