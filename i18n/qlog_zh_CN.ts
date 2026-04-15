@@ -2148,1701 +2148,1716 @@
     <name>DBStrings</name>
     <message>
         <location filename="dbstrings.tri" line="1"/>
+        <source>PHONE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="dbstrings.tri" line="2"/>
+        <source>CW</source>
+        <translation type="unfinished">CW</translation>
+    </message>
+    <message>
+        <location filename="dbstrings.tri" line="3"/>
+        <source>DIGITAL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="dbstrings.tri" line="4"/>
         <source>Afghanistan</source>
         <translation>阿富汗</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="2"/>
+        <location filename="dbstrings.tri" line="5"/>
         <source>Agalega &amp; St. Brandon</source>
         <translation>阿加莱加 &amp; 圣布兰登群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="3"/>
+        <location filename="dbstrings.tri" line="6"/>
         <source>Aland Islands</source>
         <translation>奥兰群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="4"/>
+        <location filename="dbstrings.tri" line="7"/>
         <source>Alaska</source>
         <translation>阿拉斯加</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="5"/>
+        <location filename="dbstrings.tri" line="8"/>
         <source>Albania</source>
         <translation>阿尔巴尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="6"/>
+        <location filename="dbstrings.tri" line="9"/>
         <source>Algeria</source>
         <translation>阿尔及利亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="7"/>
+        <location filename="dbstrings.tri" line="10"/>
         <source>American Samoa</source>
         <translation>美属萨摩亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="8"/>
+        <location filename="dbstrings.tri" line="11"/>
         <source>Amsterdam &amp; St. Paul Is.</source>
         <translation>阿姆斯特丹 &amp; 圣保罗群岛.</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="9"/>
+        <location filename="dbstrings.tri" line="12"/>
         <source>Andaman &amp; Nicobar Is.</source>
         <translation>安达曼 &amp; 尼科巴群岛.</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="10"/>
+        <location filename="dbstrings.tri" line="13"/>
         <source>Andorra</source>
         <translation>安道尔</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="11"/>
+        <location filename="dbstrings.tri" line="14"/>
         <source>Angola</source>
         <translation>安哥拉</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="12"/>
+        <location filename="dbstrings.tri" line="15"/>
         <source>Anguilla</source>
         <translation>安圭拉岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="13"/>
+        <location filename="dbstrings.tri" line="16"/>
         <source>Annobon Island</source>
         <translation>安诺本岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="14"/>
+        <location filename="dbstrings.tri" line="17"/>
         <source>Antarctica</source>
         <translation>南极洲</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="15"/>
+        <location filename="dbstrings.tri" line="18"/>
         <source>Antigua &amp; Barbuda</source>
         <translation>安提瓜和巴布达</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="16"/>
+        <location filename="dbstrings.tri" line="19"/>
         <source>Argentina</source>
         <translation>阿根廷</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="17"/>
+        <location filename="dbstrings.tri" line="20"/>
         <source>Armenia</source>
         <translation>亚美尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="18"/>
+        <location filename="dbstrings.tri" line="21"/>
         <source>Aruba</source>
         <translation>阿鲁巴</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="19"/>
+        <location filename="dbstrings.tri" line="22"/>
         <source>Ascension Island</source>
         <translation>阿森松岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="20"/>
+        <location filename="dbstrings.tri" line="23"/>
         <source>Asiatic Russia</source>
         <translation>亚洲俄罗斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="21"/>
+        <location filename="dbstrings.tri" line="24"/>
         <source>Asiatic Turkey</source>
         <translation>亚洲土耳其</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="22"/>
+        <location filename="dbstrings.tri" line="25"/>
         <source>Austral Islands</source>
         <translation>南岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="23"/>
+        <location filename="dbstrings.tri" line="26"/>
         <source>Australia</source>
         <translation>澳大利亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="24"/>
+        <location filename="dbstrings.tri" line="27"/>
         <source>Austria</source>
         <translation>奥地利</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="25"/>
+        <location filename="dbstrings.tri" line="28"/>
         <source>Aves Island</source>
         <translation>阿韦斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="26"/>
+        <location filename="dbstrings.tri" line="29"/>
         <source>Azerbaijan</source>
         <translation>阿塞拜疆</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="27"/>
+        <location filename="dbstrings.tri" line="30"/>
         <source>Azores</source>
         <translation>亚速尔群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="28"/>
+        <location filename="dbstrings.tri" line="31"/>
         <source>Bahamas</source>
         <translation>巴哈马群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="29"/>
+        <location filename="dbstrings.tri" line="32"/>
         <source>Bahrain</source>
         <translation>巴林</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="30"/>
+        <location filename="dbstrings.tri" line="33"/>
         <source>Baker &amp; Howland Islands</source>
         <translation>豪兰和贝克群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="31"/>
+        <location filename="dbstrings.tri" line="34"/>
         <source>Balearic Islands</source>
         <translation>巴利阿里群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="32"/>
+        <location filename="dbstrings.tri" line="35"/>
         <source>Banaba Island</source>
         <translation>巴纳巴岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="33"/>
+        <location filename="dbstrings.tri" line="36"/>
         <source>Bangladesh</source>
         <translation>孟加拉</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="34"/>
+        <location filename="dbstrings.tri" line="37"/>
         <source>Barbados</source>
         <translation>巴巴多斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="35"/>
+        <location filename="dbstrings.tri" line="38"/>
         <source>Belarus</source>
         <translation>白俄罗斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="36"/>
+        <location filename="dbstrings.tri" line="39"/>
         <source>Belgium</source>
         <translation>比利时</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="37"/>
+        <location filename="dbstrings.tri" line="40"/>
         <source>Belize</source>
         <translation>伯利兹</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="38"/>
+        <location filename="dbstrings.tri" line="41"/>
         <source>Benin</source>
         <translation>贝宁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="39"/>
+        <location filename="dbstrings.tri" line="42"/>
         <source>Bermuda</source>
         <translation>百慕大群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="40"/>
+        <location filename="dbstrings.tri" line="43"/>
         <source>Bhutan</source>
         <translation>不丹</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="41"/>
+        <location filename="dbstrings.tri" line="44"/>
         <source>Bolivia</source>
         <translation>玻利维亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="42"/>
+        <location filename="dbstrings.tri" line="45"/>
         <source>Bonaire</source>
         <translation>博奈尔岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="43"/>
+        <location filename="dbstrings.tri" line="46"/>
         <source>Bosnia-Herzegovina</source>
         <translation>波斯尼亚和黑塞哥维那</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="44"/>
+        <location filename="dbstrings.tri" line="47"/>
         <source>Botswana</source>
         <translation>博茨瓦纳</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="45"/>
+        <location filename="dbstrings.tri" line="48"/>
         <source>Bouvet</source>
         <translation>布韦特</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="46"/>
+        <location filename="dbstrings.tri" line="49"/>
         <source>Brazil</source>
         <translation>巴西</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="47"/>
+        <location filename="dbstrings.tri" line="50"/>
         <source>British Virgin Islands</source>
         <translation>英属维京群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="48"/>
+        <location filename="dbstrings.tri" line="51"/>
         <source>Brunei Darussalam</source>
         <translation>文莱达鲁萨兰国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="49"/>
+        <location filename="dbstrings.tri" line="52"/>
         <source>Bulgaria</source>
         <translation>保加利亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="50"/>
+        <location filename="dbstrings.tri" line="53"/>
         <source>Burkina Faso</source>
         <translation>布基纳法索</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="51"/>
+        <location filename="dbstrings.tri" line="54"/>
         <source>Burundi</source>
         <translation>布隆迪</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="52"/>
+        <location filename="dbstrings.tri" line="55"/>
         <source>Cambodia</source>
         <translation>柬埔寨</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="53"/>
+        <location filename="dbstrings.tri" line="56"/>
         <source>Cameroon</source>
         <translation>喀麦隆</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="54"/>
+        <location filename="dbstrings.tri" line="57"/>
         <source>Canada</source>
         <translation>加拿大</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="55"/>
+        <location filename="dbstrings.tri" line="58"/>
         <source>Canary Islands</source>
         <translation>加纳利群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="56"/>
+        <location filename="dbstrings.tri" line="59"/>
         <source>Cape Verde</source>
         <translation>佛得角</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="57"/>
+        <location filename="dbstrings.tri" line="60"/>
         <source>Cayman Islands</source>
         <translation>开曼群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="58"/>
+        <location filename="dbstrings.tri" line="61"/>
         <source>Central African Republic</source>
         <translation>中非共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="59"/>
+        <location filename="dbstrings.tri" line="62"/>
         <source>Central Kiribati</source>
         <translation>中基里巴斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="60"/>
+        <location filename="dbstrings.tri" line="63"/>
         <source>Ceuta &amp; Melilla</source>
         <translation>休达 - 梅利利亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="61"/>
+        <location filename="dbstrings.tri" line="64"/>
         <source>Chad</source>
         <translation>乍得</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="62"/>
+        <location filename="dbstrings.tri" line="65"/>
         <source>Chagos Islands</source>
         <translation>查戈斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="63"/>
+        <location filename="dbstrings.tri" line="66"/>
         <source>Chatham Islands</source>
         <translation>查塔姆群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="64"/>
+        <location filename="dbstrings.tri" line="67"/>
         <source>Chesterfield Islands</source>
         <translation>切斯特菲尔德群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="65"/>
+        <location filename="dbstrings.tri" line="68"/>
         <source>Chile</source>
         <translation>智利</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="66"/>
+        <location filename="dbstrings.tri" line="69"/>
         <source>China</source>
         <translation>中国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="67"/>
+        <location filename="dbstrings.tri" line="70"/>
         <source>Christmas Island</source>
         <translation>圣诞岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="68"/>
+        <location filename="dbstrings.tri" line="71"/>
         <source>Clipperton Island</source>
         <translation>克利珀顿岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="69"/>
+        <location filename="dbstrings.tri" line="72"/>
         <source>Cocos (Keeling) Islands</source>
         <translation>科科斯 (基林) 群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="70"/>
+        <location filename="dbstrings.tri" line="73"/>
         <source>Cocos Island</source>
         <translation>科科斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="71"/>
+        <location filename="dbstrings.tri" line="74"/>
         <source>Colombia</source>
         <translation>哥伦比亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="72"/>
+        <location filename="dbstrings.tri" line="75"/>
         <source>Comoros</source>
         <translation>科摩罗</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="73"/>
+        <location filename="dbstrings.tri" line="76"/>
         <source>Conway Reef</source>
         <translation>康韦礁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="74"/>
+        <location filename="dbstrings.tri" line="77"/>
         <source>Corsica</source>
         <translation>科西嘉岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="75"/>
+        <location filename="dbstrings.tri" line="78"/>
         <source>Costa Rica</source>
         <translation>哥斯达黎加</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="76"/>
+        <location filename="dbstrings.tri" line="79"/>
         <source>Cote d&apos;Ivoire</source>
         <translation>科特迪瓦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="77"/>
+        <location filename="dbstrings.tri" line="80"/>
         <source>Crete</source>
         <translation>克里特岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="78"/>
+        <location filename="dbstrings.tri" line="81"/>
         <source>Croatia</source>
         <translation>克罗地亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="79"/>
+        <location filename="dbstrings.tri" line="82"/>
         <source>Crozet Island</source>
         <translation>克罗泽岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="80"/>
+        <location filename="dbstrings.tri" line="83"/>
         <source>Cuba</source>
         <translation>古巴</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="81"/>
+        <location filename="dbstrings.tri" line="84"/>
         <source>Curacao</source>
         <translation>库拉索岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="82"/>
+        <location filename="dbstrings.tri" line="85"/>
         <source>Cyprus</source>
         <translation>塞浦路斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="83"/>
+        <location filename="dbstrings.tri" line="86"/>
         <source>Czech Republic</source>
         <translation>捷克共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="84"/>
+        <location filename="dbstrings.tri" line="87"/>
         <source>DPR of Korea</source>
         <translation>朝鲜</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="85"/>
+        <location filename="dbstrings.tri" line="88"/>
         <source>Dem. Rep. of the Congo</source>
         <translation>刚果民主共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="86"/>
+        <location filename="dbstrings.tri" line="89"/>
         <source>Denmark</source>
         <translation>丹麦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="87"/>
+        <location filename="dbstrings.tri" line="90"/>
         <source>Desecheo Island</source>
         <translation>德塞切奥岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="88"/>
+        <location filename="dbstrings.tri" line="91"/>
         <source>Djibouti</source>
         <translation>吉布提</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="89"/>
+        <location filename="dbstrings.tri" line="92"/>
         <source>Dodecanese</source>
         <translation>多德卡尼斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="90"/>
+        <location filename="dbstrings.tri" line="93"/>
         <source>Dominica</source>
         <translation>多米尼克</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="91"/>
+        <location filename="dbstrings.tri" line="94"/>
         <source>Dominican Republic</source>
         <translation>多米尼加共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="92"/>
+        <location filename="dbstrings.tri" line="95"/>
         <source>Ducie Island</source>
         <translation>迪西岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="93"/>
+        <location filename="dbstrings.tri" line="96"/>
         <source>East Malaysia</source>
         <translation>东马来西亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="94"/>
+        <location filename="dbstrings.tri" line="97"/>
         <source>Easter Island</source>
         <translation>复活节岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="95"/>
+        <location filename="dbstrings.tri" line="98"/>
         <source>Eastern Kiribati</source>
         <translation>东基里巴斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="96"/>
+        <location filename="dbstrings.tri" line="99"/>
         <source>Ecuador</source>
         <translation>厄瓜多尔</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="97"/>
+        <location filename="dbstrings.tri" line="100"/>
         <source>Egypt</source>
         <translation>埃及</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="98"/>
+        <location filename="dbstrings.tri" line="101"/>
         <source>El Salvador</source>
         <translation>萨尔瓦多</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="99"/>
+        <location filename="dbstrings.tri" line="102"/>
         <source>England</source>
         <translation>英格兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="100"/>
+        <location filename="dbstrings.tri" line="103"/>
         <source>Equatorial Guinea</source>
         <translation>赤道几内亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="101"/>
+        <location filename="dbstrings.tri" line="104"/>
         <source>Eritrea</source>
         <translation>厄立特里亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="102"/>
+        <location filename="dbstrings.tri" line="105"/>
         <source>Estonia</source>
         <translation>爱沙尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="103"/>
+        <location filename="dbstrings.tri" line="106"/>
         <source>Ethiopia</source>
         <translation>埃塞俄比亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="104"/>
+        <location filename="dbstrings.tri" line="107"/>
         <source>European Russia</source>
         <translation>欧洲俄罗斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="105"/>
+        <location filename="dbstrings.tri" line="108"/>
         <source>Falkland Islands</source>
         <translation>福克兰群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="106"/>
+        <location filename="dbstrings.tri" line="109"/>
         <source>Faroe Islands</source>
         <translation>法罗群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="107"/>
+        <location filename="dbstrings.tri" line="110"/>
         <source>Fed. Rep. of Germany</source>
         <translation>德国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="108"/>
+        <location filename="dbstrings.tri" line="111"/>
         <source>Fernando de Noronha</source>
         <translation>费尔南多·迪诺罗尼亚群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="109"/>
+        <location filename="dbstrings.tri" line="112"/>
         <source>Fiji</source>
         <translation>斐济</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="110"/>
+        <location filename="dbstrings.tri" line="113"/>
         <source>Finland</source>
         <translation>芬兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="111"/>
+        <location filename="dbstrings.tri" line="114"/>
         <source>France</source>
         <translation>法国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="112"/>
+        <location filename="dbstrings.tri" line="115"/>
         <source>Franz Josef Land</source>
         <translation>法兰士约瑟夫地群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="113"/>
+        <location filename="dbstrings.tri" line="116"/>
         <source>French Guiana</source>
         <translation>法属圭亚那</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="114"/>
+        <location filename="dbstrings.tri" line="117"/>
         <source>French Polynesia</source>
         <translation>法属波利尼西亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="115"/>
+        <location filename="dbstrings.tri" line="118"/>
         <source>Gabon</source>
         <translation>加蓬</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="116"/>
+        <location filename="dbstrings.tri" line="119"/>
         <source>Galapagos Islands</source>
         <translation>加拉帕戈斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="117"/>
+        <location filename="dbstrings.tri" line="120"/>
         <source>Georgia</source>
         <translation>格鲁吉亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="118"/>
+        <location filename="dbstrings.tri" line="121"/>
         <source>Ghana</source>
         <translation>加纳</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="119"/>
+        <location filename="dbstrings.tri" line="122"/>
         <source>Gibraltar</source>
         <translation>直布罗陀</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="120"/>
+        <location filename="dbstrings.tri" line="123"/>
         <source>Glorioso Islands</source>
         <translation>格洛里厄斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="121"/>
+        <location filename="dbstrings.tri" line="124"/>
         <source>Greece</source>
         <translation>希腊</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="122"/>
+        <location filename="dbstrings.tri" line="125"/>
         <source>Greenland</source>
         <translation>格陵兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="123"/>
+        <location filename="dbstrings.tri" line="126"/>
         <source>Grenada</source>
         <translation>格林纳达</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="124"/>
+        <location filename="dbstrings.tri" line="127"/>
         <source>Guadeloupe</source>
         <translation>瓜德罗普岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="125"/>
+        <location filename="dbstrings.tri" line="128"/>
         <source>Guam</source>
         <translation>关岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="126"/>
+        <location filename="dbstrings.tri" line="129"/>
         <source>Guantanamo Bay</source>
         <translation>关塔那摩湾</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="127"/>
+        <location filename="dbstrings.tri" line="130"/>
         <source>Guatemala</source>
         <translation>危地马拉</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="128"/>
+        <location filename="dbstrings.tri" line="131"/>
         <source>Guernsey</source>
         <translation>根西岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="129"/>
+        <location filename="dbstrings.tri" line="132"/>
         <source>Guinea</source>
         <translation>几内亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="130"/>
+        <location filename="dbstrings.tri" line="133"/>
         <source>Guinea-Bissau</source>
         <translation>几内亚比绍</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="131"/>
+        <location filename="dbstrings.tri" line="134"/>
         <source>Guyana</source>
         <translation>圭亚那</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="132"/>
+        <location filename="dbstrings.tri" line="135"/>
         <source>Haiti</source>
         <translation>海地</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="133"/>
+        <location filename="dbstrings.tri" line="136"/>
         <source>Hawaii</source>
         <translation>夏威夷</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="134"/>
+        <location filename="dbstrings.tri" line="137"/>
         <source>Heard Island</source>
         <translation>赫德岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="135"/>
+        <location filename="dbstrings.tri" line="138"/>
         <source>Honduras</source>
         <translation>洪都拉斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="136"/>
+        <location filename="dbstrings.tri" line="139"/>
         <source>Hong Kong</source>
         <translation>中国香港</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="137"/>
+        <location filename="dbstrings.tri" line="140"/>
         <source>Hungary</source>
         <translation>匈牙利</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="138"/>
+        <location filename="dbstrings.tri" line="141"/>
         <source>ITU HQ</source>
         <translation>ITU HQ</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="139"/>
+        <location filename="dbstrings.tri" line="142"/>
         <source>Iceland</source>
         <translation>冰岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="140"/>
+        <location filename="dbstrings.tri" line="143"/>
         <source>India</source>
         <translation>印度</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="141"/>
+        <location filename="dbstrings.tri" line="144"/>
         <source>Indonesia</source>
         <translation>印度尼西亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="142"/>
+        <location filename="dbstrings.tri" line="145"/>
         <source>Iran</source>
         <translation>伊朗</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="143"/>
+        <location filename="dbstrings.tri" line="146"/>
         <source>Iraq</source>
         <translation>伊拉克</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="144"/>
+        <location filename="dbstrings.tri" line="147"/>
         <source>Ireland</source>
         <translation>爱尔兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="145"/>
+        <location filename="dbstrings.tri" line="148"/>
         <source>Isle of Man</source>
         <translation>马恩岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="146"/>
+        <location filename="dbstrings.tri" line="149"/>
         <source>Israel</source>
         <translation>以色列</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="147"/>
+        <location filename="dbstrings.tri" line="150"/>
         <source>Italy</source>
         <translation>意大利</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="148"/>
+        <location filename="dbstrings.tri" line="151"/>
         <source>Jamaica</source>
         <translation>牙买加</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="149"/>
+        <location filename="dbstrings.tri" line="152"/>
         <source>Jan Mayen</source>
         <translation>扬马延岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="150"/>
+        <location filename="dbstrings.tri" line="153"/>
         <source>Japan</source>
         <translation>日本</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="151"/>
+        <location filename="dbstrings.tri" line="154"/>
         <source>Jersey</source>
         <translation>泽西岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="152"/>
+        <location filename="dbstrings.tri" line="155"/>
         <source>Johnston Island</source>
         <translation>约翰斯顿岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="153"/>
+        <location filename="dbstrings.tri" line="156"/>
         <source>Jordan</source>
         <translation>约旦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="154"/>
+        <location filename="dbstrings.tri" line="157"/>
         <source>Juan Fernandez Islands</source>
         <translation>胡安费尔南德斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="155"/>
+        <location filename="dbstrings.tri" line="158"/>
         <source>Juan de Nova &amp; Europa</source>
         <translation>新胡安 - 欧罗巴岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="156"/>
+        <location filename="dbstrings.tri" line="159"/>
         <source>Kaliningrad</source>
         <translation>加里宁格勒</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="157"/>
+        <location filename="dbstrings.tri" line="160"/>
         <source>Kazakhstan</source>
         <translation>哈萨克斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="158"/>
+        <location filename="dbstrings.tri" line="161"/>
         <source>Kenya</source>
         <translation>肯尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="159"/>
+        <location filename="dbstrings.tri" line="162"/>
         <source>Kerguelen Islands</source>
         <translation>凯尔盖朗群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="160"/>
+        <location filename="dbstrings.tri" line="163"/>
         <source>Kermadec Islands</source>
         <translation>克马德克群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="161"/>
+        <location filename="dbstrings.tri" line="164"/>
         <source>Kingdom of Eswatini</source>
         <translation>斯威士兰王国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="162"/>
+        <location filename="dbstrings.tri" line="165"/>
         <source>Kure Island</source>
         <translation>库雷环礁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="163"/>
+        <location filename="dbstrings.tri" line="166"/>
         <source>Kuwait</source>
         <translation>科威特</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="164"/>
+        <location filename="dbstrings.tri" line="167"/>
         <source>Kyrgyzstan</source>
         <translation>吉尔吉斯斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="165"/>
+        <location filename="dbstrings.tri" line="168"/>
         <source>Lakshadweep Islands</source>
         <translation>拉克沙群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="166"/>
+        <location filename="dbstrings.tri" line="169"/>
         <source>Laos</source>
         <translation>老挝</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="167"/>
+        <location filename="dbstrings.tri" line="170"/>
         <source>Latvia</source>
         <translation>拉脱维亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="168"/>
+        <location filename="dbstrings.tri" line="171"/>
         <source>Lebanon</source>
         <translation>黎巴嫩</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="169"/>
+        <location filename="dbstrings.tri" line="172"/>
         <source>Lesotho</source>
         <translation>莱索托</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="170"/>
+        <location filename="dbstrings.tri" line="173"/>
         <source>Liberia</source>
         <translation>利比里亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="171"/>
+        <location filename="dbstrings.tri" line="174"/>
         <source>Libya</source>
         <translation>利比亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="172"/>
+        <location filename="dbstrings.tri" line="175"/>
         <source>Liechtenstein</source>
         <translation>列支敦士登</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="173"/>
+        <location filename="dbstrings.tri" line="176"/>
         <source>Lithuania</source>
         <translation>立陶宛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="174"/>
+        <location filename="dbstrings.tri" line="177"/>
         <source>Lord Howe Island</source>
         <translation>豪勋爵岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="175"/>
+        <location filename="dbstrings.tri" line="178"/>
         <source>Luxembourg</source>
         <translation>卢森堡</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="176"/>
+        <location filename="dbstrings.tri" line="179"/>
         <source>Macao</source>
         <translation>中国澳门</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="177"/>
+        <location filename="dbstrings.tri" line="180"/>
         <source>Macquarie Island</source>
         <translation>麦夸里岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="178"/>
+        <location filename="dbstrings.tri" line="181"/>
         <source>Madagascar</source>
         <translation>马达加斯加</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="179"/>
+        <location filename="dbstrings.tri" line="182"/>
         <source>Madeira Islands</source>
         <translation>马德拉群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="180"/>
+        <location filename="dbstrings.tri" line="183"/>
         <source>Malawi</source>
         <translation>马拉维</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="181"/>
+        <location filename="dbstrings.tri" line="184"/>
         <source>Maldives</source>
         <translation>马尔代夫</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="182"/>
+        <location filename="dbstrings.tri" line="185"/>
         <source>Mali</source>
         <translation>马里</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="183"/>
+        <location filename="dbstrings.tri" line="186"/>
         <source>Malpelo Island</source>
         <translation>马尔佩洛岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="184"/>
+        <location filename="dbstrings.tri" line="187"/>
         <source>Malta</source>
         <translation>马耳他</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="185"/>
+        <location filename="dbstrings.tri" line="188"/>
         <source>Mariana Islands</source>
         <translation>马里亚纳群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="186"/>
+        <location filename="dbstrings.tri" line="189"/>
         <source>Market Reef</source>
         <translation>马凯特礁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="187"/>
+        <location filename="dbstrings.tri" line="190"/>
         <source>Marquesas Islands</source>
         <translation>马克萨斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="188"/>
+        <location filename="dbstrings.tri" line="191"/>
         <source>Marshall Islands</source>
         <translation>马绍尔群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="189"/>
+        <location filename="dbstrings.tri" line="192"/>
         <source>Martinique</source>
         <translation>马提尼克</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="190"/>
+        <location filename="dbstrings.tri" line="193"/>
         <source>Mauritania</source>
         <translation>毛里塔尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="191"/>
+        <location filename="dbstrings.tri" line="194"/>
         <source>Mauritius</source>
         <translation>毛里求斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="192"/>
+        <location filename="dbstrings.tri" line="195"/>
         <source>Mayotte</source>
         <translation>马约特岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="193"/>
+        <location filename="dbstrings.tri" line="196"/>
         <source>Mellish Reef</source>
         <translation>梅利什礁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="194"/>
+        <location filename="dbstrings.tri" line="197"/>
         <source>Mexico</source>
         <translation>墨西哥</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="195"/>
+        <location filename="dbstrings.tri" line="198"/>
         <source>Micronesia</source>
         <translation>密克罗尼西亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="196"/>
+        <location filename="dbstrings.tri" line="199"/>
         <source>Midway Island</source>
         <translation>中途岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="197"/>
+        <location filename="dbstrings.tri" line="200"/>
         <source>Minami Torishima</source>
         <translation>南鸟岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="198"/>
+        <location filename="dbstrings.tri" line="201"/>
         <source>Moldova</source>
         <translation>摩尔多瓦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="199"/>
+        <location filename="dbstrings.tri" line="202"/>
         <source>Monaco</source>
         <translation>摩纳哥</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="200"/>
+        <location filename="dbstrings.tri" line="203"/>
         <source>Mongolia</source>
         <translation>蒙古</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="201"/>
+        <location filename="dbstrings.tri" line="204"/>
         <source>Montenegro</source>
         <translation>黑山共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="202"/>
+        <location filename="dbstrings.tri" line="205"/>
         <source>Montserrat</source>
         <translation>蒙特塞拉特岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="203"/>
+        <location filename="dbstrings.tri" line="206"/>
         <source>Morocco</source>
         <translation>摩洛哥</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="204"/>
+        <location filename="dbstrings.tri" line="207"/>
         <source>Mount Athos</source>
         <translation>阿索斯山</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="205"/>
+        <location filename="dbstrings.tri" line="208"/>
         <source>Mozambique</source>
         <translation>莫桑比克</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="206"/>
+        <location filename="dbstrings.tri" line="209"/>
         <source>Myanmar</source>
         <translation>缅甸</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="207"/>
+        <location filename="dbstrings.tri" line="210"/>
         <source>N.Z. Subantarctic Is.</source>
         <translation>新西兰亚南极群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="208"/>
+        <location filename="dbstrings.tri" line="211"/>
         <source>Namibia</source>
         <translation>纳米比亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="209"/>
+        <location filename="dbstrings.tri" line="212"/>
         <source>Nauru</source>
         <translation>瑙鲁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="210"/>
+        <location filename="dbstrings.tri" line="213"/>
         <source>Navassa Island</source>
         <translation>纳弗沙岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="211"/>
+        <location filename="dbstrings.tri" line="214"/>
         <source>Nepal</source>
         <translation>尼泊尔</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="212"/>
+        <location filename="dbstrings.tri" line="215"/>
         <source>Netherlands</source>
         <translation>荷兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="213"/>
+        <location filename="dbstrings.tri" line="216"/>
         <source>New Caledonia</source>
         <translation>新喀里多尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="214"/>
+        <location filename="dbstrings.tri" line="217"/>
         <source>New Zealand</source>
         <translation>新西兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="215"/>
+        <location filename="dbstrings.tri" line="218"/>
         <source>Nicaragua</source>
         <translation>尼加拉瓜</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="216"/>
+        <location filename="dbstrings.tri" line="219"/>
         <source>Niger</source>
         <translation>尼日尔</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="217"/>
+        <location filename="dbstrings.tri" line="220"/>
         <source>Nigeria</source>
         <translation>尼日利亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="218"/>
+        <location filename="dbstrings.tri" line="221"/>
         <source>Niue</source>
         <translation>纽埃岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="219"/>
+        <location filename="dbstrings.tri" line="222"/>
         <source>Norfolk Island</source>
         <translation>诺福克岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="220"/>
+        <location filename="dbstrings.tri" line="223"/>
         <source>North Cook Islands</source>
         <translation>北库克群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="221"/>
+        <location filename="dbstrings.tri" line="224"/>
         <source>North Macedonia</source>
         <translation>北马其顿</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="222"/>
+        <location filename="dbstrings.tri" line="225"/>
         <source>Northern Ireland</source>
         <translation>北爱尔兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="223"/>
+        <location filename="dbstrings.tri" line="226"/>
         <source>Norway</source>
         <translation>挪威</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="224"/>
+        <location filename="dbstrings.tri" line="227"/>
         <source>Ogasawara</source>
         <translation>小笠原群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="225"/>
+        <location filename="dbstrings.tri" line="228"/>
         <source>Oman</source>
         <translation>阿曼</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="226"/>
+        <location filename="dbstrings.tri" line="229"/>
         <source>Pakistan</source>
         <translation>巴基斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="227"/>
+        <location filename="dbstrings.tri" line="230"/>
         <source>Palau</source>
         <translation>帕劳</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="228"/>
+        <location filename="dbstrings.tri" line="231"/>
         <source>Palestine</source>
         <translation>巴勒斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="229"/>
+        <location filename="dbstrings.tri" line="232"/>
         <source>Palmyra &amp; Jarvis Islands</source>
         <translation>巴尔米拉 - 贾维斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="230"/>
+        <location filename="dbstrings.tri" line="233"/>
         <source>Panama</source>
         <translation>巴拿马</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="231"/>
+        <location filename="dbstrings.tri" line="234"/>
         <source>Papua New Guinea</source>
         <translation>巴布亚新几內亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="232"/>
+        <location filename="dbstrings.tri" line="235"/>
         <source>Paraguay</source>
         <translation>巴拉圭</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="233"/>
+        <location filename="dbstrings.tri" line="236"/>
         <source>Peru</source>
         <translation>秘鲁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="234"/>
+        <location filename="dbstrings.tri" line="237"/>
         <source>Peter 1 Island</source>
         <translation>彼得一世岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="235"/>
+        <location filename="dbstrings.tri" line="238"/>
         <source>Philippines</source>
         <translation>菲律宾</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="236"/>
+        <location filename="dbstrings.tri" line="239"/>
         <source>Pitcairn Island</source>
         <translation>皮特克恩岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="237"/>
+        <location filename="dbstrings.tri" line="240"/>
         <source>Poland</source>
         <translation>波兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="238"/>
+        <location filename="dbstrings.tri" line="241"/>
         <source>Portugal</source>
         <translation>葡萄牙</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="239"/>
+        <location filename="dbstrings.tri" line="242"/>
         <source>Pr. Edward &amp; Marion Is.</source>
         <translation>爱德华王子群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="240"/>
+        <location filename="dbstrings.tri" line="243"/>
         <source>Pratas Island</source>
         <translation>东沙群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="241"/>
+        <location filename="dbstrings.tri" line="244"/>
         <source>Puerto Rico</source>
         <translation>波多黎各</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="242"/>
+        <location filename="dbstrings.tri" line="245"/>
         <source>Qatar</source>
         <translation>卡塔尔</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="243"/>
+        <location filename="dbstrings.tri" line="246"/>
         <source>Republic of Korea</source>
         <translation>韩国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="244"/>
+        <location filename="dbstrings.tri" line="247"/>
         <source>Republic of Kosovo</source>
         <translation>科索沃共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="245"/>
+        <location filename="dbstrings.tri" line="248"/>
         <source>Republic of South Sudan</source>
         <translation>南苏丹共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="246"/>
+        <location filename="dbstrings.tri" line="249"/>
         <source>Republic of the Congo</source>
         <translation>刚果共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="247"/>
+        <location filename="dbstrings.tri" line="250"/>
         <source>Reunion Island</source>
         <translation>留尼旺岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="248"/>
+        <location filename="dbstrings.tri" line="251"/>
         <source>Revillagigedo</source>
         <translation>雷维利亚希赫多群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="249"/>
+        <location filename="dbstrings.tri" line="252"/>
         <source>Rodriguez Island</source>
         <translation>罗德里格斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="250"/>
+        <location filename="dbstrings.tri" line="253"/>
         <source>Romania</source>
         <translation>罗马尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="251"/>
+        <location filename="dbstrings.tri" line="254"/>
         <source>Rotuma Island</source>
         <translation>罗图马岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="252"/>
+        <location filename="dbstrings.tri" line="255"/>
         <source>Rwanda</source>
         <translation>卢旺达</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="253"/>
+        <location filename="dbstrings.tri" line="256"/>
         <source>Saba &amp; St. Eustatius</source>
         <translation>萨巴 - 圣尤斯特歇斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="254"/>
+        <location filename="dbstrings.tri" line="257"/>
         <source>Sable Island</source>
         <translation>塞布尔岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="255"/>
+        <location filename="dbstrings.tri" line="258"/>
         <source>Samoa</source>
         <translation>萨摩亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="256"/>
+        <location filename="dbstrings.tri" line="259"/>
         <source>San Andres &amp; Providencia</source>
         <translation>圣安德烈斯 - 普罗维登斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="257"/>
+        <location filename="dbstrings.tri" line="260"/>
         <source>San Felix &amp; San Ambrosio</source>
         <translation>圣费利克斯 - 圣安布罗斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="258"/>
+        <location filename="dbstrings.tri" line="261"/>
         <source>San Marino</source>
         <translation>圣马力诺</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="259"/>
+        <location filename="dbstrings.tri" line="262"/>
         <source>Sao Tome &amp; Principe</source>
         <translation>圣多美和普林西比民主共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="260"/>
+        <location filename="dbstrings.tri" line="263"/>
         <source>Sardinia</source>
         <translation>撒丁岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="261"/>
+        <location filename="dbstrings.tri" line="264"/>
         <source>Saudi Arabia</source>
         <translation>沙特阿拉伯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="262"/>
+        <location filename="dbstrings.tri" line="265"/>
         <source>Scarborough Reef</source>
         <translation>斯卡伯勒礁</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="263"/>
+        <location filename="dbstrings.tri" line="266"/>
         <source>Scotland</source>
         <translation>苏格兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="264"/>
+        <location filename="dbstrings.tri" line="267"/>
         <source>Senegal</source>
         <translation>塞内加尔</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="265"/>
+        <location filename="dbstrings.tri" line="268"/>
         <source>Serbia</source>
         <translation>塞尔维亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="266"/>
+        <location filename="dbstrings.tri" line="269"/>
         <source>Seychelles</source>
         <translation>塞舌尔群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="267"/>
+        <location filename="dbstrings.tri" line="270"/>
         <source>Sierra Leone</source>
         <translation>塞拉利昂</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="268"/>
+        <location filename="dbstrings.tri" line="271"/>
         <source>Singapore</source>
         <translation>新加坡</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="269"/>
+        <location filename="dbstrings.tri" line="272"/>
         <source>Sint Maarten</source>
         <translation>圣马丁岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="270"/>
+        <location filename="dbstrings.tri" line="273"/>
         <source>Slovak Republic</source>
         <translation>斯洛伐克共和国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="271"/>
+        <location filename="dbstrings.tri" line="274"/>
         <source>Slovenia</source>
         <translation>斯洛文尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="272"/>
+        <location filename="dbstrings.tri" line="275"/>
         <source>Solomon Islands</source>
         <translation>所罗门群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="273"/>
+        <location filename="dbstrings.tri" line="276"/>
         <source>Somalia</source>
         <translation>索马里</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="274"/>
+        <location filename="dbstrings.tri" line="277"/>
         <source>South Africa</source>
         <translation>南非</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="275"/>
+        <location filename="dbstrings.tri" line="278"/>
         <source>South Cook Islands</source>
         <translation>南库克群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="276"/>
+        <location filename="dbstrings.tri" line="279"/>
         <source>South Georgia Island</source>
         <translation>南乔治亚岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="277"/>
+        <location filename="dbstrings.tri" line="280"/>
         <source>South Orkney Islands</source>
         <translation>南奥克尼群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="278"/>
+        <location filename="dbstrings.tri" line="281"/>
         <source>South Sandwich Islands</source>
         <translation>南桑威奇群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="279"/>
+        <location filename="dbstrings.tri" line="282"/>
         <source>South Shetland Islands</source>
         <translation>南谢特兰群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="280"/>
+        <location filename="dbstrings.tri" line="283"/>
         <source>Sov Mil Order of Malta</source>
         <translation>马耳他骑士团</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="281"/>
+        <location filename="dbstrings.tri" line="284"/>
         <source>Spain</source>
         <translation>西班牙</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="282"/>
+        <location filename="dbstrings.tri" line="285"/>
         <source>Spratly Islands</source>
         <translation>南沙群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="283"/>
+        <location filename="dbstrings.tri" line="286"/>
         <source>Sri Lanka</source>
         <translation>斯里兰卡</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="284"/>
+        <location filename="dbstrings.tri" line="287"/>
         <source>St. Barthelemy</source>
         <translation>圣巴特岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="285"/>
+        <location filename="dbstrings.tri" line="288"/>
         <source>St. Helena</source>
         <translation>圣赫勒拿岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="286"/>
+        <location filename="dbstrings.tri" line="289"/>
         <source>St. Kitts &amp; Nevis</source>
         <translation>圣基茨和尼维斯联邦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="287"/>
+        <location filename="dbstrings.tri" line="290"/>
         <source>St. Lucia</source>
         <translation>圣卢西亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="288"/>
+        <location filename="dbstrings.tri" line="291"/>
         <source>St. Martin</source>
         <translation>圣马丁岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="289"/>
+        <location filename="dbstrings.tri" line="292"/>
         <source>St. Paul Island</source>
         <translation>圣保罗岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="290"/>
+        <location filename="dbstrings.tri" line="293"/>
         <source>St. Peter &amp; St. Paul</source>
         <translation>圣彼得 - 圣保罗岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="291"/>
+        <location filename="dbstrings.tri" line="294"/>
         <source>St. Pierre &amp; Miquelon</source>
         <translation>圣皮埃尔 - 密克隆群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="292"/>
+        <location filename="dbstrings.tri" line="295"/>
         <source>St. Vincent</source>
         <translation>圣文森特岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="293"/>
+        <location filename="dbstrings.tri" line="296"/>
         <source>Sudan</source>
         <translation>苏丹</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="294"/>
+        <location filename="dbstrings.tri" line="297"/>
         <source>Suriname</source>
         <translation>苏里南</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="295"/>
+        <location filename="dbstrings.tri" line="298"/>
         <source>Svalbard</source>
         <translation>斯瓦尔巴特群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="296"/>
+        <location filename="dbstrings.tri" line="299"/>
         <source>Swains Island</source>
         <translation>斯温斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="297"/>
+        <location filename="dbstrings.tri" line="300"/>
         <source>Sweden</source>
         <translation>瑞典</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="298"/>
+        <location filename="dbstrings.tri" line="301"/>
         <source>Switzerland</source>
         <translation>瑞士</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="299"/>
+        <location filename="dbstrings.tri" line="302"/>
         <source>Syria</source>
         <translation>叙利亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="300"/>
+        <location filename="dbstrings.tri" line="303"/>
         <source>Taiwan</source>
         <translation>中国台湾</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="301"/>
+        <location filename="dbstrings.tri" line="304"/>
         <source>Tajikistan</source>
         <translation>塔吉克斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="302"/>
+        <location filename="dbstrings.tri" line="305"/>
         <source>Tanzania</source>
         <translation>坦桑尼亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="303"/>
+        <location filename="dbstrings.tri" line="306"/>
         <source>Temotu Province</source>
         <translation>泰莫图省</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="304"/>
+        <location filename="dbstrings.tri" line="307"/>
         <source>Thailand</source>
         <translation>泰国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="305"/>
+        <location filename="dbstrings.tri" line="308"/>
         <source>The Gambia</source>
         <translation>冈比亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="306"/>
+        <location filename="dbstrings.tri" line="309"/>
         <source>Timor - Leste</source>
         <translation>东帝汶</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="307"/>
+        <location filename="dbstrings.tri" line="310"/>
         <source>Togo</source>
         <translation>多哥</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="308"/>
+        <location filename="dbstrings.tri" line="311"/>
         <source>Tokelau Islands</source>
         <translation>托克劳群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="309"/>
+        <location filename="dbstrings.tri" line="312"/>
         <source>Tonga</source>
         <translation>汤加</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="310"/>
+        <location filename="dbstrings.tri" line="313"/>
         <source>Trindade &amp; Martim Vaz</source>
         <translation>特林达迪 - 马丁瓦斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="311"/>
+        <location filename="dbstrings.tri" line="314"/>
         <source>Trinidad &amp; Tobago</source>
         <translation>特立尼达和多巴哥</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="312"/>
+        <location filename="dbstrings.tri" line="315"/>
         <source>Tristan da Cunha &amp; Gough Islands</source>
         <translation>特里斯坦-达库尼亚群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="313"/>
+        <location filename="dbstrings.tri" line="316"/>
         <source>Tromelin Island</source>
         <translation>特罗姆兰岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="314"/>
+        <location filename="dbstrings.tri" line="317"/>
         <source>Tunisia</source>
         <translation>突尼斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="315"/>
+        <location filename="dbstrings.tri" line="318"/>
         <source>Turkmenistan</source>
         <translation>土库曼斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="316"/>
+        <location filename="dbstrings.tri" line="319"/>
         <source>Turks &amp; Caicos Islands</source>
         <translation>特克斯和凯科斯群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="317"/>
+        <location filename="dbstrings.tri" line="320"/>
         <source>Tuvalu</source>
         <translation>图瓦卢</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="318"/>
+        <location filename="dbstrings.tri" line="321"/>
         <source>UK Base Areas on Cyprus</source>
         <translation>塞浦路斯英属基地区</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="319"/>
+        <location filename="dbstrings.tri" line="322"/>
         <source>US Virgin Islands</source>
         <translation>美属维京群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="320"/>
+        <location filename="dbstrings.tri" line="323"/>
         <source>Uganda</source>
         <translation>乌干达</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="321"/>
+        <location filename="dbstrings.tri" line="324"/>
         <source>Ukraine</source>
         <translation>乌克兰</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="322"/>
+        <location filename="dbstrings.tri" line="325"/>
         <source>United Arab Emirates</source>
         <translation>阿拉伯联合酋长国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="323"/>
+        <location filename="dbstrings.tri" line="326"/>
         <source>United Nations HQ</source>
         <translation>联合国 HQ</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="324"/>
+        <location filename="dbstrings.tri" line="327"/>
         <source>United States</source>
         <translation>美国</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="325"/>
+        <location filename="dbstrings.tri" line="328"/>
         <source>Uruguay</source>
         <translation>乌拉圭</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="326"/>
+        <location filename="dbstrings.tri" line="329"/>
         <source>Uzbekistan</source>
         <translation>乌兹别克斯坦</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="327"/>
+        <location filename="dbstrings.tri" line="330"/>
         <source>Vanuatu</source>
         <translation>瓦努阿图</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="328"/>
+        <location filename="dbstrings.tri" line="331"/>
         <source>Vatican City</source>
         <translation>梵蒂冈</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="329"/>
+        <location filename="dbstrings.tri" line="332"/>
         <source>Venezuela</source>
         <translation>委内瑞拉</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="330"/>
+        <location filename="dbstrings.tri" line="333"/>
         <source>Vietnam</source>
         <translation>越南</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="331"/>
+        <location filename="dbstrings.tri" line="334"/>
         <source>Wake Island</source>
         <translation>威克岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="332"/>
+        <location filename="dbstrings.tri" line="335"/>
         <source>Wales</source>
         <translation>威尔士</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="333"/>
+        <location filename="dbstrings.tri" line="336"/>
         <source>Wallis &amp; Futuna Islands</source>
         <translation>瓦利斯和富图纳群岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="334"/>
+        <location filename="dbstrings.tri" line="337"/>
         <source>West Malaysia</source>
         <translation>西马来西亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="335"/>
+        <location filename="dbstrings.tri" line="338"/>
         <source>Western Kiribati</source>
         <translation>西基里巴斯</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="336"/>
+        <location filename="dbstrings.tri" line="339"/>
         <source>Western Sahara</source>
         <translation>西撒哈拉</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="337"/>
+        <location filename="dbstrings.tri" line="340"/>
         <source>Willis Island</source>
         <translation>威利斯岛</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="338"/>
+        <location filename="dbstrings.tri" line="341"/>
         <source>Yemen</source>
         <translation>也门</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="339"/>
+        <location filename="dbstrings.tri" line="342"/>
         <source>Zambia</source>
         <translation>赞比亚</translation>
     </message>
     <message>
-        <location filename="dbstrings.tri" line="340"/>
+        <location filename="dbstrings.tri" line="343"/>
         <source>Zimbabwe</source>
         <translation>津巴布韦</translation>
     </message>

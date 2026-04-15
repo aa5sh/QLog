@@ -70,7 +70,7 @@ void DxccTableWidget::updateDxTable(const QString &condition,
                            "		      FROM contacts c"
                            "		           LEFT OUTER JOIN modes m on c.mode = m.name"
                            "		      WHERE %2 AND %3 GROUP BY m.dxcc ) "
-                           " SELECT m.dxcc,"
+                           " SELECT translate_to_locale(m.dxcc),"
                            "	   %4 "
                            " FROM (SELECT DISTINCT dxcc"
                            "	   FROM modes) m"
