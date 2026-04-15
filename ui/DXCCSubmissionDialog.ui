@@ -438,12 +438,25 @@
    <item>
     <layout class="QHBoxLayout" name="bottomLayout">
      <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="exportADIFButton">
        <property name="toolTip">
         <string>Export the contacts listed above to an ADIF file</string>
        </property>
        <property name="text">
-        <string>Export to ADIF</string>
+        <string>Export</string>
        </property>
        <property name="icon">
         <iconset theme="document-save-as">
