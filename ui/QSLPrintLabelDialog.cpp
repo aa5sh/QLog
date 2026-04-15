@@ -12,6 +12,8 @@
 #include <QSettings>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QScroller>
+#include <QWheelEvent>
 
 #include "core/debug.h"
 #include "core/LogParam.h"
@@ -108,6 +110,9 @@ QSLPrintLabelDialog::QSLPrintLabelDialog(QWidget *parent) :
         w->blockSignals(false);
 
     QTimer::singleShot(0, this, &QSLPrintLabelDialog::refreshData);
+
+    QScroller::grabGesture(ui->previewScrollArea->viewport(), QScroller::LeftMouseButtonGesture);
+    ui->previewScrollArea->viewport()->installEventFilter(this);
 }
 
 QSLPrintLabelDialog::~QSLPrintLabelDialog()
@@ -468,6 +473,28 @@ void QSLPrintLabelDialog::resizeEvent(QResizeEvent *event)
 
     QWidget::resizeEvent(event);
     updatePreview();
+}
+
+bool QSLPrintLabelDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if ( obj == ui->previewScrollArea->viewport() && event->type() == QEvent::Wheel )
+    {
+        QWheelEvent *wheelEvent = dynamic_cast<QWheelEvent *>(event);
+        /*
+         * CRTL + Mouse Wheel
+         *
+         * Zoom In/Out
+         */
+        if ( wheelEvent && wheelEvent->modifiers() & Qt::ControlModifier )
+        {
+            QPoint wheelDelta(wheelEvent->angleDelta());
+            int delta = ( wheelDelta.y() > 0 ) ? 1 : -1;
+            int newZoom = zoomPercent + delta * 5;
+            ui->zoomSpinBox->setValue(newZoom);
+            return true;
+        }
+    }
+    return QDialog::eventFilter(obj, event);
 }
 
 QString QSLPrintLabelDialog::buildWhereClause() const
