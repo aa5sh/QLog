@@ -282,16 +282,10 @@
    <property name="text">
     <string>Mark QSL RCVD</string>
    </property>
-   <property name="toolTip">
-    <string>Update QSL RCVD and QSL_RDATE</string>
-   </property>
   </action>
   <action name="actionQSLRequested">
    <property name="text">
     <string>Mark QSL Requested</string>
-   </property>
-   <property name="toolTip">
-    <string>Update QSL_SENT to R</string>
    </property>
   </action>
   <action name="actionFilter">
@@ -509,7 +503,6 @@
     </hint>
    </hints>
   </connection>
-
   <connection>
    <sender>actionEditContact</sender>
    <signal>triggered()</signal>

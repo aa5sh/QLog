@@ -69,7 +69,8 @@
            <string>Export File</string>
           </property>
           <property name="icon">
-           <iconset theme="document-save-as"/>
+           <iconset theme="document-save-as">
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
@@ -130,7 +131,7 @@
         <item>
          <widget class="QPushButton" name="exportButton">
           <property name="text">
-           <string>Export Result</string>
+           <string>Export As</string>
           </property>
          </widget>
         </item>

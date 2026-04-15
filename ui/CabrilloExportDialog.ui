@@ -378,7 +378,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="gridLocatorLabel">
           <property name="text">
-           <string>Grid Locator:</string>
+           <string>Gridsquare</string>
           </property>
          </widget>
         </item>

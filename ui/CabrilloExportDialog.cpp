@@ -120,7 +120,7 @@ void CabrilloExportDialog::browseFile()
         : ui->fileEdit->text();
 
     const QString filename = QFileDialog::getSaveFileName(this, nullptr, lastPath,
-                                                          tr("Cabrillo Files (*.log);;All Files (*)"));
+                                                          tr("Cabrillo Files (*.log);;CBR Files (*.cbr);;All Files (*)"));
     if ( !filename.isEmpty() )
     {
         settings.setValue("export/last_path", QFileInfo(filename).path());

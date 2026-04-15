@@ -206,7 +206,7 @@ CabrilloFormat::TemplateInfo CabrilloFormat::templateInfo(int templateId)
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::bandCategories()
 {
     return {
-        { BAND_ALL,          tr("All Bands") },
+        { BAND_ALL,          QCoreApplication::translate("CabrilloFormat","All Bands") },
         { BAND_160M,         "160m" },
         { BAND_80M,          "80m" },
         { BAND_40M,          "40m" },
@@ -215,14 +215,14 @@ QList<CabrilloFormat::CategoryItem> CabrilloFormat::bandCategories()
         { BAND_10M,          "10m" },
         { BAND_6M,           "6m" },
         { BAND_4M,           "4m" },
-        { BAND_2M,           tr("2m (144 MHz)") },
-        { BAND_222,          tr("1.25m (222 MHz)") },
-        { BAND_432,          tr("70cm (432 MHz)") },
-        { BAND_902,          tr("33cm (902 MHz)") },
-        { BAND_1_2G,         tr("23cm (1.2 GHz)") },
-        { BAND_LIGHT,        tr("Light") },
-        { BAND_VHF_3_BAND,   tr("VHF 3-Band") },
-        { BAND_VHF_FM_ONLY,  tr("VHF FM Only") },
+        { BAND_2M,           QCoreApplication::translate("CabrilloFormat","2m (144 MHz)") },
+        { BAND_222,          QCoreApplication::translate("CabrilloFormat","1.25m (222 MHz)") },
+        { BAND_432,          QCoreApplication::translate("CabrilloFormat","70cm (432 MHz)") },
+        { BAND_902,          QCoreApplication::translate("CabrilloFormat","33cm (902 MHz)") },
+        { BAND_1_2G,         QCoreApplication::translate("CabrilloFormat","23cm (1.2 GHz)") },
+        { BAND_LIGHT,        QCoreApplication::translate("CabrilloFormat","Light") },
+        { BAND_VHF_3_BAND,   QCoreApplication::translate("CabrilloFormat","VHF 3-Band") },
+        { BAND_VHF_FM_ONLY,  QCoreApplication::translate("CabrilloFormat","VHF FM Only") },
     };
 }
 
@@ -233,95 +233,95 @@ QList<CabrilloFormat::CategoryItem> CabrilloFormat::modeCategories()
         { MODE_SSB,    "SSB" },
         { MODE_RTTY,   "RTTY" },
         { MODE_FM,     "FM" },
-        { MODE_DIGI,   tr("Digital") },
-        { MODE_MIXED,  tr("Mixed") },
+        { MODE_DIGI,   QCoreApplication::translate("CabrilloFormat","Digital") },
+        { MODE_MIXED,  QCoreApplication::translate("CabrilloFormat","Mixed") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::powerCategories()
 {
     return {
-        { POWER_HIGH, tr("High") },
-        { POWER_LOW,  tr("Low") },
-        { POWER_QRP,  tr("QRP") },
+        { POWER_HIGH, QCoreApplication::translate("CabrilloFormat","High") },
+        { POWER_LOW,  QCoreApplication::translate("CabrilloFormat","Low") },
+        { POWER_QRP,  QCoreApplication::translate("CabrilloFormat","QRP") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::operatorCategories()
 {
     return {
-        { OPERATOR_SINGLE,   tr("Single Operator") },
-        { OPERATOR_MULTI,    tr("Multi Operator") },
-        { OPERATOR_CHECKLOG, tr("Check Log") },
+        { OPERATOR_SINGLE,   QCoreApplication::translate("CabrilloFormat", "Single Operator") },
+        { OPERATOR_MULTI,    QCoreApplication::translate("CabrilloFormat","Multi Operator") },
+        { OPERATOR_CHECKLOG, QCoreApplication::translate("CabrilloFormat","Check Log") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::assistedCategories()
 {
     return {
-        { ASSISTED_NO,  tr("Non-Assisted") },
-        { ASSISTED_YES, tr("Assisted") },
+        { ASSISTED_NO,  QCoreApplication::translate("CabrilloFormat","Non-Assisted") },
+        { ASSISTED_YES, QCoreApplication::translate("CabrilloFormat","Assisted") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::stationCategories()
 {
     return {
-        { STATION_FIXED,           tr("Fixed") },
-        { STATION_MOBILE,          tr("Mobile") },
-        { STATION_PORTABLE,        tr("Portable") },
-        { STATION_ROVER,           tr("Rover") },
-        { STATION_ROVER_LIMITED,   tr("Rover Limited") },
-        { STATION_ROVER_UNLIMITED, tr("Rover Unlimited") },
-        { STATION_EXPEDITION,      tr("Expedition") },
-        { STATION_HQ,              tr("HQ") },
-        { STATION_SCHOOL,          tr("School") },
-        { STATION_DISTRIBUTED,     tr("Distributed") },
+        { STATION_FIXED,           QCoreApplication::translate("CabrilloFormat","Fixed") },
+        { STATION_MOBILE,          QCoreApplication::translate("CabrilloFormat","Mobile") },
+        { STATION_PORTABLE,        QCoreApplication::translate("CabrilloFormat","Portable") },
+        { STATION_ROVER,           QCoreApplication::translate("CabrilloFormat","Rover") },
+        { STATION_ROVER_LIMITED,   QCoreApplication::translate("CabrilloFormat","Rover Limited") },
+        { STATION_ROVER_UNLIMITED, QCoreApplication::translate("CabrilloFormat","Rover Unlimited") },
+        { STATION_EXPEDITION,      QCoreApplication::translate("CabrilloFormat","Expedition") },
+        { STATION_HQ,              QCoreApplication::translate("CabrilloFormat","HQ") },
+        { STATION_SCHOOL,          QCoreApplication::translate("CabrilloFormat","School") },
+        { STATION_DISTRIBUTED,     QCoreApplication::translate("CabrilloFormat","Distributed") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::transmitterCategories()
 {
     return {
-        { TRANSMITTER_ONE,       tr("One") },
-        { TRANSMITTER_TWO,       tr("Two") },
-        { TRANSMITTER_LIMITED,   tr("Limited") },
-        { TRANSMITTER_UNLIMITED, tr("Unlimited") },
-        { TRANSMITTER_SWL,       tr("SWL") },
+        { TRANSMITTER_ONE,       QCoreApplication::translate("CabrilloFormat","One") },
+        { TRANSMITTER_TWO,       QCoreApplication::translate("CabrilloFormat","Two") },
+        { TRANSMITTER_LIMITED,   QCoreApplication::translate("CabrilloFormat","Limited") },
+        { TRANSMITTER_UNLIMITED, QCoreApplication::translate("CabrilloFormat","Unlimited") },
+        { TRANSMITTER_SWL,       QCoreApplication::translate("CabrilloFormat","SWL") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::timeCategories()
 {
     return {
-        { TIME_6_HOURS,  tr("6 Hours") },
-        { TIME_12_HOURS, tr("12 Hours") },
-        { TIME_24_HOURS, tr("24 Hours") },
+        { TIME_6_HOURS,  QCoreApplication::translate("CabrilloFormat","6 Hours") },
+        { TIME_12_HOURS, QCoreApplication::translate("CabrilloFormat","12 Hours") },
+        { TIME_24_HOURS, QCoreApplication::translate("CabrilloFormat","24 Hours") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::overlayCategories()
 {
     return {
-        { OVERLAY_CLASSIC,     tr("Classic") },
-        { OVERLAY_ROOKIE,      tr("Rookie") },
-        { OVERLAY_TB_WIRES,    tr("TB Wires") },
-        { OVERLAY_NOVICE_TECH, tr("Novice/Tech") },
-        { OVERLAY_OVER_50,     tr("Over 50") },
+        { OVERLAY_CLASSIC,     QCoreApplication::translate("CabrilloFormat","Classic") },
+        { OVERLAY_ROOKIE,      QCoreApplication::translate("CabrilloFormat","Rookie") },
+        { OVERLAY_TB_WIRES,    QCoreApplication::translate("CabrilloFormat","TB Wires") },
+        { OVERLAY_NOVICE_TECH, QCoreApplication::translate("CabrilloFormat","Novice/Tech") },
+        { OVERLAY_OVER_50,     QCoreApplication::translate("CabrilloFormat","Over 50") },
     };
 }
 
 QList<CabrilloFormat::CategoryItem> CabrilloFormat::formatterTypes()
 {
     return {
-        { FMT_NONE,            tr("Text (left-aligned)") },
-        { FMT_FREQ_KHZ,        tr("Frequency (kHz)") },
-        { FMT_TIME_HHMM,       tr("Time (HHMM)") },
-        { FMT_DATE_YYYY_MM_DD, tr("Date (YYYY-MM-DD)") },
-        { FMT_RST_SHORT,       tr("RST Short (drop last digit)") },
-        { FMT_UPPER,           tr("Uppercase") },
-        { FMT_MODE_CABRILLO,   tr("Mode (Cabrillo)") },
-        { FMT_TRANSMITTER_ID,  tr("Transmitter ID") },
+        { FMT_NONE,            QCoreApplication::translate("CabrilloFormat","Text (left-aligned)") },
+        { FMT_FREQ_KHZ,        QCoreApplication::translate("CabrilloFormat","Frequency (kHz)") },
+        { FMT_TIME_HHMM,       QCoreApplication::translate("CabrilloFormat","Time (HHMM)") },
+        { FMT_DATE_YYYY_MM_DD, QCoreApplication::translate("CabrilloFormat","Date (YYYY-MM-DD)") },
+        { FMT_RST_SHORT,       QCoreApplication::translate("CabrilloFormat","RST Short (drop last digit)") },
+        { FMT_UPPER,           QCoreApplication::translate("CabrilloFormat","Uppercase") },
+        { FMT_MODE_CABRILLO,   QCoreApplication::translate("CabrilloFormat","Mode (Cabrillo)") },
+        { FMT_TRANSMITTER_ID,  QCoreApplication::translate("CabrilloFormat","Transmitter ID") },
     };
 }
 

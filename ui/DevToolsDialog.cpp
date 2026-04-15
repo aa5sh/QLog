@@ -79,11 +79,11 @@ DevToolsDialog::DevToolsDialog(QWidget *parent)
 
     // Export drop-down menu
     QMenu *exportMenu = new QMenu(this);
-    connect(exportMenu->addAction(tr("Export as TXT...")), &QAction::triggered,
+    connect(exportMenu->addAction(tr("TXT")), &QAction::triggered,
             this, &DevToolsDialog::exportAsTxt);
-    connect(exportMenu->addAction(tr("Export as CSV...")), &QAction::triggered,
+    connect(exportMenu->addAction(tr("CSV")), &QAction::triggered,
             this, &DevToolsDialog::exportAsCsv);
-    connect(exportMenu->addAction(tr("Export as ADIF...")), &QAction::triggered,
+    connect(exportMenu->addAction(tr("ADI")), &QAction::triggered,
             this, &DevToolsDialog::exportAsAdif);
     ui->exportButton->setMenu(exportMenu);
 
@@ -379,7 +379,7 @@ void DevToolsDialog::exportAsTxt()
 {
     FCT_IDENTIFICATION;
 
-    exportModel(tr("Export as TXT"),
+    exportModel(tr("TXT"),
                 tr("Text Files (*.txt);;All Files (*)"),
                 "txt",
                 "\t",
@@ -397,7 +397,7 @@ void DevToolsDialog::exportAsCsv()
         return s;
     };
 
-    exportModel(tr("Export as CSV"),
+    exportModel(tr("CSV"),
                 tr("CSV Files (*.csv);;All Files (*)"),
                 "csv",
                 ",",
