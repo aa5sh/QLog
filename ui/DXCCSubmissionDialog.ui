@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
+    <width>803</width>
     <height>750</height>
    </rect>
   </property>
@@ -197,6 +197,9 @@
       </item>
       <item row="2" column="1">
        <layout class="QHBoxLayout" name="qslConfirmLayout">
+        <property name="spacing">
+         <number>25</number>
+        </property>
         <item>
          <widget class="QCheckBox" name="lotwCheckBox">
           <property name="text">
@@ -241,6 +244,9 @@
       </item>
       <item row="3" column="1">
        <layout class="QHBoxLayout" name="showStatusLayout">
+        <property name="spacing">
+         <number>25</number>
+        </property>
         <item>
          <widget class="QCheckBox" name="showUnsubmittedCheckBox">
           <property name="text">
