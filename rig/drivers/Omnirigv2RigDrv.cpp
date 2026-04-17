@@ -14,9 +14,13 @@
 #include "core/debug.h"
 #include "rig/macros.h"
 
+#if 0
 #define MUTEXLOCKER     qCDebug(runtime) << "Waiting for Drv mutex"; \
                         QMutexLocker locker(&drvLock); \
                         qCDebug(runtime) << "Using Drv"
+#else
+#define MUTEXLOCKER     qCDebug(runtime) << "Mutex-free";
+#endif
 
 MODULE_IDENTIFICATION("qlog.rig.driver.omnirigv2drv");
 
