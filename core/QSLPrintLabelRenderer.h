@@ -86,8 +86,7 @@ private:
     void drawLabel(QPainter *painter, const QRectF &labelRect,
                    const QSLLabelData &label);
     void drawPage(QPainter *painter, int pageIndex);
-    qreal mmToUnits(qreal mm, QPaintDevice *device) const;
-    qreal mmToUnitsY(qreal mm, QPaintDevice *device) const;
+    qreal mmToUnits(const qreal mm, const QPaintDevice *device, bool yAxis = false) const;
     int labelsPerPage() const;
 
     LabelTemplate labelTemplate;
@@ -97,6 +96,8 @@ private:
     int skipLabels = 0;
     bool printBorders = false;
     LabelStyleOptions styleOptions;
+
+    const int PRINTER_RESOLUTION = 300;
 };
 
 #endif // QLOG_CORE_QSLPRINTLABELRENDERER_H

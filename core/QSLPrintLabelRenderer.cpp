@@ -90,32 +90,31 @@ int QSLPrintLabelRenderer::pageCount() const
     int totalSlots = labels.size() + skipLabels;
     int perPage = labelsPerPage();
 
-    if ( perPage <= 0 )
-        return 0;
-
-    return (totalSlots + perPage - 1) / perPage;
+    return ( perPage > 0 ) ? (totalSlots + perPage - 1) / perPage : 0;
 }
 
-qreal QSLPrintLabelRenderer::mmToUnits(qreal mm, QPaintDevice *device) const
+qreal QSLPrintLabelRenderer::mmToUnits(const qreal mm,
+                                       const QPaintDevice *device,
+                                       bool yAxis) const
 {
     FCT_IDENTIFICATION;
 
-    return mm * device->logicalDpiX() / 25.4; // to inch - DPI (px/inch)
+    return mm * (yAxis ? device->logicalDpiY() : device->logicalDpiX()) / 25.4; // to inch - DPI (px/inch)
 }
 
-qreal QSLPrintLabelRenderer::mmToUnitsY(qreal mm, QPaintDevice *device) const
-{
-    FCT_IDENTIFICATION;
-
-    return mm * device->logicalDpiY() / 25.4;  // to inch - DPI (px/inch)
-}
-
-void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect,
+void QSLPrintLabelRenderer::drawLabel(QPainter *painter,
+                                      const QRectF &labelRect,
                                       const QSLLabelData &label)
 {
     FCT_IDENTIFICATION;
 
-    QPaintDevice *device = painter->device();
+    if ( !painter )
+        return;
+
+    const QPaintDevice *device = painter->device();
+
+    if ( !device )
+        return;
 
     if ( printBorders )
     {
@@ -127,7 +126,7 @@ void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
     }
 
     qreal padH = mmToUnits(2.0, device);
-    qreal padV = mmToUnitsY(1.5, device);
+    qreal padV = mmToUnits(1.5, device, true);
 
     QRectF contentRect = labelRect.adjusted(padH, padV, -padH, -padV);
 
@@ -162,23 +161,22 @@ void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
     QFontMetricsF fmFooter(fontFooter, device);
 
     // Vertical layout calculation
-    qreal lineToRadio = fmToRadio.height();
-    qreal lineCallsign = fmCallsign.height();
-    qreal lineHeader = fmHeader.height();
-    qreal lineData = fmData.height();
-    qreal lineFooter = fmFooter.height();
+    const qreal lineToRadio = fmToRadio.height();
+    const qreal lineCallsign = fmCallsign.height();
+    const qreal lineHeader = fmHeader.height();
+    const qreal lineData = fmData.height();
+    const qreal lineFooter = fmFooter.height();
 
     // Line 1: "To Radio" + callsign share the same vertical line
     // "To Radio" left-aligned, callsign centered
-    qreal line1Height = qMax(lineToRadio, lineCallsign);
-
+    const qreal line1Height = qMax(lineToRadio, lineCallsign);
     qreal currentY = contentRect.top();
 
     // --- Line 1: "To Radio" + Callsign ---
     painter->setFont(fontToRadio);
     painter->setPen(Qt::black);
-    QRectF toRadioRect(contentRect.left(), currentY,
-                       contentRect.width(), line1Height);
+    const QRectF toRadioRect(contentRect.left(), currentY,
+                             contentRect.width(), line1Height);
     const QString toRadioText = styleOptions.toRadioText.isEmpty() ? "To Radio" : styleOptions.toRadioText;
     painter->drawText(toRadioRect, Qt::AlignLeft | Qt::AlignVCenter, toRadioText);
 
@@ -216,13 +214,13 @@ void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
 
     // Add inter-column spacing (1.5mm fixed gap)
     qreal colGap = mmToUnits(1.5, device);
-    qreal totalWidth = colWidthDate + colWidthTime + colWidthBand
-                        + colWidthMode + colWidthQsl
-                        + (hasExtra ? colWidthExtra : 0.0)
-                        + (hasExtra ? 5.0 : 4.0) * colGap;
+    const qreal totalWidth = colWidthDate + colWidthTime + colWidthBand
+                             + colWidthMode + colWidthQsl
+                             + (hasExtra ? colWidthExtra : 0.0)
+                             + (hasExtra ? 5.0 : 4.0) * colGap;
 
     // Scale columns proportionally if total exceeds content width
-    qreal availWidth = contentRect.width();
+    const qreal availWidth = contentRect.width();
     if ( totalWidth > availWidth && totalWidth > 0 )
     {
         qreal scale = availWidth / totalWidth;
@@ -236,7 +234,7 @@ void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
     }
 
     // --- Line 2: Column headers ---
-    qreal headerRowHeight = lineHeader + mmToUnitsY(0.5, device);
+    const qreal headerRowHeight = lineHeader + mmToUnits(0.5, device, true);
     painter->setFont(fontHeader);
     qreal colX = contentRect.left();
 
@@ -269,9 +267,9 @@ void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
     currentY += headerRowHeight;
 
     // --- QSO data rows (up to maxQsoRows) ---
-    qreal dataRowHeight = lineData + mmToUnitsY(0.3, device);
+    const qreal dataRowHeight = lineData + mmToUnits(0.3, device, true);
     painter->setFont(fontData);
-    int maxRows = qMin(label.qsos.size(), styleOptions.maxQsoRows);
+    const int maxRows = qMin(label.qsos.size(), styleOptions.maxQsoRows);
 
     for ( int i = 0; i < styleOptions.maxQsoRows; ++i )
     {
@@ -310,8 +308,8 @@ void QSLPrintLabelRenderer::drawLabel(QPainter *painter, const QRectF &labelRect
     }
 
     // --- Footer line ---
-    QRectF footerRect(contentRect.left(), contentRect.bottom() - lineFooter,
-                      contentRect.width(), lineFooter);
+    const QRectF footerRect(contentRect.left(), contentRect.bottom() - lineFooter,
+                            contentRect.width(), lineFooter);
 
     painter->setFont(fontFooter);
 
@@ -327,20 +325,27 @@ void QSLPrintLabelRenderer::drawPage(QPainter *painter, int pageIndex)
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << pageIndex;
 
+    if ( !painter )
+        return;
+
     QPaintDevice *device = painter->device();
-    int perPage = labelsPerPage();
+
+    if ( !device )
+        return;
+
+    const int perPage = labelsPerPage();
 
     if ( perPage <= 0 )
         return;
 
-    int slotStart = pageIndex * perPage;
+    const int slotStart = pageIndex * perPage;
 
     for ( int row = 0; row < labelTemplate.rows; ++row )
     {
         for ( int col = 0; col < labelTemplate.cols; ++col )
         {
-            int slotIndex = slotStart + row * labelTemplate.cols + col;
-            int labelIndex = slotIndex - skipLabels;
+            const int slotIndex = slotStart + row * labelTemplate.cols + col;
+            const int labelIndex = slotIndex - skipLabels;
 
             // Skip blank positions (for skip labels on first page)
             if ( labelIndex < 0 )
@@ -350,17 +355,17 @@ void QSLPrintLabelRenderer::drawPage(QPainter *painter, int pageIndex)
             if ( labelIndex >= labels.size() )
                 return;
 
-            qreal xMm = labelTemplate.leftMarginMm
-                         + col * (labelTemplate.labelWidthMm + labelTemplate.hSpacingMm);
-            qreal yMm = labelTemplate.topMarginMm
+            const qreal xMm = labelTemplate.leftMarginMm
+                              + col * (labelTemplate.labelWidthMm + labelTemplate.hSpacingMm);
+            const qreal yMm = labelTemplate.topMarginMm
                          + row * (labelTemplate.labelHeightMm + labelTemplate.vSpacingMm);
 
-            qreal x = mmToUnits(xMm, device);
-            qreal y = mmToUnitsY(yMm, device);
-            qreal w = mmToUnits(labelTemplate.labelWidthMm, device);
-            qreal h = mmToUnitsY(labelTemplate.labelHeightMm, device);
+            const qreal x = mmToUnits(xMm, device);
+            const qreal y = mmToUnits(yMm, device, true);
+            const qreal w = mmToUnits(labelTemplate.labelWidthMm, device);
+            const qreal h = mmToUnits(labelTemplate.labelHeightMm, device, true);
 
-            QRectF labelRect(x, y, w, h);
+            const QRectF labelRect(x, y, w, h);
             drawLabel(painter, labelRect, labels.at(labelIndex));
         }
     }
@@ -388,8 +393,8 @@ QImage QSLPrintLabelRenderer::renderPage(int pageIndex, int dpi)
     if ( labelTemplate.orientation == QPageLayout::Landscape )
         pageSizeMm.transpose();
 
-    int widthPx = qRound(pageSizeMm.width() * dpi / 25.4);
-    int heightPx = qRound(pageSizeMm.height() * dpi / 25.4);
+    const int widthPx = qRound(pageSizeMm.width() * dpi / 25.4);
+    const int heightPx = qRound(pageSizeMm.height() * dpi / 25.4);
 
     QImage image(widthPx, heightPx, QImage::Format_ARGB32_Premultiplied);
     image.setDotsPerMeterX(qRound(dpi / 25.4 * 1000.0));
@@ -416,7 +421,7 @@ void QSLPrintLabelRenderer::printAll(QPrinter *printer)
         return;
     }
 
-    int pages = pageCount();
+    const int pages = pageCount();
 
     if ( pages <= 0 )
     {
@@ -424,12 +429,12 @@ void QSLPrintLabelRenderer::printAll(QPrinter *printer)
         return;
     }
 
-    printer->setResolution(300);
+    printer->setResolution(PRINTER_RESOLUTION);
 
-    QPageLayout layout(QPageSize(labelTemplate.pageSize),
-                       labelTemplate.orientation,
-                       QMarginsF(0, 0, 0, 0),
-                       QPageLayout::Millimeter);
+    const QPageLayout layout(QPageSize(labelTemplate.pageSize),
+                             labelTemplate.orientation,
+                             QMarginsF(0, 0, 0, 0),
+                             QPageLayout::Millimeter);
     printer->setPageLayout(layout);
 
     QPainter painter(printer);
@@ -455,7 +460,8 @@ QList<LabelTemplate> QSLPrintLabelRenderer::predefinedTemplates()
 {
     FCT_IDENTIFICATION;
 
-    static const QList<LabelTemplate> templates = {
+    static const QList<LabelTemplate> templates =
+    {
         {"Avery 3664", QPageLayout::Portrait, QPageSize::A4,
          3, 8, 70.0, 33.8, 4.3, 0.0, 0.0, 0.0},
         {"Avery 3422", QPageLayout::Portrait, QPageSize::A4,
