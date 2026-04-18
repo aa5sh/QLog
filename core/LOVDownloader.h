@@ -82,7 +82,7 @@ private:
                                "dxcc_entities_clublog",
                                7)},
         {SATLIST, SourceDefinition(SATLIST,
-                                   "https://foldynl.github.io/QLog/data/satslist.csv",
+                                   "https://raw.githubusercontent.com/foldynl/hamradio-value-lists/main/lists/satellites/satslist.csv",
                                    "satslist.csv",
                                    "LOV/last_sat_update",
                                    "sat_info",
