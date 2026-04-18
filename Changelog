@@ -6,6 +6,8 @@ TBC - 0.50.0
 - [NEW] - Added direct labeling of QSL Requested and QSL Received to the QSO context menu (PR #982 @aa5sh)
 - [NEW] - DXCC Submission Report (PR #967 @aa5sh)
 - [CHANGED] - Mutex-free Omnirig1 and Omnirig2
+- [CHANGED] - POTA/SOTA/WWFF list are download from QLog LOV-repo
+- [CHANGED] - Used an external lib for CSV parsing for LOV Download
 - Fixed Callsign disappears when calling a DX in a split via VFO-B (issue #799)
 - Fixing Rendering issue (issue #989)
 - Updated debian packaging (PR @979 thx @dawkagaming)

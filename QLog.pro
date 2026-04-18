@@ -274,6 +274,7 @@ HEADERS += \
         core/QSOFilterManager.h \
         core/QuadKeyCache.h \
         core/WsjtxUDPReceiver.h \
+        core/csv.hpp \
         core/debug.h \
         core/EmergencyFrequency.h \
         core/zonedetect.h \
