@@ -823,8 +823,13 @@ bool HamlibRigDrv::checkModeChange()
     {
         pbwidth_t pbwidth;
         rmode_t curr_modeId;
+        /*
+         * #999
+         * This is a workaround for Yaesu FTDx10 to work properly.
+         */
+        vfo_t modeVFO = ( rigProfile.model == RIG_MODEL_FTDX10 ) ? RIG_VFO_NONE : RIG_VFO_CURR;
 
-        int status = rig_get_mode(rig, RIG_VFO_CURR, &curr_modeId, &pbwidth);
+        int status = rig_get_mode(rig, modeVFO, &curr_modeId, &pbwidth);
 
         if ( isRigRespOK(status, tr("Get Mode Error")) )
         {
