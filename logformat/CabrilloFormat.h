@@ -184,6 +184,7 @@ private:
     HeaderData headerData;
     QList<ColumnDef> columns;
     QString contestName;
+    bool multiOpEnabled;
 
     const QStringList headerOrder = {
         "CALLSIGN", "NAME", "EMAIL", "OPERATORS", "ADDRESS",

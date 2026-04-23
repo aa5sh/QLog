@@ -86,7 +86,8 @@ const QString CabrilloFormat::OVERLAY_OVER_50 = "OVER-50";
 CabrilloFormat::CabrilloFormat(QTextStream &stream) :
     LogFormat(stream),
     templateId(-1),
-    transmitterId(0)
+    transmitterId(0),
+    multiOpEnabled(false)
 {
     FCT_IDENTIFICATION;
 }
@@ -533,6 +534,9 @@ void CabrilloFormat::exportStart()
 
         const QString &val = headerFields.value(key);
 
+        if ( key == "CATEGORY-OPERATOR" && val == OPERATOR_MULTI )
+            multiOpEnabled = true;
+
         if ( key == "ADDRESS" )
             writeMultiLineField(key, val, MAX_ADDRESS_LINES);
         else if ( key == "SOAPBOX" )
@@ -553,7 +557,8 @@ void CabrilloFormat::exportContact(const QSqlRecord &record,
     {
         if ( col.formatter == FMT_TRANSMITTER_ID )
         {
-            line += " " + QString::number(transmitterId).leftJustified(col.width, ' ', true);
+            line += " " + ((multiOpEnabled) ? QString::number(transmitterId).leftJustified(col.width, ' ', true)
+                                            : " ");
             continue;
         }
 
