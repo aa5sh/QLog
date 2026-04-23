@@ -233,7 +233,10 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_4">
+    <widget class="QGroupBox" name="optionBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="title">
       <string>Options</string>
      </property>

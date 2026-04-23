@@ -46,6 +46,9 @@ ImportDialog::ImportDialog(QWidget *parent) :
     }
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("&Import"));
+
+    // TODO: disabled #983 - If everything is OK, then delete it over time.
+    ui->optionBox->setVisible(false);
 }
 
 void ImportDialog::browse()
