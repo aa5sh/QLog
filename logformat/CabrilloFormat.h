@@ -92,6 +92,7 @@ public:
     static const QString FMT_UPPER;
     static const QString FMT_MODE_CABRILLO;
     static const QString FMT_TRANSMITTER_ID;
+    static const QString FMT_PADDED_NR;
 
     // Band category values
     static const QString BAND_ALL;

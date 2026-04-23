@@ -18,6 +18,7 @@ const QString CabrilloFormat::FMT_RST_SHORT = "rst_short";
 const QString CabrilloFormat::FMT_UPPER = "upper";
 const QString CabrilloFormat::FMT_MODE_CABRILLO = "mode_cabrillo";
 const QString CabrilloFormat::FMT_TRANSMITTER_ID = "transmitter_id";
+const QString CabrilloFormat::FMT_PADDED_NR = "padded_nr";
 
 const QString CabrilloFormat::BAND_ALL = "ALL";
 const QString CabrilloFormat::BAND_160M = "160M";
@@ -321,6 +322,7 @@ QList<CabrilloFormat::CategoryItem> CabrilloFormat::formatterTypes()
         { FMT_RST_SHORT,       QCoreApplication::translate("CabrilloFormat","RST Short (drop last digit)") },
         { FMT_UPPER,           QCoreApplication::translate("CabrilloFormat","Uppercase") },
         { FMT_MODE_CABRILLO,   QCoreApplication::translate("CabrilloFormat","Mode (Cabrillo)") },
+        { FMT_PADDED_NR,       QCoreApplication::translate("CabrilloFormat","Zero-Padded Nr.") },
         { FMT_TRANSMITTER_ID,  QCoreApplication::translate("CabrilloFormat","Transmitter ID") },
     };
 }
@@ -427,11 +429,18 @@ QString CabrilloFormat::formatField(const QString &value,
                 result = ( dxcc == "PHONE" ) ? "PH" : "DG";
             }
         }
+        else if ( formatter == FMT_PADDED_NR )
+        {
+            bool ok;
+            unsigned long nr = value.toLongLong(&ok);
+            result = (ok) ? QString::number(nr) : "";
+        }
     }
 
     // Pad or truncate to exactly 'width' characters (left-aligned)
     if ( width > 0 )
-        result = result.leftJustified(width, ' ', true);
+        result = (formatter == FMT_PADDED_NR) ? result.rightJustified(width, '0')
+                                              : result.leftJustified(width, ' ', true);
 
     qCDebug(runtime) << result;
 
