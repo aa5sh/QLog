@@ -20,6 +20,24 @@
    <item>
     <layout class="QVBoxLayout" name="leftLayout">
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="loadTemplateButton">
+         <property name="text">
+          <string>Load</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="exportTemplateButton">
+         <property name="text">
+          <string>Export</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <widget class="QListWidget" name="templateList">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -464,6 +482,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>loadTemplateButton</sender>
+   <signal>clicked()</signal>
+   <receiver>CabrilloTemplateDialog</receiver>
+   <slot>loadTemplate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exportTemplateButton</sender>
+   <signal>clicked()</signal>
+   <receiver>CabrilloTemplateDialog</receiver>
+   <slot>exportTemplate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>templateSelectionChanged()</slot>
@@ -474,5 +524,7 @@
   <slot>removeColumn()</slot>
   <slot>moveColumnUp()</slot>
   <slot>moveColumnDown()</slot>
+  <slot>loadTemplate()</slot>
+  <slot>exportTemplate()</slot>
  </slots>
 </ui>

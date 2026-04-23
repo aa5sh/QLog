@@ -37,18 +37,20 @@ private slots:
     void removeColumn();
     void moveColumnUp();
     void moveColumnDown();
+    void loadTemplate();
+    void exportTemplate();
 
 private:
     struct TemplateData
     {
-        int id;
+        int id = -1;
         QString name;
         QString contestName;
         QString defaultMode;
         QList<CabrilloFormat::ColumnDef> columns;
-        bool isNew;
-        bool isModified;
-        bool isDeleted;
+        bool isNew = true;
+        bool isModified = true;
+        bool isDeleted = false;
     };
 
     void loadTemplatesFromDB();
@@ -63,6 +65,11 @@ private:
     void moveColumn(int direction);
     bool saveTemplateColumns(QSqlQuery &query, int templateId,
                              const QList<CabrilloFormat::ColumnDef> &columns);
+    bool writeTemplateToFile(const TemplateData &tmpl,
+                             const QString &filePath,
+                             QString *error = nullptr) const;
+    TemplateData readTemplateFromFile(const QString &filePath,
+                                      QString *error = nullptr);
 
     Ui::CabrilloTemplateDialog *ui;
     QList<TemplateData> templates;

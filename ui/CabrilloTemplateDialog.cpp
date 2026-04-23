@@ -14,6 +14,9 @@
 #include <QHeaderView>
 #include <QEvent>
 #include <algorithm>
+#include <QFileDialog>
+#include <QSettings>
+#include <QStandardPaths>
 
 #include "core/debug.h"
 #include "data/Data.h"
@@ -488,6 +491,78 @@ void CabrilloTemplateDialog::moveColumnDown()
     moveColumn(1);
 }
 
+void CabrilloTemplateDialog::loadTemplate()
+{
+    FCT_IDENTIFICATION;
+
+    const QString filePath = QFileDialog::getOpenFileName(
+                this,
+                tr("Import Template"),
+                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                tr("QLog Cabrillo Template (*.qct)"));
+
+    if ( filePath.isEmpty() )
+        return;
+
+    QString error;
+    TemplateData tmpl = readTemplateFromFile(filePath, &error);
+
+    if ( tmpl.name.isEmpty() )
+    {
+        QMessageBox::critical(this, tr("Import Failed"), error);
+        return;
+    }
+
+    // Unique name
+    const QString baseName = tmpl.name;
+    int suffix = 1;
+    bool collision = true;
+    while ( collision )
+    {
+        collision = false;
+        for ( const TemplateData &existing : static_cast<const QList<TemplateData>&>(templates) )
+        {
+            if ( !existing.isDeleted && existing.name == tmpl.name )
+            {
+                tmpl.name = QString("%1 (%2)").arg(baseName).arg(suffix++);
+                collision = true;
+                break;
+            }
+        }
+    }
+
+    templates.append(tmpl);
+    populateTemplateList();
+    ui->templateList->setCurrentRow(ui->templateList->count() - 1);
+}
+
+void CabrilloTemplateDialog::exportTemplate()
+{
+    FCT_IDENTIFICATION;
+
+    if ( currentTemplateIndex < 0 || currentTemplateIndex >= templates.size() )
+        return;
+
+    saveCurrentTemplate();
+
+    const TemplateData &tmpl = templates[currentTemplateIndex];
+    const QString defaultName = tmpl.name.simplified().replace(' ', '_') + ".qct";
+    const QString filePath = QFileDialog::getSaveFileName(
+                this,
+                tr("Export Template"),
+                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+                + "/" + defaultName,
+                tr("QLog Cabrillo Template (*.qct)"));
+
+    if ( filePath.isEmpty() )
+        return;
+
+    QString error;
+
+    if ( !writeTemplateToFile(tmpl, filePath, &error) )
+        QMessageBox::critical(this, tr("Export Failed"), error);
+}
+
 void CabrilloTemplateDialog::moveColumn(int direction)
 {
     FCT_IDENTIFICATION;
@@ -557,6 +632,103 @@ bool CabrilloTemplateDialog::saveTemplateColumns(QSqlQuery &query, int templateI
     }
 
     return true;
+}
+
+bool CabrilloTemplateDialog::writeTemplateToFile(const TemplateData &tmpl,
+                                                 const QString &filePath,
+                                                 QString *error) const
+{
+    FCT_IDENTIFICATION;
+
+    QSettings s(filePath, QSettings::IniFormat);
+    s.setIniCodec("UTF-8");
+
+    s.beginGroup("Template");
+    s.setValue("name",    tmpl.name);
+    s.setValue("contest", tmpl.contestName);
+    s.setValue("mode",    tmpl.defaultMode);
+    s.setValue("version", 1);
+    s.endGroup();
+
+    s.beginGroup("Columns");
+    s.setValue("count", tmpl.columns.size());
+    for ( int i = 0; i < tmpl.columns.size(); i++ )
+    {
+        const CabrilloFormat::ColumnDef &col = tmpl.columns[i];
+        const QString prefix = QString("col%1").arg(i + 1);
+        s.setValue(prefix + ".db_field",  col.dbField);
+        s.setValue(prefix + ".formatter", col.formatter);
+        s.setValue(prefix + ".width",     col.width);
+        s.setValue(prefix + ".label",     col.label);
+    }
+    s.endGroup();
+
+    s.sync();
+
+    if ( s.status() != QSettings::NoError )
+    {
+        if ( error ) *error = tr("Failed to write file: %1").arg(filePath);
+        return false;
+    }
+
+    return true;
+}
+
+CabrilloTemplateDialog::TemplateData CabrilloTemplateDialog::readTemplateFromFile(const QString &filePath,
+                                                                                  QString *error)
+{
+    FCT_IDENTIFICATION;
+
+    TemplateData tmpl{};
+
+    if ( !QFile::exists(filePath) )
+    {
+        if ( error ) *error = tr("File not found: %1").arg(filePath);
+        return tmpl;
+    }
+
+    QSettings s(filePath, QSettings::IniFormat);
+    s.setIniCodec("UTF-8");
+
+    if ( s.status() != QSettings::NoError )
+    {
+        if ( error ) *error = tr("Cannot open file: %1").arg(filePath);
+        return tmpl;
+    }
+
+    s.beginGroup("Template");
+    tmpl.name        = s.value("name").toString().trimmed();
+    tmpl.contestName = s.value("contest").toString().trimmed();
+    tmpl.defaultMode = s.value("mode", CabrilloFormat::MODE_CW).toString().trimmed();
+    s.endGroup();
+
+    if ( tmpl.name.isEmpty() )
+    {
+        if ( error ) *error = tr("Invalid template file: missing name");
+        return TemplateData{};
+    }
+
+    s.beginGroup("Columns");
+    const int count = s.value("count", 0).toInt();
+    for ( int i = 1; i <= count; i++ )
+    {
+        const QString prefix = QString("col%1").arg(i);
+        CabrilloFormat::ColumnDef col;
+        col.position  = i;
+        col.dbField   = s.value(prefix + ".db_field").toString();
+        col.formatter = s.value(prefix + ".formatter").toString();
+        col.width     = s.value(prefix + ".width",  5).toInt();
+        col.label     = s.value(prefix + ".label").toString();
+        tmpl.columns.append(col);
+    }
+    s.endGroup();
+
+    tmpl.id         = -1;
+    tmpl.isNew      = true;
+    tmpl.isModified = true;
+    tmpl.isDeleted  = false;
+
+    return tmpl;
 }
 
 void CabrilloTemplateDialog::accept()
