@@ -8,6 +8,8 @@ TBC - 0.50.0
 - [CHANGED] - Mutex-free Omnirig1 and Omnirig2
 - [CHANGED] - POTA/SOTA/WWFF/SAT list are download from QLog LOV-repo
 - [CHANGED] - Used an external lib for CSV parsing for LOV Download
+- [CHANGED] - Import - ADIF import updates DXCC only if it is missing in the QSO (issue #983)
+- [REMOVED] - Import - ADIF import does not include the option to update DXCC during the import - no longer needed
 - Fixed Callsign disappears when calling a DX in a split via VFO-B (issue #799)
 - Fixing Rendering issue (issue #989)
 - Updated debian packaging (PR @979 thx @dawkagaming)
