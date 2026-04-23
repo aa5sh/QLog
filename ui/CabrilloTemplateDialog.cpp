@@ -641,7 +641,9 @@ bool CabrilloTemplateDialog::writeTemplateToFile(const TemplateData &tmpl,
     FCT_IDENTIFICATION;
 
     QSettings s(filePath, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     s.setIniCodec("UTF-8");
+#endif
 
     s.beginGroup("Template");
     s.setValue("name",    tmpl.name);
@@ -688,7 +690,9 @@ CabrilloTemplateDialog::TemplateData CabrilloTemplateDialog::readTemplateFromFil
     }
 
     QSettings s(filePath, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     s.setIniCodec("UTF-8");
+#endif
 
     if ( s.status() != QSettings::NoError )
     {
