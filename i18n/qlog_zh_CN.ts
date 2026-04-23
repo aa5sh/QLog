@@ -1310,149 +1310,149 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="91"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="94"/>
         <source>User Filter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="111"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="114"/>
         <source>Date/Time:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="123"/>
-        <location filename="../ui/CabrilloExportDialog.ui" line="146"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="126"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="149"/>
         <source>yyyy-MM-dd HH:mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="136"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="139"/>
         <source> - </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="159"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="162"/>
         <source>UTC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="186"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="189"/>
         <source>Station &amp; Categories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="192"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="195"/>
         <source>Callsign:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="209"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="212"/>
         <source>Operators:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="219"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="222"/>
         <source>Band:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="229"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="232"/>
         <source>Mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="239"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="242"/>
         <source>Power:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="249"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="252"/>
         <source>Operator:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="259"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="262"/>
         <source>Assisted:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="269"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="272"/>
         <source>Station:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="279"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="282"/>
         <source>Transmitter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="289"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="292"/>
         <source>Time:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="299"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="302"/>
         <source>Overlay:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="309"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="312"/>
         <source>Transmitter ID:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="335"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="338"/>
         <source>Additional</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="341"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="344"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="351"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="354"/>
         <source>Email:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="361"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="364"/>
         <source>Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="374"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="377"/>
         <source>Max 6 lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="381"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="384"/>
         <source>Gridsquare</source>
         <translation type="unfinished">网格坐标</translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="391"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="394"/>
         <source>Location:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="401"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="404"/>
         <source>Club:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="411"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="414"/>
         <source>Soapbox:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="428"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="431"/>
         <source>Off-Time:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloExportDialog.ui" line="441"/>
         <location filename="../ui/CabrilloExportDialog.ui" line="444"/>
+        <location filename="../ui/CabrilloExportDialog.ui" line="447"/>
         <source>yyyy-mm-dd hhmm yyyy-mm-dd hhmm</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1543,252 +1543,257 @@
 <context>
     <name>CabrilloFormat</name>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="209"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="211"/>
         <source>All Bands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="218"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="220"/>
         <source>2m (144 MHz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="219"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="221"/>
         <source>1.25m (222 MHz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="220"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="222"/>
         <source>70cm (432 MHz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="221"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="223"/>
         <source>33cm (902 MHz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="222"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="224"/>
         <source>23cm (1.2 GHz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="223"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="225"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="224"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="226"/>
         <source>VHF 3-Band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="225"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="227"/>
         <source>VHF FM Only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="236"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="238"/>
         <source>Digital</source>
         <translation type="unfinished">数字模式</translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="237"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="239"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="244"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="246"/>
         <source>High</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="245"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="247"/>
         <source>Low</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="246"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="248"/>
         <source>QRP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="253"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="255"/>
         <source>Single Operator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="254"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="256"/>
         <source>Multi Operator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="255"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="257"/>
         <source>Check Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="262"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="264"/>
         <source>Non-Assisted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="263"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="265"/>
         <source>Assisted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="270"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="272"/>
         <source>Fixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="271"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="273"/>
         <source>Mobile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="272"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="274"/>
         <source>Portable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="273"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="275"/>
         <source>Rover</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="274"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="276"/>
         <source>Rover Limited</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="275"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="277"/>
         <source>Rover Unlimited</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="276"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="278"/>
         <source>Expedition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="277"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="279"/>
         <source>HQ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="278"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="280"/>
         <source>School</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="279"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="281"/>
         <source>Distributed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="286"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="288"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="287"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="289"/>
         <source>Two</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="288"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="290"/>
         <source>Limited</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="289"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="291"/>
         <source>Unlimited</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="290"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="292"/>
         <source>SWL</source>
         <translation type="unfinished">SWL</translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="297"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="299"/>
         <source>6 Hours</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="298"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="300"/>
         <source>12 Hours</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="299"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="301"/>
         <source>24 Hours</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="306"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="308"/>
         <source>Classic</source>
         <translation type="unfinished">经典</translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="307"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="309"/>
         <source>Rookie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="308"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="310"/>
         <source>TB Wires</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="309"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="311"/>
         <source>Novice/Tech</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="310"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="312"/>
         <source>Over 50</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="317"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="319"/>
         <source>Text (left-aligned)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="318"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="320"/>
         <source>Frequency (kHz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="319"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="321"/>
         <source>Time (HHMM)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="320"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="322"/>
         <source>Date (YYYY-MM-DD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="321"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="323"/>
         <source>RST Short (drop last digit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="322"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="324"/>
         <source>Uppercase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="323"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="325"/>
         <source>Mode (Cabrillo)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logformat/CabrilloFormat.cpp" line="324"/>
+        <location filename="../logformat/CabrilloFormat.cpp" line="326"/>
+        <source>Zero-Padded Nr.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../logformat/CabrilloFormat.cpp" line="327"/>
         <source>Transmitter ID</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1801,117 +1806,173 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="37"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="27"/>
+        <source>Load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="34"/>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="55"/>
         <source>New</source>
         <translation type="unfinished">新建</translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="44"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="62"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="51"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="69"/>
         <source>Delete</source>
         <translation type="unfinished">删除</translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="66"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="84"/>
         <source>Template Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="76"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="94"/>
         <source>Contest Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="90"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="108"/>
         <source>Default Mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="102"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="130"/>
         <source>QSO Line Columns:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="114"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="142"/>
         <source>Contest name as required by the rules. It is possible to enter a custom string if it is not included in the list.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="136"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="164"/>
         <source>Seq.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="141"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="169"/>
         <source>QSO Field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="146"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="174"/>
         <source>Formatter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="151"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="179"/>
         <source>Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="156"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="184"/>
         <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="245"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="273"/>
         <source>Add</source>
         <translation type="unfinished">添加</translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.ui" line="252"/>
+        <location filename="../ui/CabrilloTemplateDialog.ui" line="280"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="373"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="376"/>
         <source>New Template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="407"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="410"/>
         <source>Copy - %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="429"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="432"/>
         <source>Delete Template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="430"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="433"/>
         <source>Delete template &apos;%1&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="572"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="500"/>
+        <source>Import Template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="502"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="555"/>
+        <source>QLog Cabrillo Template (*.qct)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="512"/>
+        <source>Import Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="552"/>
+        <source>Export Template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="563"/>
+        <source>Export Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="670"/>
+        <source>Failed to write file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="686"/>
+        <source>File not found: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="695"/>
+        <source>Cannot open file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="707"/>
+        <source>Invalid template file: missing name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="744"/>
         <source>QLog Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="572"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="744"/>
         <source>Cannot start database transaction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="624"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="796"/>
         <source>QLog Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/CabrilloTemplateDialog.cpp" line="625"/>
+        <location filename="../ui/CabrilloTemplateDialog.cpp" line="797"/>
         <source>Cannot save template &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3891,25 +3952,25 @@
     </message>
     <message>
         <location filename="../ui/DXCCSubmissionDialog.ui" line="136"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="483"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="485"/>
         <source>Mixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/DXCCSubmissionDialog.ui" line="149"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="480"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="482"/>
         <source>CW</source>
         <translation type="unfinished">CW</translation>
     </message>
     <message>
         <location filename="../ui/DXCCSubmissionDialog.ui" line="159"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="481"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="483"/>
         <source>Phone</source>
         <translation type="unfinished">语音通话</translation>
     </message>
     <message>
         <location filename="../ui/DXCCSubmissionDialog.ui" line="169"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="482"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="484"/>
         <source>Digital</source>
         <translation type="unfinished">数字模式</translation>
     </message>
@@ -3919,211 +3980,211 @@
         <translation type="unfinished">确认自</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="203"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="337"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="206"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="339"/>
         <source>LoTW</source>
         <translation type="unfinished">LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="213"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="338"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="216"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="340"/>
         <source>Paper</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="238"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="241"/>
         <source>Show</source>
         <translation type="unfinished">显示</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="247"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="253"/>
         <source>Not Yet Submitted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="257"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="263"/>
         <source>Submitted (Not Granted)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="267"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="273"/>
         <source>Already Granted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="292"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="298"/>
         <source>Band Scope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="327"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="333"/>
         <source>Select 5-Band DXCC preset bands (80/40/20/15/10m)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="330"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="336"/>
         <source>5-Band DXCC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="353"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="359"/>
         <source>Select all DXCC-eligible bands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="356"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="80"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="362"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="81"/>
         <source>All DXCC Bands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="378"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="384"/>
         <source>Bands</source>
         <translation type="unfinished">波段</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="391"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="397"/>
         <source>Select options above and the list will update automatically.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="443"/>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="462"/>
         <source>Export the contacts listed above to an ADIF file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.ui" line="446"/>
-        <source>Export to ADIF</source>
+        <location filename="../ui/DXCCSubmissionDialog.ui" line="465"/>
+        <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="68"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="69"/>
         <source>No User Filter</source>
         <translation type="unfinished">无用户筛选器</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="76"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="77"/>
         <source>Any Band (Entity Level)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="78"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="79"/>
         <source>5-Band DXCC (80/40/20/15/10m)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="82"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="83"/>
         <source>Custom Band Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="331"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="333"/>
         <source>Entity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="332"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="334"/>
         <source>Prefix</source>
         <translation type="unfinished">前缀</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="333"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="335"/>
         <source>Callsign</source>
         <translation type="unfinished">呼号</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="334"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="336"/>
         <source>Band</source>
         <translation type="unfinished">波段</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="335"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="337"/>
         <source>Mode</source>
         <translation type="unfinished">模式</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="336"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="338"/>
         <source>Date</source>
         <translation type="unfinished">日期</translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="339"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="341"/>
         <source>Submitted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="340"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="342"/>
         <source>Granted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="382"/>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="393"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="384"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="395"/>
         <source>Export ADIF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="383"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="385"/>
         <source>No contacts to export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="394"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="396"/>
         <source>Failed to retrieve contact records.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="406"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="408"/>
         <source>Export DXCC Submission List as ADIF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="489"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="491"/>
         <source>any band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="490"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="492"/>
         <source>5-band</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="491"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="493"/>
         <source>all bands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="493"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="495"/>
         <source>%1 selected band(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="498"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="500"/>
         <source>No contacts match the selected criteria.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="501"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="503"/>
         <source>%1 %2 %3 — DXCC %4 / %5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="503"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="505"/>
         <source>band-slot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="503"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="505"/>
         <source>entity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="504"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="506"/>
         <source>entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/DXCCSubmissionDialog.cpp" line="504"/>
+        <location filename="../ui/DXCCSubmissionDialog.cpp" line="506"/>
         <source>entries</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5804,62 +5865,62 @@ The password will be needed to restore them later.</source>
         <translation>获取频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="829"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="834"/>
         <source>Get Mode Error</source>
         <translation>获取模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="878"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="883"/>
         <source>Get VFO Error</source>
         <translation>获取VFO出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="916"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="921"/>
         <source>Get PWR Error</source>
         <translation>获取功率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="920"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="925"/>
         <source>Get PWR (power2mw) Error</source>
         <translation>获取功率（power2mw）出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="958"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="963"/>
         <source>Get RIT Function Error</source>
         <translation>获取RIT功能出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="964"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="969"/>
         <source>Get RIT Error</source>
         <translation>获取RIT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1015"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1020"/>
         <source>Get XIT Function Error</source>
         <translation>获取XIT功能出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1021"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1026"/>
         <source>Get XIT Error</source>
         <translation>获取XIT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1074"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1079"/>
         <source>Get Split Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1105"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1110"/>
         <source>Get TX Frequency Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1142"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1147"/>
         <source>Get KeySpeed Error</source>
         <translation>获取电键速度出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1194"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1199"/>
         <source>Set KeySpeed Error</source>
         <translation>设置电键速度出错</translation>
     </message>
@@ -5896,81 +5957,81 @@ The password will be needed to restore them later.</source>
 <context>
     <name>ImportDialog</name>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="20"/>
+        <location filename="../ui/ImportDialog.ui" line="6"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="39"/>
+        <location filename="../ui/ImportDialog.ui" line="68"/>
         <source>Date Range</source>
         <translation>日期范围</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="51"/>
+        <location filename="../ui/ImportDialog.ui" line="80"/>
         <source>Import all or only QSOs from the given period</source>
         <translation>导入所有或仅导入指定时间段的 QSO</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="54"/>
+        <location filename="../ui/ImportDialog.ui" line="83"/>
         <source>All</source>
         <translation>全部</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="130"/>
+        <location filename="../ui/ImportDialog.ui" line="15"/>
         <source>File</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="148"/>
+        <location filename="../ui/ImportDialog.ui" line="33"/>
         <source>ADX</source>
         <translation>ADX</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="166"/>
+        <location filename="../ui/ImportDialog.ui" line="51"/>
         <source>Browse</source>
         <translation>浏览</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="180"/>
+        <location filename="../ui/ImportDialog.ui" line="241"/>
         <source>Options</source>
         <translation>选项</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="186"/>
-        <source>Recalculate DXCC Entity Information (DXCC, Country name, Continent etc.)</source>
-        <translation>重新计算DXCC实体信息(DXCC，国家名称，大陆等)</translation>
-    </message>
-    <message>
-        <location filename="../ui/ImportDialog.ui" line="189"/>
-        <source>Update DXCC Entity Information</source>
-        <translation>更新DXCC实体信息</translation>
-    </message>
-    <message>
-        <location filename="../ui/ImportDialog.ui" line="199"/>
-        <location filename="../ui/ImportDialog.cpp" line="106"/>
+        <location filename="../ui/ImportDialog.ui" line="145"/>
+        <location filename="../ui/ImportDialog.cpp" line="107"/>
         <source>The value is used when an input record does not contain the ADIF value</source>
         <translation>当输入记录不包含ADIF值时使用该值</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="202"/>
+        <location filename="../ui/ImportDialog.ui" line="148"/>
         <source>Defaults</source>
         <translation>默认</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="214"/>
+        <location filename="../ui/ImportDialog.ui" line="160"/>
         <source>My Profile</source>
         <translation>我的配置文件</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="230"/>
+        <location filename="../ui/ImportDialog.ui" line="176"/>
         <source>My Rig</source>
         <translation>我的设备</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.ui" line="259"/>
-        <location filename="../ui/ImportDialog.cpp" line="107"/>
+        <location filename="../ui/ImportDialog.ui" line="205"/>
+        <location filename="../ui/ImportDialog.cpp" line="108"/>
         <source>Comment</source>
         <translation>备注</translation>
+    </message>
+    <message>
+        <location filename="../ui/ImportDialog.ui" line="247"/>
+        <source>If DXCC is missing in the imported record, it will be resolved from the callsign.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/ImportDialog.ui" line="257"/>
+        <source>Fill missing DXCC Entity Information</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/ImportDialog.cpp" line="48"/>
@@ -5978,89 +6039,89 @@ The password will be needed to restore them later.</source>
         <translation>导入(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="60"/>
+        <location filename="../ui/ImportDialog.cpp" line="61"/>
         <source>Select File</source>
         <translation>选择文件</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="135"/>
-        <location filename="../ui/ImportDialog.cpp" line="144"/>
+        <location filename="../ui/ImportDialog.cpp" line="136"/>
+        <location filename="../ui/ImportDialog.cpp" line="145"/>
         <source>The values below will be used when an input record does not contain the ADIF values</source>
         <translation>当输入记录不包含ADIF值时，将使用下面的值</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="160"/>
+        <location filename="../ui/ImportDialog.cpp" line="161"/>
         <source>&lt;p&gt;&lt;b&gt;In-Log QSO:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;在日志 QSO：&lt;/b&gt;&lt;/p&gt;&lt;p&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="164"/>
+        <location filename="../ui/ImportDialog.cpp" line="165"/>
         <source>&lt;p&gt;&lt;b&gt;Importing:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;导入中:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="169"/>
+        <location filename="../ui/ImportDialog.cpp" line="170"/>
         <source>Duplicate QSO</source>
         <translation>重复的 QSO</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="170"/>
+        <location filename="../ui/ImportDialog.cpp" line="171"/>
         <source>&lt;p&gt;Do you want to import duplicate QSO?&lt;/p&gt;%1 %2</source>
         <translation>&lt;p&gt;是否要导入重复的QSO?&lt;/p&gt; %1 %2</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="203"/>
+        <location filename="../ui/ImportDialog.cpp" line="204"/>
         <source>Save to File</source>
         <translation>保存至文件</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="216"/>
+        <location filename="../ui/ImportDialog.cpp" line="217"/>
         <source>QLog Import Summary</source>
         <translation>QLog 导入摘要</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="218"/>
+        <location filename="../ui/ImportDialog.cpp" line="219"/>
         <source>Import date</source>
         <translation>导入日期</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="219"/>
+        <location filename="../ui/ImportDialog.cpp" line="220"/>
         <source>Imported file</source>
         <translation>导入的文件</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/ImportDialog.cpp" line="221"/>
+        <location filename="../ui/ImportDialog.cpp" line="222"/>
         <source>Imported: %n contact(s)</source>
         <translation>
             <numerusform>已导入: %n 通联记录</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/ImportDialog.cpp" line="222"/>
+        <location filename="../ui/ImportDialog.cpp" line="223"/>
         <source>Warning(s): %n</source>
         <translation>
             <numerusform>告警: %n</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/ImportDialog.cpp" line="223"/>
+        <location filename="../ui/ImportDialog.cpp" line="224"/>
         <source>Error(s): %n</source>
         <translation>
             <numerusform>错误: %n</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="225"/>
+        <location filename="../ui/ImportDialog.cpp" line="226"/>
         <source>Details</source>
         <translation>详情</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="313"/>
+        <location filename="../ui/ImportDialog.cpp" line="314"/>
         <source>Import Result</source>
         <translation>导入结果</translation>
     </message>
     <message>
-        <location filename="../ui/ImportDialog.cpp" line="321"/>
+        <location filename="../ui/ImportDialog.cpp" line="322"/>
         <source>Save Details...</source>
         <translation>保存详情...</translation>
     </message>
@@ -6441,67 +6502,64 @@ The password will be needed to restore them later.</source>
 <context>
     <name>LogFormat</name>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="376"/>
-        <location filename="../logformat/LogFormat.cpp" line="662"/>
+        <location filename="../logformat/LogFormat.cpp" line="377"/>
+        <location filename="../logformat/LogFormat.cpp" line="672"/>
         <source>Cannot find My DXCC Entity Info</source>
         <translation>无法找到我的DXCC实体信息</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="434"/>
+        <location filename="../logformat/LogFormat.cpp" line="435"/>
         <source>A minimal set of fields not present (start_time, call, band, mode, station_callsign)</source>
         <translation>需要提供最小字段集 (start_time, call, band, mode, station_callsign)</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="455"/>
+        <location filename="../logformat/LogFormat.cpp" line="456"/>
         <source>Outside the selected Date Range</source>
         <translation>超出指定的日期范围</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="483"/>
-        <location filename="../logformat/LogFormat.cpp" line="510"/>
+        <location filename="../logformat/LogFormat.cpp" line="484"/>
+        <location filename="../logformat/LogFormat.cpp" line="511"/>
         <source>Duplicate</source>
         <translation>重复</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="538"/>
-        <source>Cannot find DXCC Entity Info</source>
-        <translation>无法找到 DXCC 实体信息</translation>
-    </message>
-    <message>
-        <location filename="../logformat/LogFormat.cpp" line="564"/>
+        <location filename="../logformat/LogFormat.cpp" line="544"/>
+        <location filename="../logformat/LogFormat.cpp" line="559"/>
         <source>DXCC Info is missing</source>
         <translation>DXCC信息丢失</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="606"/>
-        <location filename="../logformat/LogFormat.cpp" line="626"/>
-        <location filename="../logformat/LogFormat.cpp" line="646"/>
+        <location filename="../logformat/LogFormat.cpp" line="616"/>
+        <location filename="../logformat/LogFormat.cpp" line="636"/>
+        <location filename="../logformat/LogFormat.cpp" line="656"/>
         <source>no Station Callsign present</source>
         <translation>未提供电台呼号</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="748"/>
+        <location filename="../logformat/LogFormat.cpp" line="758"/>
         <source>Cannot insert to database</source>
         <translation>无法插入到数据库中</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="760"/>
+        <location filename="../logformat/LogFormat.cpp" line="770"/>
         <source>Imported</source>
         <translation>已导入</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="1010"/>
-        <location filename="../logformat/LogFormat.cpp" line="1098"/>
+        <location filename="../logformat/LogFormat.cpp" line="1020"/>
+        <location filename="../logformat/LogFormat.cpp" line="1108"/>
         <source>DXCC State:</source>
         <translation>DXCC状态：</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="1222"/>
+        <location filename="../logformat/LogFormat.cpp" line="1232"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../logformat/LogFormat.cpp" line="1225"/>
+        <location filename="../logformat/LogFormat.cpp" line="1235"/>
         <source>Warning</source>
         <translation>告警</translation>
     </message>
@@ -7817,19 +7875,19 @@ The password will be needed to restore them later.</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="210"/>
-        <location filename="../ui/MainWindow.ui" line="519"/>
+        <location filename="../ui/MainWindow.ui" line="567"/>
         <source>Clock</source>
         <translation>时钟</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="219"/>
-        <location filename="../ui/MainWindow.ui" line="455"/>
+        <location filename="../ui/MainWindow.ui" line="473"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="232"/>
-        <location filename="../ui/MainWindow.ui" line="446"/>
+        <location filename="../ui/MainWindow.ui" line="461"/>
         <source>DX Cluster</source>
         <translation>DX动态</translation>
     </message>
@@ -7840,49 +7898,49 @@ The password will be needed to restore them later.</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="250"/>
-        <location filename="../ui/MainWindow.ui" line="504"/>
+        <location filename="../ui/MainWindow.ui" line="543"/>
         <source>Rotator</source>
         <translation>云台</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="259"/>
-        <location filename="../ui/MainWindow.ui" line="509"/>
+        <location filename="../ui/MainWindow.ui" line="551"/>
         <source>Bandmap</source>
         <translation>波段地图</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="268"/>
-        <location filename="../ui/MainWindow.ui" line="514"/>
+        <location filename="../ui/MainWindow.ui" line="559"/>
         <source>Rig</source>
         <translation>设备</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="277"/>
-        <location filename="../ui/MainWindow.ui" line="533"/>
+        <location filename="../ui/MainWindow.ui" line="587"/>
         <source>Online Map</source>
         <translation>在线地图</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="286"/>
-        <location filename="../ui/MainWindow.ui" line="580"/>
+        <location filename="../ui/MainWindow.ui" line="646"/>
         <source>CW Console</source>
         <translation>CW 控制台</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="295"/>
-        <location filename="../ui/MainWindow.ui" line="620"/>
+        <location filename="../ui/MainWindow.ui" line="701"/>
         <source>Chat</source>
         <translation>聊天</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="304"/>
-        <location filename="../ui/MainWindow.ui" line="644"/>
+        <location filename="../ui/MainWindow.ui" line="731"/>
         <source>Profile Image</source>
         <translation>资料图片</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="313"/>
-        <location filename="../ui/MainWindow.ui" line="828"/>
+        <location filename="../ui/MainWindow.ui" line="918"/>
         <source>Alerts</source>
         <translation>提醒</translation>
     </message>
@@ -7892,42 +7950,42 @@ The password will be needed to restore them later.</source>
         <translation>设置（&amp;S）</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="387"/>
+        <location filename="../ui/MainWindow.ui" line="393"/>
         <source>&amp;Import</source>
         <translation>导入(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="396"/>
+        <location filename="../ui/MainWindow.ui" line="405"/>
         <source>&amp;Export</source>
         <translation>导出(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="404"/>
+        <location filename="../ui/MainWindow.ui" line="416"/>
         <source>Connect R&amp;ig</source>
         <translation>连接设备(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="416"/>
+        <location filename="../ui/MainWindow.ui" line="431"/>
         <source>&amp;About</source>
         <translation>关于(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="916"/>
+        <location filename="../ui/MainWindow.ui" line="1042"/>
         <source>Upload</source>
         <translation>上传</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="919"/>
+        <location filename="../ui/MainWindow.ui" line="1045"/>
         <source>Service - Upload QSOs</source>
         <translation>服务-上传 QSOs</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="930"/>
+        <location filename="../ui/MainWindow.ui" line="1059"/>
         <source>Download QSLs</source>
         <translation>下载 QSLs</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="933"/>
+        <location filename="../ui/MainWindow.ui" line="1062"/>
         <source>Service - Download QSLs</source>
         <translation>服务-下载 QSLs</translation>
     </message>
@@ -7942,59 +8000,59 @@ The password will be needed to restore them later.</source>
         <translation>程序 - 退出</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="369"/>
-        <location filename="../ui/MainWindow.ui" line="372"/>
+        <location filename="../ui/MainWindow.ui" line="375"/>
+        <location filename="../ui/MainWindow.ui" line="378"/>
         <source>New QSO - Clear</source>
         <translation>新 QSO - 清除</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="428"/>
-        <location filename="../ui/MainWindow.ui" line="431"/>
+        <location filename="../ui/MainWindow.ui" line="443"/>
+        <location filename="../ui/MainWindow.ui" line="446"/>
         <source>New QSO - Save</source>
         <translation>新 QSO - 保存</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="464"/>
+        <location filename="../ui/MainWindow.ui" line="485"/>
         <source>S&amp;tatistics</source>
         <translation>统计(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="491"/>
+        <location filename="../ui/MainWindow.ui" line="524"/>
         <source>Wsjtx</source>
         <translation>Wsjtx</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="499"/>
+        <location filename="../ui/MainWindow.ui" line="535"/>
         <source>Connect R&amp;otator</source>
         <translation>连接云台(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="528"/>
+        <location filename="../ui/MainWindow.ui" line="579"/>
         <source>QSO &amp;Filters</source>
         <translation>QSO过滤(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="542"/>
+        <location filename="../ui/MainWindow.ui" line="599"/>
         <source>&amp;Awards</source>
         <translation>奖项(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="559"/>
+        <location filename="../ui/MainWindow.ui" line="622"/>
         <source>Edit Rules</source>
         <translation>编辑规则</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="833"/>
+        <location filename="../ui/MainWindow.ui" line="926"/>
         <source>Clear</source>
         <translation>清除</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="838"/>
+        <location filename="../ui/MainWindow.ui" line="934"/>
         <source>Show Alerts</source>
         <translation>显示提醒</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="567"/>
+        <location filename="../ui/MainWindow.ui" line="633"/>
         <source>Beep</source>
         <translation>鸣响</translation>
     </message>
@@ -8031,210 +8089,210 @@ The password will be needed to restore them later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="360"/>
+        <location filename="../ui/MainWindow.ui" line="363"/>
         <location filename="../ui/MainWindow.cpp" line="1270"/>
         <source>Unpack Data &amp;&amp; Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="469"/>
+        <location filename="../ui/MainWindow.ui" line="493"/>
         <source>QSL &amp;Gallery</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="478"/>
+        <location filename="../ui/MainWindow.ui" line="505"/>
         <source>Developer Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="481"/>
+        <location filename="../ui/MainWindow.ui" line="508"/>
         <source>Run custom read-only SQL queries against the logbook database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="486"/>
+        <location filename="../ui/MainWindow.ui" line="516"/>
         <source>Print QSL &amp;Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="551"/>
+        <location filename="../ui/MainWindow.ui" line="611"/>
         <source>DXCC &amp;Submission List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="554"/>
+        <location filename="../ui/MainWindow.ui" line="614"/>
         <source>Generate a list of contacts to submit for ARRL DXCC award credit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="575"/>
+        <location filename="../ui/MainWindow.ui" line="641"/>
         <source>Connect &amp;CW Keyer</source>
         <translation>连接CW键(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="589"/>
+        <location filename="../ui/MainWindow.ui" line="658"/>
         <source>&amp;Wiki</source>
         <translation>&amp;Wiki</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="594"/>
+        <location filename="../ui/MainWindow.ui" line="666"/>
         <source>Report &amp;Bug...</source>
         <translation>报告&amp;Bug...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="602"/>
+        <location filename="../ui/MainWindow.ui" line="677"/>
         <source>&amp;Manual Entry</source>
         <translation>手动输入(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="605"/>
+        <location filename="../ui/MainWindow.ui" line="680"/>
         <source>Switch New Contact dialog to the manually entry mode&lt;br/&gt;(time, freq, profiles etc. are not taken from their common sources)</source>
         <translation>将 “新建联系人” 对话框切换到手动输入模式&lt;br/&gt;(时间、频率、配置文件等不是从它们的公共来源中获取)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="610"/>
+        <location filename="../ui/MainWindow.ui" line="688"/>
         <source>Mailing List...</source>
         <translation>邮件列表 ...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="615"/>
+        <location filename="../ui/MainWindow.ui" line="696"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="625"/>
-        <location filename="../ui/MainWindow.ui" line="628"/>
+        <location filename="../ui/MainWindow.ui" line="709"/>
+        <location filename="../ui/MainWindow.ui" line="712"/>
         <source>Save Arrangement</source>
         <translation>保存布局</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="636"/>
+        <location filename="../ui/MainWindow.ui" line="723"/>
         <source>Keep Options</source>
         <translation>保持选项</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="639"/>
+        <location filename="../ui/MainWindow.ui" line="726"/>
         <source>Restore connection options after application restart</source>
         <translation>应用程序重新启动后恢复连接选项</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="652"/>
+        <location filename="../ui/MainWindow.ui" line="742"/>
         <source>Logbook - Search Callsign</source>
         <translation>日志本 - 查找呼号</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="669"/>
-        <location filename="../ui/MainWindow.ui" line="672"/>
+        <location filename="../ui/MainWindow.ui" line="759"/>
+        <location filename="../ui/MainWindow.ui" line="762"/>
         <source>New QSO - Add text from Callsign field to Bandmap</source>
         <translation>新 QSO - 将呼号字段文本添加到波段图上</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="689"/>
+        <location filename="../ui/MainWindow.ui" line="779"/>
         <source>Rig - Band Down</source>
         <translation>设备 - 波段向下</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="706"/>
+        <location filename="../ui/MainWindow.ui" line="796"/>
         <source>Rig - Band Up</source>
         <translation>设备 - 波段向上</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="723"/>
+        <location filename="../ui/MainWindow.ui" line="813"/>
         <source>New QSO - Use Callsign from the Whisperer</source>
         <translation>新 QSO - 使用来自 Whisperer 的呼号</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="740"/>
+        <location filename="../ui/MainWindow.ui" line="830"/>
         <source>CW Console - Key Speed Up</source>
         <translation>CW 控制台 - 增加键速</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="757"/>
+        <location filename="../ui/MainWindow.ui" line="847"/>
         <source>CW Console - Key Speed Down</source>
         <translation>CW 控制台 - 减慢键速</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="774"/>
+        <location filename="../ui/MainWindow.ui" line="864"/>
         <source>CW Console - Profile Up</source>
         <translation>CW 控制台 - 上一个配置文件</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="791"/>
+        <location filename="../ui/MainWindow.ui" line="881"/>
         <source>CW Console - Profile Down</source>
         <translation>CW 控制台 - 下一个配置文件</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="808"/>
+        <location filename="../ui/MainWindow.ui" line="898"/>
         <source>Rig - PTT On/Off</source>
         <translation>设备 - PTT ON/OFF</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="846"/>
+        <location filename="../ui/MainWindow.ui" line="945"/>
         <source>All Bands</source>
         <translation>全部波段</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="854"/>
+        <location filename="../ui/MainWindow.ui" line="956"/>
         <source>Each Band</source>
         <translation>每个波段</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="862"/>
+        <location filename="../ui/MainWindow.ui" line="967"/>
         <source>Each Band &amp;&amp; Mode</source>
         <translation>每个波段 &amp;&amp; 模式</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="870"/>
+        <location filename="../ui/MainWindow.ui" line="978"/>
         <source>No Check</source>
         <translation>不做检查</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="878"/>
+        <location filename="../ui/MainWindow.ui" line="989"/>
         <source>Single</source>
         <translation>统一值</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="886"/>
+        <location filename="../ui/MainWindow.ui" line="1000"/>
         <source>Per Band</source>
         <translation>各波段独立</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="894"/>
+        <location filename="../ui/MainWindow.ui" line="1011"/>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="899"/>
+        <location filename="../ui/MainWindow.ui" line="1019"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="907"/>
+        <location filename="../ui/MainWindow.ui" line="1030"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="947"/>
+        <location filename="../ui/MainWindow.ui" line="1079"/>
         <source>Theme: Native</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="958"/>
+        <location filename="../ui/MainWindow.ui" line="1090"/>
         <source>Theme: QLog Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="969"/>
+        <location filename="../ui/MainWindow.ui" line="1101"/>
         <source>Theme: QLog Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="977"/>
+        <location filename="../ui/MainWindow.ui" line="1109"/>
         <source>What&apos;s New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="982"/>
+        <location filename="../ui/MainWindow.ui" line="1117"/>
         <source>Export Cabrillo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8807,29 +8865,29 @@ The password will be needed to restore them later.</source>
 <context>
     <name>OmnirigRigDrv</name>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="44"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="48"/>
         <source>Rig 1</source>
         <translation>设备 1</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="45"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="49"/>
         <source>Rig 2</source>
         <translation>设备 2</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="125"/>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="217"/>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="257"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="129"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="221"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="261"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1032"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1036"/>
         <source>Rig status changed</source>
         <translation>设备状态已更改</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1033"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1037"/>
         <source>Rig is not connected</source>
         <translation>设备未连接</translation>
     </message>
@@ -8837,39 +8895,39 @@ The password will be needed to restore them later.</source>
 <context>
     <name>OmnirigV2RigDrv</name>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="43"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="47"/>
         <source>Rig 1</source>
         <translation>设备 1</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="44"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="48"/>
         <source>Rig 2</source>
         <translation>设备 2</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="45"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="49"/>
         <source>Rig 3</source>
         <translation>设备 3</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="46"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="50"/>
         <source>Rig 4</source>
         <translation>设备 4</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="128"/>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="220"/>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="262"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="132"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="224"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="266"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="932"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="936"/>
         <source>Rig status changed</source>
         <translation>设备状态已更改</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="933"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="937"/>
         <source>Rig is not connected</source>
         <translation>设备未连接</translation>
     </message>
@@ -9043,7 +9101,7 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../core/Migration.cpp" line="435"/>
         <location filename="../core/main.cpp" line="434"/>
         <location filename="../ui/ExportDialog.cpp" line="171"/>
-        <location filename="../ui/ImportDialog.cpp" line="240"/>
+        <location filename="../ui/ImportDialog.cpp" line="241"/>
         <location filename="../ui/MainWindow.cpp" line="640"/>
         <location filename="../ui/MainWindow.cpp" line="650"/>
         <location filename="../ui/MainWindow.cpp" line="660"/>
@@ -9202,7 +9260,7 @@ You can leave fields empty and configure them later in Settings.</source>
     </message>
     <message>
         <location filename="../ui/ExportDialog.cpp" line="172"/>
-        <location filename="../ui/ImportDialog.cpp" line="241"/>
+        <location filename="../ui/ImportDialog.cpp" line="242"/>
         <source>Filename is empty</source>
         <translation>文件名为空</translation>
     </message>
@@ -9542,21 +9600,21 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>无法连接至 DXC 服务器 &lt;p&gt;原因 &lt;b&gt;: </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/ImportDialog.cpp" line="306"/>
+        <location filename="../ui/ImportDialog.cpp" line="307"/>
         <source>&lt;b&gt;Imported&lt;/b&gt;: %n contact(s)</source>
         <translation>
             <numerusform>&lt;b&gt;已导入&lt;/b&gt;: %n 通联</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/ImportDialog.cpp" line="307"/>
+        <location filename="../ui/ImportDialog.cpp" line="308"/>
         <source>&lt;b&gt;Warning(s)&lt;/b&gt;: %n</source>
         <translation>
             <numerusform>&lt;b&gt;告警&lt;/b&gt;: %n</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/ImportDialog.cpp" line="308"/>
+        <location filename="../ui/ImportDialog.cpp" line="309"/>
         <source>&lt;b&gt;Error(s)&lt;/b&gt;: %n</source>
         <translation>
             <numerusform>&lt;b&gt;错误&lt;/b&gt;: %n</numerusform>
@@ -9669,7 +9727,7 @@ You can leave fields empty and configure them later in Settings.</source>
     </message>
     <message>
         <location filename="../ui/QSLGalleryDialog.ui" line="121"/>
-        <source>Export Filtered...</source>
+        <source>Export Filtered</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10024,74 +10082,74 @@ You can leave fields empty and configure them later in Settings.</source>
     </message>
     <message>
         <location filename="../ui/QSLPrintLabelDialog.ui" line="952"/>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="770"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="797"/>
         <source>No matching QSOs found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.ui" line="1040"/>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="787"/>
+        <location filename="../ui/QSLPrintLabelDialog.ui" line="1052"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="814"/>
         <source>Page 0 of 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.ui" line="1081"/>
+        <location filename="../ui/QSLPrintLabelDialog.ui" line="1105"/>
         <source>Labels: 0 (0 pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.ui" line="1104"/>
+        <location filename="../ui/QSLPrintLabelDialog.ui" line="1128"/>
         <source>Print</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.ui" line="1118"/>
+        <location filename="../ui/QSLPrintLabelDialog.ui" line="1158"/>
         <source>Export as PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="47"/>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="292"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="49"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="297"/>
         <source>Custom</source>
         <translation type="unfinished">自定义</translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="310"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="315"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="383"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="388"/>
         <source>QSOs matching this station profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="742"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="769"/>
         <source>Labels: %1 (%2 pages)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="785"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="812"/>
         <source>Page %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="835"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="862"/>
         <source>Export PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="837"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="864"/>
         <source>PDF Files (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="857"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="884"/>
         <source>Mark as Sent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/QSLPrintLabelDialog.cpp" line="858"/>
+        <location filename="../ui/QSLPrintLabelDialog.cpp" line="885"/>
         <source>Mark printed/exported QSOs as sent?</source>
         <translation type="unfinished"></translation>
     </message>
