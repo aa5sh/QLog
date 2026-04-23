@@ -241,7 +241,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Recalculates the DXCC entity based on the callsign. If a DXCC entity is already present in the record, it will be overwritten. The DXCC is derived from the current list; deleted or historical DXCC entities are not considered. DXCC is a required field; without it, some functions may not operate correctly.</string>
+         <string>If DXCC is missing in the imported record, it will be resolved from the callsign.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -249,12 +249,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="updateDxccCheckBox">
-        <property name="toolTip">
-         <string>Recalculate DXCC Entity Information (DXCC, Country name, Continent etc.)</string>
-        </property>
+       <widget class="QCheckBox" name="fillMissingDxccCheckBox">
         <property name="text">
-         <string>Update DXCC Entity Information</string>
+         <string>Fill missing DXCC Entity Information</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -294,7 +294,7 @@
   <tabstop>rigSelect</tabstop>
   <tabstop>commentCheckBox</tabstop>
   <tabstop>commentEdit</tabstop>
-  <tabstop>updateDxccCheckBox</tabstop>
+  <tabstop>fillMissingDxccCheckBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
