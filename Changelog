@@ -6,6 +6,7 @@ TBC - 0.50.0
 - [NEW] - Added direct labeling of QSL Requested and QSL Received to the QSO context menu (PR #982 @aa5sh)
 - [NEW] - DXCC Submission Report (PR #967 @aa5sh)
 - [NEW] - DXC - Search pre-fills the callsign from New Contact if callsign is present
+- [NEW] - Settings - Added Danger Zone tab with Delete all passwords and QSOs
 - [CHANGED] - Mutex-free Omnirig1 and Omnirig2
 - [CHANGED] - POTA/SOTA/WWFF/SAT list are download from QLog LOV-repo
 - [CHANGED] - Used an external lib for CSV parsing for LOV Download

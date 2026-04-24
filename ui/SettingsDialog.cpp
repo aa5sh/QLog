@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QStandardItemModel>
+#include <QProgressDialog>
+
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 #include "models/RigTypeModel.h"
@@ -2252,6 +2254,44 @@ void SettingsDialog::qrzDelCallsignAPIKey()
     if ( !index.isValid() ) return;
 
     ui->qrzCallsignApiKeyTableView->model()->removeRow(index.row());
+}
+
+void SettingsDialog::onDeleteAllPasswords()
+{
+    FCT_IDENTIFICATION;
+
+    CredentialStore::instance()->deleteAllPasswords();
+    QMessageBox::information(this, tr("Delete Passwords"), tr("All passwords have been deleted"));
+
+    // It is necessary to close the dialog, because we would have to delete
+    // all the passwords in the dialog. It would be safer to close it.
+    reject();
+}
+
+void SettingsDialog::onDeleteAllQSOs()
+{
+    FCT_IDENTIFICATION;
+
+    QProgressDialog *progress = new QProgressDialog(tr("Deleting all QSOs..."), QString(), 0, 0, this);
+    progress->setWindowModality(Qt::ApplicationModal);
+    progress->setMinimumDuration(0);
+    progress->setAttribute(Qt::WA_DeleteOnClose, true);
+    progress->show();
+
+    QTimer::singleShot(0, this, [this, progress]()
+    {
+        QSqlQuery query;
+        bool ok = query.exec(QStringLiteral("DELETE FROM contacts"));
+
+        if (!ok)
+            qCDebug(runtime) << "Cannot delete QSOs:" << query.lastError().text();
+
+        progress->close();
+
+        if (!ok)
+            QMessageBox::warning(this, tr("Error"), tr("Failed to delete all QSOs."));
+        accept();
+    });
 }
 
 void SettingsDialog::readSettings()

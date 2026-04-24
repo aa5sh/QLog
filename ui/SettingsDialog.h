@@ -132,6 +132,9 @@ public slots:
     void qrzAddCallsignAPIKey();
     void qrzDelCallsignAPIKey();
 
+    void onDeleteAllPasswords();
+    void onDeleteAllQSOs();
+
 private:
     void readSettings();
     void writeSettings();
