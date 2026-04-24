@@ -12419,7 +12419,7 @@ Nainstalujte prosím Hamlib nebo zadejte cestu ručně.</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4795"/>
-        <source>Dange Zone</source>
+        <source>Danger Zone</source>
         <translation>Nebezpečná zóna</translation>
     </message>
     <message>

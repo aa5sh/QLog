@@ -4792,7 +4792,7 @@
      </widget>
      <widget class="QWidget" name="dangeZoneTab">
       <attribute name="title">
-       <string>Dange Zone</string>
+       <string>Danger Zone</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_18">
        <item>
@@ -6385,8 +6385,8 @@
   <slot>onDeleteAllPasswords()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

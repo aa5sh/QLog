@@ -11683,7 +11683,7 @@ Veuillez installer Hamlib ou spécifier le chemin manuellement.</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4795"/>
-        <source>Dange Zone</source>
+        <source>Danger Zone</source>
         <translation>Zone dangereuse</translation>
     </message>
     <message>

@@ -12421,7 +12421,7 @@ Bitte installieren Sie Hamlib oder geben Sie den Pfad manuell an.</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4795"/>
-        <source>Dange Zone</source>
+        <source>Danger Zone</source>
         <translation>Gefahrenzone</translation>
     </message>
     <message>

@@ -12561,7 +12561,7 @@ Please install Hamlib or specify the path manually.</source>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4795"/>
-        <source>Dange Zone</source>
+        <source>Danger Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

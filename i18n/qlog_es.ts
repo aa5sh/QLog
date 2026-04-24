@@ -12355,7 +12355,7 @@ Instale Hamlib o especifique la ruta manualmente.</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4795"/>
-        <source>Dange Zone</source>
+        <source>Danger Zone</source>
         <translation>Zona de peligro</translation>
     </message>
     <message>
