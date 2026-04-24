@@ -434,14 +434,13 @@ QString CabrilloFormat::formatField(const QString &value,
         {
             bool ok;
             unsigned long nr = value.toLongLong(&ok);
-            result = (ok) ? QString::number(nr) : "";
+            result = (ok) ? QString::number(nr).rightJustified(3, '0') : "";
         }
     }
 
     // Pad or truncate to exactly 'width' characters (left-aligned)
     if ( width > 0 )
-        result = (formatter == FMT_PADDED_NR) ? result.rightJustified(width, '0')
-                                              : result.leftJustified(width, ' ', true);
+        result = result.leftJustified(width, ' ', true);
 
     qCDebug(runtime) << result;
 
