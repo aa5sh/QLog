@@ -69,6 +69,12 @@
         <height>112</height>
        </size>
       </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
       <property name="movement">
        <enum>QListView::Static</enum>
       </property>
@@ -121,7 +127,8 @@
         <string>Export Filtered</string>
        </property>
        <property name="icon">
-        <iconset theme="document-save-as"/>
+        <iconset theme="document-save-as">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
