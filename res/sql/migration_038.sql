@@ -75,10 +75,10 @@ INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, f
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 4, 'start_time', 4, 'time_hhmm', 'Time' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 5, 'station_callsign', 13, 'upper', 'My Call' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 6, 'rst_sent', 3, '', 'Rst Sent' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx_string', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx', 6, 'padded_nr', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 8, 'callsign', 13, 'upper', 'Call Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 9, 'rst_rcvd', 3, '', 'Rst Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx_string', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx', 6, 'padded_nr', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 11, '', 1, 'transmitter_id', 't' FROM cabrillo_templates WHERE name = 'CQ WPX CW';
 
 DELETE FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
@@ -89,10 +89,10 @@ INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, f
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 4, 'start_time', 4, 'time_hhmm', 'Time' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 5, 'station_callsign', 13, 'upper', 'My Call' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 6, 'rst_sent', 3, '', 'Rst Sent' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx_string', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx', 6, 'padded_nr', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 8, 'callsign', 13, 'upper', 'Call Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 9, 'rst_rcvd', 3, '', 'Rst Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx_string', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx', 6, 'padded_nr', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 11, '', 1, 'transmitter_id', 't' FROM cabrillo_templates WHERE name = 'CQ WPX SSB';
 
 DELETE FROM cabrillo_templates WHERE name = 'CQ WW CW';
@@ -103,25 +103,11 @@ INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, f
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 4, 'start_time', 4, 'time_hhmm', 'Time' FROM cabrillo_templates WHERE name = 'CQ WW CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 5, 'station_callsign', 13, 'upper', 'My Call' FROM cabrillo_templates WHERE name = 'CQ WW CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 6, 'rst_sent', 3, '', 'Rst Sent' FROM cabrillo_templates WHERE name = 'CQ WW CW';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx_string', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WW CW';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'my_cq_zone', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WW CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 8, 'callsign', 13, 'upper', 'Call Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 9, 'rst_rcvd', 3, '', 'Rst Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW CW';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx_string', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW CW';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'cqz', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW CW';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 11, '', 1, 'transmitter_id', 't' FROM cabrillo_templates WHERE name = 'CQ WW CW';
-
-DELETE FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_templates (name, contest_name_for_header, default_category_mode) VALUES ('CQ WW RTTY', 'CQ-WW-RTTY', 'RTTY');
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 1, 'freq', 5, 'freq_khz', 'Freq' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 2, 'mode', 2, 'mode_cabrillo', 'Mo' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 3, 'start_time', 10, 'date_yyyy_mm_dd', 'Date' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 4, 'start_time', 4, 'time_hhmm', 'Time' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 5, 'station_callsign', 13, 'upper', 'My Call' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 6, 'rst_sent', 3, '', 'Rst Sent' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx_string', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 8, 'callsign', 13, 'upper', 'Call Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 9, 'rst_rcvd', 3, '', 'Rst Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx_string', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 11, '', 1, 'transmitter_id', 't' FROM cabrillo_templates WHERE name = 'CQ WW RTTY';
 
 DELETE FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 INSERT INTO cabrillo_templates (name, contest_name_for_header, default_category_mode) VALUES ('CQ WW SSB', 'CQ-WW-SSB', 'SSB');
@@ -131,10 +117,10 @@ INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, f
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 4, 'start_time', 4, 'time_hhmm', 'Time' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 5, 'station_callsign', 13, 'upper', 'My Call' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 6, 'rst_sent', 3, '', 'Rst Sent' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'stx_string', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 7, 'my_cq_zone', 6, '', 'Exch Sent' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 8, 'callsign', 13, 'upper', 'Call Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 9, 'rst_rcvd', 3, '', 'Rst Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
-INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'srx_string', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
+INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 10, 'cqz', 6, '', 'Exch Rcvd' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 INSERT INTO cabrillo_template_columns (template_id, position, db_field, width, formatter, label) SELECT id, 11, '', 1, 'transmitter_id', 't' FROM cabrillo_templates WHERE name = 'CQ WW SSB';
 
 DELETE FROM cabrillo_templates WHERE name = 'IARU HF';
