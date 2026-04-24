@@ -476,7 +476,8 @@ DxWidget::DxWidget(QWidget *parent) :
     connectionState(DISCONNECTED),
     connectedServerString(nullptr),
     trendBandList({"6m", "10m", "12m", "15m", "17m", "20m", "30m", "40m", "60m", "80m", "160m"}),
-    trendTableCornerLabel(nullptr)
+    trendTableCornerLabel(nullptr),
+    newContactWidget(nullptr)
 {
     FCT_IDENTIFICATION;
 
@@ -1415,8 +1416,9 @@ void DxWidget::setSearchStatus(bool visible)
     ui->searchEdit->setFocus();
     ui->searchCloseButton->setVisible(visible);
 
-    if (!visible)
-        ui->searchEdit->clear();
+    ui->searchEdit->setText(visible && newContactWidget
+                            ? newContactWidget->getCallsign()
+                            : QString());
 }
 
 void DxWidget::setSearchVisible()
@@ -1459,6 +1461,13 @@ void DxWidget::setTunedFrequency(VFOID vfoid, double vfoFreq, double ritFreq, do
         bandItem->setBackground(((bandItem->text() == newBand) ? QBrush(Qt::darkGray)
                                                                : defaultBrush));
     }
+}
+
+void DxWidget::registerContactWidget(const NewContactWidget *contactWidget)
+{
+    FCT_IDENTIFICATION;
+
+    newContactWidget = contactWidget;
 }
 
 void DxWidget::setDxTrend(QHash<QString, QHash<QString, QHash<QString, int>>> trend)

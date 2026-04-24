@@ -3131,7 +3131,7 @@ QString NewContactWidget::getCallsign() const
 {
     FCT_IDENTIFICATION;
 
-    return ui->callsignEdit->text();
+    return ui->callsignEdit->text().toUpper();
 }
 
 QString NewContactWidget::getName() const
