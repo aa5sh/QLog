@@ -27,7 +27,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="fileEdit"/>
+      <widget class="QLineEdit" name="fileEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="browseButton">
@@ -82,7 +86,8 @@
            <string>Manage</string>
           </property>
           <property name="icon">
-           <iconset theme="preferences-system"/>
+           <iconset theme="preferences-system">
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
