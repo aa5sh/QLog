@@ -23,15 +23,27 @@
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QPushButton" name="loadTemplateButton">
+         <property name="toolTip">
+          <string>Import template</string>
+         </property>
          <property name="text">
           <string>Import</string>
+         </property>
+         <property name="icon">
+          <iconset theme="document-open"/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="exportTemplateButton">
+         <property name="toolTip">
+          <string>Export template</string>
+         </property>
          <property name="text">
           <string>Export</string>
+         </property>
+         <property name="icon">
+          <iconset theme="document-save-as"/>
          </property>
         </widget>
        </item>
@@ -51,22 +63,40 @@
       <layout class="QHBoxLayout" name="listButtonLayout">
        <item>
         <widget class="QPushButton" name="newButton">
+         <property name="toolTip">
+          <string>New template</string>
+         </property>
          <property name="text">
           <string>New</string>
+         </property>
+         <property name="icon">
+          <iconset theme="document-new"/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="copyButton">
+         <property name="toolTip">
+          <string>Copy existing template</string>
+         </property>
          <property name="text">
           <string>Copy</string>
+         </property>
+         <property name="icon">
+          <iconset theme="edit-copy"/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteButton">
+         <property name="toolTip">
+          <string>Delete template</string>
+         </property>
          <property name="text">
           <string>Delete</string>
+         </property>
+         <property name="icon">
+          <iconset theme="edit-delete"/>
          </property>
         </widget>
        </item>
@@ -269,6 +299,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Add line</string>
+         </property>
          <property name="text">
           <string>Add</string>
          </property>
@@ -276,6 +309,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="removeColumnButton">
+         <property name="toolTip">
+          <string>Remove selected line</string>
+         </property>
          <property name="text">
           <string>Remove</string>
          </property>
