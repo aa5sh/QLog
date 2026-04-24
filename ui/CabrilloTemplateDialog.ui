@@ -24,7 +24,7 @@
        <item>
         <widget class="QPushButton" name="loadTemplateButton">
          <property name="text">
-          <string>Load</string>
+          <string>Import</string>
          </property>
         </widget>
        </item>
