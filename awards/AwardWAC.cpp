@@ -1,6 +1,9 @@
 #include <QCoreApplication>
 #include "AwardWAC.h"
 
+
+/* https://www.arrl.org/wac */
+
 QString AwardWAC::displayName() const
 {
     return QCoreApplication::translate("AwardsDialog", "WAC");
@@ -31,8 +34,8 @@ QStringList AwardWAC::additionalCTEs(const QString &, const QString &) const
                                  { QStringLiteral("EU"), QCoreApplication::translate("AwardsDialog", "Europe") },
                                  { QStringLiteral("AF"), QCoreApplication::translate("AwardsDialog", "Africa") },
                                  { QStringLiteral("OC"), QCoreApplication::translate("AwardsDialog", "Oceania") },
-                                 { QStringLiteral("AS"), QCoreApplication::translate("AwardsDialog", "Asia") },
-                                 { QStringLiteral("AN"), QCoreApplication::translate("AwardsDialog", "Antarctica") } }) };
+                                 { QStringLiteral("AS"), QCoreApplication::translate("AwardsDialog", "Asia") }
+                               }) };
 }
 
 QString AwardWAC::clickFilter(const QString &, const QString &col2Value) const
