@@ -15,7 +15,7 @@ public:
     bool run(QString *backupSnapshot = nullptr);
     QString errorString() const { return error; }
 
-    static constexpr int latestVersion = 44;
+    static constexpr int latestVersion = 45;
 
 private:
     bool failMigration(const QString &message);
@@ -30,6 +30,7 @@ private:
     bool insertUUID();
     bool fillMyDXCC();
     bool createTriggers();
+    bool setupContactSync();
     bool importQSLCards2DB();
     bool fillCQITUZStationProfiles();
     bool resetConfigs();

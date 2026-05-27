@@ -59,5 +59,6 @@
         <file>sql/migration_042.sql</file>
         <file>sql/migration_043.sql</file>
         <file>sql/migration_044.sql</file>
+        <file>sql/migration_045.sql</file>
     </qresource>
 </RCC>
