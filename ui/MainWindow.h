@@ -61,6 +61,7 @@ private slots:
     void exportLog();
     void showAwards();
     void showDXCCSubmission();
+    void showSyncDialog();
     void showAbout();
     void showWhatsNew();
     void showWikiHelp();
