@@ -13,9 +13,6 @@ devtools/timezones/builder/builder
 devtools/timezones/builder/db.zip
 devtools/timezones/builder/out/
 devtools/timezones/builder/out_v1/
-.claude/
-AGENT.md
-CLAUDE.md
 
 # Qt-es
 object_script.*.Release
