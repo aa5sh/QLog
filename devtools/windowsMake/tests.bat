@@ -28,7 +28,7 @@ set "VS_VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxili
 set "VS_ARCH=x86_amd64"
 
 rem -- QT Settings
-set "QT_BASE=C:\Qt\6.10.2\msvc2022_64"
+set "QT_BASE=C:\Qt\6.11.1\msvc2022_64"
 set "JOM=C:\Qt\Tools\QtCreator\bin\jom\jom.exe"
 
 rem -- Project Settings
@@ -45,7 +45,7 @@ set "VCPKG_ZLIB_PKG=zlib_x64-windows"
 rem -- Hamlib Settings
 set "HAMLIBVERSION_MAJOR=4"
 set "HAMLIBVERSION_MINOR=7"
-set "HAMLIBVERSION_PATCH=0"
+set "HAMLIBVERSION_PATCH=1"
 
 rem -- OpenSSL (needed at runtime for some configurations)
 set "OPENSSLROOT=%DEVROOT%\openssl-3.0\x64"

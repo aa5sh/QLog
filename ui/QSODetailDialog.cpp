@@ -1286,6 +1286,8 @@ void QSODetailDialog::clubQueryResult(const QString &in_callsign,
     }
 
     QString memberText;
+    QString memberListToolTip = QString("<qt><b>%1</b><table cellspacing='2' cellpadding='0'>")
+                                .arg(tr("Member").toHtmlEscaped());
 
     QMapIterator<QString, ClubStatusQuery::ClubInfo> clubs(data);
 
@@ -1294,12 +1296,21 @@ void QSODetailDialog::clubQueryResult(const QString &in_callsign,
         clubs.next();
         const QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value().status), false, QColor());
         const QString clubName = clubs.key().toHtmlEscaped();
+        const QString clubHtml = ( color.isValid() && color.alpha() > 0 )
+                                 ? QString("<font color='%1'>%2</font>").arg(Data::colorToHTMLColor(color), clubName)
+                                 : clubName;
 
-        if ( color.isValid() && color.alpha() > 0 )
-            memberText.append(QString("<font color='%1'>%2</font>&nbsp;&nbsp;&nbsp;").arg(Data::colorToHTMLColor(color), clubName));
-        else
-            memberText.append(QString("%1&nbsp;&nbsp;&nbsp;").arg(clubName));
+        memberText.append(QString("%1&nbsp;&nbsp;&nbsp;").arg(clubHtml));
+        memberListToolTip += QString("<tr><td>%1</td>").arg(clubHtml);
+
+        if ( !clubs.value().membershipID.isEmpty() )
+            memberListToolTip += QString("<td>&nbsp;&nbsp;#%1</td>").arg(clubs.value().membershipID.toHtmlEscaped());
+
+        memberListToolTip += "</tr>";
     }
+
+    memberListToolTip += "</table></qt>";
+    ui->memberListLabel->setToolTip(data.isEmpty() ? QString() : memberListToolTip);
     ui->memberListLabel->setText(memberText);
 }
 

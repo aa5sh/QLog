@@ -10,6 +10,7 @@
 #include <QToolButton>
 #include <QStackedWidget>
 #include <QRandomGenerator>
+#include <QTextDocument>
 
 #include "rig/Rig.h"
 #include "rig/macros.h"
@@ -248,6 +249,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
 
     ui->rstSentEdit->installEventFilter(this);
     ui->rstRcvdEdit->installEventFilter(this);
+    ui->memberListLabel->installEventFilter(this);
 
     /********************/
     /* Local SHORTCUTs  */
@@ -692,6 +694,74 @@ void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
     lastCallbookQueryData = data;
 }
 
+QString NewContactWidget::memberListLabelHtml(int itemCount, bool elided) const
+{
+    FCT_IDENTIFICATION;
+
+    QStringList parts;
+
+    const int visibleItems = qMin(itemCount, memberListHtmlItems.size());
+    for ( int i = 0; i < visibleItems; ++i )
+        parts << memberListHtmlItems.at(i);
+
+    if ( elided )
+        parts << "...";
+
+    return parts.join("&nbsp;&nbsp;&nbsp;");
+}
+
+int NewContactWidget::memberListHtmlWidth(const QString &html) const
+{
+    FCT_IDENTIFICATION;
+
+    QTextDocument doc;
+    doc.setDefaultFont(ui->memberListLabel->font());
+    doc.setDocumentMargin(0);
+    doc.setHtml(html);
+
+    return static_cast<int>(doc.idealWidth() + 0.5);
+}
+
+void NewContactWidget::updateMemberListLabel()
+{
+    FCT_IDENTIFICATION;
+
+    if ( memberListHtmlItems.isEmpty() )
+    {
+        ui->memberListLabel->clear();
+        ui->memberListLabel->setToolTip(QString());
+        return;
+    }
+
+    const int availableWidth = ui->memberListLabel->contentsRect().width();
+
+    if ( availableWidth <= 0 )
+    {
+        ui->memberListLabel->setText(memberListLabelHtml(0, true));
+        return;
+    }
+
+    QString html = memberListLabelHtml(memberListHtmlItems.size(), false);
+
+    if ( memberListHtmlWidth(html) <= availableWidth )
+    {
+        if ( ui->memberListLabel->text() != html )
+            ui->memberListLabel->setText(html);
+        return;
+    }
+
+    for ( int itemCount = memberListHtmlItems.size(); itemCount >= 0; --itemCount )
+    {
+        html = memberListLabelHtml(itemCount, true);
+        if ( memberListHtmlWidth(html) <= availableWidth || itemCount == 0 )
+        {
+            if ( ui->memberListLabel->text() != html )
+                ui->memberListLabel->setText(html);
+            return;
+        }
+    }
+}
+
 void NewContactWidget::setMembershipList(const QString &in_callsign,
                                          QMap<QString, ClubStatusQuery::ClubInfo> data)
 {
@@ -700,7 +770,10 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
     if ( in_callsign != callsign )
         return;
 
-    QString memberText;
+    memberListHtmlItems.clear();
+    QString memberListToolTip = QString("<qt><b>%1</b><table cellspacing='2' cellpadding='0'>")
+                                .arg(tr("Member").toHtmlEscaped());
+
     QMapIterator<QString, ClubStatusQuery::ClubInfo> clubs(data);
 
     while ( clubs.hasNext() )
@@ -708,11 +781,17 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
         clubs.next();
         const QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value().status), false, QColor());
         const QString clubName = clubs.key().toHtmlEscaped();
+        const QString clubHtml = ( color.isValid() && color.alpha() > 0 )
+                                 ? QString("<font color='%1'>%2</font>").arg(Data::colorToHTMLColor(color), clubName)
+                                 : clubName;
 
-        if ( color.isValid() && color.alpha() > 0 )
-            memberText.append(QString("<font color='%1'>%2</font>&nbsp;&nbsp;&nbsp;").arg(Data::colorToHTMLColor(color), clubName));
-        else
-            memberText.append(QString("%1&nbsp;&nbsp;&nbsp;").arg(clubName));
+        memberListHtmlItems << clubHtml;
+        memberListToolTip += QString("<tr><td>%1</td>").arg(clubHtml);
+
+        if ( !clubs.value().membershipID.isEmpty() )
+            memberListToolTip += QString("<td>&nbsp;&nbsp;#%1</td>").arg(clubs.value().membershipID.toHtmlEscaped());
+
+        memberListToolTip += "</tr>";
 
         if ( clubs.key().toUpper() == "SKCC"
              && uiDynamic->skccEdit->text().isEmpty()
@@ -736,7 +815,10 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
             uiDynamic->fistsEdit->setText(clubs.value().membershipID);
         }
     }
-    ui->memberListLabel->setText(memberText);
+
+    memberListToolTip += "</table></qt>";
+    ui->memberListLabel->setToolTip(memberListHtmlItems.isEmpty() ? QString() : memberListToolTip);
+    updateMemberListLabel();
 }
 
 
@@ -995,7 +1077,8 @@ void NewContactWidget::clearMemberQueryFields()
 {
     FCT_IDENTIFICATION;
 
-    ui->memberListLabel->clear();
+    memberListHtmlItems.clear();
+    updateMemberListLabel();
 }
 
 void NewContactWidget::resetContact()
@@ -1391,6 +1474,14 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
 bool NewContactWidget::eventFilter(QObject *object, QEvent *event)
 {
     //FCT_IDENTIFICATION;
+
+    if ( object == ui->memberListLabel
+         && ( event->type() == QEvent::Resize
+              || event->type() == QEvent::FontChange
+              || event->type() == QEvent::StyleChange ) )
+    {
+        updateMemberListLabel();
+    }
 
     if ( event->type() == QEvent::FocusIn
          && object == ui->rstSentEdit )

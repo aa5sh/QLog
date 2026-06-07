@@ -51,6 +51,41 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.51.0" date="2026-06-07">
+      <description>
+        <ul>
+          <li>[NEW] - Added a simple QSL Card printing</li>
+          <li>[NEW] - Added virtual column Mode/Submode to Logbook (issue #798)</li>
+          <li>[NEW] - BandMap shows IBP frequencies (issue #1014)</li>
+          <li>[NEW] - BandMap - Added Bandmap Guide (issue #1039)</li>
+          <li>[NEW] - BandMap - Tune rig from IBP and SOS markers</li>
+          <li>[NEW] - Settings - Added Bandmap Guide Setting</li>
+          <li>[NEW] - Settings - Added user defined colors for DXCC Statuses</li>
+          <li>[NEW] - Settings - Added StartUp ADI file Import (issue #941 PR #992 @aa5sh @foldynl)</li>
+          <li>[NEW] - Rig Widget - Added Emergency, IBP and Bandmap Guide Labels</li>
+          <li>[NEW} - Activity Manager - Added Bandmap Guide selection</li>
+          <li>[NEW] - Import - Added QSL Sent Status default (issue #1029)</li>
+          <li>[NEW] - Awards - Added WAAC and WAIP (issue #1013 PR #1022 @aa5sh)</li>
+          <li>[NEW] - Awards - Added Open Rule Button</li>
+          <li>[NEW] - Download - Added LoTW DXCC credits import (based on PR #965 @aa5sh @foldynl)</li>
+          <li>[NEW] - Online Map - Added civil, nautical, and astronomical twilight</li>
+          <li>[CHANGED] - Added more built-in macOS TQSL search paths (PR #1041 @aa5sh)</li>
+          <li>[CHANGED] - Clock - Improved timing</li>
+          <li>[CHANGED] - IBP - Updated Beacon statuses, enabled ZL6B 5Z4B, disabled 4S7B OH2B YV5B</li>
+          <li>[CHANGED] - New Contact - Elide member list label and add tooltip with Member IDs</li>
+          <li>Workaround for #1017: FT-950 was reported to jump to VFO-B</li>
+          <li>Fixed ADIF Export of Gridsqaure too long (issue #1028)</li>
+          <li>Fixed Shutdown: synchronize station-device teardown (PR #1035 @VA3THP @foldynl)</li>
+          <li>Fixed QRZ callbook lookups stall for certain calls (issue #1040)</li>
+          <li>Fixed ADIF multiline fields are incorrectly parsed (issue #1046)</li>
+          <li>Fixed Editing POTA entity causes crash (issue #1049)</li>
+          <li>Fixed The HTML was not rendering in the membership label properly (PR #1060 @aa5sh)</li>
+          <li>Fixed ADX app-fields and grid normalization</li>
+          <li>Fixed WSJTX Status tx_mode value</li>
+          <li>Github - Source code is signed (#1018)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.50.0" date="2026-04-26">
       <description>
         <ul>
