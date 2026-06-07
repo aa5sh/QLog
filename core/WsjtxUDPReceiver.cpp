@@ -287,7 +287,7 @@ void WsjtxUDPReceiver::readPendingDatagrams()
 
             status.id = QString(id);
             status.mode = QString(mode);
-            status.tx_mode = QString(mode);
+            status.tx_mode = QString(tx_mode);
             status.sub_mode = QString(sub_mode);
             status.report = QString(report);
             status.dx_call = QString(dx_call);
@@ -649,8 +649,18 @@ void WsjtxUDPReceiver::sendHighlightCallsign(const WsjtxEntry &entry)
 {
     FCT_IDENTIFICATION;
 
+    const QColor background = Data::statusToColor(entry.status, false, QColor());
+
     // QColor() means that WSJTX clears the color
-    sendHighlightCallsignColor(entry, Qt::black, Data::statusToColor(entry.status, false, QColor()));
+    if ( !background.isValid() || background.alpha() == 0 )
+    {
+        sendHighlightCallsignColor(entry, QColor(), QColor());
+        return;
+    }
+
+    sendHighlightCallsignColor(entry,
+                               Data::textColorForBackground(background),
+                               background);
 }
 
 void WsjtxUDPReceiver::sendClearHighlightCallsign(const WsjtxEntry &entry)

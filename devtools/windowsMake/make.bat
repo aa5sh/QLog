@@ -46,7 +46,7 @@ rem -- VC Compiler Settings
 set "VS_VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat"
 
 rem -- QT Settings
-set "QT_BASE=C:\Qt\6.10.2\msvc2022_64"
+set "QT_BASE=C:\Qt\6.11.1\msvc2022_64"
 set "QTIFW_BIN=C:\Qt\Tools\QtInstallerFramework\4.6\bin"
 set "JOM=C:\Qt\Tools\QtCreator\bin\jom\jom.exe"
 
@@ -75,7 +75,7 @@ set "VCPKG_ZLIB_PKG=zlib_x64-windows"
 rem -- Hamlib Settings
 set "HAMLIBVERSION_MAJOR=4"
 set "HAMLIBVERSION_MINOR=7"
-set "HAMLIBVERSION_PATCH=0"
+set "HAMLIBVERSION_PATCH=1"
 
 rem === END OF CONFIGURATION ===
 

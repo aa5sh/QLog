@@ -10,6 +10,7 @@
 #include <QToolButton>
 #include <QStackedWidget>
 #include <QRandomGenerator>
+#include <QTextDocument>
 
 #include "rig/Rig.h"
 #include "rig/macros.h"
@@ -248,6 +249,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
 
     ui->rstSentEdit->installEventFilter(this);
     ui->rstRcvdEdit->installEventFilter(this);
+    ui->memberListLabel->installEventFilter(this);
 
     /********************/
     /* Local SHORTCUTs  */
@@ -692,6 +694,74 @@ void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
     lastCallbookQueryData = data;
 }
 
+QString NewContactWidget::memberListLabelHtml(int itemCount, bool elided) const
+{
+    FCT_IDENTIFICATION;
+
+    QStringList parts;
+
+    const int visibleItems = qMin(itemCount, memberListHtmlItems.size());
+    for ( int i = 0; i < visibleItems; ++i )
+        parts << memberListHtmlItems.at(i);
+
+    if ( elided )
+        parts << "...";
+
+    return parts.join("&nbsp;&nbsp;&nbsp;");
+}
+
+int NewContactWidget::memberListHtmlWidth(const QString &html) const
+{
+    FCT_IDENTIFICATION;
+
+    QTextDocument doc;
+    doc.setDefaultFont(ui->memberListLabel->font());
+    doc.setDocumentMargin(0);
+    doc.setHtml(html);
+
+    return static_cast<int>(doc.idealWidth() + 0.5);
+}
+
+void NewContactWidget::updateMemberListLabel()
+{
+    FCT_IDENTIFICATION;
+
+    if ( memberListHtmlItems.isEmpty() )
+    {
+        ui->memberListLabel->clear();
+        ui->memberListLabel->setToolTip(QString());
+        return;
+    }
+
+    const int availableWidth = ui->memberListLabel->contentsRect().width();
+
+    if ( availableWidth <= 0 )
+    {
+        ui->memberListLabel->setText(memberListLabelHtml(0, true));
+        return;
+    }
+
+    QString html = memberListLabelHtml(memberListHtmlItems.size(), false);
+
+    if ( memberListHtmlWidth(html) <= availableWidth )
+    {
+        if ( ui->memberListLabel->text() != html )
+            ui->memberListLabel->setText(html);
+        return;
+    }
+
+    for ( int itemCount = memberListHtmlItems.size(); itemCount >= 0; --itemCount )
+    {
+        html = memberListLabelHtml(itemCount, true);
+        if ( memberListHtmlWidth(html) <= availableWidth || itemCount == 0 )
+        {
+            if ( ui->memberListLabel->text() != html )
+                ui->memberListLabel->setText(html);
+            return;
+        }
+    }
+}
+
 void NewContactWidget::setMembershipList(const QString &in_callsign,
                                          QMap<QString, ClubStatusQuery::ClubInfo> data)
 {
@@ -700,16 +770,28 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
     if ( in_callsign != callsign )
         return;
 
-    QString memberText;
+    memberListHtmlItems.clear();
+    QString memberListToolTip = QString("<qt><b>%1</b><table cellspacing='2' cellpadding='0'>")
+                                .arg(tr("Member").toHtmlEscaped());
+
     QMapIterator<QString, ClubStatusQuery::ClubInfo> clubs(data);
-    QPalette palette;
 
     while ( clubs.hasNext() )
     {
         clubs.next();
-        const QColor &color = Data::statusToColor(static_cast<DxccStatus>(clubs.value().status), false, palette.color(QPalette::Text));
-        //"<font color='red'>Hello</font> <font color='green'>World</font>"
-        memberText.append(QString("<font color='%1'>%2</font>&nbsp;&nbsp;&nbsp;").arg(Data::colorToHTMLColor(color), clubs.key()));
+        const QColor color = Data::statusToColor(static_cast<DxccStatus>(clubs.value().status), false, QColor());
+        const QString clubName = clubs.key().toHtmlEscaped();
+        const QString clubHtml = ( color.isValid() && color.alpha() > 0 )
+                                 ? QString("<font color='%1'>%2</font>").arg(Data::colorToHTMLColor(color), clubName)
+                                 : clubName;
+
+        memberListHtmlItems << clubHtml;
+        memberListToolTip += QString("<tr><td>%1</td>").arg(clubHtml);
+
+        if ( !clubs.value().membershipID.isEmpty() )
+            memberListToolTip += QString("<td>&nbsp;&nbsp;#%1</td>").arg(clubs.value().membershipID.toHtmlEscaped());
+
+        memberListToolTip += "</tr>";
 
         if ( clubs.key().toUpper() == "SKCC"
              && uiDynamic->skccEdit->text().isEmpty()
@@ -733,7 +815,10 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
             uiDynamic->fistsEdit->setText(clubs.value().membershipID);
         }
     }
-    ui->memberListLabel->setText(memberText);
+
+    memberListToolTip += "</table></qt>";
+    ui->memberListLabel->setToolTip(memberListHtmlItems.isEmpty() ? QString() : memberListToolTip);
+    updateMemberListLabel();
 }
 
 
@@ -992,7 +1077,8 @@ void NewContactWidget::clearMemberQueryFields()
 {
     FCT_IDENTIFICATION;
 
-    ui->memberListLabel->clear();
+    memberListHtmlItems.clear();
+    updateMemberListLabel();
 }
 
 void NewContactWidget::resetContact()
@@ -1388,6 +1474,14 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
 bool NewContactWidget::eventFilter(QObject *object, QEvent *event)
 {
     //FCT_IDENTIFICATION;
+
+    if ( object == ui->memberListLabel
+         && ( event->type() == QEvent::Resize
+              || event->type() == QEvent::FontChange
+              || event->type() == QEvent::StyleChange ) )
+    {
+        updateMemberListLabel();
+    }
 
     if ( event->type() == QEvent::FocusIn
          && object == ui->rstSentEdit )
@@ -1975,6 +2069,10 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
             record.setValue("cont", dxcc.cont);
     }
 
+    // Issue #1028: raw WSJT/JTDX messages can
+    // contain GRIDSQUARE + GRIDSQUARE_EXT in one field.
+    AdiFormat::normalizeGridFields(record);
+
     // add information from callbook if it is a known callsign
     // based on the poll #420, QLog adds more information from callbook
     if ( savedCallsign == ui->callsignEdit->text() )
@@ -2004,7 +2102,8 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
             record.setValue("darc_dok", uiDynamic->dokEdit->text());
 
         // information depending on QTH (Grid)
-        const QString &savedGrid = record.value("gridsquare").toString();
+        const QString savedGrid = record.value("gridsquare").toString();
+
         if ( savedGrid.startsWith(uiDynamic->gridEdit->text(), Qt::CaseSensitivity::CaseInsensitive)
              || uiDynamic->gridEdit->text().startsWith(savedGrid, Qt::CaseSensitivity::CaseInsensitive ) )
         {
@@ -2288,11 +2387,19 @@ void NewContactWidget::updateDxccStatus()
         ui->dxccStatus->clear();
     }
 
-    QPalette palette;
-    palette.setColor(QPalette::Text, Data::statusToColor(status,
-                                                         ui->dupeLabel->isVisible(),
-                                                         palette.color(QPalette::Text)));
-    ui->callsignEdit->setPalette(palette);
+    const QColor statusColor = Data::statusToColor(status,
+                                                   ui->dupeLabel->isVisible(),
+                                                   QColor());
+    if ( statusColor.isValid() && statusColor.alpha() > 0 )
+    {
+        QPalette palette = ui->callsignEdit->palette();
+        palette.setColor(QPalette::Text, statusColor);
+        ui->callsignEdit->setPalette(palette);
+    }
+    else
+    {
+        ui->callsignEdit->setPalette(QPalette());
+    }
 
 }
 
@@ -2589,20 +2696,27 @@ void NewContactWidget::setNearestSpotColor()
     if ( nearestSpot.callsign.isEmpty() )
     {
         ui->nearStationLabel->clear();
+        ui->nearStationLabel->setPalette(QPalette());
         return;
     }
-
-    QPalette palette;
 
     const DxccEntity &spotEntity = Data::instance()->lookupDxcc(nearestSpot.callsign);
     const DxccStatus &status = Data::instance()->dxccStatus(spotEntity.dxcc,
                                                 ui->bandRXLabel->text(),
                                                 ui->modeEdit->currentText());
-    palette.setColor(QPalette::WindowText,
-                     Data::statusToColor(status,
-                                         nearestSpot.dupeCount,
-                                         palette.color(QPalette::Text)));
-    ui->nearStationLabel->setPalette(palette);
+    const QColor statusColor = Data::statusToColor(status,
+                                                   nearestSpot.dupeCount,
+                                                   QColor());
+    if ( statusColor.isValid() && statusColor.alpha() > 0 )
+    {
+        QPalette palette = ui->nearStationLabel->palette();
+        palette.setColor(QPalette::WindowText, statusColor);
+        ui->nearStationLabel->setPalette(palette);
+    }
+    else
+    {
+        ui->nearStationLabel->setPalette(QPalette());
+    }
     ui->nearStationLabel->setText(nearestSpot.callsign);
 }
 

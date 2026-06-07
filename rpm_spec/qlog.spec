@@ -52,6 +52,37 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_mandir}/man1/*
 
 %changelog
+* Sun Jun 7 2026 Ladislav Foldyna - 0.51.0-1
+- [NEW] - Added a simple QSL Card printing
+- [NEW] - Added virtual column Mode/Submode to Logbook (issue #798)
+- [NEW] - BandMap shows IBP frequencies (issue #1014)
+- [NEW] - BandMap - Added Bandmap Guide (issue #1039)
+- [NEW] - BandMap - Tune rig from IBP and SOS markers
+- [NEW] - Settings - Added Bandmap Guide Setting
+- [NEW] - Settings - Added user defined colors for DXCC Statuses
+- [NEW] - Settings - Added StartUp ADI file Import (issue #941 PR #992 @aa5sh @foldynl)
+- [NEW] - Rig Widget - Added Emergency, IBP and Bandmap Guide Labels
+- [NEW} - Activity Manager - Added Bandmap Guide selection
+- [NEW] - Import - Added QSL Sent Status default (issue #1029)
+- [NEW] - Awards - Added WAAC and WAIP (issue #1013 PR #1022 @aa5sh)
+- [NEW] - Awards - Added Open Rule Button
+- [NEW] - Download - Added LoTW DXCC credits import (based on PR #965 @aa5sh @foldynl)
+- [NEW] - Online Map - Added civil, nautical, and astronomical twilight
+- [CHANGED] - Added more built-in macOS TQSL search paths (PR #1041 @aa5sh)
+- [CHANGED] - Clock - Improved timing
+- [CHANGED] - IBP - Updated Beacon statuses, enabled ZL6B 5Z4B, disabled 4S7B OH2B YV5B
+- [CHANGED] - New Contact - Elide member list label and add tooltip with Member IDs
+- Workaround for #1017: FT-950 was reported to jump to VFO-B
+- Fixed ADIF Export of Gridsqaure too long (issue #1028)
+- Fixed Shutdown: synchronize station-device teardown (PR #1035 @VA3THP @foldynl)
+- Fixed QRZ callbook lookups stall for certain calls (issue #1040)
+- Fixed ADIF multiline fields are incorrectly parsed (issue #1046)
+- Fixed Editing POTA entity causes crash (issue #1049)
+- Fixed The HTML was not rendering in the membership label properly (PR #1060 @aa5sh)
+- Fixed ADX app-fields and grid normalization
+- Fixed WSJTX Status tx_mode value
+- Github - Source code is signed (#1018)
+
 * Sun Apr 26 2026 Ladislav Foldyna - 0.50.0-1
 - [NEW] - Added Split detection
 - [NEW] - Added Developer and Support tools (PR #991 @aa5sh @foldynl)
