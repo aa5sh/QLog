@@ -14,6 +14,7 @@ public:
     explicit ModeSubmodeEditor(bool showMode, QWidget *parent = nullptr);
 
     void setModeSubmode(const QString &mode, const QString &submode);
+    void installComboEventFilter(QObject *filter);
     QString mode() const;
     QString submode() const;
 
@@ -37,6 +38,7 @@ public:
     void updateEditorGeometry(QWidget *editor,
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const override;
+    bool eventFilter(QObject *object, QEvent *event) override;
 };
 
 class SubmodeDelegate : public QStyledItemDelegate
@@ -53,6 +55,7 @@ public:
     void updateEditorGeometry(QWidget *editor,
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const override;
+    bool eventFilter(QObject *object, QEvent *event) override;
 };
 
 #endif // QLOG_UI_MODESUBMODEDELEGATE_H

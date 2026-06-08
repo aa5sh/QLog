@@ -1,4 +1,4 @@
-TBC - 0.51.0
+2026/06/07 - 0.51.0
 - [NEW] - Added a simple QSL Card printing
 - [NEW] - Added virtual column Mode/Submode to Logbook (issue #798)
 - [NEW] - BandMap shows IBP frequencies (issue #1014)
@@ -17,12 +17,16 @@ TBC - 0.51.0
 - [CHANGED] - Added more built-in macOS TQSL search paths (PR #1041 @aa5sh)
 - [CHANGED] - Clock - Improved timing
 - [CHANGED] - IBP - Updated Beacon statuses, enabled ZL6B 5Z4B, disabled 4S7B OH2B YV5B
+- [CHANGED] - New Contact - Elide member list label and add tooltip with Member IDs
 - Workaround for #1017: FT-950 was reported to jump to VFO-B
 - Fixed ADIF Export of Gridsqaure too long (issue #1028)
 - Fixed Shutdown: synchronize station-device teardown (PR #1035 @VA3THP @foldynl)
 - Fixed QRZ callbook lookups stall for certain calls (issue #1040)
 - Fixed ADIF multiline fields are incorrectly parsed (issue #1046)
+- Fixed Editing POTA entity causes crash (issue #1049)
+- Fixed The HTML was not rendering in the membership label properly (PR #1060 @aa5sh)
 - Fixed ADX app-fields and grid normalization
+- Fixed WSJTX Status tx_mode value
 - Github - Source code is signed (#1018)
 
 2026/04/26 - 0.50.0

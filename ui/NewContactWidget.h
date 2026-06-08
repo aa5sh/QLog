@@ -336,6 +336,9 @@ private:
     void showRXTXFreqs(bool);
     void setComboBaseData(QComboBox *, const QString &);
     void queryMemberList();
+    QString memberListLabelHtml(int itemCount, bool elided) const;
+    int memberListHtmlWidth(const QString &) const;
+    void updateMemberListLabel();
     QList<QWidget*> setupCustomUiRow(QHBoxLayout *row, const QList<int>& widgetsList);
     QList<QWidget*> setupCustomDetailColumn(QFormLayout *column, const QList<int>& widgetsList);
 
@@ -402,6 +405,7 @@ private:
     DxSpot nearestSpot;
     QToolButton *tabCollapseBtn;
     ModeSelectionController *modeController;
+    QStringList memberListHtmlItems;
 };
 
 #endif // QLOG_UI_NEWCONTACTWIDGET_H
