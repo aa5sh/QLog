@@ -1,4 +1,5 @@
 #include "ActivityProfile.h"
+#include "amplifier/AmplifierController.h"
 #include "core/debug.h"
 #include "data/ProfileManager.h"
 #include "data/AntProfile.h"
@@ -219,6 +220,9 @@ void ActivityProfilesManager::setAllProfiles()
             break;
         case ActivityProfile::STEPPIR_PROFILE:
             SteppirProfiles::setCurrentProfileName(i.value().name);
+            break;
+        case ActivityProfile::AMPLIFIER_PROFILE:
+            AmplifierProfiles::setCurrentProfileName(i.value().name);
             break;
         default:
             qWarning() << "Unknown Activity profile" << i.key();

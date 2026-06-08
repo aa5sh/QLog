@@ -15,6 +15,9 @@ class MainWindow;
 }
 
 class QLabel;
+class QAction;
+class QDockWidget;
+class AmplifierWidget;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
 class QDockWidget;
@@ -55,6 +58,7 @@ private slots:
     void rigConnect();
     void rotConnect();
     void steppirConnect();
+    void amplifierConnect();
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -132,6 +136,10 @@ private:
     QActionGroup *dupeGroup;
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
+    QAction *actionConnectAmplifier = nullptr;
+    QAction *actionAmplifierWindow = nullptr;
+    QDockWidget *amplifierDockWidget = nullptr;
+    AmplifierWidget *amplifierWidget = nullptr;
     QMetaObject::Connection alertTextButtonConn;
     bool firstRun = false;
     void setupActivitiesMenu();

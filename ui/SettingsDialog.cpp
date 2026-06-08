@@ -16,6 +16,7 @@
 #include <algorithm>
 
 #include "antenna/SteppirController.h"
+#include "amplifier/AmplifierController.h"
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 #include "models/RigTypeModel.h"
@@ -447,9 +448,20 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     initProfileListView(ui->rotUsrButtonListView);
     initProfileListView(ui->antProfilesListView);
     initProfileListView(ui->steppirProfilesListView);
+    initProfileListView(ui->amplifierProfilesListView);
     initProfileListView(ui->cwProfilesListView);
     initProfileListView(ui->cwShortcutListView);
     initProfileListView(ui->stationProfilesListView);
+
+    ui->amplifierModelCombo->addItem(tr("SPE Expert 1K-FA"), AmplifierProfile::SPE_EXPERT_1K);
+    ui->amplifierConnectionTypeCombo->addItem(tr("Serial"), AmplifierProfile::Serial);
+    ui->amplifierConnectionTypeCombo->addItem(tr("Network"), AmplifierProfile::Network);
+    connect(ui->amplifierConnectionTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &SettingsDialog::amplifierConnectionTypeChanged);
+    connect(ui->amplifierAddProfileButton, &QPushButton::clicked, this, &SettingsDialog::addAmplifierProfile);
+    connect(ui->amplifierDelProfileButton, &QPushButton::clicked, this, &SettingsDialog::delAmplifierProfile);
+    connect(ui->amplifierProfilesListView, &QListView::doubleClicked, this, &SettingsDialog::doubleClickAmplifierProfile);
+    amplifierConnectionTypeChanged(ui->amplifierConnectionTypeCombo->currentIndex());
 
     QStringListModel* cwKeysModel = new QStringListModel(ui->rigAssignedCWKeyCombo);
     ui->rigAssignedCWKeyCombo->setModel(cwKeysModel);
@@ -662,11 +674,12 @@ void SettingsDialog::save()
         {ui->stationAddProfileButton,       0, -1},
         {ui->antAddProfileButton,           1,  0},
         {ui->steppirAddProfileButton,       1,  0},
-        {ui->cwAddProfileButton,            1,  1},
-        {ui->cwShortcutAddProfileButton,    1,  1},
-        {ui->rigAddProfileButton,           1,  2},
-        {ui->rotAddProfileButton,           1,  3},
-        {ui->rotUsrButtonAddProfileButton,  1,  3},
+        {ui->amplifierAddProfileButton,     1,  1},
+        {ui->cwAddProfileButton,            1,  2},
+        {ui->cwShortcutAddProfileButton,    1,  2},
+        {ui->rigAddProfileButton,           1,  3},
+        {ui->rotAddProfileButton,           1,  4},
+        {ui->rotUsrButtonAddProfileButton,  1,  4},
     };
     for ( const PendingModify &check : modifyChecks )
     {
@@ -1493,6 +1506,97 @@ void SettingsDialog::setSteppirConnectionType(int index)
     ui->steppirPortSpin->setEnabled(!isSerial);
     ui->steppirSerialPortEdit->setEnabled(isSerial);
     ui->steppirBaudCombo->setEnabled(isSerial);
+}
+
+void SettingsDialog::addAmplifierProfile()
+{
+    FCT_IDENTIFICATION;
+
+    if ( ui->amplifierProfileNameEdit->text().isEmpty() )
+    {
+        ui->amplifierProfileNameEdit->setPlaceholderText(tr("Must not be empty"));
+        return;
+    }
+
+    if ( ui->amplifierAddProfileButton->text() == tr("Modify") )
+        ui->amplifierAddProfileButton->setText(tr("Add"));
+
+    AmplifierProfile profile;
+    profile.profileName = ui->amplifierProfileNameEdit->text();
+    profile.model = static_cast<AmplifierProfile::AmplifierModel>(ui->amplifierModelCombo->currentData().toInt());
+    profile.connectionType = static_cast<AmplifierProfile::ConnectionType>(ui->amplifierConnectionTypeCombo->currentData().toInt());
+    profile.serialPort = ui->amplifierSerialPortEdit->text();
+    profile.baudRate = ui->amplifierBaudRateSpin->value();
+    profile.host = ui->amplifierHostEdit->text();
+    profile.port = ui->amplifierPortSpin->value();
+
+    AmplifierProfiles::addOrReplace(profile);
+    AmplifierProfiles::setCurrentProfileName(profile.profileName);
+    refreshAmplifierProfilesView();
+    clearAmplifierProfileForm();
+}
+
+void SettingsDialog::delAmplifierProfile()
+{
+    FCT_IDENTIFICATION;
+    deleteSelectedProfiles(ui->amplifierProfilesListView, [](const QString &name) {
+        AmplifierProfiles::remove(name);
+    });
+    clearAmplifierProfileForm();
+}
+
+void SettingsDialog::refreshAmplifierProfilesView()
+{
+    FCT_IDENTIFICATION;
+    refreshProfileView(ui->amplifierProfilesListView, AmplifierProfiles::profileNames());
+}
+
+void SettingsDialog::doubleClickAmplifierProfile(QModelIndex i)
+{
+    FCT_IDENTIFICATION;
+
+    const AmplifierProfile profile = AmplifierProfiles::profile(ui->amplifierProfilesListView->model()->data(i).toString());
+    ui->amplifierProfileNameEdit->setText(profile.profileName);
+    setComboByData(ui->amplifierModelCombo, profile.model);
+    setComboByData(ui->amplifierConnectionTypeCombo, profile.connectionType);
+    ui->amplifierSerialPortEdit->setText(profile.serialPort);
+    ui->amplifierBaudRateSpin->setValue(profile.baudRate);
+    ui->amplifierHostEdit->setText(profile.host);
+    ui->amplifierPortSpin->setValue(profile.port);
+    amplifierConnectionTypeChanged(ui->amplifierConnectionTypeCombo->currentIndex());
+
+    ui->amplifierAddProfileButton->setText(tr("Modify"));
+}
+
+void SettingsDialog::clearAmplifierProfileForm()
+{
+    FCT_IDENTIFICATION;
+
+    ui->amplifierProfileNameEdit->setPlaceholderText(QString());
+    ui->amplifierProfileNameEdit->clear();
+    ui->amplifierModelCombo->setCurrentIndex(0);
+    ui->amplifierConnectionTypeCombo->setCurrentIndex(0);
+    ui->amplifierSerialPortEdit->clear();
+    ui->amplifierBaudRateSpin->setValue(9600);
+    ui->amplifierHostEdit->clear();
+    ui->amplifierPortSpin->setValue(5000);
+    ui->amplifierAddProfileButton->setText(tr("Add"));
+    amplifierConnectionTypeChanged(ui->amplifierConnectionTypeCombo->currentIndex());
+}
+
+void SettingsDialog::amplifierConnectionTypeChanged(int)
+{
+    FCT_IDENTIFICATION;
+
+    const bool serial = ui->amplifierConnectionTypeCombo->currentData().toInt() == AmplifierProfile::Serial;
+    ui->amplifierSerialPortLabel->setVisible(serial);
+    ui->amplifierSerialPortEdit->setVisible(serial);
+    ui->amplifierBaudRateLabel->setVisible(serial);
+    ui->amplifierBaudRateSpin->setVisible(serial);
+    ui->amplifierHostLabel->setVisible(!serial);
+    ui->amplifierHostEdit->setVisible(!serial);
+    ui->amplifierPortLabel->setVisible(!serial);
+    ui->amplifierPortSpin->setVisible(!serial);
 }
 
 void SettingsDialog::addCWKeyProfile()
@@ -2767,6 +2871,7 @@ void SettingsDialog::readSettings()
     refreshRotUsrButtonsProfilesView();
     refreshAntProfilesView();
     refreshSteppirProfilesView();
+    refreshAmplifierProfilesView();
     refreshCWKeyProfilesView();
     refreshCWShortcutProfilesView();
     refreshRigAssignedCWKeyCombo();

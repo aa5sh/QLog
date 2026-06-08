@@ -85,6 +85,12 @@ public slots:
     void doubleClickSteppirProfile(QModelIndex);
     void clearSteppirProfileForm();
     void setSteppirConnectionType(int index);
+    void addAmplifierProfile();
+    void delAmplifierProfile();
+    void refreshAmplifierProfilesView();
+    void doubleClickAmplifierProfile(QModelIndex);
+    void clearAmplifierProfileForm();
+    void amplifierConnectionTypeChanged(int);
 
     void addCWKeyProfile();
     void delCWKeyProfile();

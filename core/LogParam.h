@@ -416,6 +416,10 @@ public:
     static QString getMainWindowBandmapWidgets();
     static void setMainWindowBandmapWidgets(const QString &value);
     static void removeMainWindowBandmapWidgets();
+    static QString getAmplifierProfiles();
+    static void setAmplifierProfiles(const QString &profilesJson);
+    static QString getAmplifierCurrentProfile();
+    static void setAmplifierCurrentProfile(const QString &profileName);
 
     /**********************
      * SteppIR Controller

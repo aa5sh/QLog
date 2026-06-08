@@ -1439,6 +1439,26 @@ void LogParam::setSteppirCurrentProfile(const QString &profileName)
     setParam("steppir/currentprofile", profileName);
 }
 
+QString LogParam::getAmplifierProfiles()
+{
+    return getParam("amplifier/profiles", "[]").toString();
+}
+
+void LogParam::setAmplifierProfiles(const QString &profilesJson)
+{
+    setParam("amplifier/profiles", profilesJson);
+}
+
+QString LogParam::getAmplifierCurrentProfile()
+{
+    return getParam("amplifier/currentprofile", "").toString();
+}
+
+void LogParam::setAmplifierCurrentProfile(const QString &profileName)
+{
+    setParam("amplifier/currentprofile", profileName);
+}
+
 int LogParam::getQslLabelTemplate()
 {
     return getParam("qsllabel/template", 0).toInt();

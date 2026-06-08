@@ -55,6 +55,7 @@ CONFIG += c++11 force_debug_info
 CONFIG *= link_pkgconfig
 
 SOURCES += \
+        amplifier/AmplifierController.cpp \
         antenna/SteppirController.cpp \
         awards/AwardDefinition.cpp \
         awards/AwardDXCC.cpp \
@@ -174,6 +175,7 @@ SOURCES += \
         service/potaapp/PotaApp.cpp \
         service/qrzcom/QRZ.cpp \
         ui/ActivityEditor.cpp \
+        ui/AmplifierWidget.cpp \
         ui/AdifRecoveryManager.cpp \
         ui/AlertRuleDetail.cpp \
         ui/AlertSettingDialog.cpp \
@@ -242,6 +244,7 @@ SOURCES += \
         ui/component/SwitchButton.cpp
 
 HEADERS += \
+        amplifier/AmplifierController.h \
         antenna/SteppirController.h \
         awards/AwardDefinition.h \
         awards/AwardDXCC.h \
@@ -379,6 +382,7 @@ HEADERS += \
         service/potaapp/PotaApp.h \
         service/qrzcom/QRZ.h \
         ui/ActivityEditor.h \
+        ui/AmplifierWidget.h \
         ui/AdifRecoveryManager.h \
         ui/AlertRuleDetail.h \
         ui/AlertSettingDialog.h \
@@ -454,6 +458,7 @@ HEADERS += \
         ui/component/SwitchButton.h
 
 FORMS += \
+        ui/AmplifierWidget.ui \
         ui/ActivityEditor.ui \
         ui/AlertRuleDetail.ui \
         ui/AlertSettingDialog.ui \
