@@ -123,9 +123,9 @@ void AmplifierWidget::statusChanged(const AmplifierStatus &status)
     ui->inputLabel->setText(tr("IN: %1").arg(status.input + 1));
     ui->temperatureLabel->setText(tr("%1° %2").arg(status.temperature).arg(status.tempCelsius ? "C" : "F"));
     ui->swrLabel->setText(status.operate
-                          ? tr("GAIN: %1").arg(status.gainDb, 0, 'f', 1)
-                          : tr("SWR: %1").arg(status.swr, 0, 'f', 2));
-    ui->outputLabel->setText(tr("OUTPUT: %1").arg(status.paOutW, 0, 'f', 1));
+                          ? tr("%1 dB").arg(status.gainDb, 0, 'f', 1)
+                          : tr("%1").arg(status.swr, 0, 'f', 2));
+    ui->outputLabel->setText(tr("%1").arg(status.paOutW, 0, 'f', 1));
 
     ui->powerValueLabel->setText(tr("PWR OUT %1 W").arg(status.paOutW, 0, 'f', 1));
     ui->powerBar->setValue(qRound(status.paOutW * 10.0));

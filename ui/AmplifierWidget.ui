@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>554</width>
-    <height>269</height>
+    <width>540</width>
+    <height>248</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>560</width>
+    <height>16777215</height>
+   </size>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -86,7 +92,7 @@
         <string notr="true">font-weight:bold;</string>
        </property>
        <property name="text">
-        <string>OUTPUT: --</string>
+        <string>--</string>
        </property>
       </widget>
      </item>
@@ -101,7 +107,7 @@
       <widget class="QPushButton" name="modeButton">
        <property name="minimumSize">
         <size>
-         <width>64</width>
+         <width>74</width>
          <height>0</height>
         </size>
        </property>
@@ -110,6 +116,26 @@
        </property>
       </widget>
      </item>
+     <item>
+      <spacer name="summarySpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="statusLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
      <item>
       <widget class="QLabel" name="bandLabel">
        <property name="text">
@@ -141,12 +167,12 @@
      <item>
       <widget class="QLabel" name="swrLabel">
        <property name="text">
-        <string>SWR: --</string>
+        <string>--</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="summarySpacer">
+      <spacer name="statusSpacer">
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
@@ -186,20 +212,13 @@
       </widget>
      </item>
      <item row="2" column="0" colspan="2">
-      <widget class="QLabel" name="powerScaleLabel">
-       <property name="text">
-        <string>0                         500                         1000</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
       <widget class="QLabel" name="swrValueLabel">
        <property name="text">
         <string>SWR 1.00</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0" colspan="2">
+     <item row="3" column="0" colspan="2">
       <widget class="QProgressBar" name="swrBar">
        <property name="maximum">
         <number>200</number>
@@ -212,28 +231,21 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0" colspan="2">
-      <widget class="QLabel" name="swrScaleLabel">
-       <property name="text">
-        <string>1.0                       2.0                        3.0</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="voltsValueLabel">
        <property name="text">
         <string>VOLTS 0.0</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="4" column="1">
       <widget class="QLabel" name="ampsValueLabel">
        <property name="text">
         <string>AMPS 0.0</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
+     <item row="5" column="0">
       <widget class="QProgressBar" name="voltsBar">
        <property name="maximum">
         <number>600</number>
@@ -246,7 +258,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="5" column="1">
       <widget class="QProgressBar" name="ampsBar">
        <property name="maximum">
         <number>600</number>
@@ -262,7 +274,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="buttonLayout">
+    <layout class="QHBoxLayout" name="controlButtonLayout">
      <property name="spacing">
       <number>4</number>
      </property>
@@ -294,6 +306,13 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="navigationButtonLayout">
+     <property name="spacing">
+      <number>4</number>
+     </property>
      <item>
       <widget class="QPushButton" name="leftButton">
        <property name="text">
