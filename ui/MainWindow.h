@@ -17,6 +17,8 @@ class MainWindow;
 class QLabel;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
+class QDockWidget;
+class SteppirWidget;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -52,6 +54,7 @@ public slots:
 private slots:
     void rigConnect();
     void rotConnect();
+    void steppirConnect();
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -113,6 +116,10 @@ private:
     QPushButton* alertButton;
     QPushButton* alertTextButton;
     QPushButton *themeButton;
+    QAction *actionConnectSteppir;
+    QAction *actionSteppirWindow;
+    QDockWidget *steppirDockWidget;
+    SteppirWidget *steppirWidget;
     StatisticsWidget* stats;
     NetworkNotification networknotification;
     AlertEvaluator alertEvaluator;

@@ -589,6 +589,130 @@
                </widget>
               </item>
              </layout>
+           </widget>
+          </item>
+           <item>
+            <widget class="QGroupBox" name="steppirGroup">
+             <property name="title">
+              <string>SteppIR Controller</string>
+             </property>
+             <layout class="QGridLayout" name="steppirGridLayout">
+              <item row="0" column="0" rowspan="2">
+               <widget class="QListView" name="steppirProfilesListView">
+                <property name="focusPolicy">
+                 <enum>Qt::NoFocus</enum>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::NoContextMenu</enum>
+                </property>
+                <property name="toolTip">
+                 <string>List of all available SteppIR controller profiles</string>
+                </property>
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QGroupBox" name="steppirProfileGroup">
+                <property name="minimumSize">
+                 <size>
+                  <width>400</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="title">
+                 <string/>
+                </property>
+                <layout class="QFormLayout" name="steppirFormLayout">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="steppirProfileNameLabel">
+                   <property name="text">
+                    <string>Profile Name</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="steppirProfileNameEdit"/>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="steppirConnectionTypeLabel">
+                   <property name="text">
+                    <string>Connection</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="steppirConnectionTypeCombo"/>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="steppirHostLabel">
+                   <property name="text">
+                    <string>Host</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="steppirHostEdit"/>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="steppirPortLabel">
+                   <property name="text">
+                    <string>Port</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QSpinBox" name="steppirPortSpin">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>65535</number>
+                   </property>
+                   <property name="value">
+                    <number>5000</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="steppirSerialPortLabel">
+                   <property name="text">
+                    <string>Serial Port</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QLineEdit" name="steppirSerialPortEdit"/>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="steppirBaudLabel">
+                   <property name="text">
+                    <string>Baud</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QComboBox" name="steppirBaudCombo"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="steppirAddProfileButton">
+                <property name="text">
+                 <string>Add</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="steppirDelProfileButton">
+                <property name="text">
+                 <string>Delete</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>

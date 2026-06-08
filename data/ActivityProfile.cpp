@@ -7,6 +7,7 @@
 #include "data/RigProfile.h"
 #include "data/RotProfile.h"
 #include "data/StationProfile.h"
+#include "antenna/SteppirController.h"
 
 MODULE_IDENTIFICATION("qlog.data.activityprofile");
 
@@ -215,6 +216,9 @@ void ActivityProfilesManager::setAllProfiles()
             break;
         case ActivityProfile::BANDMAP_GUIDE_PROFILE:
             applyBandmapGuideProfile(i.value().name);
+            break;
+        case ActivityProfile::STEPPIR_PROFILE:
+            SteppirProfiles::setCurrentProfileName(i.value().name);
             break;
         default:
             qWarning() << "Unknown Activity profile" << i.key();

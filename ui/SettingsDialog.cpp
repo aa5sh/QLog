@@ -15,6 +15,7 @@
 #include <QTableWidgetItem>
 #include <algorithm>
 
+#include "antenna/SteppirController.h"
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 #include "models/RigTypeModel.h"
@@ -445,6 +446,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     initProfileListView(ui->rotProfilesListView);
     initProfileListView(ui->rotUsrButtonListView);
     initProfileListView(ui->antProfilesListView);
+    initProfileListView(ui->steppirProfilesListView);
     initProfileListView(ui->cwProfilesListView);
     initProfileListView(ui->cwShortcutListView);
     initProfileListView(ui->stationProfilesListView);
@@ -621,6 +623,18 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     populateSignalCombo(ui->rigDTRCombo);
     populateSignalCombo(ui->rigRTSCombo);
 
+    ui->steppirConnectionTypeCombo->addItem(tr("TCP"), SteppirProfile::Network);
+    ui->steppirConnectionTypeCombo->addItem(tr("Serial"), SteppirProfile::Serial);
+    ui->steppirBaudCombo->addItems(QStringList() << "1200" << "2400" << "4800" << "9600" << "19200" << "38400" << "57600" << "115200");
+    ui->steppirBaudCombo->setCurrentText("9600");
+
+    connect(ui->steppirAddProfileButton, &QPushButton::clicked, this, &SettingsDialog::addSteppirProfile);
+    connect(ui->steppirDelProfileButton, &QPushButton::clicked, this, &SettingsDialog::delSteppirProfile);
+    connect(ui->steppirProfilesListView, &QListView::doubleClicked, this, &SettingsDialog::doubleClickSteppirProfile);
+    connect(ui->steppirConnectionTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &SettingsDialog::setSteppirConnectionType);
+    setSteppirConnectionType(0);
+
     /* disable WSJTX Multicast by default */
     joinMulticastChanged(false);
 
@@ -647,6 +661,7 @@ void SettingsDialog::save()
     {
         {ui->stationAddProfileButton,       0, -1},
         {ui->antAddProfileButton,           1,  0},
+        {ui->steppirAddProfileButton,       1,  0},
         {ui->cwAddProfileButton,            1,  1},
         {ui->cwShortcutAddProfileButton,    1,  1},
         {ui->rigAddProfileButton,           1,  2},
@@ -1384,6 +1399,100 @@ void SettingsDialog::clearAntProfileForm()
     ui->antAzOffsetSpinBox->setValue(0.0);
 
     ui->antAddProfileButton->setText(tr("Add"));
+}
+
+void SettingsDialog::addSteppirProfile()
+{
+    FCT_IDENTIFICATION;
+
+    if (ui->steppirProfileNameEdit->text().isEmpty())
+    {
+        ui->steppirProfileNameEdit->setPlaceholderText(tr("Must not be empty"));
+        return;
+    }
+
+    SteppirProfile profile;
+    profile.name = ui->steppirProfileNameEdit->text();
+    profile.type = static_cast<SteppirProfile::ConnectionType>(ui->steppirConnectionTypeCombo->currentData().toInt());
+    profile.host = ui->steppirHostEdit->text();
+    profile.port = static_cast<quint16>(ui->steppirPortSpin->value());
+    profile.serialPort = ui->steppirSerialPortEdit->text();
+    profile.baudRate = ui->steppirBaudCombo->currentText().toInt();
+
+    if (profile.type == SteppirProfile::Network && profile.host.isEmpty())
+    {
+        ui->steppirHostEdit->setPlaceholderText(tr("Must not be empty"));
+        return;
+    }
+
+    if (profile.type == SteppirProfile::Serial && profile.serialPort.isEmpty())
+    {
+        ui->steppirSerialPortEdit->setPlaceholderText(tr("Must not be empty"));
+        return;
+    }
+
+    SteppirProfiles::addOrReplace(profile);
+    if (SteppirProfiles::currentProfileName().isEmpty())
+        SteppirProfiles::setCurrentProfileName(profile.name);
+
+    refreshSteppirProfilesView();
+    clearSteppirProfileForm();
+}
+
+void SettingsDialog::delSteppirProfile()
+{
+    FCT_IDENTIFICATION;
+
+    deleteSelectedProfiles(ui->steppirProfilesListView, [](const QString &name) {
+        SteppirProfiles::remove(name);
+    });
+    clearSteppirProfileForm();
+}
+
+void SettingsDialog::refreshSteppirProfilesView()
+{
+    FCT_IDENTIFICATION;
+
+    refreshProfileView(ui->steppirProfilesListView, SteppirProfiles::profileNames());
+}
+
+void SettingsDialog::doubleClickSteppirProfile(QModelIndex i)
+{
+    FCT_IDENTIFICATION;
+
+    const SteppirProfile profile = SteppirProfiles::profile(ui->steppirProfilesListView->model()->data(i).toString());
+    ui->steppirProfileNameEdit->setText(profile.name);
+    ui->steppirConnectionTypeCombo->setCurrentIndex(ui->steppirConnectionTypeCombo->findData(profile.type));
+    ui->steppirHostEdit->setText(profile.host);
+    ui->steppirPortSpin->setValue(profile.port > 0 ? profile.port : 5000);
+    ui->steppirSerialPortEdit->setText(profile.serialPort);
+    ui->steppirBaudCombo->setCurrentText(QString::number(profile.baudRate));
+    ui->steppirAddProfileButton->setText(tr("Modify"));
+}
+
+void SettingsDialog::clearSteppirProfileForm()
+{
+    FCT_IDENTIFICATION;
+
+    ui->steppirProfileNameEdit->setPlaceholderText(QString());
+    ui->steppirHostEdit->setPlaceholderText(QString());
+    ui->steppirSerialPortEdit->setPlaceholderText(QString());
+    ui->steppirProfileNameEdit->clear();
+    ui->steppirHostEdit->clear();
+    ui->steppirPortSpin->setValue(5000);
+    ui->steppirSerialPortEdit->clear();
+    ui->steppirBaudCombo->setCurrentText("9600");
+    ui->steppirConnectionTypeCombo->setCurrentIndex(0);
+    ui->steppirAddProfileButton->setText(tr("Add"));
+}
+
+void SettingsDialog::setSteppirConnectionType(int index)
+{
+    const bool isSerial = ui->steppirConnectionTypeCombo->itemData(index).toInt() == SteppirProfile::Serial;
+    ui->steppirHostEdit->setEnabled(!isSerial);
+    ui->steppirPortSpin->setEnabled(!isSerial);
+    ui->steppirSerialPortEdit->setEnabled(isSerial);
+    ui->steppirBaudCombo->setEnabled(isSerial);
 }
 
 void SettingsDialog::addCWKeyProfile()
@@ -2657,6 +2766,7 @@ void SettingsDialog::readSettings()
     refreshRotProfilesView();
     refreshRotUsrButtonsProfilesView();
     refreshAntProfilesView();
+    refreshSteppirProfilesView();
     refreshCWKeyProfilesView();
     refreshCWShortcutProfilesView();
     refreshRigAssignedCWKeyCombo();

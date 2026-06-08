@@ -15,7 +15,8 @@ public:
         RIG_PROFILE = 2,
         ROT_PROFILE = 3,
         MAIN_LAYOUT_PROFILE = 4,
-        BANDMAP_GUIDE_PROFILE = 5
+        BANDMAP_GUIDE_PROFILE = 5,
+        STEPPIR_PROFILE = 6
     };
 
     enum ProfileParamType

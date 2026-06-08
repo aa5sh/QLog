@@ -13,6 +13,7 @@
 #include "models/LogbookModel.h"
 #include "data/Data.h"
 #include "data/ActivityProfile.h"
+#include "antenna/SteppirController.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mainlayouteditor");
 
@@ -31,6 +32,8 @@ ActivityEditor::ActivityEditor(const QString &activityName,
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+
+    connect(ui->steppirProfileCheckbox, &QCheckBox::toggled, this, &ActivityEditor::setValueState);
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
     // disabled for QT 5.12 (ubuntu 20.04) due to issue in QT
@@ -155,6 +158,7 @@ void ActivityEditor::save()
     insertProfile(ActivityProfile::ProfileType::STATION_PROFILE, ui->stationProfileCheckbox->isChecked(), ui->stationProfileCombo->currentText());
     insertProfile(ActivityProfile::ProfileType::RIG_PROFILE, ui->rigProfileCheckbox->isChecked(), ui->rigProfileCombo->currentText(), ui->rigAutoconnectCheckbox);
     insertProfile(ActivityProfile::ProfileType::ROT_PROFILE, ui->rotatorProfileCheckbox->isChecked(), ui->rotatorProfileCombo->currentText(), ui->rotatorAutoconnectCheckbox);
+    insertProfile(ActivityProfile::ProfileType::STEPPIR_PROFILE, ui->steppirProfileCheckbox->isChecked(), ui->steppirProfileCombo->currentText(), ui->steppirAutoconnectCheckbox);
     insertProfile(ActivityProfile::ProfileType::BANDMAP_GUIDE_PROFILE,
                   ui->bandmapGuideCombo->currentIndex() > 0,
                   ui->bandmapGuideCombo->currentData().toString());
@@ -202,6 +206,8 @@ void ActivityEditor::setValueState()
     ui->rigAutoconnectCheckbox->setEnabled(ui->rigProfileCheckbox->isChecked());
     ui->rotatorProfileCombo->setEnabled(ui->rotatorProfileCheckbox->isChecked());
     ui->rotatorAutoconnectCheckbox->setEnabled(ui->rotatorProfileCheckbox->isChecked());
+    ui->steppirProfileCombo->setEnabled(ui->steppirProfileCheckbox->isChecked());
+    ui->steppirAutoconnectCheckbox->setEnabled(ui->steppirProfileCheckbox->isChecked());
 
     bool isContestActive = !availableFieldsModel->stringList().contains(LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_CONTEST_ID));
     bool isSTXStringActive = !availableFieldsModel->stringList().contains(LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_STX_STRING));
@@ -432,11 +438,13 @@ void ActivityEditor::setupValuesTab(const QString &activityName)
     ui->antennaProfileCombo->addItems(AntProfilesManager::instance()->profileNameList());
     ui->rigProfileCombo->addItems(RigProfilesManager::instance()->profileNameList());
     ui->rotatorProfileCombo->addItems(RotProfilesManager::instance()->profileNameList());
+    ui->steppirProfileCombo->addItems(SteppirProfiles::profileNames());
 
     setProfileVisible(ui->antennaProfileCheckbox, ui->antennaProfileCombo);
     setProfileVisible(ui->stationProfileCheckbox, ui->stationProfileCombo);
     setProfileVisible(ui->rigProfileCheckbox, ui->rigProfileCombo, ui->rigAutoconnectCheckbox);
     setProfileVisible(ui->rotatorProfileCheckbox, ui->rotatorProfileCombo, ui->rotatorAutoconnectCheckbox);
+    setProfileVisible(ui->steppirProfileCheckbox, ui->steppirProfileCombo, ui->steppirAutoconnectCheckbox);
 
     ui->contestIDCheckbox->setText(LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_CONTEST_ID));
     ui->propagationModeCheckbox->setText(LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_PROP_MODE));
@@ -460,6 +468,7 @@ void ActivityEditor::setupValuesTab(const QString &activityName)
         loadProfileValue(activity, ActivityProfile::ProfileType::STATION_PROFILE, ui->stationProfileCheckbox, ui->stationProfileCombo);
         loadProfileValue(activity, ActivityProfile::ProfileType::RIG_PROFILE, ui->rigProfileCheckbox, ui->rigProfileCombo, ui->rigAutoconnectCheckbox);
         loadProfileValue(activity, ActivityProfile::ProfileType::ROT_PROFILE, ui->rotatorProfileCheckbox, ui->rotatorProfileCombo, ui->rotatorAutoconnectCheckbox);
+        loadProfileValue(activity, ActivityProfile::ProfileType::STEPPIR_PROFILE, ui->steppirProfileCheckbox, ui->steppirProfileCombo, ui->steppirAutoconnectCheckbox);
         const auto bandmapGuide = activity.profiles.constFind(ActivityProfile::ProfileType::BANDMAP_GUIDE_PROFILE);
         if ( bandmapGuide != activity.profiles.constEnd() )
         {

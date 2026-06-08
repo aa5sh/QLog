@@ -10,6 +10,7 @@
 #include <QInputDialog>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDockWidget>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -57,6 +58,8 @@
 #include "ui/QSLGalleryDialog.h"
 #include "ui/QSLPrintLabelDialog.h"
 #include "ui/AdifRecoveryManager.h"
+#include "ui/SteppirWidget.h"
+#include "antenna/SteppirController.h"
 #include <QFileDialog>
 #include <QProcess>
 #include <QThread>
@@ -67,6 +70,10 @@ MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    actionConnectSteppir(nullptr),
+    actionSteppirWindow(nullptr),
+    steppirDockWidget(nullptr),
+    steppirWidget(nullptr),
     stats(new StatisticsWidget),
     clublogRT(new ClubLogUploader(this)),
     adifRecoveryManager(new AdifRecoveryManager(this))
@@ -74,6 +81,21 @@ MainWindow::MainWindow(QWidget* parent) :
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+
+    steppirWidget = new SteppirWidget(this);
+    steppirDockWidget = new QDockWidget(tr("SteppIR"), this);
+    steppirDockWidget->setObjectName("steppirDockWidget");
+    steppirDockWidget->setWidget(steppirWidget);
+    addDockWidget(Qt::RightDockWidgetArea, steppirDockWidget);
+    steppirDockWidget->hide();
+
+    actionConnectSteppir = new QAction(tr("Connect SteppIR"), this);
+    actionConnectSteppir->setCheckable(true);
+    ui->menuEquipment->addAction(actionConnectSteppir);
+
+    actionSteppirWindow = steppirDockWidget->toggleViewAction();
+    actionSteppirWindow->setText(tr("SteppIR"));
+    ui->menuWindow->addAction(actionSteppirWindow);
 
     restoreContestMenuSeqnoType();
     restoreContestMenuDupeType();
@@ -259,6 +281,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->rigWidget, &RigWidget::updateFrequency);
+    connect(Rig::instance(), &Rig::frequencyChanged, SteppirController::instance(), &SteppirController::setFrequencyHz);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(Rig::instance(), &Rig::modeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(Rig::instance(), &Rig::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
@@ -287,6 +310,14 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rotator::instance(), &Rotator::positionChanged, ui->rotatorWidget, &RotatorWidget::positionChanged);
     connect(Rotator::instance(), &Rotator::rotConnected, ui->rotatorWidget, &RotatorWidget::rotConnected);
     connect(Rotator::instance(), &Rotator::rotDisconnected, ui->rotatorWidget, &RotatorWidget::rotDisconnected);
+
+    connect(SteppirController::instance(), &SteppirController::errorPresent, this, &MainWindow::rotErrorHandler);
+    connect(SteppirController::instance(), &SteppirController::connected, this, [this]() {
+        actionConnectSteppir->setChecked(true);
+    });
+    connect(SteppirController::instance(), &SteppirController::disconnected, this, [this]() {
+        actionConnectSteppir->setChecked(false);
+    });
 
     connect(CWKeyer::instance(), &CWKeyer::cwKeyerError, this, &MainWindow::cwKeyerErrorHandler);
     connect(CWKeyer::instance(), &CWKeyer::cwKeyWPMChanged, ui->cwconsoleWidget, &CWConsoleWidget::setWPM);
@@ -328,6 +359,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, adifRecoveryManager, &AdifRecoveryManager::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rotatorWidget, &RotatorWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rigWidget, &RigWidget::reloadSettings);
+    connect(this, &MainWindow::settingsChanged, steppirWidget, &SteppirWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->cwconsoleWidget, &CWConsoleWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rotatorWidget, &RotatorWidget::redrawMap);
     connect(this, &MainWindow::settingsChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
@@ -354,6 +386,8 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->rigWidget, &RigWidget::rigProfileChanged, this, &MainWindow::rigConnect);
 
     connect(ui->rotatorWidget, &RotatorWidget::rotProfileChanged, this, &MainWindow::rotConnect);
+    connect(steppirWidget, &SteppirWidget::profileChanged, this, &MainWindow::steppirConnect);
+    connect(actionConnectSteppir, &QAction::triggered, this, &MainWindow::steppirConnect);
 
     connect(ui->logbookWidget, &LogbookWidget::deletedEntities, Data::instance(), &Data::invalidateSetOfDXCCStatusCache); // must be the first delete signal
     connect(ui->logbookWidget, &LogbookWidget::logbookUpdated, stats, &StatisticsWidget::refreshWidget);
@@ -1897,13 +1931,25 @@ void MainWindow::handleActivityChange(const QString name)
     const QVariant &valueRot = profile.getProfileParam(ActivityProfile::ProfileType::ROT_PROFILE,
                                                        ActivityProfile::ProfileParamType::CONNECT);
 
-    if ( !valueRig.isNull()
+    if ( !valueRot.isNull()
           && RotProfilesManager::instance()->getCurProfile1().profileName == profile.profiles[ActivityProfile::ProfileType::ROT_PROFILE].name )
     {
-        if ( ui->actionConnectRotator->isChecked() && valueRig.toBool() )
+        if ( ui->actionConnectRotator->isChecked() && valueRot.toBool() )
             rotConnect();
         else
             ui->actionConnectRotator->setChecked(valueRot.toBool()); // rotConnect is called when the signal is processed
+    }
+
+    const QVariant &valueSteppir = profile.getProfileParam(ActivityProfile::ProfileType::STEPPIR_PROFILE,
+                                                           ActivityProfile::ProfileParamType::CONNECT);
+
+    if ( !valueSteppir.isNull()
+          && SteppirProfiles::currentProfileName() == profile.profiles[ActivityProfile::ProfileType::STEPPIR_PROFILE].name )
+    {
+        if ( actionConnectSteppir->isChecked() && valueSteppir.toBool() )
+            steppirConnect();
+        else
+            actionConnectSteppir->setChecked(valueSteppir.toBool());
     }
 }
 
@@ -1917,6 +1963,16 @@ void MainWindow::rotConnect()
         Rotator::instance()->open();
     else
         Rotator::instance()->close();
+}
+
+void MainWindow::steppirConnect()
+{
+    FCT_IDENTIFICATION;
+
+    if ( actionConnectSteppir->isChecked() )
+        SteppirController::instance()->open();
+    else
+        SteppirController::instance()->close();
 }
 
 void MainWindow::cwKeyerConnect()
@@ -2236,10 +2292,12 @@ MainWindow::~MainWindow()
     // so queued signals cannot land on widgets that are about to be deleted.
     QObject::disconnect(CWKeyer::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(Rotator::instance(), nullptr, nullptr, nullptr);
+    QObject::disconnect(SteppirController::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(Rig::instance(), nullptr, nullptr, nullptr);
 
     CWKeyer::instance()->shutdown();
     Rotator::instance()->shutdown();
+    SteppirController::instance()->close();
     Rig::instance()->shutdown();
 
     conditions->deleteLater();

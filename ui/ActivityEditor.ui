@@ -1397,6 +1397,49 @@
             </item>
            </layout>
           </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="steppirProfileCheckbox">
+            <property name="toolTip">
+             <string>If unchecked, the profile does not change</string>
+            </property>
+            <property name="text">
+             <string>SteppIR</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <item>
+             <widget class="QComboBox" name="steppirProfileCombo">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="steppirAutoconnectCheckbox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Connect automatically</string>
+              </property>
+              <property name="text">
+               <string>Connect</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1568,6 +1611,9 @@
   <tabstop>rotatorProfileCheckbox</tabstop>
   <tabstop>rotatorProfileCombo</tabstop>
   <tabstop>rotatorAutoconnectCheckbox</tabstop>
+  <tabstop>steppirProfileCheckbox</tabstop>
+  <tabstop>steppirProfileCombo</tabstop>
+  <tabstop>steppirAutoconnectCheckbox</tabstop>
   <tabstop>bandmapGuideCombo</tabstop>
   <tabstop>contestIDCheckbox</tabstop>
   <tabstop>contestIDEdit</tabstop>

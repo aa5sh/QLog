@@ -1419,6 +1419,26 @@ void LogParam::removeMainWindowBandmapWidgets()
     removeParamGroup("mainwindow/bandmapwidgets");
 }
 
+QString LogParam::getSteppirProfiles()
+{
+    return getParam("steppir/profiles", QString()).toString();
+}
+
+void LogParam::setSteppirProfiles(const QString &profilesJson)
+{
+    setParam("steppir/profiles", profilesJson);
+}
+
+QString LogParam::getSteppirCurrentProfile()
+{
+    return getParam("steppir/currentprofile", QString()).toString();
+}
+
+void LogParam::setSteppirCurrentProfile(const QString &profileName)
+{
+    setParam("steppir/currentprofile", profileName);
+}
+
 int LogParam::getQslLabelTemplate()
 {
     return getParam("qsllabel/template", 0).toInt();

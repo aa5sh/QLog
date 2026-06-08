@@ -417,6 +417,14 @@ public:
     static void setMainWindowBandmapWidgets(const QString &value);
     static void removeMainWindowBandmapWidgets();
 
+    /**********************
+     * SteppIR Controller
+     **********************/
+    static QString getSteppirProfiles();
+    static void setSteppirProfiles(const QString &profilesJson);
+    static QString getSteppirCurrentProfile();
+    static void setSteppirCurrentProfile(const QString &profileName);
+
     /*********************
      * QSL Print Labels
      *********************/

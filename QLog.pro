@@ -55,6 +55,7 @@ CONFIG += c++11 force_debug_info
 CONFIG *= link_pkgconfig
 
 SOURCES += \
+        antenna/SteppirController.cpp \
         awards/AwardDefinition.cpp \
         awards/AwardDXCC.cpp \
         awards/AwardGridsquare.cpp \
@@ -224,6 +225,7 @@ SOURCES += \
         ui/SettingsDialog.cpp \
         ui/ShowUploadDialog.cpp \
         ui/StatisticsWidget.cpp \
+        ui/SteppirWidget.cpp \
         ui/UploadQSODialog.cpp \
         ui/WebEnginePage.cpp \
         ui/WsjtxFilterDialog.cpp \
@@ -240,6 +242,7 @@ SOURCES += \
         ui/component/SwitchButton.cpp
 
 HEADERS += \
+        antenna/SteppirController.h \
         awards/AwardDefinition.h \
         awards/AwardDXCC.h \
         awards/AwardGridsquare.h \
@@ -429,6 +432,7 @@ HEADERS += \
         ui/RotatorWidget.h \
         ui/SettingsDialog.h \
         ui/StatisticsWidget.h \
+        ui/SteppirWidget.h \
         ui/UploadQSODialog.h \
         ui/WebEnginePage.h \
         ui/WsjtxFilterDialog.h \
@@ -496,6 +500,7 @@ FORMS += \
         ui/SettingsDialog.ui \
         ui/ShowUploadDialog.ui \
         ui/StatisticsWidget.ui \
+        ui/SteppirWidget.ui \
         ui/UploadQSODialog.ui \
         ui/WsjtxFilterDialog.ui \
         ui/WsjtxWidget.ui
