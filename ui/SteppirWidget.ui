@@ -54,7 +54,7 @@
      <item>
       <widget class="QLabel" name="frequencyTitleLabel">
        <property name="text">
-        <string>Currently Tuned to Frequency</string>
+        <string>Frequency</string>
        </property>
       </widget>
      </item>
@@ -88,7 +88,7 @@
      <item>
       <spacer name="statusSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -146,7 +146,7 @@
      <item>
       <spacer name="directionSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -189,7 +189,7 @@
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>

@@ -623,7 +623,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     populateSignalCombo(ui->rigDTRCombo);
     populateSignalCombo(ui->rigRTSCombo);
 
-    ui->steppirConnectionTypeCombo->addItem(tr("TCP"), SteppirProfile::Network);
+    ui->steppirConnectionTypeCombo->addItem(tr("Network"), SteppirProfile::Network);
     ui->steppirConnectionTypeCombo->addItem(tr("Serial"), SteppirProfile::Serial);
     ui->steppirBaudCombo->addItems(QStringList() << "1200" << "2400" << "4800" << "9600" << "19200" << "38400" << "57600" << "115200");
     ui->steppirBaudCombo->setCurrentText("9600");
@@ -1489,10 +1489,14 @@ void SettingsDialog::clearSteppirProfileForm()
 void SettingsDialog::setSteppirConnectionType(int index)
 {
     const bool isSerial = ui->steppirConnectionTypeCombo->itemData(index).toInt() == SteppirProfile::Serial;
-    ui->steppirHostEdit->setEnabled(!isSerial);
-    ui->steppirPortSpin->setEnabled(!isSerial);
-    ui->steppirSerialPortEdit->setEnabled(isSerial);
-    ui->steppirBaudCombo->setEnabled(isSerial);
+    ui->steppirHostLabel->setVisible(!isSerial);
+    ui->steppirHostEdit->setVisible(!isSerial);
+    ui->steppirPortLabel->setVisible(!isSerial);
+    ui->steppirPortSpin->setVisible(!isSerial);
+    ui->steppirSerialPortLabel->setVisible(isSerial);
+    ui->steppirSerialPortEdit->setVisible(isSerial);
+    ui->steppirBaudLabel->setVisible(isSerial);
+    ui->steppirBaudCombo->setVisible(isSerial);
 }
 
 void SettingsDialog::addCWKeyProfile()
