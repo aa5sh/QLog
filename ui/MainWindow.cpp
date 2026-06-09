@@ -225,6 +225,8 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ActivityProfilesManager::instance(), &ActivityProfilesManager::changeFinished,
             this, &MainWindow::handleActivityChange);
     connect(ActivityProfilesManager::instance(), &ActivityProfilesManager::changeFinished,
+            steppirWidget, &SteppirWidget::refreshProfileCombo);
+    connect(ActivityProfilesManager::instance(), &ActivityProfilesManager::changeFinished,
             ui->newContactWidget, &NewContactWidget::setValuesFromActivity);
 
     connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,

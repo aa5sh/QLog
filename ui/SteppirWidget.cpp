@@ -66,6 +66,7 @@ void SteppirWidget::refreshProfileCombo()
 
 void SteppirWidget::connected()
 {
+    refreshProfileCombo();
     updateState();
 }
 
