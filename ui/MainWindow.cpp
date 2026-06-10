@@ -67,6 +67,12 @@
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 
+namespace
+{
+constexpr int STEPPIR_AUTOCONNECT_RETRY_ATTEMPTS = 2;
+constexpr int STEPPIR_AUTOCONNECT_RETRY_INTERVAL_MS = 5000;
+}
+
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -1948,11 +1954,31 @@ void MainWindow::handleActivityChange(const QString name)
     if ( !valueSteppir.isNull()
           && SteppirProfiles::currentProfileName() == profile.profiles[ActivityProfile::ProfileType::STEPPIR_PROFILE].name )
     {
-        if ( actionConnectSteppir->isChecked() && valueSteppir.toBool() )
-            steppirConnect();
-        else
-            actionConnectSteppir->setChecked(valueSteppir.toBool());
+        const bool connectSteppir = valueSteppir.toBool();
+        actionConnectSteppir->setChecked(connectSteppir);
+        steppirConnect();
+
+        if ( connectSteppir )
+            scheduleSteppirConnectRetry(STEPPIR_AUTOCONNECT_RETRY_ATTEMPTS);
     }
+}
+
+void MainWindow::scheduleSteppirConnectRetry(int remainingAttempts)
+{
+    if ( remainingAttempts <= 0 )
+        return;
+
+    QTimer::singleShot(STEPPIR_AUTOCONNECT_RETRY_INTERVAL_MS, this, [this, remainingAttempts]()
+    {
+        if ( !actionConnectSteppir->isChecked()
+             || SteppirController::instance()->isConnected() )
+        {
+            return;
+        }
+
+        SteppirController::instance()->open();
+        scheduleSteppirConnectRetry(remainingAttempts - 1);
+    });
 }
 
 void MainWindow::rotConnect()

@@ -135,6 +135,7 @@ private:
     QMetaObject::Connection alertTextButtonConn;
     bool firstRun = false;
     void setupActivitiesMenu();
+    void scheduleSteppirConnectRetry(int remainingAttempts);
 
 
     void restoreUserDefinedShortcuts();
