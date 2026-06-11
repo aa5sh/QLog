@@ -36,6 +36,7 @@ class SettingsDialog;
 class QSqlTableModel;
 class QStandardItem;
 class QStandardItemModel;
+class WaveshareSettingsWidget;
 
 class SettingsDialog : public QDialog {
     Q_OBJECT
@@ -210,6 +211,9 @@ private:
     QString adifRecoveryQslSentStatusFromItem(const QStandardItem *item) const;
     QString adifRecoveryQslSentStatusFromText(const QString &text) const;
     QString adifRecoveryQslSentStatusToText(const QString &status) const;
+    void setupWaveshareTab();
+    void loadWaveshareActions();
+    void saveWaveshareActions() const;
 
     static constexpr int STACKED_WIDGET_SERIAL_SETTING          = 0;
     static constexpr int STACKED_WIDGET_NETWORK_SETTING         = 1;
@@ -269,6 +273,7 @@ private:
     QStandardItemModel *adifRecoveryModel;
     QSet<QString> loadedAdifRecoveryKeys;
     QSet<QString> removedAdifRecoveryKeys;
+    WaveshareSettingsWidget *waveshareSettingsWidget;
 };
 
 #endif // QLOG_UI_SETTINGSDIALOG_H

@@ -10,6 +10,7 @@
 #include <QInputDialog>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDockWidget>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -57,6 +58,7 @@
 #include "ui/QSLGalleryDialog.h"
 #include "ui/QSLPrintLabelDialog.h"
 #include "ui/AdifRecoveryManager.h"
+#include "ui/WaveshareWidget.h"
 #include <QFileDialog>
 #include <QProcess>
 #include <QThread>
@@ -69,11 +71,22 @@ MainWindow::MainWindow(QWidget* parent) :
     ui(new Ui::MainWindow),
     stats(new StatisticsWidget),
     clublogRT(new ClubLogUploader(this)),
-    adifRecoveryManager(new AdifRecoveryManager(this))
+    adifRecoveryManager(new AdifRecoveryManager(this)),
+    waveshareDockWidget(nullptr),
+    waveshareWidget(nullptr)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+
+    waveshareWidget = new WaveshareWidget(this);
+    waveshareDockWidget = new QDockWidget(tr("Waveshare"), this);
+    waveshareDockWidget->setObjectName(QStringLiteral("waveshareDockWidget"));
+    waveshareDockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+    waveshareDockWidget->setWidget(waveshareWidget);
+    addDockWidget(Qt::RightDockWidgetArea, waveshareDockWidget);
+    ui->menuWindow->addAction(waveshareDockWidget->toggleViewAction());
+    waveshareDockWidget->hide();
 
     restoreContestMenuSeqnoType();
     restoreContestMenuDupeType();
@@ -125,6 +138,7 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->chatDockWidget->hide();
     ui->profileImageDockWidget->hide();
     ui->alertDockWidget->hide();
+    waveshareDockWidget->hide();
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
@@ -339,6 +353,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->newContactWidget, &NewContactWidget::readGlobalSettings);
+    connect(this, &MainWindow::settingsChanged, waveshareWidget, &WaveshareWidget::reloadSettings);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
     connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);

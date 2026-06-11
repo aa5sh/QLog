@@ -417,6 +417,12 @@ public:
     static void setMainWindowBandmapWidgets(const QString &value);
     static void removeMainWindowBandmapWidgets();
 
+    /*************
+     * Waveshare
+     *************/
+    static QString getWaveshareActions();
+    static void setWaveshareActions(const QString &json);
+
     /*********************
      * QSL Print Labels
      *********************/

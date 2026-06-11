@@ -13,6 +13,8 @@
 #include <QHeaderView>
 #include <QSignalBlocker>
 #include <QTableWidgetItem>
+#include <QPushButton>
+#include <QSpinBox>
 #include <algorithm>
 
 #include "SettingsDialog.h"
@@ -53,6 +55,7 @@
 #include "ui/BandmapGuideDialog.h"
 #include "ui/BandmapWidget.h"
 #include "ui/RigctldAdvancedDialog.h"
+#include "ui/WaveshareSettingsWidget.h"
 #include "cwkey/drivers/CWWinKey.h"
 
 MODULE_IDENTIFICATION("qlog.ui.settingsdialog");
@@ -405,11 +408,13 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     potaFallback(false),
     wwffFallback(false),
     tqslVersionTimer(new QTimer(this)),
-    adifRecoveryModel(nullptr)
+    adifRecoveryModel(nullptr),
+    waveshareSettingsWidget(nullptr)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    setupWaveshareTab();
     setupAdifRecoveryTab();
     setupQsoStatusColorsTable();
     refreshBandmapGuideCombo();
@@ -2778,6 +2783,7 @@ void SettingsDialog::readSettings()
     ui->unitFormatMetricRadioButton->setChecked(unitFormatMetric);
     ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
     loadQsoStatusColors();
+    loadWaveshareActions();
 
     /******************/
     /* END OF Reading */
@@ -2911,7 +2917,26 @@ void SettingsDialog::writeSettings()
 
     locale.setSettingUseMetric(ui->unitFormatMetricRadioButton->isChecked());
     saveQsoStatusColors();
+    saveWaveshareActions();
     Data::reloadQsoStatusColors();
+}
+
+void SettingsDialog::setupWaveshareTab()
+{
+    waveshareSettingsWidget = new WaveshareSettingsWidget(ui->equipmentTabWidget);
+    ui->equipmentTabWidget->addTab(waveshareSettingsWidget, tr("Waveshare"));
+}
+
+void SettingsDialog::loadWaveshareActions()
+{
+    if ( waveshareSettingsWidget )
+        waveshareSettingsWidget->loadSettings();
+}
+
+void SettingsDialog::saveWaveshareActions() const
+{
+    if ( waveshareSettingsWidget )
+        waveshareSettingsWidget->saveSettings();
 }
 
 void SettingsDialog::setupAdifRecoveryTab()
