@@ -58,11 +58,11 @@
 #include "ui/QSLGalleryDialog.h"
 #include "ui/QSLPrintLabelDialog.h"
 #include "ui/AdifRecoveryManager.h"
-#include "ui/WaveshareWidget.h"
 #include <QFileDialog>
 #include <QProcess>
 #include <QThread>
 #include <QTemporaryFile>
+#include "ui/WaveshareWidget.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 
@@ -71,22 +71,11 @@ MainWindow::MainWindow(QWidget* parent) :
     ui(new Ui::MainWindow),
     stats(new StatisticsWidget),
     clublogRT(new ClubLogUploader(this)),
-    adifRecoveryManager(new AdifRecoveryManager(this)),
-    waveshareDockWidget(nullptr),
-    waveshareWidget(nullptr)
+    adifRecoveryManager(new AdifRecoveryManager(this))
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
-
-    waveshareWidget = new WaveshareWidget(this);
-    waveshareDockWidget = new QDockWidget(tr("Waveshare"), this);
-    waveshareDockWidget->setObjectName(QStringLiteral("waveshareDockWidget"));
-    waveshareDockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
-    waveshareDockWidget->setWidget(waveshareWidget);
-    addDockWidget(Qt::RightDockWidgetArea, waveshareDockWidget);
-    ui->menuWindow->addAction(waveshareDockWidget->toggleViewAction());
-    waveshareDockWidget->hide();
 
     restoreContestMenuSeqnoType();
     restoreContestMenuDupeType();
@@ -138,12 +127,20 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->chatDockWidget->hide();
     ui->profileImageDockWidget->hide();
     ui->alertDockWidget->hide();
-    waveshareDockWidget->hide();
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
     ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
     ui->chatWidget->registerContactWidget(ui->newContactWidget);
+
+    WaveshareWidget *waveshareWidget = new WaveshareWidget(this);
+    QDockWidget *waveshareDockWidget = new QDockWidget(tr("Waveshare"), this);
+    waveshareDockWidget->setObjectName(QStringLiteral("waveshareDockWidget"));
+    waveshareDockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+    waveshareDockWidget->setWidget(waveshareWidget);
+    addDockWidget(Qt::RightDockWidgetArea, waveshareDockWidget);
+    ui->menuWindow->addAction(waveshareDockWidget->toggleViewAction());
+    waveshareDockWidget->hide();
 
     const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
     for (QDockWidget *dockWidget : dockWidgets) {
@@ -353,9 +350,9 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->newContactWidget, &NewContactWidget::readGlobalSettings);
-    connect(this, &MainWindow::settingsChanged, waveshareWidget, &WaveshareWidget::reloadSettings);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
+    connect(this, &MainWindow::settingsChanged, waveshareWidget, &WaveshareWidget::reloadSettings);
     connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);
     connect(this, &MainWindow::contestStopped, ui->bandmapWidget, &BandmapWidget::resetDupe);
     connect(this, &MainWindow::contestStopped, ui->alertsWidget, &AlertWidget::resetDupe);

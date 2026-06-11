@@ -15,6 +15,7 @@
 #include <QTableWidgetItem>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QTabWidget>
 #include <algorithm>
 
 #include "SettingsDialog.h"
@@ -63,6 +64,30 @@ MODULE_IDENTIFICATION("qlog.ui.settingsdialog");
 namespace
 {
     constexpr int ADIF_FILE_EXISTS_ROLE = Qt::UserRole + 1;
+
+    WaveshareSettingsWidget *waveshareSettingsWidget(QTabWidget *equipmentTabWidget)
+    {
+        return equipmentTabWidget->findChild<WaveshareSettingsWidget *>(QStringLiteral("waveshareSettingsWidget"));
+    }
+
+    void setupWaveshareTab(QTabWidget *equipmentTabWidget)
+    {
+        WaveshareSettingsWidget *widget = new WaveshareSettingsWidget(equipmentTabWidget);
+        widget->setObjectName(QStringLiteral("waveshareSettingsWidget"));
+        equipmentTabWidget->addTab(widget, QObject::tr("Waveshare"));
+    }
+
+    void loadWaveshareActions(QTabWidget *equipmentTabWidget)
+    {
+        if ( WaveshareSettingsWidget *widget = waveshareSettingsWidget(equipmentTabWidget) )
+            widget->loadSettings();
+    }
+
+    void saveWaveshareActions(QTabWidget *equipmentTabWidget)
+    {
+        if ( WaveshareSettingsWidget *widget = waveshareSettingsWidget(equipmentTabWidget) )
+            widget->saveSettings();
+    }
 
     class AdifRecoveryPathDelegate : public QStyledItemDelegate
     {
@@ -408,13 +433,12 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     potaFallback(false),
     wwffFallback(false),
     tqslVersionTimer(new QTimer(this)),
-    adifRecoveryModel(nullptr),
-    waveshareSettingsWidget(nullptr)
+    adifRecoveryModel(nullptr)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
-    setupWaveshareTab();
+    setupWaveshareTab(ui->equipmentTabWidget);
     setupAdifRecoveryTab();
     setupQsoStatusColorsTable();
     refreshBandmapGuideCombo();
@@ -2783,7 +2807,7 @@ void SettingsDialog::readSettings()
     ui->unitFormatMetricRadioButton->setChecked(unitFormatMetric);
     ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
     loadQsoStatusColors();
-    loadWaveshareActions();
+    loadWaveshareActions(ui->equipmentTabWidget);
 
     /******************/
     /* END OF Reading */
@@ -2917,26 +2941,8 @@ void SettingsDialog::writeSettings()
 
     locale.setSettingUseMetric(ui->unitFormatMetricRadioButton->isChecked());
     saveQsoStatusColors();
-    saveWaveshareActions();
+    saveWaveshareActions(ui->equipmentTabWidget);
     Data::reloadQsoStatusColors();
-}
-
-void SettingsDialog::setupWaveshareTab()
-{
-    waveshareSettingsWidget = new WaveshareSettingsWidget(ui->equipmentTabWidget);
-    ui->equipmentTabWidget->addTab(waveshareSettingsWidget, tr("Waveshare"));
-}
-
-void SettingsDialog::loadWaveshareActions()
-{
-    if ( waveshareSettingsWidget )
-        waveshareSettingsWidget->loadSettings();
-}
-
-void SettingsDialog::saveWaveshareActions() const
-{
-    if ( waveshareSettingsWidget )
-        waveshareSettingsWidget->saveSettings();
 }
 
 void SettingsDialog::setupAdifRecoveryTab()

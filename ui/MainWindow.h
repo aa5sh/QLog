@@ -15,9 +15,6 @@ class MainWindow;
 }
 
 class QLabel;
-class QAction;
-class QDockWidget;
-class WaveshareWidget;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
 
@@ -129,8 +126,6 @@ private:
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
     QMetaObject::Connection alertTextButtonConn;
-    QDockWidget *waveshareDockWidget;
-    WaveshareWidget *waveshareWidget;
     bool firstRun = false;
     void setupActivitiesMenu();
 
