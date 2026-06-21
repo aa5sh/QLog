@@ -16,6 +16,7 @@ class MainWindow;
 
 class QLabel;
 class WsjtxUDPReceiver;
+class AdifUDPReceiver;
 class AdifRecoveryManager;
 
 class MainWindow : public QMainWindow {
@@ -121,6 +122,7 @@ private:
     ClubLogUploader* clublogRT;
     AdifRecoveryManager* adifRecoveryManager;
     WsjtxUDPReceiver* wsjtx;
+    AdifUDPReceiver* adifUDP;
     QActionGroup *seqGroup;
     QActionGroup *dupeGroup;
     QActionGroup *linkExchangeGroup;

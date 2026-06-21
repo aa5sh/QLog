@@ -23,6 +23,7 @@
 #include "rotator/Rotator.h"
 #include "cwkey/CWKeyer.h"
 #include "core/WsjtxUDPReceiver.h"
+#include "core/AdifUDPReceiver.h"
 #include "core/debug.h"
 #include "ui/NewContactWidget.h"
 #include "ui/QSOFilterDialog.h"
@@ -69,7 +70,9 @@ MainWindow::MainWindow(QWidget* parent) :
     ui(new Ui::MainWindow),
     stats(new StatisticsWidget),
     clublogRT(new ClubLogUploader(this)),
-    adifRecoveryManager(new AdifRecoveryManager(this))
+    adifRecoveryManager(new AdifRecoveryManager(this)),
+    wsjtx(nullptr),
+    adifUDP(nullptr)
 {
     FCT_IDENTIFICATION;
 
@@ -299,6 +302,9 @@ MainWindow::MainWindow(QWidget* parent) :
     FldigiTCPServer* fldigi = new FldigiTCPServer(this);
     connect(fldigi, &FldigiTCPServer::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
 
+    adifUDP = new AdifUDPReceiver(this);
+    connect(adifUDP, &AdifUDPReceiver::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
+
     connect(adifRecoveryManager, &AdifRecoveryManager::contactsRecovered, ui->logbookWidget, &LogbookWidget::updateTable);
     connect(adifRecoveryManager, &AdifRecoveryManager::problem, this, [this](const QString &message)
     {
@@ -325,6 +331,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->wsjtxWidget, &WsjtxWidget::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
 
     connect(this, &MainWindow::settingsChanged, wsjtx, &WsjtxUDPReceiver::reloadSetting);
+    connect(this, &MainWindow::settingsChanged, adifUDP, &AdifUDPReceiver::reloadSetting);
     connect(this, &MainWindow::settingsChanged, adifRecoveryManager, &AdifRecoveryManager::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rotatorWidget, &RotatorWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rigWidget, &RigWidget::reloadSettings);
@@ -2251,6 +2258,8 @@ MainWindow::~MainWindow()
     clublogRT->deleteLater();
     if ( wsjtx )
         wsjtx->deleteLater();
+    if ( adifUDP )
+        adifUDP->deleteLater();
 
     seqGroup->deleteLater();
     dupeGroup->deleteLater();

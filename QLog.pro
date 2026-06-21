@@ -78,6 +78,7 @@ SOURCES += \
         awards/AwardWPX.cpp \
         awards/AwardWWFF.cpp \
         awards/BandTableAward.cpp \
+        core/AdifUDPReceiver.cpp \
         core/AlertEvaluator.cpp \
         core/AdifRecovery.cpp \
         core/AppGuard.cpp \
@@ -263,6 +264,7 @@ HEADERS += \
         awards/AwardWPX.h \
         awards/AwardWWFF.h \
         awards/BandTableAward.h \
+        core/AdifUDPReceiver.h \
         core/AlertEvaluator.h \
         core/AdifRecovery.h \
         core/AppGuard.h \

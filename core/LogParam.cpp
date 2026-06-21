@@ -777,6 +777,26 @@ void LogParam::setNetworkWsjtxListenerMulticastTTL(int ttl)
     setParam("network/listener/wsjtx/multicast/ttl", ttl);
 }
 
+bool LogParam::getNetworkAdifListenerEnabled()
+{
+    return getParam("network/listener/adif/enabled", false).toBool();
+}
+
+void LogParam::setNetworkAdifListenerEnabled(bool state)
+{
+    setParam("network/listener/adif/enabled", state);
+}
+
+int LogParam::getNetworkAdifListenerPort(int defaultPort)
+{
+    return getParam("network/listener/adif/port", defaultPort).toInt();
+}
+
+void LogParam::setNetworkAdifListenerPort(int port)
+{
+    setParam("network/listener/adif/port", port);
+}
+
 QStringList LogParam::getEnabledMemberlists()
 {
     return getParamStringList("memberlist/enabledlists");

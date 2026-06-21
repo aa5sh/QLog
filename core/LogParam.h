@@ -243,6 +243,10 @@ public:
     static void setNetworkWsjtxListenerMulticastAddr(const QString &addr);
     static int getNetworkWsjtxListenerMulticastTTL();
     static void setNetworkWsjtxListenerMulticastTTL(int ttl);
+    static bool getNetworkAdifListenerEnabled();
+    static void setNetworkAdifListenerEnabled(bool state);
+    static int getNetworkAdifListenerPort(int defaultPort);
+    static void setNetworkAdifListenerPort(int port);
 
     /********************
      * Club Member Lists

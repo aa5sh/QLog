@@ -4652,6 +4652,61 @@
            </widget>
           </item>
          </layout>
+       </widget>
+      </item>
+       <item>
+        <widget class="QGroupBox" name="adifUdpGroupBox">
+         <property name="title">
+          <string>ADIF UDP Listener</string>
+         </property>
+         <layout class="QFormLayout" name="adifUdpFormLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="adifUdpEnabledLabel">
+            <property name="text">
+             <string>Enabled</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="adifUdpEnabledCheckBox">
+            <property name="toolTip">
+             <string>Enable/Disable receiving ADIF log records from other applications over UDP</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="adifUdpPortLabel">
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="adifUdpPortSpin">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Port where QLog listens for incoming UDP ADIF log records</string>
+            </property>
+            <property name="minimum">
+             <number>1025</number>
+            </property>
+            <property name="maximum">
+             <number>65534</number>
+            </property>
+            <property name="value">
+             <number>2333</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>

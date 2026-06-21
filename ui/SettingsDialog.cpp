@@ -34,6 +34,7 @@
 #include "data/Data.h"
 #include "data/Gridsquare.h"
 #include "core/WsjtxUDPReceiver.h"
+#include "core/AdifUDPReceiver.h"
 #include "core/NetworkNotification.h"
 #include "rig/Rig.h"
 #include "rig/RigCaps.h"
@@ -684,6 +685,15 @@ void SettingsDialog::save()
                                  QMessageBox::tr("Loop detected. Raw UDP forward uses the same port as the WSJT-X receiving port."));
             return;
         }
+    }
+
+    if ( ui->adifUdpEnabledCheckBox->isChecked()
+         && ui->adifUdpPortSpin->value() == ui->wsjtPortSpin->value() )
+    {
+        ui->tabWidget->setCurrentIndex(8);
+        QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                             QMessageBox::tr("ADIF UDP Listener cannot use the same port as the WSJT-X receiving port."));
+        return;
     }
 
     writeSettings();
@@ -2754,6 +2764,8 @@ void SettingsDialog::readSettings()
     ui->wsjtMulticastAddressEdit->setText(WsjtxUDPReceiver::getConfigMulticastAddress());
     ui->wsjtMulticastTTLSpin->setValue(WsjtxUDPReceiver::getConfigMulticastTTL());
     ui->wsjtColorCqSpotsCheckbox->setChecked(WsjtxUDPReceiver::getConfigOutputColorCQSpot());
+    ui->adifUdpEnabledCheckBox->setChecked(AdifUDPReceiver::getConfigEnabled());
+    ui->adifUdpPortSpin->setValue(AdifUDPReceiver::getConfigPort());
 
     ui->notifLogIDEdit->setText(LogParam::getLogID());
     ui->notifQSOEdit->setText(NetworkNotification::getNotifQSOAdiAddrs());
@@ -2893,6 +2905,8 @@ void SettingsDialog::writeSettings()
     WsjtxUDPReceiver::saveConfigMulticastAddress(ui->wsjtMulticastAddressEdit->text());
     WsjtxUDPReceiver::saveConfigMulticastTTL(ui->wsjtMulticastTTLSpin->value());
     WsjtxUDPReceiver::saveConfigOutputColorCQSpot(ui->wsjtColorCqSpotsCheckbox->isChecked());
+    AdifUDPReceiver::saveConfigEnabled(ui->adifUdpEnabledCheckBox->isChecked());
+    AdifUDPReceiver::saveConfigPort(ui->adifUdpPortSpin->value());
     NetworkNotification::saveNotifQSOAdiAddrs(ui->notifQSOEdit->text());
     NetworkNotification::saveNotifDXSpotAddrs(ui->notifDXSpotsEdit->text());
     NetworkNotification::saveNotifWSJTXCQSpotAddrs(ui->notifWSJTXCQSpotsEdit->text());
