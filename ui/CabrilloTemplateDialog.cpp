@@ -587,9 +587,11 @@ bool CabrilloTemplateDialog::saveTemplateColumns(QSqlQuery &query, int templateI
 
     for ( const CabrilloFormat::ColumnDef &col : columns )
     {
+        const QString dbField = col.dbField.isNull() ? "" : col.dbField;
+
         query.bindValue(":tid", templateId);
         query.bindValue(":pos", col.position);
-        query.bindValue(":field", col.dbField);
+        query.bindValue(":field", dbField);
         query.bindValue(":width", col.width);
         query.bindValue(":fmt", col.formatter);
         query.bindValue(":label", col.label);
