@@ -132,7 +132,8 @@ SteppirController::SteppirController(QObject *parent) :
     frequencyKHz(0),
     currentDirection(Normal),
     autotrackState(false),
-    tuningState(false)
+    tuningState(false),
+    reportingError(false)
 {
     pollTimer->setInterval(1000);
     connect(pollTimer, &QTimer::timeout, this, &SteppirController::poll);
@@ -194,7 +195,7 @@ void SteppirController::openProfile(const QString &profileName)
 
     if (!hasActiveProfile)
     {
-        emit errorPresent(tr("Cannot open SteppIR Controller"), tr("No SteppIR profile selected"));
+        reportError(tr("Cannot open SteppIR Controller"), tr("No SteppIR profile selected"));
         return;
     }
 
@@ -204,7 +205,7 @@ void SteppirController::openProfile(const QString &profileName)
     {
         if (activeProfile.host.isEmpty() || activeProfile.port == 0)
         {
-            emit errorPresent(tr("Cannot open SteppIR Controller"), tr("Network host and port must be configured"));
+            reportError(tr("Cannot open SteppIR Controller"), tr("Network host and port must be configured"));
             return;
         }
         socket->connectToHost(activeProfile.host, activeProfile.port);
@@ -213,7 +214,7 @@ void SteppirController::openProfile(const QString &profileName)
     {
         if (activeProfile.serialPort.isEmpty())
         {
-            emit errorPresent(tr("Cannot open SteppIR Controller"), tr("Serial port must be configured"));
+            reportError(tr("Cannot open SteppIR Controller"), tr("Serial port must be configured"));
             return;
         }
 
@@ -226,7 +227,7 @@ void SteppirController::openProfile(const QString &profileName)
 
         if (!serial->open(QIODevice::ReadWrite))
         {
-            emit errorPresent(tr("Cannot open SteppIR Controller"), serial->errorString());
+            reportError(tr("Cannot open SteppIR Controller"), serial->errorString());
             return;
         }
         socketConnected();
@@ -326,14 +327,26 @@ void SteppirController::socketError()
 {
     if (socket->error() == QAbstractSocket::RemoteHostClosedError)
         return;
-    emit errorPresent(tr("SteppIR Controller Error"), socket->errorString());
+    reportError(tr("SteppIR Controller Error"), socket->errorString(), true);
 }
 
 void SteppirController::serialError()
 {
     if (serial->error() == QSerialPort::NoError)
         return;
-    emit errorPresent(tr("SteppIR Controller Error"), serial->errorString());
+    reportError(tr("SteppIR Controller Error"), serial->errorString(), true);
+}
+
+void SteppirController::reportError(const QString &error, const QString &detail, bool closeConnection)
+{
+    if (reportingError)
+        return;
+
+    reportingError = true;
+    if (closeConnection)
+        close();
+    emit errorPresent(error, detail);
+    reportingError = false;
 }
 
 void SteppirController::writeCommand(const QByteArray &command)

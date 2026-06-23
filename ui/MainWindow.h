@@ -45,6 +45,7 @@ signals:
 public slots:
     void rigErrorHandler(const QString &error, const QString &errorDetail);
     void rotErrorHandler(const QString &error, const QString &errorDetail);
+    void steppirErrorHandler(const QString &error, const QString &errorDetail);
     void cwKeyerErrorHandler(const QString &error, const QString &errorDetail);
     void stationProfileChanged();
     void setLayoutGeometry();

@@ -319,7 +319,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rotator::instance(), &Rotator::rotConnected, ui->rotatorWidget, &RotatorWidget::rotConnected);
     connect(Rotator::instance(), &Rotator::rotDisconnected, ui->rotatorWidget, &RotatorWidget::rotDisconnected);
 
-    connect(SteppirController::instance(), &SteppirController::errorPresent, this, &MainWindow::rotErrorHandler);
+    connect(SteppirController::instance(), &SteppirController::errorPresent, this, &MainWindow::steppirErrorHandler);
     connect(SteppirController::instance(), &SteppirController::connected, this, [this]() {
         actionConnectSteppir->setChecked(true);
     });
@@ -716,6 +716,24 @@ void MainWindow::rotErrorHandler(const QString &error, const QString &errorDetai
                          QMessageBox::tr("<b>Rotator Error:</b> ") + error
                                          + "<p>" + tr("<b>Error Detail:</b> ") + errorDetail + "</p>");
     ui->actionConnectRotator->setChecked(false);
+}
+
+void MainWindow::steppirErrorHandler(const QString &error, const QString &errorDetail)
+{
+    FCT_IDENTIFICATION;
+
+    static bool warningVisible = false;
+
+    actionConnectSteppir->setChecked(false);
+
+    if (warningVisible)
+        return;
+
+    warningVisible = true;
+    QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+                         QMessageBox::tr("<b>SteppIR Error:</b> ") + error
+                                         + "<p>" + tr("<b>Error Detail:</b> ") + errorDetail + "</p>");
+    warningVisible = false;
 }
 
 void MainWindow::cwKeyerErrorHandler(const QString &error, const QString &errorDetail)

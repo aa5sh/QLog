@@ -96,6 +96,7 @@ private:
 
     void writeCommand(const QByteArray &command);
     QByteArray commandFrame(quint8 command) const;
+    void reportError(const QString &error, const QString &detail, bool closeConnection = false);
     void processBuffer();
     void processResponse(const QByteArray &frame);
     quint8 directionBits(Direction direction) const;
@@ -112,6 +113,7 @@ private:
     Direction currentDirection;
     bool autotrackState;
     bool tuningState;
+    bool reportingError;
 };
 
 #endif // QLOG_ANTENNA_STEPPIRCONTROLLER_H
