@@ -26,6 +26,7 @@ private:
     void startNextDownload();
     void loadDialogState();
     void saveDialogState();
+    QString selectedLotwCallsign() const;
 
     Ui::DownloadQSLDialog *ui;
     LogLocale locale;
