@@ -1217,14 +1217,21 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         const QString startTimeStr = start_time.toDateTime().toTimeZone(QTimeZone::utc()).toString("yyyy-MM-dd hh:mm:ss");
 
         // Common filter conditions — shared by all match attempts
-        const QString baseFilter = QString(
+        QString baseFilter = QString(
             "callsign=upper('%1') AND upper(band)=upper('%2') AND "
             "COALESCE(sat_name, '') = upper('%3') AND "
-            "ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%4')))*24*60<30"
+            "ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%4')))*24*60<30 "
         ).arg(call.toString(), band.toString(), satName.toString(), startTimeStr);
 
+        if (fromService == LOTW)
+        {
+            const QVariant &station_callsign = QSLRecord.value("station_callsign");
+            baseFilter = baseFilter + QString(" AND station_callsign = upper('%1') ").arg(station_callsign.toString());
+        }
+
+        qDebug() << baseFilter;
         // First attempt: exact mode match (used for eQSL; also the fast path for LoTW)
-        model.setFilter(baseFilter + QString(" AND upper(mode)=upper('%1')").arg(mode.toString()));
+        model.setFilter(baseFilter + QString(" AND upper(mode)=upper('%1')").arg(mode.toString()));        
         model.select();
 
         // LoTW fallback: LoTW confirms QSOs when both sides specify modes in the same

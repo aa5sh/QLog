@@ -438,6 +438,8 @@ void LotwQSLDownloader::receiveQSL(const QDate &start_date, bool qso_since, cons
     QList<QPair<QString, QString>> params;
     params.append(qMakePair(QString("qso_query"), QString("1")));
     params.append(qMakePair(QString("qso_qsldetail"), QString("yes")));
+    params.append(qMakePair(QString("qso_mydetail"),QString("yes")));
+    params.append(qMakePair(QString("qso_withown"),QString("yes")));
 
     const QString trimmedStationCallsign = station_callsign.trimmed();
     if ( !trimmedStationCallsign.isEmpty() )
