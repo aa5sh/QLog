@@ -225,4 +225,4 @@ void CallbookManager::processCallsignResult(const CallbookResponseData &data)
     }
 }
 
-QCache<QString, CallbookResponseData> CallbookManager::queryCache(100);
+QCache<QString, CallbookResponseData> CallbookManager::queryCache(1000);

@@ -367,10 +367,10 @@ void LogbookWidget::actionCallbookLookup()
     callbookLookupBatch = ui->contactTable->selectionModel()->selectedRows();
     ui->contactTable->clearSelection();
 
-    if ( callbookLookupBatch.count() > 100 )
+    if ( callbookLookupBatch.count() > 1000 )
     {
         callbookLookupBatch.clear();
-        QMessageBox::warning(this, tr("QLog Warning"), tr("Each batch supports up to 100 QSOs."));
+        QMessageBox::warning(this, tr("QLog Warning"), tr("Each batch supports up to 1000 QSOs."));
         return;
     }
 
