@@ -144,6 +144,7 @@ private:
     AmplifierStatus currentStatus;
     bool connectedState = false;
     bool enabledState = false;
+    bool openingSerialPort = false;
 
     QTcpSocket *socket = nullptr;
     QSerialPort *serial = nullptr;
