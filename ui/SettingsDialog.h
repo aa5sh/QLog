@@ -223,7 +223,6 @@ private:
     QString adifRecoveryQslSentStatusFromItem(const QStandardItem *item) const;
     QString adifRecoveryQslSentStatusFromText(const QString &text) const;
     QString adifRecoveryQslSentStatusToText(const QString &status) const;
-
     static constexpr int STACKED_WIDGET_SERIAL_SETTING          = 0;
     static constexpr int STACKED_WIDGET_NETWORK_SETTING         = 1;
     static constexpr int STACKED_WIDGET_SPECIAL_OMNIRIG_SETTING = 2;

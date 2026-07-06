@@ -1514,6 +1514,16 @@ void LogParam::setMainWindowBandmapWidgets(const QString &value)
     setParam("mainwindow/bandmapwidgets", value);
 }
 
+QString LogParam::getWaveshareActions()
+{
+    return getParam("waveshare/actions", QString()).toString();
+}
+
+void LogParam::setWaveshareActions(const QString &json)
+{
+    setParam("waveshare/actions", json);
+}
+
 void LogParam::removeMainWindowBandmapWidgets()
 {
     removeParamGroup("mainwindow/bandmapwidgets");

@@ -13,6 +13,9 @@
 #include <QHeaderView>
 #include <QSignalBlocker>
 #include <QTableWidgetItem>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QTabWidget>
 #include <algorithm>
 
 #include "antenna/SteppirController.h"
@@ -55,6 +58,7 @@
 #include "ui/BandmapGuideDialog.h"
 #include "ui/BandmapWidget.h"
 #include "ui/RigctldAdvancedDialog.h"
+#include "ui/WaveshareSettingsWidget.h"
 #include "cwkey/drivers/CWWinKey.h"
 #include "ui/EmailQSLSettingsWidget.h"
 
@@ -63,6 +67,30 @@ MODULE_IDENTIFICATION("qlog.ui.settingsdialog");
 namespace
 {
     constexpr int ADIF_FILE_EXISTS_ROLE = Qt::UserRole + 1;
+
+    WaveshareSettingsWidget *waveshareSettingsWidget(QTabWidget *equipmentTabWidget)
+    {
+        return equipmentTabWidget->findChild<WaveshareSettingsWidget *>(QStringLiteral("waveshareSettingsWidget"));
+    }
+
+    void setupWaveshareTab(QTabWidget *equipmentTabWidget)
+    {
+        WaveshareSettingsWidget *widget = new WaveshareSettingsWidget(equipmentTabWidget);
+        widget->setObjectName(QStringLiteral("waveshareSettingsWidget"));
+        equipmentTabWidget->addTab(widget, QObject::tr("Waveshare"));
+    }
+
+    void loadWaveshareActions(QTabWidget *equipmentTabWidget)
+    {
+        if ( WaveshareSettingsWidget *widget = waveshareSettingsWidget(equipmentTabWidget) )
+            widget->loadSettings();
+    }
+
+    void saveWaveshareActions(QTabWidget *equipmentTabWidget)
+    {
+        if ( WaveshareSettingsWidget *widget = waveshareSettingsWidget(equipmentTabWidget) )
+            widget->saveSettings();
+    }
 
     class AdifRecoveryPathDelegate : public QStyledItemDelegate
     {
@@ -413,6 +441,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    setupWaveshareTab(ui->equipmentTabWidget);
     setupAdifRecoveryTab();
     setupQsoStatusColorsTable();
     refreshBandmapGuideCombo();
@@ -2998,6 +3027,7 @@ void SettingsDialog::readSettings()
     ui->unitFormatMetricRadioButton->setChecked(unitFormatMetric);
     ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
     loadQsoStatusColors();
+    loadWaveshareActions(ui->equipmentTabWidget);
 
     /***************/
     /* Email QSL   */
@@ -3136,6 +3166,7 @@ void SettingsDialog::writeSettings()
 
     locale.setSettingUseMetric(ui->unitFormatMetricRadioButton->isChecked());
     saveQsoStatusColors();
+    saveWaveshareActions(ui->equipmentTabWidget);
     Data::reloadQsoStatusColors();
 
     /***************/

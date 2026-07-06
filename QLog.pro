@@ -102,6 +102,7 @@ SOURCES += \
         core/QSLStorage.cpp \
         core/QSOFilterManager.cpp \
         core/WsjtxUDPReceiver.cpp \
+        core/WaveshareControl.cpp \
         core/debug.cpp \
         core/EmergencyFrequency.cpp \
         core/IBPBeacon.cpp \
@@ -233,6 +234,8 @@ SOURCES += \
         ui/SteppirWidget.cpp \
         ui/UploadQSODialog.cpp \
         ui/WebEnginePage.cpp \
+        ui/WaveshareSettingsWidget.cpp \
+        ui/WaveshareWidget.cpp \
         ui/WsjtxFilterDialog.cpp \
         ui/WsjtxWidget.cpp \
         ui/component/BaseDoubleSpinBox.cpp \
@@ -296,6 +299,7 @@ HEADERS += \
         core/QSOFilterManager.h \
         core/QuadKeyCache.h \
         core/WsjtxUDPReceiver.h \
+        core/WaveshareControl.h \
         core/csv.hpp \
         core/debug.h \
         core/EmergencyFrequency.h \
@@ -446,6 +450,8 @@ HEADERS += \
         ui/SteppirWidget.h \
         ui/UploadQSODialog.h \
         ui/WebEnginePage.h \
+        ui/WaveshareSettingsWidget.h \
+        ui/WaveshareWidget.h \
         ui/WsjtxFilterDialog.h \
         ui/WsjtxWidget.h \
         i18n/dbstrings.tri \
@@ -517,6 +523,8 @@ FORMS += \
         ui/StatisticsWidget.ui \
         ui/SteppirWidget.ui \
         ui/UploadQSODialog.ui \
+        ui/WaveshareSettingsWidget.ui \
+        ui/WaveshareWidget.ui \
         ui/WsjtxFilterDialog.ui \
         ui/WsjtxWidget.ui
 

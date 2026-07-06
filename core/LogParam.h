@@ -453,6 +453,12 @@ public:
     static QString getSteppirCurrentProfile();
     static void setSteppirCurrentProfile(const QString &profileName);
 
+    /*************
+     * Waveshare
+     *************/
+    static QString getWaveshareActions();
+    static void setWaveshareActions(const QString &json);
+
     /*********************
      * QSL Print Labels
      *********************/

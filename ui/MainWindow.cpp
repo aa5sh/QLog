@@ -66,6 +66,7 @@
 #include <QProcess>
 #include <QThread>
 #include <QTemporaryFile>
+#include "ui/WaveshareWidget.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 
@@ -175,6 +176,15 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
     ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
     ui->chatWidget->registerContactWidget(ui->newContactWidget);
+
+    WaveshareWidget *waveshareWidget = new WaveshareWidget(this);
+    QDockWidget *waveshareDockWidget = new QDockWidget(tr("Waveshare"), this);
+    waveshareDockWidget->setObjectName(QStringLiteral("waveshareDockWidget"));
+    waveshareDockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
+    waveshareDockWidget->setWidget(waveshareWidget);
+    addDockWidget(Qt::RightDockWidgetArea, waveshareDockWidget);
+    ui->menuWindow->addAction(waveshareDockWidget->toggleViewAction());
+    waveshareDockWidget->hide();
 
     const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
     for (QDockWidget *dockWidget : dockWidgets) {
@@ -415,6 +425,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->newContactWidget, &NewContactWidget::readGlobalSettings);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
+    connect(this, &MainWindow::settingsChanged, waveshareWidget, &WaveshareWidget::reloadSettings);
     connect(this, &MainWindow::contestStopped, ui->newContactWidget, &NewContactWidget::stopContest);
     connect(this, &MainWindow::contestStopped, ui->bandmapWidget, &BandmapWidget::resetDupe);
     connect(this, &MainWindow::contestStopped, ui->alertsWidget, &AlertWidget::resetDupe);
