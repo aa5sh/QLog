@@ -1440,6 +1440,49 @@
             </item>
            </layout>
           </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="amplifierProfileCheckbox">
+            <property name="toolTip">
+             <string>If unchecked, the profile does not change</string>
+            </property>
+            <property name="text">
+             <string>Amplifier</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_Amplifier">
+            <item>
+             <widget class="QComboBox" name="amplifierProfileCombo">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="amplifierAutoconnectCheckbox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Connect automatically</string>
+              </property>
+              <property name="text">
+               <string>Connect</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>

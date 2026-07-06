@@ -16,7 +16,8 @@ public:
         ROT_PROFILE = 3,
         MAIN_LAYOUT_PROFILE = 4,
         BANDMAP_GUIDE_PROFILE = 5,
-        STEPPIR_PROFILE = 6
+        STEPPIR_PROFILE = 6,
+        AMPLIFIER_PROFILE = 7
     };
 
     enum ProfileParamType

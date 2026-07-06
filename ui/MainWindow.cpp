@@ -13,7 +13,9 @@
 #include <QDockWidget>
 
 #include "MainWindow.h"
+#include "amplifier/AmplifierController.h"
 #include "ui_MainWindow.h"
+#include "ui/AmplifierWidget.h"
 #include "ui/SettingsDialog.h"
 #include "ui/ImportDialog.h"
 #include "ui/ExportDialog.h"
@@ -153,6 +155,21 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->chatDockWidget->hide();
     ui->profileImageDockWidget->hide();
     ui->alertDockWidget->hide();
+
+    amplifierWidget = new AmplifierWidget(this);
+    amplifierDockWidget = new QDockWidget(tr("Amplifier"), this);
+    amplifierDockWidget->setObjectName("amplifierDockWidget");
+    amplifierDockWidget->setWidget(amplifierWidget);
+    addDockWidget(Qt::RightDockWidgetArea, amplifierDockWidget);
+    amplifierDockWidget->hide();
+
+    actionConnectAmplifier = new QAction(tr("Connect &Amplifier"), this);
+    actionConnectAmplifier->setCheckable(true);
+    ui->menuEquipment->addAction(actionConnectAmplifier);
+
+    actionAmplifierWindow = amplifierDockWidget->toggleViewAction();
+    actionAmplifierWindow->setText(tr("Amplifier"));
+    ui->menuWindow->addAction(actionAmplifierWindow);
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
@@ -327,6 +344,22 @@ MainWindow::MainWindow(QWidget* parent) :
         actionConnectSteppir->setChecked(false);
     });
 
+    connect(AmplifierController::instance(), &AmplifierController::errorPresent, this,
+            [this](const QString &error, const QString &errorDetail)
+    {
+        QMessageBox::critical(this,
+                              QMessageBox::tr("QLog Error"),
+                              QMessageBox::tr("<b>Amplifier Error:</b> ") + error
+                              + "<br><br>" + errorDetail);
+        actionConnectAmplifier->setChecked(false);
+    });
+    connect(AmplifierController::instance(), &AmplifierController::connected, this, [this]() {
+        actionConnectAmplifier->setChecked(true);
+    });
+    connect(AmplifierController::instance(), &AmplifierController::disconnected, this, [this]() {
+        actionConnectAmplifier->setChecked(false);
+    });
+
     connect(CWKeyer::instance(), &CWKeyer::cwKeyerError, this, &MainWindow::cwKeyerErrorHandler);
     connect(CWKeyer::instance(), &CWKeyer::cwKeyWPMChanged, ui->cwconsoleWidget, &CWConsoleWidget::setWPM);
     connect(CWKeyer::instance(), &CWKeyer::cwKeyEchoText, ui->cwconsoleWidget, &CWConsoleWidget::appendCWEchoText);
@@ -368,6 +401,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->rotatorWidget, &RotatorWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rigWidget, &RigWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, steppirWidget, &SteppirWidget::reloadSettings);
+    connect(this, &MainWindow::settingsChanged, amplifierWidget, &AmplifierWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->cwconsoleWidget, &CWConsoleWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rotatorWidget, &RotatorWidget::redrawMap);
     connect(this, &MainWindow::settingsChanged, ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
@@ -396,6 +430,8 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->rotatorWidget, &RotatorWidget::rotProfileChanged, this, &MainWindow::rotConnect);
     connect(steppirWidget, &SteppirWidget::profileChanged, this, &MainWindow::steppirConnect);
     connect(actionConnectSteppir, &QAction::triggered, this, &MainWindow::steppirConnect);
+    connect(amplifierWidget, &AmplifierWidget::profileChanged, this, &MainWindow::amplifierConnect);
+    connect(actionConnectAmplifier, &QAction::triggered, this, &MainWindow::amplifierConnect);
 
     connect(ui->logbookWidget, &LogbookWidget::deletedEntities, Data::instance(), &Data::invalidateSetOfDXCCStatusCache); // must be the first delete signal
     connect(ui->logbookWidget, &LogbookWidget::logbookUpdated, stats, &StatisticsWidget::refreshWidget);
@@ -1979,6 +2015,18 @@ void MainWindow::handleActivityChange(const QString name)
         if ( connectSteppir )
             scheduleSteppirConnectRetry(STEPPIR_AUTOCONNECT_RETRY_ATTEMPTS);
     }
+
+    const QVariant &valueAmplifier = profile.getProfileParam(ActivityProfile::ProfileType::AMPLIFIER_PROFILE,
+                                                             ActivityProfile::ProfileParamType::CONNECT);
+
+    if ( !valueAmplifier.isNull()
+          && AmplifierProfiles::currentProfileName() == profile.profiles[ActivityProfile::ProfileType::AMPLIFIER_PROFILE].name )
+    {
+        if ( actionConnectAmplifier->isChecked() && valueAmplifier.toBool() )
+            amplifierConnect();
+        else
+            actionConnectAmplifier->setChecked(valueAmplifier.toBool());
+    }
 }
 
 void MainWindow::scheduleSteppirConnectRetry(int remainingAttempts)
@@ -2019,6 +2067,16 @@ void MainWindow::steppirConnect()
         SteppirController::instance()->open();
     else
         SteppirController::instance()->close();
+}
+
+void MainWindow::amplifierConnect()
+{
+    FCT_IDENTIFICATION;
+
+    if ( actionConnectAmplifier->isChecked() )
+        AmplifierController::instance()->open();
+    else
+        AmplifierController::instance()->close();
 }
 
 void MainWindow::cwKeyerConnect()
@@ -2339,11 +2397,13 @@ MainWindow::~MainWindow()
     QObject::disconnect(CWKeyer::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(Rotator::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(SteppirController::instance(), nullptr, nullptr, nullptr);
+    QObject::disconnect(AmplifierController::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(Rig::instance(), nullptr, nullptr, nullptr);
 
     CWKeyer::instance()->shutdown();
     Rotator::instance()->shutdown();
     SteppirController::instance()->close();
+    AmplifierController::instance()->close();
     Rig::instance()->shutdown();
 
     conditions->deleteLater();
