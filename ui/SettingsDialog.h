@@ -36,6 +36,7 @@ class SettingsDialog;
 class QSqlTableModel;
 class QStandardItem;
 class QStandardItemModel;
+class QPushButton;
 
 class SettingsDialog : public QDialog {
     Q_OBJECT
@@ -78,6 +79,12 @@ public slots:
     void refreshAntProfilesView();
     void doubleClickAntProfile(QModelIndex);
     void clearAntProfileForm();
+    void addSteppirProfile();
+    void delSteppirProfile();
+    void refreshSteppirProfilesView();
+    void doubleClickSteppirProfile(QModelIndex);
+    void clearSteppirProfileForm();
+    void setSteppirConnectionType(int index);
 
     void addCWKeyProfile();
     void delCWKeyProfile();

@@ -17,6 +17,8 @@ class MainWindow;
 class QLabel;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
+class QDockWidget;
+class SteppirWidget;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -43,6 +45,7 @@ signals:
 public slots:
     void rigErrorHandler(const QString &error, const QString &errorDetail);
     void rotErrorHandler(const QString &error, const QString &errorDetail);
+    void steppirErrorHandler(const QString &error, const QString &errorDetail);
     void cwKeyerErrorHandler(const QString &error, const QString &errorDetail);
     void stationProfileChanged();
     void setLayoutGeometry();
@@ -52,6 +55,7 @@ public slots:
 private slots:
     void rigConnect();
     void rotConnect();
+    void steppirConnect();
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -113,6 +117,10 @@ private:
     QPushButton* alertButton;
     QPushButton* alertTextButton;
     QPushButton *themeButton;
+    QAction *actionConnectSteppir;
+    QAction *actionSteppirWindow;
+    QDockWidget *steppirDockWidget;
+    SteppirWidget *steppirWidget;
     StatisticsWidget* stats;
     NetworkNotification networknotification;
     AlertEvaluator alertEvaluator;
@@ -128,6 +136,7 @@ private:
     QMetaObject::Connection alertTextButtonConn;
     bool firstRun = false;
     void setupActivitiesMenu();
+    void scheduleSteppirConnectRetry(int remainingAttempts);
 
 
     void restoreUserDefinedShortcuts();
