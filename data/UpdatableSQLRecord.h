@@ -12,6 +12,7 @@ class UpdatableSQLRecord : public QObject
 
 public:
     explicit UpdatableSQLRecord(int interval = 500,
+                                int maxUpdates = 2,
                                 QObject *parent = nullptr);
 
     ~UpdatableSQLRecord();
@@ -37,9 +38,16 @@ private:
     bool matchQSO(const MatchingType,
                   const QSqlRecord &);
 
+    void resetCnt();
+    void incrementCnt() {currUpdateCnt++;};
+    bool emitIfMaxUpdatesReached();
+    void startNextUpdateCycle();
+
     QSqlRecord internalRecord;
     QTimer timer;
     int interval;
+    int maxUpdates;
+    int currUpdateCnt;
 };
 
 #endif // QLOG_DATA_UPDATABLESQLRECORD_H

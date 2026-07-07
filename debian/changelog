@@ -1,3 +1,12 @@
+qlog (0.51.1-1) UNRELEASED; urgency=low
+  * Fixed WSJTX QSO Name Field is cleared (issue #1019)
+  * Fixed WAAC - added missing ZS0, ZS9, displaying prefixes (issue #1070)
+  * Fixed Cabrillo Template - Handle null dbField when saving (issue #1077 @aa5sh @foldynl)
+  * Updated German translation (PR #1080 thx @mulecram)
+  * Removed a length limit of qsl_via field (PR #1081 @trgosk @foldynl)
+
+ -- foldynl <foldyna@gmail.com>  Tue, 7 Jul 2026 15:46:55 +0200
+
 qlog (0.51.0-1) UNRELEASED; urgency=low
   * [NEW] - Added a simple QSL Card printing
   * [NEW] - Added virtual column Mode/Submode to Logbook (issue #798)

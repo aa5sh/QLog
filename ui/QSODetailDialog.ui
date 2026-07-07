@@ -1845,9 +1845,6 @@
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
-           <property name="maxLength">
-            <number>25</number>
-           </property>
           </widget>
          </item>
          <item row="4" column="0">

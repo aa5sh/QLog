@@ -903,7 +903,7 @@
         <translation>Asia</translation>
     </message>
     <message>
-        <location filename="../awards/AwardWAAC.cpp" line="6"/>
+        <location filename="../awards/AwardWAAC.cpp" line="9"/>
         <source>WAAC</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9282,42 +9282,42 @@ Submode: %2</source>
         <translation>QSL vía</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1379"/>
+        <location filename="../ui/NewContactWidget.ui" line="1376"/>
         <source>Propagation Mode</source>
         <translation>Modo di Propagazione</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1414"/>
+        <location filename="../ui/NewContactWidget.ui" line="1411"/>
         <source>D&amp;X Stats</source>
         <translation>D&amp;X Statistiche</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1429"/>
+        <location filename="../ui/NewContactWidget.ui" line="1426"/>
         <source>&lt;b&gt;DXCC Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;DXCC Statistics&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1494"/>
+        <location filename="../ui/NewContactWidget.ui" line="1491"/>
         <source>&lt;b&gt;Station Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;Station Statistics&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1551"/>
+        <location filename="../ui/NewContactWidget.ui" line="1548"/>
         <source>M&amp;y Station</source>
         <translation>M&amp;ia Stazione</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1559"/>
+        <location filename="../ui/NewContactWidget.ui" line="1556"/>
         <source>Station</source>
         <translation>Stazione</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1576"/>
+        <location filename="../ui/NewContactWidget.ui" line="1573"/>
         <source>Rig</source>
         <translation>Radio</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1599"/>
+        <location filename="../ui/NewContactWidget.ui" line="1596"/>
         <source>Antenna</source>
         <translation>Antenna</translation>
     </message>
@@ -9332,12 +9332,12 @@ Submode: %2</source>
         <translation> W</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1644"/>
+        <location filename="../ui/NewContactWidget.ui" line="1641"/>
         <source>My &amp;Notes</source>
         <translation>Le mie N&amp;ote</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1687"/>
+        <location filename="../ui/NewContactWidget.ui" line="1684"/>
         <source>Member:</source>
         <translation>Membro:</translation>
     </message>
@@ -11053,9 +11053,9 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <location filename="../ui/QSODetailDialog.ui" line="467"/>
         <location filename="../ui/QSODetailDialog.ui" line="1671"/>
         <location filename="../ui/QSODetailDialog.ui" line="1738"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1874"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1912"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2078"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1871"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1909"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2075"/>
         <location filename="../ui/QSODetailDialog.cpp" line="272"/>
         <source>Blank</source>
         <translation>Vuoto</translation>
@@ -11334,17 +11334,17 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation> W</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2108"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2105"/>
         <source>QSLr Message</source>
         <translation>QSLr Messaggio</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2133"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2130"/>
         <source>QSLs Message</source>
         <translation>QSLs Messaggio</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2169"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2166"/>
         <source>Contest ID</source>
         <translation>Contest ID</translation>
     </message>
@@ -11374,20 +11374,20 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation>&amp;QSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2063"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2060"/>
         <source>Sent</source>
         <translation>Inviata</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.ui" line="1792"/>
         <location filename="../ui/QSODetailDialog.ui" line="1799"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2003"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2010"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2000"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2007"/>
         <source>-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1994"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1991"/>
         <source>Manage QSL Card</source>
         <translation>Gestisci la cartolina QSL</translation>
     </message>
@@ -11397,14 +11397,14 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation>QSL inviata vía</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1895"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1951"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2099"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1892"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1948"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2096"/>
         <source>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</source>
         <translation>&lt;b&gt;Sì&lt;/b&gt; - è stata inviata una QSL in uscita; il QSO è stato caricato e accettato dal servizio online&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - non inviare una cartolina QSL in uscita; non caricare il QSO sul servizio online&lt;br/&gt;&lt;b&gt;Richiesto&lt;/b&gt; - la stazione contattata ha richiesto una QSL; la stazione contattata ha richiesto il caricamento del QSO sul servizio online&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - è stata selezionata una QSL in uscita da inviare; è stato selezionato un QSO da caricare sul servizio online&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2037"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2034"/>
         <source>Paper</source>
         <translation>Cartaceo</translation>
     </message>
@@ -11419,52 +11419,52 @@ Aggiornamento elenco club non riuscito. Impossibile rimuovere i vecchi record</t
         <translation>&lt;b&gt;Sì&lt;/b&gt; - è stata ricevuta una QSL in arrivo; il QSO è stato confermato dal servizio online&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - non è stata ricevuta una QSL in arrivo; il QSO non è stato confermato dal servizio online&lt;br/&gt;&lt;b&gt;Richiesto&lt;/b&gt; - la stazione logging ha richiesto una QSL; la stazione logging ha richiesto che il QSO venga caricato sul servizio online&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1966"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1963"/>
         <source>Received</source>
         <translation>Ricevuta</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1856"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1853"/>
         <source>QSL via</source>
         <translation>QSL vía</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2126"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2123"/>
         <source>LoTW</source>
         <translation>LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1984"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1981"/>
         <source>eQSL</source>
         <translation>eQSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2159"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2156"/>
         <source>&amp;Contest</source>
         <translation>&amp;Contest</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2179"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2176"/>
         <source>RcvNr</source>
         <translation>Numero Ricevuto</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2193"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2190"/>
         <source>RcvExch</source>
         <translation>Scambio Ricevuto</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2207"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2204"/>
         <source>SendNr</source>
         <translation>Numero Inviato</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2221"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2218"/>
         <source>SendExch</source>
         <translation>Scambio inviato</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2273"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2270"/>
         <source>Member:</source>
         <translation>Membro:</translation>
     </message>

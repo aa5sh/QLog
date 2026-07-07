@@ -102,5 +102,5 @@ QVariant LogbookFieldComboBox::emptyData(ValueMode valueMode)
 {
     return valueMode == ValueMode::ColumnId
            ? QVariant(static_cast<int>(LogbookModel::COLUMN_INVALID))
-           : QVariant(QString());
+           : QVariant(QStringLiteral(""));
 }
