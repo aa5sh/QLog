@@ -1289,9 +1289,6 @@
              <property name="focusPolicy">
               <enum>Qt::ClickFocus</enum>
              </property>
-             <property name="maxLength">
-              <number>25</number>
-             </property>
             </widget>
            </item>
            <item>

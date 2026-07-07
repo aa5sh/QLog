@@ -904,7 +904,7 @@
         <translation>Asie</translation>
     </message>
     <message>
-        <location filename="../awards/AwardWAAC.cpp" line="6"/>
+        <location filename="../awards/AwardWAAC.cpp" line="9"/>
         <source>WAAC</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9271,52 +9271,52 @@ Submode: %2</source>
         <translation>QSL via</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1379"/>
+        <location filename="../ui/NewContactWidget.ui" line="1376"/>
         <source>Propagation Mode</source>
         <translation>Mode de propagation</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1414"/>
+        <location filename="../ui/NewContactWidget.ui" line="1411"/>
         <source>D&amp;X Stats</source>
         <translation>Stats D&amp;X</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1429"/>
+        <location filename="../ui/NewContactWidget.ui" line="1426"/>
         <source>&lt;b&gt;DXCC Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;Statistiques DXCC&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1494"/>
+        <location filename="../ui/NewContactWidget.ui" line="1491"/>
         <source>&lt;b&gt;Station Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;Statistiques de la station&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1551"/>
+        <location filename="../ui/NewContactWidget.ui" line="1548"/>
         <source>M&amp;y Station</source>
         <translation>M&amp;a Station</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1559"/>
+        <location filename="../ui/NewContactWidget.ui" line="1556"/>
         <source>Station</source>
         <translation>Station</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1576"/>
+        <location filename="../ui/NewContactWidget.ui" line="1573"/>
         <source>Rig</source>
         <translation>TRX</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1599"/>
+        <location filename="../ui/NewContactWidget.ui" line="1596"/>
         <source>Antenna</source>
         <translation>Antenne</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1644"/>
+        <location filename="../ui/NewContactWidget.ui" line="1641"/>
         <source>My &amp;Notes</source>
         <translation>Mes &amp;Notes</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1687"/>
+        <location filename="../ui/NewContactWidget.ui" line="1684"/>
         <source>Member:</source>
         <translation>Membre :</translation>
     </message>
@@ -11041,9 +11041,9 @@ Vous pouvez laisser les champs vides et les configurer plus tard dans les Param�
         <location filename="../ui/QSODetailDialog.ui" line="467"/>
         <location filename="../ui/QSODetailDialog.ui" line="1671"/>
         <location filename="../ui/QSODetailDialog.ui" line="1738"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1874"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1912"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2078"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1871"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1909"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2075"/>
         <location filename="../ui/QSODetailDialog.cpp" line="272"/>
         <source>Blank</source>
         <translation>Vide</translation>
@@ -11359,8 +11359,8 @@ Vous pouvez laisser les champs vides et les configurer plus tard dans les Param�
     <message>
         <location filename="../ui/QSODetailDialog.ui" line="1792"/>
         <location filename="../ui/QSODetailDialog.ui" line="1799"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2003"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2010"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2000"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2007"/>
         <source>-</source>
         <translation>-</translation>
     </message>
@@ -11370,89 +11370,89 @@ Vous pouvez laisser les champs vides et les configurer plus tard dans les Param�
         <translation>QSL envoyée via</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1856"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1853"/>
         <source>QSL via</source>
         <translation>QSL via</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1895"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1951"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2099"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1892"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1948"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2096"/>
         <source>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</source>
         <translation>&lt;b&gt;Oui&lt;/b&gt; - une carte QSL sortante a été envoyée ; le QSO a été accepté par le service en ligne&lt;br/&gt;&lt;b&gt;Non&lt;/b&gt; - ne pas envoyer de carte QSL ; ne pas envoyer le QSO au service en ligne&lt;br/&gt;&lt;b&gt;Demandée&lt;/b&gt; - la station contactée a demandé une carte QSL ou l&apos;envoi vers le service en ligne&lt;br/&gt;&lt;b&gt;En attente&lt;/b&gt; - une carte QSL ou un envoi vers le service en ligne a été mis en file d&apos;attente&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1966"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1963"/>
         <source>Received</source>
         <translation>Reçue</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1984"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1981"/>
         <source>eQSL</source>
         <translation>eQSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1994"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1991"/>
         <source>Manage QSL Card</source>
         <translation>Gérer la carte QSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2037"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2034"/>
         <source>Paper</source>
         <translation>Papier</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2063"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2060"/>
         <source>Sent</source>
         <translation>Envoyée</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2108"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2105"/>
         <source>QSLr Message</source>
         <translation>Message QSLr</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2126"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2123"/>
         <source>LoTW</source>
         <translation>LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2133"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2130"/>
         <source>QSLs Message</source>
         <translation>Message QSLs</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2159"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2156"/>
         <source>&amp;Contest</source>
         <translation>&amp;Concours</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2169"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2166"/>
         <source>Contest ID</source>
         <translation>ID du concours</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2179"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2176"/>
         <source>RcvNr</source>
         <translation>N° Reçu</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2193"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2190"/>
         <source>RcvExch</source>
         <translation>Échange Reçu</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2207"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2204"/>
         <source>SendNr</source>
         <translation>N° Envoyé</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2221"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2218"/>
         <source>SendExch</source>
         <translation>Échange Envoyé</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2273"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2270"/>
         <source>Member:</source>
         <translation>Membre :</translation>
     </message>

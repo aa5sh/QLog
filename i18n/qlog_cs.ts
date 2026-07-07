@@ -905,7 +905,7 @@
         <translation>Smazáno</translation>
     </message>
     <message>
-        <location filename="../awards/AwardWAAC.cpp" line="6"/>
+        <location filename="../awards/AwardWAAC.cpp" line="9"/>
         <source>WAAC</source>
         <translation></translation>
     </message>
@@ -9238,22 +9238,22 @@ Submode: %2</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1414"/>
+        <location filename="../ui/NewContactWidget.ui" line="1411"/>
         <source>D&amp;X Stats</source>
         <translation>D&amp;X Stats</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1429"/>
+        <location filename="../ui/NewContactWidget.ui" line="1426"/>
         <source>&lt;b&gt;DXCC Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;DXCC Statistiky&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1494"/>
+        <location filename="../ui/NewContactWidget.ui" line="1491"/>
         <source>&lt;b&gt;Station Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;Statistiky stanice&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1687"/>
+        <location filename="../ui/NewContactWidget.ui" line="1684"/>
         <source>Member:</source>
         <translation>Člen:</translation>
     </message>
@@ -9301,7 +9301,7 @@ Submode: %2</source>
         <translation>Nevyplněno</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1644"/>
+        <location filename="../ui/NewContactWidget.ui" line="1641"/>
         <source>My &amp;Notes</source>
         <translation>Mé &amp;poznámky</translation>
     </message>
@@ -9311,12 +9311,12 @@ Submode: %2</source>
         <translation>&amp;Detaily</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1551"/>
+        <location filename="../ui/NewContactWidget.ui" line="1548"/>
         <source>M&amp;y Station</source>
         <translation>Mo&amp;je Stanice</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1559"/>
+        <location filename="../ui/NewContactWidget.ui" line="1556"/>
         <source>Station</source>
         <translation>Stanice</translation>
     </message>
@@ -9336,12 +9336,12 @@ Submode: %2</source>
         <translation>QSL Via</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1379"/>
+        <location filename="../ui/NewContactWidget.ui" line="1376"/>
         <source>Propagation Mode</source>
         <translation>Podmínky šíření</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1576"/>
+        <location filename="../ui/NewContactWidget.ui" line="1573"/>
         <source>Rig</source>
         <translation>Rig</translation>
     </message>
@@ -9351,7 +9351,7 @@ Submode: %2</source>
         <translation> W</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1599"/>
+        <location filename="../ui/NewContactWidget.ui" line="1596"/>
         <source>Antenna</source>
         <translation>Anténa</translation>
     </message>
@@ -11061,9 +11061,9 @@ Pole můžete nechat prázdná a nastavit je později v Nastavení.</translation
         <location filename="../ui/QSODetailDialog.ui" line="467"/>
         <location filename="../ui/QSODetailDialog.ui" line="1671"/>
         <location filename="../ui/QSODetailDialog.ui" line="1738"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1874"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1912"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2078"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1871"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1909"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2075"/>
         <location filename="../ui/QSODetailDialog.cpp" line="272"/>
         <source>Blank</source>
         <translation>Nevyplněno</translation>
@@ -11269,22 +11269,22 @@ Pole můžete nechat prázdná a nastavit je později v Nastavení.</translation
         <translation>Značka operátora</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2108"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2105"/>
         <source>QSLr Message</source>
         <translation>Příchozí QSL Zpráva</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2133"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2130"/>
         <source>QSLs Message</source>
         <translation>Odchozí QSL Zpráva</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2169"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2166"/>
         <source>Contest ID</source>
         <translation>ID Závodu</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2273"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2270"/>
         <source>Member:</source>
         <translation>Člen:</translation>
     </message>
@@ -11395,20 +11395,20 @@ Pole můžete nechat prázdná a nastavit je později v Nastavení.</translation
     <message>
         <location filename="../ui/QSODetailDialog.ui" line="1792"/>
         <location filename="../ui/QSODetailDialog.ui" line="1799"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2003"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2010"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2000"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2007"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1994"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1991"/>
         <source>Manage QSL Card</source>
         <translation>Správa QSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1895"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1951"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2099"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1892"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1948"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2096"/>
         <source>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</source>
         <translation>&lt;b&gt;Odesláno&lt;/b&gt; -QSL byl odeslán; QSO bylo nahráno a akceptováno online službou&lt;br/&gt;&lt;b&gt;Neodesílat&lt;/b&gt; -QSL nemá být odesláno; neodesílat do online služby&lt;br/&gt;&lt;b&gt;Vyžádano&lt;/b&gt; -protistanice vyžádala QSL; protistanice vyžádala opětovné nahrání do online služby&lt;br/&gt;&lt;b&gt;Ve frontě&lt;/b&gt; -QSL bylo zařazeno do fronty k vyřízení; QSO je ve frontě k nahrání do online služby&lt;br/&gt;</translation>
     </message>
@@ -11418,32 +11418,32 @@ Pole můžete nechat prázdná a nastavit je později v Nastavení.</translation
         <translation>QSL odesláno via</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1966"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1963"/>
         <source>Received</source>
         <translation>Přijato</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2037"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2034"/>
         <source>Paper</source>
         <translation>QSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2126"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2123"/>
         <source>LoTW</source>
         <translation>LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1984"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1981"/>
         <source>eQSL</source>
         <translation>eQSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1856"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1853"/>
         <source>QSL via</source>
         <translation>QSL Via</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2063"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2060"/>
         <source>Sent</source>
         <translation>Odesláno</translation>
     </message>
@@ -11458,27 +11458,27 @@ Pole můžete nechat prázdná a nastavit je později v Nastavení.</translation
         <translation>&lt;b&gt;Ano&lt;/b&gt; - QSL byl přijat; QSO bylo potvrzeno online službou&lt;br/&gt;&lt;b&gt;Ne&lt;/b&gt; - QSL nebylo přijato; nebylo potvrzeno online službou&lt;br/&gt;&lt;b&gt;Vyžádano&lt;/b&gt; - QSL vyžádáno; vyžádáno opětovné nahrání do online služby&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2159"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2156"/>
         <source>&amp;Contest</source>
         <translation>&amp;Závod</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2179"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2176"/>
         <source>RcvNr</source>
         <translation>RcvNr</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2193"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2190"/>
         <source>RcvExch</source>
         <translation>RcvExch</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2207"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2204"/>
         <source>SendNr</source>
         <translation>SendNr</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2221"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2218"/>
         <source>SendExch</source>
         <translation>SendExch</translation>
     </message>

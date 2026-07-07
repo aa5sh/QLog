@@ -52,6 +52,13 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jul 7 2026 Ladislav Foldyna - 0.51.1-1
+- Fixed WSJTX QSO Name Field is cleared (issue #1019)
+- Fixed WAAC - added missing ZS0, ZS9, displaying prefixes (issue #1070)
+- Fixed Cabrillo Template - Handle null dbField when saving (issue #1077 @aa5sh @foldynl)
+- Updated German translation (PR #1080 thx @mulecram)
+- Removed a length limit of qsl_via field (PR #1081 @trgosk @foldynl)
+
 * Sun Jun 7 2026 Ladislav Foldyna - 0.51.0-1
 - [NEW] - Added a simple QSL Card printing
 - [NEW] - Added virtual column Mode/Submode to Logbook (issue #798)

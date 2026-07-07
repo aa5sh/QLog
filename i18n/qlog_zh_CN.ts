@@ -901,7 +901,7 @@
         <translation>亚洲</translation>
     </message>
     <message>
-        <location filename="../awards/AwardWAAC.cpp" line="6"/>
+        <location filename="../awards/AwardWAAC.cpp" line="9"/>
         <source>WAAC</source>
         <translation>WAAC</translation>
     </message>
@@ -9199,17 +9199,17 @@ Submode: %2</source>
         <translation>日期</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1414"/>
+        <location filename="../ui/NewContactWidget.ui" line="1411"/>
         <source>D&amp;X Stats</source>
         <translation>D&amp;X统计</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1429"/>
+        <location filename="../ui/NewContactWidget.ui" line="1426"/>
         <source>&lt;b&gt;DXCC Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;DXCC 统计&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1494"/>
+        <location filename="../ui/NewContactWidget.ui" line="1491"/>
         <source>&lt;b&gt;Station Statistics&lt;/b&gt;</source>
         <translation>&lt;b&gt;电台统计&lt;/b&gt;</translation>
     </message>
@@ -9282,27 +9282,27 @@ Submode: %2</source>
         <translation>QSL 通过</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1379"/>
+        <location filename="../ui/NewContactWidget.ui" line="1376"/>
         <source>Propagation Mode</source>
         <translation>传播模式</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1551"/>
+        <location filename="../ui/NewContactWidget.ui" line="1548"/>
         <source>M&amp;y Station</source>
         <translation>我的电台(&amp;Y)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1559"/>
+        <location filename="../ui/NewContactWidget.ui" line="1556"/>
         <source>Station</source>
         <translation>电台</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1576"/>
+        <location filename="../ui/NewContactWidget.ui" line="1573"/>
         <source>Rig</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1599"/>
+        <location filename="../ui/NewContactWidget.ui" line="1596"/>
         <source>Antenna</source>
         <translation>天线</translation>
     </message>
@@ -9317,12 +9317,12 @@ Submode: %2</source>
         <translation> W</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1644"/>
+        <location filename="../ui/NewContactWidget.ui" line="1641"/>
         <source>My &amp;Notes</source>
         <translation>我的笔记(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.ui" line="1687"/>
+        <location filename="../ui/NewContactWidget.ui" line="1684"/>
         <source>Member:</source>
         <translation>成员:</translation>
     </message>
@@ -11031,9 +11031,9 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/QSODetailDialog.ui" line="467"/>
         <location filename="../ui/QSODetailDialog.ui" line="1671"/>
         <location filename="../ui/QSODetailDialog.ui" line="1738"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1874"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1912"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2078"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1871"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1909"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2075"/>
         <location filename="../ui/QSODetailDialog.cpp" line="272"/>
         <source>Blank</source>
         <translation>空白</translation>
@@ -11312,17 +11312,17 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation> W</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2108"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2105"/>
         <source>QSLr Message</source>
         <translation>QSLr 信息</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2133"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2130"/>
         <source>QSLs Message</source>
         <translation>QSLs 信息</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2169"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2166"/>
         <source>Contest ID</source>
         <translation>竞赛标识</translation>
     </message>
@@ -11352,20 +11352,20 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>&amp;QSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2063"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2060"/>
         <source>Sent</source>
         <translation>发出</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.ui" line="1792"/>
         <location filename="../ui/QSODetailDialog.ui" line="1799"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2003"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2010"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2000"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2007"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1994"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1991"/>
         <source>Manage QSL Card</source>
         <translation>管理 QSL 卡片</translation>
     </message>
@@ -11375,14 +11375,14 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>QSL 发送经由</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1895"/>
-        <location filename="../ui/QSODetailDialog.ui" line="1951"/>
-        <location filename="../ui/QSODetailDialog.ui" line="2099"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1892"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1948"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2096"/>
         <source>&lt;b&gt;Yes&lt;/b&gt; - an outgoing QSL card has been sent; the QSO has been uploaded to, and accepted by, the online service&lt;br/&gt;&lt;b&gt;No&lt;/b&gt; - do not send an outgoing QSL card; do not upload the QSO to the online service&lt;br/&gt;&lt;b&gt;Requested&lt;/b&gt; - the contacted station has requested a QSL card; the contacted station has requested the QSO be uploaded to the online service&lt;br/&gt;&lt;b&gt;Queued&lt;/b&gt; - an outgoing QSL card has been selected to be sent; a QSO has been selected to be uploaded to the online service&lt;br/&gt;</source>
         <translation>&lt;b&gt;是&lt;/b&gt; -已发出 QSL卡; QSO 已上传至在线服务&lt;br/&gt;&lt;b&gt;否&lt;/b&gt; -不发送 QSL卡;&lt;br/&gt;&lt;b&gt;已请求&lt;/b&gt; -被联系站点已请求 QSL卡;被联系站点已请求将 QSO 上传到在线服务&lt;br/&gt;&lt;b&gt;排队&lt;/b&gt;—已选择要发送的 QSL 卡;已选定一个 QSO 上载至在线服务&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2037"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2034"/>
         <source>Paper</source>
         <translation>纸质卡片</translation>
     </message>
@@ -11397,52 +11397,52 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>&lt;b&gt;是&lt;/b&gt; -已收到 QSL 卡; QSO 已被在线服务确认&lt;br/&gt;&lt;b&gt;否&lt;/b&gt; -未收到 QSL 卡;在线服务请求的QSO未得到确认&lt;br&gt;&lt;b&gt;已请求&lt;/b&gt; -日志记录站已请求 QSL卡; 日志记录站要求将QSO上传到在线服务&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1966"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1963"/>
         <source>Received</source>
         <translation>收到</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1856"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1853"/>
         <source>QSL via</source>
         <translation>QSL 通过</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2126"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2123"/>
         <source>LoTW</source>
         <translation>LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="1984"/>
+        <location filename="../ui/QSODetailDialog.ui" line="1981"/>
         <source>eQSL</source>
         <translation>eQSL</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2159"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2156"/>
         <source>&amp;Contest</source>
         <translation>比赛(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2179"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2176"/>
         <source>RcvNr</source>
         <translation>接收序号</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2193"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2190"/>
         <source>RcvExch</source>
         <translation>接收交换信息</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2207"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2204"/>
         <source>SendNr</source>
         <translation>发送序号</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2221"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2218"/>
         <source>SendExch</source>
         <translation>发送交换信息</translation>
     </message>
     <message>
-        <location filename="../ui/QSODetailDialog.ui" line="2273"/>
+        <location filename="../ui/QSODetailDialog.ui" line="2270"/>
         <source>Member:</source>
         <translation>成员:</translation>
     </message>

@@ -5,12 +5,17 @@
 
 MODULE_IDENTIFICATION("qlog.core.updatableqslrecord");
 
-UpdatableSQLRecord::UpdatableSQLRecord(int interval, QObject *parent)
+UpdatableSQLRecord::UpdatableSQLRecord(int interval, int maxUpdates, QObject *parent)
     : QObject{parent},
-      interval(interval)
+      interval(qMax(1, interval)),
+      maxUpdates(qMax(1, maxUpdates)),
+      currUpdateCnt(0)
 {
     FCT_IDENTIFICATION;
 
+    internalRecord.clear();
+    timer.setSingleShot(true);
+    timer.setInterval(interval);
     connect(&timer, &QTimer::timeout, this, &UpdatableSQLRecord::emitStoreRecord);
 }
 
@@ -27,23 +32,20 @@ void UpdatableSQLRecord::updateRecord(const QSqlRecord &record)
 
     if ( internalRecord.isEmpty() )
     {
+        qCDebug(runtime) << "Internal record is empty, storing new record";
+
         internalRecord = record;
-        qCDebug(runtime) << "Record is empty, starting timer" << interval;
-        timer.start(interval);
+        startNextUpdateCycle();
         return;
     }
-    else if ( !matchQSO(QSOMatchingType, record) )
+
+    if ( matchQSO(QSOMatchingType, record) )
     {
-        qCDebug(runtime) << "Records do not match";
-        timer.stop();
-        emitStoreRecord();
-        internalRecord = record;
-    }
-    else
-    {
-        qCDebug(runtime) << "Records match";
+        qCDebug(runtime) << "Records match, merging values";
 
         timer.stop();
+
+        // merge
         for ( int i = 0; i < record.count(); ++i )
         {
             const QString &fieldName = record.fieldName(i);
@@ -54,10 +56,17 @@ void UpdatableSQLRecord::updateRecord(const QSqlRecord &record)
                       && internalRecord.value(fieldName).toString().isEmpty() )
                 internalRecord.setValue(fieldName, record.value(i));
         }
+
+        startNextUpdateCycle();
+        return;
     }
 
-    qCDebug(runtime) << "starting timer" << interval;
-    timer.start(interval);
+    qCDebug(runtime) << "Records do not match, emitting current record";
+
+    emitStoreRecord();
+
+    internalRecord = record;
+    startNextUpdateCycle();
 }
 
 void UpdatableSQLRecord::emitStoreRecord()
@@ -65,6 +74,7 @@ void UpdatableSQLRecord::emitStoreRecord()
     FCT_IDENTIFICATION;
 
     timer.stop();
+    resetCnt();
 
     if ( internalRecord.isEmpty() )
         return;
@@ -92,4 +102,36 @@ bool UpdatableSQLRecord::matchQSO(const MatchingType matchingType,
     }
 
     return true;
+}
+
+void UpdatableSQLRecord::resetCnt()
+{
+    FCT_IDENTIFICATION;
+
+    timer.stop();
+    currUpdateCnt = 0;
+}
+
+bool UpdatableSQLRecord::emitIfMaxUpdatesReached()
+{
+    FCT_IDENTIFICATION;
+
+    if (currUpdateCnt < maxUpdates)
+        return false;
+
+    qCDebug(runtime) << "Maximum number of updates reached - emitting";
+    emitStoreRecord();
+    return true;
+}
+
+void UpdatableSQLRecord::startNextUpdateCycle()
+{
+    FCT_IDENTIFICATION;
+
+    incrementCnt();
+
+    if ( emitIfMaxUpdatesReached() ) return;
+
+    qCDebug(runtime) << "Starting timer" << interval;
+    timer.start();
 }
