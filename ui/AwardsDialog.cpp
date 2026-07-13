@@ -29,6 +29,7 @@
 #include "awards/AwardUKD.h"
 #include "awards/AwardWAIP.h"
 #include "awards/AwardWAAC.h"
+#include "awards/AwardDXMarathon.h"
 
 MODULE_IDENTIFICATION("qlog.ui.awardsdialog");
 
@@ -215,6 +216,7 @@ QList<AwardDefinition*> AwardsDialog::createAwards()
 {
     return {
         new AwardDXCC(),
+        new AwardDXMarathon(),
         new AwardITU(),
         new AwardWAC(),
         new AwardWAZ(),

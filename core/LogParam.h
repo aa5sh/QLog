@@ -62,6 +62,8 @@ public:
     static bool getDxccConfirmedByPaperState();
     static bool setDxccConfirmedByEqslState(bool state);
     static bool getDxccConfirmedByEqslState();
+    static bool getDXMarathonAlertByCallsign();
+    static bool setDXMarathonAlertByCallsign(bool state);
     static int getContestSeqno(const QString &band = QString());
     static bool setContestSeqno(int value, const QString &band = QString());
     static void removeContestSeqno();

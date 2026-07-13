@@ -69,7 +69,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>🌐 Rules</string>
+           <string>Rules</string>
           </property>
          </widget>
         </item>

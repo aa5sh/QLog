@@ -2732,6 +2732,7 @@ void SettingsDialog::readSettings()
     ui->dxccConfirmedByLotwCheckBox->setChecked(LogParam::getDxccConfirmedByLotwState());
     ui->dxccConfirmedByPaperCheckBox->setChecked(LogParam::getDxccConfirmedByPaperState());
     ui->dxccConfirmedByEqslCheckBox->setChecked(LogParam::getDxccConfirmedByEqslState());
+    ui->dxMarathonAlertMatchComboBox->setCurrentIndex(LogParam::getDXMarathonAlertByCallsign() ? 1 : 0);
 
     /***************/
     /* ON4KST Chat */
@@ -2862,6 +2863,7 @@ void SettingsDialog::writeSettings()
     LogParam::setDxccConfirmedByLotwState(ui->dxccConfirmedByLotwCheckBox->isChecked());
     LogParam::setDxccConfirmedByPaperState(ui->dxccConfirmedByPaperCheckBox->isChecked());
     LogParam::setDxccConfirmedByEqslState(ui->dxccConfirmedByEqslCheckBox->isChecked());
+    LogParam::setDXMarathonAlertByCallsign(ui->dxMarathonAlertMatchComboBox->currentIndex() == 1);
 
     /***************/
     /* ON4KST Chat */
