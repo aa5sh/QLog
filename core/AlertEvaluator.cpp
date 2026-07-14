@@ -288,7 +288,9 @@ bool AlertRule::match(const WsjtxEntry &wsjtx) const
         if ( !refMatch ) return fail();
     }
 
-    if ( !(wsjtx.status & dxLogStatusMap) ) return fail();
+    // DX Marathon has its own annual entity/zone status. Combining it with the
+    // normal lifetime DXCC status can hide a needed zone in a worked entity.
+    if ( !dxMarathon && !(wsjtx.status & dxLogStatusMap) ) return fail();
 
     if ( mode != "*" )
     {
@@ -351,7 +353,9 @@ bool AlertRule::match(const DxSpot &spot) const
         if ( !refMatch ) return fail();
     }
 
-    if ( !(spot.status & dxLogStatusMap) ) return fail();
+    // See the WSJT-X path above: Marathon need replaces, rather than augments,
+    // the normal DXCC log-status filter.
+    if ( !dxMarathon && !(spot.status & dxLogStatusMap) ) return fail();
 
     if ( mode != "*" )
     {
@@ -442,10 +446,14 @@ bool AlertRule::isDXMarathonNew(int dxcc, int cqz, const QString &spotBand, cons
     const QString stationCondition = callsignOnly
         ? QStringLiteral("UPPER(station_callsign)=UPPER(:stationCallsign)")
         : QString("EXISTS (SELECT 1 FROM station_profiles WHERE profile_name=:profile AND %1)").arg(profile.getContactInnerJoin());
+    const QString marathonEligible = QStringLiteral(
+        "band IN ('160m','80m','60m','40m','30m','20m','17m','15m','12m','10m','6m') "
+        "AND UPPER(callsign) NOT LIKE '%/AM' AND UPPER(callsign) NOT LIKE '%/MM'");
     const QString sql = QString("SELECT EXISTS(SELECT 1 FROM contacts WHERE %1 "
-                                "AND start_time>=:start AND start_time<:end AND dxcc=:dxcc), "
+                                "AND start_time>=:start AND start_time<:end AND dxcc=:dxcc AND %2), "
                                 "EXISTS(SELECT 1 FROM contacts WHERE %1 "
-                                "AND start_time>=:start AND start_time<:end AND cqz=:cqz)").arg(stationCondition);
+                                "AND start_time>=:start AND start_time<:end AND cqz=:cqz AND %2)")
+                            .arg(stationCondition, marathonEligible);
     if (!query.prepare(sql)) { qCWarning(runtime) << "DX Marathon alert prepare error:" << query.lastError(); return false; }
     query.bindValue(":stationCallsign", profile.callsign);
     query.bindValue(":profile", profile.profileName);
@@ -454,8 +462,13 @@ bool AlertRule::isDXMarathonNew(int dxcc, int cqz, const QString &spotBand, cons
     query.bindValue(":dxcc", dxcc);
     query.bindValue(":cqz", cqz);
     if (!query.exec() || !query.next()) { qCWarning(runtime) << "DX Marathon alert query error:" << query.lastError(); return false; }
-    const bool isNew = !query.value(0).toBool() || !query.value(1).toBool();
+    const bool entityWorked = query.value(0).toBool();
+    const bool zoneWorked = query.value(1).toBool();
+    const bool isNew = !entityWorked || !zoneWorked;
     qCDebug(runtime) << "DX Marathon alert" << callsign << "profile" << profile.profileName
-                     << "match" << (callsignOnly ? "callsign" : "station profile") << "new" << isNew;
+                     << "match" << (callsignOnly ? "callsign" : "station profile")
+                     << "entity" << dxcc << "worked" << entityWorked
+                     << "zone" << cqz << "worked" << zoneWorked
+                     << "new" << isNew;
     return isNew;
 }

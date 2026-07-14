@@ -248,7 +248,7 @@ QString StationProfile::getContactInnerJoin() const
     // skipping Country - depends on dxcc
     addIfNoEmpty(county, "my_cnty", "county");
     addIfNoEmpty(operatorCallsign, "operator", "operator_callsign");
-    addIfNoEmpty(darcDOK, "my_darc_dok", "darc_doc");
+    addIfNoEmpty(darcDOK, "my_darc_dok", "darc_dok");
 
     return "(" + ret.join(" AND ") + ")";
 }
