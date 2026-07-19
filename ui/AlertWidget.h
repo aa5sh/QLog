@@ -25,6 +25,7 @@ public:
 public slots:
     void addAlert(const SpotAlert &alert);
     void clearAllAlerts();
+    void clearSelectedAlerts();
     void entryDoubleClicked(QModelIndex index);
     void alertAgingChanged(int);
     void showEditRules();

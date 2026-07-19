@@ -1,5 +1,7 @@
 #include <QColor>
 #include <QSqlRecord>
+#include <algorithm>
+#include <functional>
 
 #include "AlertTableModel.h"
 #include "data/Data.h"
@@ -125,6 +127,25 @@ void AlertTableModel::clear()
     beginResetModel();
     alertList.clear();
     endResetModel();
+}
+
+void AlertTableModel::clearRows(const QList<int> &rows)
+{
+    QList<int> selectedRows = rows;
+
+    std::sort(selectedRows.begin(), selectedRows.end(), std::greater<int>());
+    selectedRows.erase(std::unique(selectedRows.begin(), selectedRows.end()), selectedRows.end());
+
+    QMutexLocker locker(&alertListMutex);
+    for ( const int row : selectedRows )
+    {
+        if ( row < 0 || row >= alertList.count() )
+            continue;
+
+        beginRemoveRows(QModelIndex(), row, row);
+        alertList.removeAt(row);
+        endRemoveRows();
+    }
 }
 
 const AlertTableModel::AlertTableRecord AlertTableModel::getTableRecord(const QModelIndex &index)

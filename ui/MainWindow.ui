@@ -928,7 +928,7 @@
   </action>
   <action name="actionClearAlerts">
    <property name="text">
-    <string>Clear</string>
+    <string>Clear All</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

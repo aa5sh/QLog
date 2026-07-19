@@ -44,6 +44,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     void addAlert(const SpotAlert &entry);
     void clear();
+    void clearRows(const QList<int> &rows);
     const AlertTableRecord getTableRecord(const QModelIndex& index);
     void aging(const int clear_interval_sec);
     void resetDupe();

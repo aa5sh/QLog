@@ -29,6 +29,7 @@ AlertWidget::AlertWidget(QWidget *parent) :
 
     ui->alertTableView->addAction(ui->actionEditRules);
     ui->alertTableView->addAction(ui->actionColumnVisibility);
+    ui->alertTableView->addAction(ui->actionClearSelected);
     ui->alertTableView->addAction(ui->actionClear);
 
     restoreTableHeaderState();
@@ -66,6 +67,23 @@ void AlertWidget::clearAllAlerts()
     FCT_IDENTIFICATION;
 
     alertTableModel->clear();
+    emit alertsCleared();
+}
+
+void AlertWidget::clearSelectedAlerts()
+{
+    FCT_IDENTIFICATION;
+
+    const QModelIndexList selectedRows = ui->alertTableView->selectionModel()->selectedRows();
+    QList<int> sourceRows;
+
+    for ( const QModelIndex &index : selectedRows )
+        sourceRows << proxyModel->mapToSource(index).row();
+
+    if ( sourceRows.isEmpty() )
+        return;
+
+    alertTableModel->clearRows(sourceRows);
     emit alertsCleared();
 }
 

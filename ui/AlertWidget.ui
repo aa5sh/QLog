@@ -50,7 +50,7 @@
       <bool>true</bool>
      </property>
      <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
+      <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
@@ -129,9 +129,14 @@
     <string>Column Visibility...</string>
    </property>
   </action>
+  <action name="actionClearSelected">
+   <property name="text">
+    <string>Clear Selected</string>
+   </property>
+  </action>
   <action name="actionClear">
    <property name="text">
-    <string>Clear</string>
+    <string>Clear All</string>
    </property>
   </action>
  </widget>
@@ -202,6 +207,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>actionClearSelected</sender>
+   <signal>triggered()</signal>
+   <receiver>AlertWidget</receiver>
+   <slot>clearSelectedAlerts()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>386</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionClear</sender>
    <signal>triggered()</signal>
    <receiver>AlertWidget</receiver>
@@ -220,6 +241,7 @@
  </connections>
  <slots>
   <slot>clearAllAlerts()</slot>
+  <slot>clearSelectedAlerts()</slot>
   <slot>entryDoubleClicked(QModelIndex)</slot>
   <slot>alertAgingChanged(int)</slot>
   <slot>showEditRules()</slot>
