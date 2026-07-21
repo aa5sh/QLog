@@ -80,7 +80,7 @@ void QSLPrintLabelRenderer::setPrintMode(QSLPrintMode mode)
     printMode = mode;
 }
 
-void QSLPrintLabelRenderer::setPageSize(QPageSize::PageSizeId pageSize)
+void QSLPrintLabelRenderer::setPageSize(const QPageSize &pageSize)
 {
     FCT_IDENTIFICATION;
 
@@ -558,7 +558,7 @@ QSizeF QSLPrintLabelRenderer::pageSizeMm() const
     if ( printMode == QSLPrintMode::DirectCard )
         return directCardGrid().pageSizeMm;
 
-    QSizeF size = QPageSize(outputPageSize).size(QPageSize::Millimeter);
+    QSizeF size = outputPageSize.size(QPageSize::Millimeter);
 
     if ( labelTemplate.orientation == QPageLayout::Landscape )
         size.transpose();
@@ -580,7 +580,7 @@ QSLPrintLabelRenderer::DirectCardGrid QSLPrintLabelRenderer::directCardGrid() co
 
     DirectCardGrid best;
 
-    const QSizeF portrait = QPageSize(outputPageSize).size(QPageSize::Millimeter);
+    const QSizeF portrait = outputPageSize.size(QPageSize::Millimeter);
     QSizeF landscape = portrait;
     landscape.transpose();
     const QList<QPair<QSizeF, QPageLayout::Orientation>> pageOptions =
