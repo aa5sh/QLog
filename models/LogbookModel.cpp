@@ -96,9 +96,11 @@ bool LogbookModel::setModeSubmodeData(int row, const QString &newMode, const QSt
 
     // In the normal logbook table mode each QSqlTableModel::setData() is
     // submitted immediately. The virtual Mode/Submode column maps to two real
-    // DB fields, so we temporarily collect both edits and submit them together.
+    // DB fields, so collect both edits into one row update. Unlike
+    // OnManualSubmit, OnRowChange refreshes only this row and preserves the
+    // view's selection and persistent indexes.
     if ( submitCombinedChange )
-        setEditStrategy(QSqlTableModel::OnManualSubmit);
+        setEditStrategy(QSqlTableModel::OnRowChange);
 
     // Always write both real fields. This clears a stale submode when the user
     // changes from a submode-based mode, for example MFSK/FT4, to a plain mode.
