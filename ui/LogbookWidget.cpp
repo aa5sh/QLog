@@ -26,6 +26,7 @@
 #include "data/Data.h"
 #include "ui/ExportDialog.h"
 #include "ui/component/ModeSubmodeDelegate.h"
+#include "ui/component/MultilineTextDelegate.h"
 #include "service/eqsl/Eqsl.h"
 #include "ui/PaperQSLDialog.h"
 #include "ui/QSODetailDialog.h"
@@ -213,8 +214,20 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_MY_MORSE_KEY_TYPE, new ComboFormatDelegate(Data::instance()->morseKeyTypeEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NR_BURSTS, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NR_PINGS, new UnitFormatDelegate("", 0, 1, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES_INTL, new TextBoxDelegate(this));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES, new TextBoxDelegate(this));
+    const QList<int> multilineColumns = {
+        LogbookModel::COLUMN_ADDRESS,
+        LogbookModel::COLUMN_ADDRESS_INTL,
+        LogbookModel::COLUMN_NOTES,
+        LogbookModel::COLUMN_NOTES_INTL,
+        LogbookModel::COLUMN_QSLMSG,
+        LogbookModel::COLUMN_QSLMSG_INTL,
+        LogbookModel::COLUMN_QSLMSG_RCVD,
+        LogbookModel::COLUMN_RIG,
+        LogbookModel::COLUMN_RIG_INTL
+    };
+    for ( int column : multilineColumns )
+        ui->contactTable->setItemDelegateForColumn(column,
+                                                   new MultilineTextDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_PROP_MODE, new ComboFormatDelegate(Data::instance()->propagationModesIDList(), ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));

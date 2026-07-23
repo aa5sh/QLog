@@ -8,7 +8,9 @@ INCLUDEPATH += ../..
 
 SOURCES += \
     tst_qtableqsoview.cpp \
-    ../../ui/QTableQSOView.cpp
+    ../../ui/QTableQSOView.cpp \
+    ../../ui/component/MultilineTextDelegate.cpp
 
 HEADERS += \
-    ../../ui/QTableQSOView.h
+    ../../ui/QTableQSOView.h \
+    ../../ui/component/MultilineTextDelegate.h

@@ -1,13 +1,20 @@
 #include <QAbstractTableModel>
 #include <QItemSelectionModel>
 #include <QLineEdit>
+#include <QDialogButtonBox>
 #include <QPlainTextEdit>
+#include <QPushButton>
+#include <QSignalSpy>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlTableModel>
 #include <QStyledItemDelegate>
 #include <QTest>
 #include <QVariantMap>
 
 #include "models/LogbookModel.h"
 #include "ui/QTableQSOView.h"
+#include "ui/component/MultilineTextDelegate.h"
 
 class TestTableModel : public QAbstractTableModel
 {
@@ -155,6 +162,8 @@ private slots:
     void oversizedEditorCommitsSourceRow();
     void groupEditUsesSelectionAtEditStart();
     void modeSubmodeBatchUsesVirtualColumn();
+    void combinedSqlUpdatePreservesPersistentIndexes();
+    void multilineEditorSavesAndCancelsExplicitly();
 };
 
 void QTableQSOViewTest::oversizedEditorCommitsSourceRow()
@@ -264,6 +273,144 @@ void QTableQSOViewTest::modeSubmodeBatchUsesVirtualColumn()
              QString("MFSK"));
     QCOMPARE(model.data(model.index(1, LogbookModel::COLUMN_SUBMODE), Qt::EditRole).toString(),
              QString("FT8"));
+}
+
+void QTableQSOViewTest::combinedSqlUpdatePreservesPersistentIndexes()
+{
+    const QString connectionName = "combined_mode_submode_update";
+    QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE", connectionName);
+    database.setDatabaseName(":memory:");
+    QVERIFY(database.open());
+
+    {
+        QSqlQuery query(database);
+        QVERIFY(query.exec("CREATE TABLE contacts "
+                           "(id INTEGER PRIMARY KEY, mode TEXT, submode TEXT)"));
+        QVERIFY(query.exec("INSERT INTO contacts VALUES (1, 'SSB', NULL)"));
+
+        QSqlTableModel model(nullptr, database);
+        model.setTable("contacts");
+        model.setEditStrategy(QSqlTableModel::OnFieldChange);
+        QVERIFY(model.select());
+
+        const QPersistentModelIndex persistentIndex(model.index(0, 1));
+        QSignalSpy resetSpy(&model, &QAbstractItemModel::modelReset);
+        int updateCount = 0;
+        connect(&model, &QSqlTableModel::beforeUpdate,
+                [&updateCount](int, QSqlRecord &)
+                {
+                    ++updateCount;
+                });
+
+        const QSqlTableModel::EditStrategy originalStrategy = model.editStrategy();
+        model.setEditStrategy(QSqlTableModel::OnRowChange);
+        QVERIFY(model.setData(model.index(0, 1), "MFSK", Qt::EditRole));
+        QVERIFY(model.setData(model.index(0, 2), "FT8", Qt::EditRole));
+        QVERIFY(model.submitAll());
+        model.setEditStrategy(originalStrategy);
+
+        QCOMPARE(updateCount, 1);
+        QCOMPARE(resetSpy.count(), 0);
+        QVERIFY(persistentIndex.isValid());
+        QCOMPARE(model.data(persistentIndex, Qt::EditRole).toString(), QString("MFSK"));
+        QCOMPARE(model.data(model.index(0, 2), Qt::EditRole).toString(), QString("FT8"));
+    }
+
+    database.close();
+    database = QSqlDatabase();
+    QSqlDatabase::removeDatabase(connectionName);
+}
+
+void QTableQSOViewTest::multilineEditorSavesAndCancelsExplicitly()
+{
+    TestTableModel model(2);
+    const int column = LogbookModel::COLUMN_NOTES;
+    const QModelIndex index = model.index(0, column);
+    model.setValue(0, column, "original");
+    model.setValue(1, column, "other");
+
+    QTableQSOView view;
+    view.setModel(&model);
+    view.setItemDelegateForColumn(column, new MultilineTextDelegate(&view));
+    view.resize(500, 300);
+    view.show();
+    view.setCurrentIndex(index);
+    view.selectionModel()->select(index,
+                                  QItemSelectionModel::ClearAndSelect
+                                  | QItemSelectionModel::Rows);
+    view.selectionModel()->select(model.index(1, column),
+                                  QItemSelectionModel::Select
+                                  | QItemSelectionModel::Rows);
+
+    view.edit(index);
+    QPlainTextEdit *textEdit = view.findChild<QPlainTextEdit *>("multilineTextEdit");
+    QVERIFY(textEdit);
+    textEdit->setPlainText("first line");
+    QTest::keyClick(textEdit, Qt::Key_End);
+    QTest::keyClick(textEdit, Qt::Key_Return);
+    QTest::keyClicks(textEdit, "second line");
+    QCOMPARE(textEdit->toPlainText(), QString("first line\nsecond line"));
+    QDialogButtonBox *buttons = view.findChild<QDialogButtonBox *>();
+    QVERIFY(buttons);
+    QTest::mouseClick(buttons->button(QDialogButtonBox::Save), Qt::LeftButton);
+    QTRY_COMPARE(model.data(index, Qt::EditRole).toString(),
+                 QString("first line\nsecond line"));
+    QCOMPARE(model.data(model.index(1, column), Qt::EditRole).toString(),
+             QString("first line\nsecond line"));
+    QCOMPARE(model.regularWrites.count(qMakePair(0, column)), 1);
+    QCOMPARE(model.regularWrites.count(qMakePair(1, column)), 1);
+    QTRY_VERIFY(!view.findChild<MultilineTextEditor *>());
+
+    view.edit(index);
+    textEdit = view.findChild<QPlainTextEdit *>("multilineTextEdit");
+    QVERIFY(textEdit);
+    textEdit->setPlainText("discarded");
+    buttons = view.findChild<QDialogButtonBox *>();
+    QVERIFY(buttons);
+    QTest::mouseClick(buttons->button(QDialogButtonBox::Cancel), Qt::LeftButton);
+    QTRY_COMPARE(model.data(index, Qt::EditRole).toString(),
+                 QString("first line\nsecond line"));
+    QTRY_VERIFY(!view.findChild<MultilineTextEditor *>());
+
+    view.edit(index);
+    textEdit = view.findChild<QPlainTextEdit *>("multilineTextEdit");
+    QVERIFY(textEdit);
+    textEdit->setPlainText("saved by shortcut");
+    QTest::keyClick(textEdit, Qt::Key_Return, Qt::ControlModifier);
+    QTRY_COMPARE(model.data(index, Qt::EditRole).toString(),
+                 QString("saved by shortcut"));
+    QTRY_VERIFY(!view.findChild<MultilineTextEditor *>());
+
+    view.setCurrentIndex(index);
+    view.selectionModel()->select(index,
+                                  QItemSelectionModel::ClearAndSelect
+                                  | QItemSelectionModel::Rows);
+    view.selectionModel()->select(model.index(1, column),
+                                  QItemSelectionModel::Select
+                                  | QItemSelectionModel::Rows);
+    view.edit(index);
+    textEdit = view.findChild<QPlainTextEdit *>("multilineTextEdit");
+    QVERIFY(textEdit);
+    textEdit->setPlainText("discarded by shortcut");
+    QTest::keyClick(textEdit, Qt::Key_Escape);
+    QTRY_COMPARE(model.data(index, Qt::EditRole).toString(),
+                 QString("saved by shortcut"));
+    QTRY_VERIFY(!view.findChild<MultilineTextEditor *>());
+
+    view.edit(index);
+    textEdit = view.findChild<QPlainTextEdit *>("multilineTextEdit");
+    QVERIFY(textEdit);
+    textEdit->setPlainText("saved on focus out");
+    QPushButton outsideEditor(&view);
+    outsideEditor.show();
+    textEdit->setFocus();
+    QTRY_VERIFY(textEdit->hasFocus());
+    outsideEditor.setFocus();
+    QTRY_COMPARE(model.data(index, Qt::EditRole).toString(),
+                 QString("saved on focus out"));
+    QCOMPARE(model.data(model.index(1, column), Qt::EditRole).toString(),
+             QString("saved on focus out"));
+    QTRY_VERIFY(!view.findChild<MultilineTextEditor *>());
 }
 
 QTEST_MAIN(QTableQSOViewTest)
