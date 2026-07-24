@@ -134,6 +134,11 @@
     <string>Clear Selected</string>
    </property>
   </action>
+  <action name="actionClearSeparator">
+   <property name="separator">
+    <bool>true</bool>
+   </property>
+  </action>
   <action name="actionClear">
    <property name="text">
     <string>Clear All</string>

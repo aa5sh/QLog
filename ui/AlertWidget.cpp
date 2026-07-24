@@ -32,6 +32,7 @@ AlertWidget::AlertWidget(QWidget *parent) :
     ui->alertTableView->addAction(ui->actionEditRules);
     ui->alertTableView->addAction(ui->actionColumnVisibility);
     ui->alertTableView->addAction(ui->actionClearSelected);
+    ui->alertTableView->addAction(ui->actionClearSeparator);
     ui->alertTableView->addAction(ui->actionClear);
 
     restoreTableHeaderState();
