@@ -134,7 +134,6 @@ void AlertTableModel::clearRows(const QList<int> &rows)
     QList<int> selectedRows = rows;
 
     std::sort(selectedRows.begin(), selectedRows.end(), std::greater<int>());
-    selectedRows.erase(std::unique(selectedRows.begin(), selectedRows.end()), selectedRows.end());
 
     QMutexLocker locker(&alertListMutex);
     for ( const int row : selectedRows )
