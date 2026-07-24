@@ -214,6 +214,11 @@ int AlertWidget::alertCount() const
     return alertTableModel->rowCount();
 }
 
+bool AlertWidget::containsAlert(const SpotAlert &alert)
+{
+    return alertTableModel->containsAlert(alert);
+}
+
 void AlertWidget::finalizeBeforeAppExit()
 {
     FCT_IDENTIFICATION;

@@ -20,6 +20,7 @@ public:
     ~AlertWidget();
 
    int alertCount() const;
+   bool containsAlert(const SpotAlert &alert);
    virtual void finalizeBeforeAppExit() override;
 
 public slots:

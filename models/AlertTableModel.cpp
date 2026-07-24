@@ -127,6 +127,12 @@ void AlertTableModel::clear()
     endResetModel();
 }
 
+bool AlertTableModel::containsAlert(const SpotAlert &alert)
+{
+    QMutexLocker locker(&alertListMutex);
+    return alertList.contains(AlertTableRecord(alert));
+}
+
 bool AlertTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     QMutexLocker locker(&alertListMutex);
