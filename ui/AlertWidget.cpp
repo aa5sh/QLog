@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "AlertWidget.h"
 #include "ui_AlertWidget.h"
 #include "core/debug.h"
@@ -83,7 +85,12 @@ void AlertWidget::clearSelectedAlerts()
     if ( sourceRows.isEmpty() )
         return;
 
-    alertTableModel->clearRows(sourceRows);
+    // Rows must be removed in descending order to keep the remaining indexes valid.
+    std::sort(sourceRows.rbegin(), sourceRows.rend());
+
+    for ( const int row : sourceRows )
+        alertTableModel->removeRow(row);
+
     emit alertsCleared();
 }
 
