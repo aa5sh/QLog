@@ -151,6 +151,13 @@ public:
     static bool hasDownloadQSLLoTWLastCall();
     static QString getDownloadQSLLoTWLastCall();
     static void setDownloadQSLLoTWLastCall(const QString &call);
+    static QDate getDownloadQSLeQSLLastDate(const QString &username,
+                                            const QString &profile,
+                                            bool qslSince);
+    static void setDownloadQSLeQSLLastDate(const QString &username,
+                                           const QString &profile,
+                                           bool qslSince,
+                                           const QDate &date);
     static QString getDownloadQSLeQSLLastProfile();
     static void setDownloadQSLeQSLLastProfile(const QString &profile);
 

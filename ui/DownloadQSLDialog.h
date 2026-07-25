@@ -26,6 +26,7 @@ private:
     void startNextDownload();
     void loadDialogState();
     void loadLotwDate();
+    void loadEqslDate();
     void saveDialogState();
     QStringList selectedLotwCallsigns() const;
 

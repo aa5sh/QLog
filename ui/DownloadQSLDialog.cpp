@@ -56,6 +56,10 @@ DownloadQSLDialog::DownloadQSLDialog(QWidget *parent)
             this, [this] { loadLotwDate(); });
     connect(ui->lotwDateTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [this] { loadLotwDate(); });
+    connect(ui->eqslDateTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this] { loadEqslDate(); });
+    connect(ui->eqslQTHProfileEdit, &QLineEdit::textEdited,
+            this, [this] { loadEqslDate(); });
 
     // Enable options based on the configuration
     if ( LotwBase::getUsername().isEmpty() )
@@ -112,10 +116,9 @@ void DownloadQSLDialog::loadDialogState()
     /* eQSL */
     /********/
     ui->eqslGroupBox->setChecked(LogParam::getDownloadQSLServiceState("eqsl"));
-    ui->eqslDateEdit->setDate(LogParam::getDownloadQSLServiceLastDate("eqsl"));
     ui->eqslDateTypeCombo->setCurrentIndex((LogParam::getDownloadQSLServiceLastQSOQSL("eqsl")) ? 0 : 1);
-
     ui->eqslQTHProfileEdit->setText(LogParam::getDownloadQSLeQSLLastProfile());
+    loadEqslDate();
 }
 
 void DownloadQSLDialog::loadLotwDate()
@@ -136,6 +139,17 @@ void DownloadQSLDialog::loadLotwDate()
     }
 
     ui->lotwDateEdit->setDate(lastDate);
+}
+
+void DownloadQSLDialog::loadEqslDate()
+{
+    FCT_IDENTIFICATION;
+
+    ui->eqslDateEdit->setDate(
+                LogParam::getDownloadQSLeQSLLastDate(
+                    EQSLBase::getUsername(),
+                    ui->eqslQTHProfileEdit->text(),
+                    ui->eqslDateTypeCombo->currentIndex() == 0));
 }
 
 void DownloadQSLDialog::saveDialogState()
@@ -242,15 +256,22 @@ void DownloadQSLDialog::downloadQSLs()
         downloadQueue.enqueue([=]()
         {
             EQSLQSLDownloader* eqsl = new EQSLQSLDownloader(this);
-            bool qslSinceActive = ui->eqslDateTypeCombo->currentIndex() == 0;
+            const bool qslSinceActive = ui->eqslDateTypeCombo->currentIndex() == 0;
+            const QString username = EQSLBase::getUsername();
+            const QString qthProfile = ui->eqslQTHProfileEdit->text();
             const QDate downloadStartedDate = QDateTime::currentDateTimeUtc().date();
-            prepareDownload(eqsl, "eQSL", [downloadStartedDate]
+            prepareDownload(eqsl, "eQSL",
+                            [username, qthProfile, qslSinceActive, downloadStartedDate]
             {
-                LogParam::setDownloadQSLServiceLastDate("eqsl", downloadStartedDate);
+                LogParam::setDownloadQSLeQSLLastDate(
+                            username,
+                            qthProfile,
+                            qslSinceActive,
+                            downloadStartedDate);
             });
-            LogParam::setDownloadQSLeQSLLastProfile(ui->eqslQTHProfileEdit->text());
+            LogParam::setDownloadQSLeQSLLastProfile(qthProfile);
             LogParam::setDownloadQSLServiceLastQSOQSL("eqsl", qslSinceActive);
-            eqsl->receiveQSL(ui->eqslDateEdit->date(), !qslSinceActive, ui->eqslQTHProfileEdit->text());
+            eqsl->receiveQSL(ui->eqslDateEdit->date(), !qslSinceActive, qthProfile);
         });
 
     if ( ui->lotwGroupBox->isChecked() )
