@@ -1253,8 +1253,13 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         QString baseFilter = QString(
             "callsign=upper('%1') AND upper(band)=upper('%2') AND "
             "upper(COALESCE(sat_name, '')) = upper('%3') AND "
-            "ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%4')))*24*60<30 "
-        ).arg(call.toString(), band.toString(), satName.toString(), startTimeStr);
+            "ABS(STRFTIME('%s', start_time)-"
+            "STRFTIME('%s', datetime('%4'))) <= %5 "
+        ).arg(call.toString(),
+              band.toString(),
+              satName.toString(),
+              startTimeStr,
+              QString::number(fromService == EQSL ? 3600 : 1800));
 
         if ( fromService == LOTW )
         {
