@@ -1552,7 +1552,8 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                 // temporary removed - ADIF 3.1.5 has no INTL equivalent for qslmsg_rcvd
                 //originalRecord.setValue("qslmsg_int", QSLRecord.value("qslmsg_int"));
 
-                originalRecord.setValue("qsl_rcvd_via", QSLRecord.value("qsl_sent_via"));
+                // QSL_RCVD_VIA belongs to the paper QSL_RCVD status. eQSL
+                // confirmations are tracked separately in EQSL_QSL_RCVD.
 
                 /*
                  * It appears that the life cycle of EQSL_AQ field is not fully understood
