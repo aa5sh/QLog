@@ -1395,14 +1395,6 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                 callUpdate |= conditionUpdateSpecial("ituz", "ituz", newlyReceived);
                 callUpdate |= conditionUpdateSpecial("cqz", "cqz", newlyReceived);
 
-                if ( originalRecord.value("qsl_rcvd_via").toString() != "E" )
-                {
-                    qCDebug(runtime) << "Updating: qsl_rcvd_via from" << originalRecord.value("qsl_rcvd_via").toString() << "to E";
-                    originalRecord.setValue("qsl_rcvd_via", "E");
-                    updatedFields.append("qsl_rcvd_via (E)");
-                    callUpdate |= true;
-                }
-
                 const QString origGrig = originalRecord.value("gridsquare").toString();
                 const Gridsquare dxNewGrid(QSLRecord.value("gridsquare").toString());
 
