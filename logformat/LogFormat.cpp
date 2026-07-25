@@ -1338,6 +1338,21 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                     return false;
                 };
 
+                auto conditionUpdateChanged = [&](const QString &contactKey,
+                                                  const QVariant &qslValue)
+                {
+                    if ( qslValue.toString().isEmpty()
+                         || originalRecord.value(contactKey).toString() == qslValue.toString() )
+                        return false;
+
+                    qCDebug(runtime) << "Updating:" << contactKey
+                                     << "from" << originalRecord.value(contactKey).toString()
+                                     << "to" << qslValue.toString();
+                    updatedFields.append(contactKey + "(" + qslValue.toString() + ")");
+                    originalRecord.setValue(contactKey, qslValue);
+                    return true;
+                };
+
                 auto mergeCreditUpdate = [&](const QString &contactKey,
                                              const QString &qslKey)
                 {
@@ -1363,6 +1378,13 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
                 callUpdate |= conditionUpdate("lotw_qsl_rcvd", "qsl_rcvd", newlyReceived);
                 callUpdate |= conditionUpdate("lotw_qslrdate", "qsl_rdate", newlyReceived);
+                callUpdate |= conditionUpdateChanged("dxcc", QSLRecord.value("dxcc"));
+
+                const QString lotwCountry = QSLRecord.value("country").toString();
+                callUpdate |= conditionUpdateChanged("country", Data::removeAccents(lotwCountry));
+                callUpdate |= conditionUpdateChanged("country_intl", lotwCountry);
+                callUpdate |= conditionUpdateChanged("cont", QSLRecord.value("cont"));
+
                 callUpdate |= mergeCreditUpdate("credit_granted", "credit_granted");
                 callUpdate |= mergeCreditUpdate("credit_submitted", "credit_submitted");
                 callUpdate |= conditionUpdate("pfx", "pfx", newlyReceived);
