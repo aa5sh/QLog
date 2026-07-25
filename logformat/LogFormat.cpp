@@ -1221,7 +1221,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         // Common filter conditions — shared by all match attempts
         QString baseFilter = QString(
             "callsign=upper('%1') AND upper(band)=upper('%2') AND "
-            "COALESCE(sat_name, '') = upper('%3') AND "
+            "upper(COALESCE(sat_name, '')) = upper('%3') AND "
             "ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%4')))*24*60<30 "
         ).arg(call.toString(), band.toString(), satName.toString(), startTimeStr);
 
