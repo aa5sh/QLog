@@ -1338,10 +1338,33 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                     return false;
                 };
 
+                auto mergeCreditUpdate = [&](const QString &contactKey,
+                                             const QString &qslKey)
+                {
+                    const QString qslCredits = QSLRecord.value(qslKey).toString();
+                    if ( qslCredits.isEmpty() )
+                        return false;
+
+                    const QString currentCredits = originalRecord.value(contactKey).toString();
+                    const QString mergedCredits = mergeCreditValues(currentCredits, qslCredits);
+                    const QString normalizedCurrentCredits = splitCreditValues(currentCredits).join(',');
+
+                    if ( mergedCredits == normalizedCurrentCredits )
+                        return false;
+
+                    qCDebug(runtime) << "Merging:" << contactKey
+                                     << "from" << currentCredits
+                                     << "with" << qslCredits
+                                     << "to" << mergedCredits;
+                    updatedFields.append(contactKey + "(" + mergedCredits + ")");
+                    originalRecord.setValue(contactKey, mergedCredits);
+                    return true;
+                };
+
                 callUpdate |= conditionUpdate("lotw_qsl_rcvd", "qsl_rcvd", newlyReceived);
                 callUpdate |= conditionUpdate("lotw_qslrdate", "qsl_rdate", newlyReceived);
-                callUpdate |= conditionUpdate("credit_granted", "credit_granted", newlyReceived);
-                callUpdate |= conditionUpdate("credit_submitted", "credit_submitted", newlyReceived);
+                callUpdate |= mergeCreditUpdate("credit_granted", "credit_granted");
+                callUpdate |= mergeCreditUpdate("credit_submitted", "credit_submitted");
                 callUpdate |= conditionUpdate("pfx", "pfx", newlyReceived);
                 callUpdate |= conditionUpdate("iota", "iota", newlyReceived);
                 callUpdate |= conditionUpdate("vucc_grids", "vucc_grids", newlyReceived);
