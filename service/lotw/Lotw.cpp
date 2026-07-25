@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QDir>
 #include <QXmlStreamReader>
+#include <QTimer>
 #include "Lotw.h"
 #include "logformat/AdiFormat.h"
 #include "core/debug.h"
@@ -21,6 +22,28 @@
 #include "data/Data.h"
 
 MODULE_IDENTIFICATION("qlog.core.lotw");
+
+static bool containsLotwADIFTag(const QByteArray &data, const QString &tagName)
+{
+    const QString text = QString::fromLatin1(data);
+    const QRegularExpression tag(QString("<\\s*%1\\s*(:|>)")
+                                  .arg(QRegularExpression::escape(tagName)),
+                                  QRegularExpression::CaseInsensitiveOption);
+    return tag.match(text).hasMatch();
+}
+
+static QString lotwPlainResponseSummary(const QByteArray &data)
+{
+    QString text = QString::fromLatin1(data);
+    static const QRegularExpression re("<[^>]*>");
+    text.remove(re);
+    text = text.simplified();
+
+    if ( text.isEmpty() )
+        return QObject::tr("LoTW returned a non-ADIF response");
+
+    return text.left(500);
+}
 
 QStringList LotwUploader::uploadedFields =
 {
@@ -425,7 +448,8 @@ void LotwUploader::uploadQSOList(const QList<QSqlRecord> &qsos, const QVariantMa
 LotwQSLDownloader::LotwQSLDownloader(QObject *parent) :
     GenericQSLDownloader(parent),
     LotwBase(),
-    currentReply(nullptr)
+    currentReply(nullptr),
+    retryCount(0)
 {
     FCT_IDENTIFICATION;
 }
@@ -458,7 +482,9 @@ void LotwQSLDownloader::receiveQSL(const QDate &start_date, bool qso_since, cons
         params.append(qMakePair(QString("qso_qslsince"), start));
     }
 
-    get(params);
+    requestParams = params;
+    retryCount = 0;
+    get(requestParams);
 }
 
 void LotwQSLDownloader::abortDownload()
@@ -479,24 +505,63 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
     /* always process one requests per class */
     currentReply = nullptr;
 
-    int replyStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    const int replyStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-    if (reply->error() != QNetworkReply::NoError
-        || replyStatusCode < 200
-        || replyStatusCode >= 300)
+    auto fail = [this, reply](const QString &message)
+    {
+        emit receiveQSLFailed(message);
+        reply->deleteLater();
+    };
+
+    if ( reply->error() != QNetworkReply::NoError
+         || replyStatusCode < 200
+         || replyStatusCode >= 300 )
     {
         qCInfo(runtime) << "LotW error" << reply->errorString();
         qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
-        if ( reply->error() != QNetworkReply::OperationCanceledError )
-        {
-           emit receiveQSLFailed(reply->errorString());
-           reply->deleteLater();
-        }
+
+        if ( reply->error() == QNetworkReply::OperationCanceledError )
+            reply->deleteLater();
+        else if ( (replyStatusCode == 0
+                   || replyStatusCode >= 500
+                   || (replyStatusCode >= 200 && replyStatusCode < 300))
+                  && scheduleRetry(reply, reply->errorString()) )
+            return;
+        else
+            fail(reply->errorString());
         return;
     }
 
-    qint64 size = reply->size();
+    const QByteArray data = reply->readAll();
+    const qint64 size = data.size();
     qCDebug(runtime) << "Reply received, size: " << size;
+    qCDebug(runtime) << data;
+
+    /* verify the Username/password incorrect only in case when message is short (10k).
+     * otherwise, it is a long ADIF and it is not necessary to verify login status */
+    if ( size < 10000 && data.contains("Username/password incorrect") )
+    {
+        fail(tr("Incorrect login or password"));
+        return;
+    }
+
+    if ( !containsLotwADIFTag(data, "EOH") )
+    {
+        if ( scheduleRetry(reply, tr("LoTW returned a non-ADIF response")) )
+            return;
+
+        fail(lotwPlainResponseSummary(data));
+        return;
+    }
+
+    if ( !containsLotwADIFTag(data, "APP_LoTW_EOF") )
+    {
+        if ( scheduleRetry(reply, tr("LoTW returned an incomplete response")) )
+            return;
+
+        fail(tr("Incomplete LoTW response"));
+        return;
+    }
 
     /* Currently, QT returns an incorrect stream position value in Network stream
      * when the stream is used in QTextStream. Therefore
@@ -507,23 +572,16 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
     if ( ! tempFile.open() )
     {
         qCDebug(runtime) << "Cannot open temp file";
-        emit receiveQSLFailed(tr("Cannot open temporary file"));
+        fail(tr("Cannot open temporary file"));
         return;
     }
 
-    const QByteArray &data = reply->readAll();
-
-    qCDebug(runtime) << data;
-
-    /* verify the Username/password incorrect only in case when message is short (10k).
-     * otherwise, it is a long ADIF and it is not necessary to verify login status */
-    if ( size < 10000 && data.contains("Username/password incorrect") )
+    if ( tempFile.write(data) != size )
     {
-        emit receiveQSLFailed(tr("Incorrect login or password"));
+        fail(tr("Cannot write LoTW response to temporary file"));
         return;
     }
 
-    tempFile.write(data);
     tempFile.flush();
     tempFile.seek(0);
 
@@ -554,7 +612,28 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
     reply->deleteLater();
 }
 
-void LotwQSLDownloader::get(QList<QPair<QString, QString>> params)
+bool LotwQSLDownloader::scheduleRetry(QNetworkReply *reply, const QString &reason)
+{
+    FCT_IDENTIFICATION;
+
+    if ( retryCount >= MAX_REQUEST_RETRIES )
+        return false;
+
+    retryCount++;
+    qCWarning(runtime) << "Retrying LoTW download"
+                       << retryCount << "of" << MAX_REQUEST_RETRIES
+                       << "because" << reason;
+    reply->deleteLater();
+
+    QTimer::singleShot(retryCount * 1000, this, [this]
+    {
+        if ( !currentReply )
+            get(requestParams);
+    });
+    return true;
+}
+
+void LotwQSLDownloader::get(const QList<QPair<QString, QString>> &params)
 {
     FCT_IDENTIFICATION;
 
@@ -649,13 +728,13 @@ void LotwDXCCCreditDownloader::downloadCredits(const QString &entity)
         const qint64 size = data.size();
         qCInfo(runtime) << "Using local LoTW DXCC credit test file:" << testFileName << "size:" << size;
 
-        if ( !containsADIFTag(data, "EOH") )
+        if ( !containsLotwADIFTag(data, "EOH") )
         {
-            emit downloadFailed(plainResponseSummary(data));
+            emit downloadFailed(lotwPlainResponseSummary(data));
             return;
         }
 
-        if ( !containsADIFTag(data, "APP_LoTW_EOF") )
+        if ( !containsLotwADIFTag(data, "APP_LoTW_EOF") )
         {
             emit downloadFailed(tr("Incomplete LoTW DXCC credit response"));
             return;
@@ -723,28 +802,6 @@ void LotwDXCCCreditDownloader::downloadCredits(const QString &entity)
     currentReply = nam->get(QNetworkRequest(url));
 }
 
-bool LotwDXCCCreditDownloader::containsADIFTag(const QByteArray &data, const QString &tagName)
-{
-    const QString text = QString::fromLatin1(data);
-    const QRegularExpression tag(QString("<\\s*%1\\s*(:|>)")
-                                  .arg(QRegularExpression::escape(tagName)),
-                                  QRegularExpression::CaseInsensitiveOption);
-    return tag.match(text).hasMatch();
-}
-
-QString LotwDXCCCreditDownloader::plainResponseSummary(const QByteArray &data)
-{
-    QString text = QString::fromLatin1(data);
-    static const QRegularExpression re("<[^>]*>");
-    text.remove(re);
-    text = text.simplified();
-
-    if ( text.isEmpty() )
-        return tr("LoTW returned a non-ADIF response");
-
-    return text.left(500);
-}
-
 void LotwDXCCCreditDownloader::abortDownload()
 {
     FCT_IDENTIFICATION;
@@ -794,13 +851,13 @@ void LotwDXCCCreditDownloader::processReply(QNetworkReply *reply)
         return;
     }
 
-    if ( !containsADIFTag(data, "EOH") )
+    if ( !containsLotwADIFTag(data, "EOH") )
     {
-        fail(plainResponseSummary(data));
+        fail(lotwPlainResponseSummary(data));
         return;
     }
 
-    if ( !containsADIFTag(data, "APP_LoTW_EOF") )
+    if ( !containsLotwADIFTag(data, "APP_LoTW_EOF") )
     {
         fail(tr("Incomplete LoTW DXCC credit response"));
         return;

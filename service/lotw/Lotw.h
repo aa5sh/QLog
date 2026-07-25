@@ -102,10 +102,14 @@ public slots:
 
 private:
     QNetworkReply *currentReply;
+    QList<QPair<QString, QString>> requestParams;
+    int retryCount;
     const QString ADIF_API = "https://lotw.arrl.org/lotwuser/lotwreport.adi";
+    enum { MAX_REQUEST_RETRIES = 2 };
 
     virtual void processReply(QNetworkReply* reply) override;
-    void get(QList<QPair<QString, QString>> params);
+    bool scheduleRetry(QNetworkReply *reply, const QString &reason);
+    void get(const QList<QPair<QString, QString>> &params);
 };
 
 class LotwDXCCCreditDownloader : public QObject, private LotwBase
@@ -133,8 +137,6 @@ private:
     QNetworkReply *currentReply;
     const QString DXCC_CREDIT_API = "https://lotw.arrl.org/lotwuser/logbook/qslcards.php";
 
-    static bool containsADIFTag(const QByteArray &data, const QString &tagName);
-    static QString plainResponseSummary(const QByteArray &data);
     void processReply(QNetworkReply *reply);
 };
 

@@ -1201,14 +1201,16 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         const QVariant &mode = QSLRecord.value("mode");
         const QVariant &start_time = QSLRecord.value("start_time");
         const QVariant &satName = QSLRecord.value("sat_name");
+        const QString stationCallsign = QSLRecord.value("station_callsign").toString().trimmed();
 
         /* checking matching fields if they are not empty */
         if ( !start_time.toDateTime().isValid()
              || call.toString().isEmpty()
              || band.toString().isEmpty()
-             || mode.toString().isEmpty() )
+             || mode.toString().isEmpty()
+             || ( fromService == LOTW && stationCallsign.isEmpty() ) )
         {
-            qWarning() << "Import does not contain field start_time or callsign or band or mode ";
+            qWarning() << "QSL import does not contain all required matching fields";
             qCDebug(runtime) << QSLRecord;
             stats.errorQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString()));
             continue;
@@ -1223,15 +1225,18 @@ void LogFormat::runQSLImport(QSLFrom fromService)
             "ABS(JULIANDAY(start_time)-JULIANDAY(datetime('%4')))*24*60<30 "
         ).arg(call.toString(), band.toString(), satName.toString(), startTimeStr);
 
-        if (fromService == LOTW)
+        if ( fromService == LOTW )
         {
-            const QVariant &station_callsign = QSLRecord.value("station_callsign");
-            baseFilter = baseFilter + QString(" AND station_callsign = upper('%1') ").arg(station_callsign.toString());
+            QString escapedStationCallsign = stationCallsign;
+            escapedStationCallsign.replace('\'', QStringLiteral("''"));
+            baseFilter += QString(
+                " AND upper(COALESCE(NULLIF(TRIM(station_callsign), ''), TRIM(operator))) "
+                "= upper('%1')"
+            ).arg(escapedStationCallsign);
         }
 
-        qDebug() << baseFilter;
         // First attempt: exact mode match (used for eQSL; also the fast path for LoTW)
-        model.setFilter(baseFilter + QString(" AND upper(mode)=upper('%1')").arg(mode.toString()));        
+        model.setFilter(baseFilter + QString(" AND upper(mode)=upper('%1')").arg(mode.toString()));
         model.select();
 
         // LoTW fallback: LoTW confirms QSOs when both sides specify modes in the same

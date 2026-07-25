@@ -21,30 +21,41 @@ DownloadQSLDialog::DownloadQSLDialog(QWidget *parent)
 
     ui->setupUi(this);
 
-    ui->lotwMyCallsignCombo->setModel(new SqlListModel("SELECT DISTINCT UPPER(station_callsign) "
-                                                       "FROM contacts ORDER BY station_callsign",
-                                                       tr("All Callsigns"),
-                                                       ui->lotwMyCallsignCombo));
+    ui->lotwMyCallsignCombo->setModel(new SqlListModel(
+                                          "SELECT DISTINCT "
+                                          "UPPER(COALESCE(NULLIF(TRIM(station_callsign), ''), TRIM(operator))) "
+                                          "FROM contacts "
+                                          "WHERE NULLIF(TRIM(station_callsign), '') IS NOT NULL "
+                                          "OR NULLIF(TRIM(operator), '') IS NOT NULL "
+                                          "ORDER BY 1",
+                                          tr("All Callsigns"),
+                                          ui->lotwMyCallsignCombo));
     ui->lotwDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
     ui->eqslDateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("&Download"));
 
     const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
+    const int profileIndex = ui->lotwMyCallsignCombo->findText(profile.callsign);
 
-    loadDialogState();
-
-    int index = ui->lotwMyCallsignCombo->findText(profile.callsign);
-
-    if ( index >= 0 )
-    {
-        ui->lotwMyCallsignCombo->setCurrentIndex(index);
-    }
-    else
+    if ( LogParam::hasDownloadQSLLoTWLastCall() )
     {
         const QString lastCall = LogParam::getDownloadQSLLoTWLastCall();
         const int lastCallIndex = ui->lotwMyCallsignCombo->findText(lastCall);
-        ui->lotwMyCallsignCombo->setCurrentIndex(lastCall.isEmpty() || lastCallIndex < 0 ? 0 : lastCallIndex);
+        if ( lastCall.isEmpty() )
+            ui->lotwMyCallsignCombo->setCurrentIndex(0);
+        else
+            ui->lotwMyCallsignCombo->setCurrentIndex(lastCallIndex >= 0 ? lastCallIndex
+                                                                        : qMax(profileIndex, 0));
     }
+    else
+        ui->lotwMyCallsignCombo->setCurrentIndex(qMax(profileIndex, 0));
+
+    loadDialogState();
+
+    connect(ui->lotwMyCallsignCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this] { loadLotwDate(); });
+    connect(ui->lotwDateTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this] { loadLotwDate(); });
 
     // Enable options based on the configuration
     if ( LotwBase::getUsername().isEmpty() )
@@ -94,8 +105,8 @@ void DownloadQSLDialog::loadDialogState()
     /* LoTW */
     /********/
     ui->lotwGroupBox->setChecked(LogParam::getDownloadQSLServiceState("lotw"));
-    ui->lotwDateEdit->setDate(LogParam::getDownloadQSLServiceLastDate("lotw"));
     ui->lotwDateTypeCombo->setCurrentIndex((LogParam::getDownloadQSLServiceLastQSOQSL("lotw")) ? 0 : 1);
+    loadLotwDate();
 
     /********/
     /* eQSL */
@@ -107,6 +118,15 @@ void DownloadQSLDialog::loadDialogState()
     ui->eqslQTHProfileEdit->setText(LogParam::getDownloadQSLeQSLLastProfile());
 }
 
+void DownloadQSLDialog::loadLotwDate()
+{
+    FCT_IDENTIFICATION;
+
+    const bool qslSince = ui->lotwDateTypeCombo->currentIndex() == 0;
+    ui->lotwDateEdit->setDate(
+                LogParam::getDownloadQSLLoTWLastDate(selectedLotwCallsign(), qslSince));
+}
+
 void DownloadQSLDialog::saveDialogState()
 {
     FCT_IDENTIFICATION;
@@ -115,14 +135,13 @@ void DownloadQSLDialog::saveDialogState()
     /* LoTW */
     /********/
     LogParam::setDownloadQSLServiceState("lotw", ui->lotwGroupBox->isChecked());
-    LogParam::setDownloadQSLServiceLastDate("lotw", QDateTime::currentDateTimeUtc().date());
     LogParam::setDownloadQSLServiceLastQSOQSL("lotw", ui->lotwDateTypeCombo->currentIndex() == 0);
+    LogParam::setDownloadQSLLoTWLastCall(selectedLotwCallsign());
 
     /********/
     /* eQSL */
     /********/
     LogParam::setDownloadQSLServiceState("eqsl", ui->eqslGroupBox->isChecked());
-    LogParam::setDownloadQSLServiceLastDate("eqsl", QDateTime::currentDateTimeUtc().date());
     LogParam::setDownloadQSLServiceLastQSOQSL("eqsl", ui->eqslDateTypeCombo->currentIndex() == 0);
     LogParam::setDownloadQSLeQSLLastProfile(ui->eqslQTHProfileEdit->text());
 }
@@ -138,8 +157,7 @@ QString DownloadQSLDialog::selectedLotwCallsign() const
 
 void DownloadQSLDialog::prepareDownload(GenericQSLDownloader *service,
                                         const QString &serviceName,
-                                        bool qslSinceActive,
-                                        const QString &settingString)
+                                        const std::function<void()> &downloadSucceeded)
 {
     FCT_IDENTIFICATION;
 
@@ -158,14 +176,14 @@ void DownloadQSLDialog::prepareDownload(GenericQSLDownloader *service,
         progressDialog->setRange(0, 100);
     });
 
-    connect(service, &GenericQSLDownloader::receiveQSLComplete, this, [service, progressDialog, serviceName, qslSinceActive, settingString, this](QSLMergeStat stats)
+    connect(service, &GenericQSLDownloader::receiveQSLComplete, this,
+            [service, progressDialog, serviceName, downloadSucceeded, this](QSLMergeStat stats)
     {
         qCDebug(runtime) << "Service:" << serviceName;
         qCDebug(runtime) << "New QSLs: " << stats.newQSLs;
         qCDebug(runtime) << "Unmatched QSLs: " << stats.unmatchedQSLs;
 
-        if ( qslSinceActive )
-            LogParam::setDownloadQSLServiceLastDate(settingString, QDateTime::currentDateTimeUtc().date());
+        downloadSucceeded();
 
         progressDialog->done(QDialog::Accepted);
         downloadStat[serviceName] = stats;
@@ -205,7 +223,11 @@ void DownloadQSLDialog::downloadQSLs()
         {
             EQSLQSLDownloader* eqsl = new EQSLQSLDownloader(this);
             bool qslSinceActive = ui->eqslDateTypeCombo->currentIndex() == 0;
-            prepareDownload(eqsl, "eQSL", qslSinceActive, "eqsl");
+            const QDate downloadStartedDate = QDateTime::currentDateTimeUtc().date();
+            prepareDownload(eqsl, "eQSL", [downloadStartedDate]
+            {
+                LogParam::setDownloadQSLServiceLastDate("eqsl", downloadStartedDate);
+            });
             LogParam::setDownloadQSLeQSLLastProfile(ui->eqslQTHProfileEdit->text());
             LogParam::setDownloadQSLServiceLastQSOQSL("eqsl", qslSinceActive);
             eqsl->receiveQSL(ui->eqslDateEdit->date(), !qslSinceActive, ui->eqslQTHProfileEdit->text());
@@ -217,8 +239,14 @@ void DownloadQSLDialog::downloadQSLs()
             LotwQSLDownloader* lotw = new LotwQSLDownloader(this);
             bool qslSinceActive = ui->lotwDateTypeCombo->currentIndex() == 0;
             const QString stationCallsign = selectedLotwCallsign();
-            prepareDownload(lotw, "LoTW", qslSinceActive, "lotw");
-            LogParam::setDownloadQSLLoTWLastCall(stationCallsign);
+            const QDate downloadStartedDate = QDateTime::currentDateTimeUtc().date();
+            prepareDownload(lotw, "LoTW", [stationCallsign, qslSinceActive, downloadStartedDate]
+            {
+                LogParam::setDownloadQSLLoTWLastDate(
+                            stationCallsign,
+                            qslSinceActive,
+                            downloadStartedDate);
+            });
             LogParam::setDownloadQSLServiceLastQSOQSL("lotw", qslSinceActive);
             lotw->receiveQSL(ui->lotwDateEdit->date(), !qslSinceActive, stationCallsign);
         });

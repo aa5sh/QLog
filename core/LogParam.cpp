@@ -492,6 +492,47 @@ void LogParam::setDownloadQSLServiceLastQSOQSL(const QString &name, bool state)
     setParam("downloadqsl/" + name + "/qsoqsl", state);
 }
 
+static QString downloadQSLLoTWLastDateKey(const QString &call, bool qslSince)
+{
+    const QByteArray normalizedCall = call.trimmed().toUpper().toUtf8();
+    const QString scope = normalizedCall.isEmpty()
+            ? QStringLiteral("all")
+            : QString::fromLatin1(normalizedCall.toHex());
+
+    return QStringLiteral("downloadqsl/lotw/lastdate/%1/%2")
+            .arg(qslSince ? QStringLiteral("qsl") : QStringLiteral("qso"), scope);
+}
+
+QDate LogParam::getDownloadQSLLoTWLastDate(const QString &call, bool qslSince)
+{
+    const QString key = downloadQSLLoTWLastDateKey(call, qslSince);
+    const QVariant value = getParam(key);
+    if ( value.isValid() )
+        return value.toDate();
+
+    const QString legacyCall = getDownloadQSLLoTWLastCall().trimmed().toUpper();
+    if ( !legacyCall.isEmpty()
+         && legacyCall == call.trimmed().toUpper()
+         && qslSince == getDownloadQSLServiceLastQSOQSL("lotw") )
+    {
+        const QDate legacyDate = getDownloadQSLServiceLastDate("lotw");
+        setParam(key, legacyDate);
+        return legacyDate;
+    }
+
+    return QDate(1900, 1, 1);
+}
+
+void LogParam::setDownloadQSLLoTWLastDate(const QString &call, bool qslSince, const QDate &date)
+{
+    setParam(downloadQSLLoTWLastDateKey(call, qslSince), date);
+}
+
+bool LogParam::hasDownloadQSLLoTWLastCall()
+{
+    return getParam("downloadqsl/lotw/lastmycallsign").isValid();
+}
+
 QString LogParam::getDownloadQSLLoTWLastCall()
 {
     return getParam("downloadqsl/lotw/lastmycallsign").toString();
