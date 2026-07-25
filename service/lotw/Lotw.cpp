@@ -665,6 +665,12 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
         completeCallsign(stats);
     });
 
+    connect(&adi, &AdiFormat::QSLMergeFailed, this, [this](const QString &error)
+    {
+        stationCallsignQueue.clear();
+        emit receiveQSLFailed(error);
+    });
+
     adi.runQSLImport(adi.LOTW);
 
     tempFile.close();

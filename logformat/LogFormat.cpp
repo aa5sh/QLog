@@ -1181,6 +1181,28 @@ void LogFormat::runQSLImport(QSLFrom fromService)
     QSqlTableModel model;
     model.setTable("contacts");
     QSqlRecord QSLRecord = model.record(0);
+    QSqlDatabase database = QSqlDatabase::database();
+
+    if ( !database.transaction() )
+    {
+        const QString error = tr("Cannot start QSL import transaction: ")
+                + database.lastError().text();
+        qWarning() << error;
+        this->importEnd();
+        emit QSLMergeFailed(error);
+        return;
+    }
+
+    auto failImport = [&](const QString &error)
+    {
+        qWarning() << error;
+        model.revertAll();
+        if ( !database.rollback() )
+            qWarning() << "Cannot rollback QSL import transaction:" << database.lastError();
+        Data::instance()->clearDXCCStatusCache();
+        this->importEnd();
+        emit QSLMergeFailed(error);
+    };
 
     // Cache for mode to dxcc group lookups; avoids repeated DB queries for the same
     // mode value when processing large imports (LoTW fallback path only).
@@ -1439,13 +1461,17 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                     qCDebug(runtime) << "Calling update for" << call << band << mode << start_time << satName;
                     if ( !model.setRecord(0, originalRecord) )
                     {
-                        qWarning() << "Cannot update a Contact record - " << model.lastError();
                         qCDebug(runtime) << originalRecord;
+                        failImport(tr("Cannot update QSO in logbook: ")
+                                   + model.lastError().text());
+                        return;
                     }
 
                     if ( !model.submitAll() )
                     {
-                        qWarning() << "Cannot commit changes to Contact Table - " << model.lastError();
+                        failImport(tr("Cannot update QSO in logbook: ")
+                                   + model.lastError().text());
+                        return;
                     }
                     if ( newlyReceived )
                     {
@@ -1539,13 +1565,17 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
                 if ( !model.setRecord(0, originalRecord) )
                 {
-                    qWarning() << "Cannot update a Contact record - " << model.lastError();
                     qCDebug(runtime) << originalRecord;
+                    failImport(tr("Cannot update QSO in logbook: ")
+                               + model.lastError().text());
+                    return;
                 }
 
                 if ( !model.submitAll() )
                 {
-                    qWarning() << "Cannot commit changes to Contact Table - " << model.lastError();
+                    failImport(tr("Cannot update QSO in logbook: ")
+                               + model.lastError().text());
+                    return;
                 }
                 const DxccStatus status = Data::instance()->dxccStatus(originalRecord.value("dxcc").toInt(), band.toString(), mode.toString());
                 stats.newQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString(), {tr("DXCC State:") + " " + Data::statusToText(status)}));
@@ -1560,6 +1590,14 @@ void LogFormat::runQSLImport(QSLFrom fromService)
     }
 
     emit importPosition(stream.pos());
+
+    if ( !database.commit() )
+    {
+        const QString error = tr("Cannot commit QSL updates: ")
+                + database.lastError().text();
+        failImport(error);
+        return;
+    }
 
     this->importEnd();
 
