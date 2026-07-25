@@ -1161,8 +1161,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
     auto reportFormatter = [&](const QDateTime &qsoTime,
                                const QString &callsign,
                                const QString &mode,
-                               const QStringList addInfo = QStringList())
+                               QStringList addInfo = QStringList(),
+                               const QString &stationCallsign = QString())
     {
+        if ( !stationCallsign.isEmpty() )
+            addInfo.prepend(tr("Station Callsign:") + " " + stationCallsign);
+
         return QString("%0; %1; %2%3 %4").arg(qsoTime.isValid() ? qsoTime.toString(locale.formatDateShortWithYYYY()) : "-",
                                             callsign,
                                             mode,
@@ -1212,7 +1216,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         {
             qWarning() << "QSL import does not contain all required matching fields";
             qCDebug(runtime) << QSLRecord;
-            stats.errorQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString()));
+            stats.errorQSLs.append(
+                        reportFormatter(start_time.toDateTime(),
+                                        call.toString(),
+                                        mode.toString(),
+                                        QStringList(),
+                                        fromService == LOTW ? stationCallsign : QString()));
             continue;
         }
 
@@ -1275,7 +1284,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
         if ( model.rowCount() != 1 )
         {
-            stats.unmatchedQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString()));
+            stats.unmatchedQSLs.append(
+                        reportFormatter(start_time.toDateTime(),
+                                        call.toString(),
+                                        mode.toString(),
+                                        QStringList(),
+                                        fromService == LOTW ? stationCallsign : QString()));
             continue;
         }
 
@@ -1436,10 +1450,20 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                     if ( newlyReceived )
                     {
                         const DxccStatus status = Data::instance()->dxccStatus(originalRecord.value("dxcc").toInt(), band.toString(), mode.toString());
-                        stats.newQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString(), {tr("DXCC State:") + " " + Data::statusToText(status)}));
+                        stats.newQSLs.append(
+                                    reportFormatter(start_time.toDateTime(),
+                                                    call.toString(),
+                                                    mode.toString(),
+                                                    {tr("DXCC State:") + " " + Data::statusToText(status)},
+                                                    stationCallsign));
                     }
                     else
-                        stats.updatedQSOs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString(), updatedFields));
+                        stats.updatedQSOs.append(
+                                    reportFormatter(start_time.toDateTime(),
+                                                    call.toString(),
+                                                    mode.toString(),
+                                                    updatedFields,
+                                                    stationCallsign));
                 }
             }
             break;

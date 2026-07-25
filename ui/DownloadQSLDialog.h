@@ -27,7 +27,7 @@ private:
     void loadDialogState();
     void loadLotwDate();
     void saveDialogState();
-    QString selectedLotwCallsign() const;
+    QStringList selectedLotwCallsigns() const;
 
     Ui::DownloadQSLDialog *ui;
     LogLocale locale;

@@ -449,7 +449,10 @@ LotwQSLDownloader::LotwQSLDownloader(QObject *parent) :
     GenericQSLDownloader(parent),
     LotwBase(),
     currentReply(nullptr),
-    retryCount(0)
+    qsoSince(false),
+    continueOnCallsignError(false),
+    retryCount(0),
+    aborted(false)
 {
     FCT_IDENTIFICATION;
 }
@@ -457,21 +460,64 @@ LotwQSLDownloader::LotwQSLDownloader(QObject *parent) :
 void LotwQSLDownloader::receiveQSL(const QDate &start_date, bool qso_since, const QString &station_callsign)
 {
     FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << start_date << " " << qso_since;
+    receiveQSLs(start_date, qso_since, {station_callsign});
+}
+
+void LotwQSLDownloader::receiveQSLs(const QDate &start_date,
+                                    bool qso_since,
+                                    const QStringList &stationCallsigns)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << start_date << " " << qso_since << stationCallsigns;
+
+    stationCallsignQueue.clear();
+    for ( const QString &stationCallsign : stationCallsigns )
+    {
+        const QString normalizedCallsign = stationCallsign.trimmed().toUpper();
+        if ( !normalizedCallsign.isEmpty() && !stationCallsignQueue.contains(normalizedCallsign) )
+            stationCallsignQueue.append(normalizedCallsign);
+    }
+
+    if ( stationCallsignQueue.isEmpty() )
+    {
+        emit receiveQSLFailed(tr("No station callsigns found in the log"));
+        return;
+    }
+
+    continueOnCallsignError = stationCallsignQueue.size() > 1;
+    startDate = start_date;
+    qsoSince = qso_since;
+    downloadStat = {QStringList(), QStringList(), QStringList(), QStringList(), 0};
+    aborted = false;
+
+    requestNextCallsign();
+}
+
+void LotwQSLDownloader::requestNextCallsign()
+{
+    FCT_IDENTIFICATION;
+
+    if ( aborted )
+        return;
+
+    if ( stationCallsignQueue.isEmpty() )
+    {
+        emit receiveQSLComplete(downloadStat);
+        return;
+    }
+
+    currentStationCallsign = stationCallsignQueue.takeFirst();
 
     QList<QPair<QString, QString>> params;
     params.append(qMakePair(QString("qso_query"), QString("1")));
     params.append(qMakePair(QString("qso_qsldetail"), QString("yes")));
     params.append(qMakePair(QString("qso_mydetail"),QString("yes")));
     params.append(qMakePair(QString("qso_withown"),QString("yes")));
+    params.append(qMakePair(QString("qso_owncall"), currentStationCallsign));
 
-    const QString trimmedStationCallsign = station_callsign.trimmed();
-    if ( !trimmedStationCallsign.isEmpty() )
-        params.append(qMakePair(QString("qso_owncall"), trimmedStationCallsign));
+    const QString &start = startDate.toString("yyyy-MM-dd");
 
-    const QString &start = start_date.toString("yyyy-MM-dd");
-
-    if (qso_since)
+    if ( qsoSince )
     {
         params.append(qMakePair(QString("qso_qsl"), QString("no")));
         params.append(qMakePair(QString("qso_qsorxsince"), start));
@@ -491,6 +537,9 @@ void LotwQSLDownloader::abortDownload()
 {
     FCT_IDENTIFICATION;
 
+    aborted = true;
+    stationCallsignQueue.clear();
+
     if ( currentReply )
     {
         currentReply->abort();
@@ -509,8 +558,15 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
 
     auto fail = [this, reply](const QString &message)
     {
+        stationCallsignQueue.clear();
         emit receiveQSLFailed(message);
         reply->deleteLater();
+    };
+
+    auto skip = [this, reply](const QString &message)
+    {
+        reply->deleteLater();
+        skipCallsign(message);
     };
 
     if ( reply->error() != QNetworkReply::NoError
@@ -522,11 +578,15 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
 
         if ( reply->error() == QNetworkReply::OperationCanceledError )
             reply->deleteLater();
-        else if ( (replyStatusCode == 0
-                   || replyStatusCode >= 500
-                   || (replyStatusCode >= 200 && replyStatusCode < 300))
-                  && scheduleRetry(reply, reply->errorString()) )
-            return;
+        else if ( replyStatusCode == 0
+                  || replyStatusCode >= 500
+                  || (replyStatusCode >= 200 && replyStatusCode < 300) )
+        {
+            if ( scheduleRetry(reply, reply->errorString()) )
+                return;
+
+            skip(reply->errorString());
+        }
         else
             fail(reply->errorString());
         return;
@@ -550,7 +610,7 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
         if ( scheduleRetry(reply, tr("LoTW returned a non-ADIF response")) )
             return;
 
-        fail(lotwPlainResponseSummary(data));
+        skip(lotwPlainResponseSummary(data));
         return;
     }
 
@@ -559,7 +619,7 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
         if ( scheduleRetry(reply, tr("LoTW returned an incomplete response")) )
             return;
 
-        fail(tr("Incomplete LoTW response"));
+        skip(tr("Incomplete LoTW response"));
         return;
     }
 
@@ -600,9 +660,9 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
         }
     });
 
-    connect(&adi, &AdiFormat::QSLMergeFinished, this, [this](QSLMergeStat stats)
+    connect(&adi, &AdiFormat::QSLMergeFinished, this, [this](const QSLMergeStat &stats)
     {
-        emit receiveQSLComplete(stats);
+        completeCallsign(stats);
     });
 
     adi.runQSLImport(adi.LOTW);
@@ -610,6 +670,41 @@ void LotwQSLDownloader::processReply(QNetworkReply *reply)
     tempFile.close();
 
     reply->deleteLater();
+}
+
+void LotwQSLDownloader::completeCallsign(const QSLMergeStat &stats)
+{
+    FCT_IDENTIFICATION;
+
+    mergeQSLStats(downloadStat, stats);
+    emit stationCallsignComplete(currentStationCallsign);
+    requestNextCallsign();
+}
+
+void LotwQSLDownloader::skipCallsign(const QString &error)
+{
+    FCT_IDENTIFICATION;
+
+    if ( !continueOnCallsignError )
+    {
+        stationCallsignQueue.clear();
+        emit receiveQSLFailed(error);
+        return;
+    }
+
+    downloadStat.errorQSLs.append(
+                tr("Station Callsign:") + " " + currentStationCallsign
+                + "; " + error);
+    requestNextCallsign();
+}
+
+void LotwQSLDownloader::mergeQSLStats(QSLMergeStat &target, const QSLMergeStat &source)
+{
+    target.newQSLs.append(source.newQSLs);
+    target.updatedQSOs.append(source.updatedQSOs);
+    target.unmatchedQSLs.append(source.unmatchedQSLs);
+    target.errorQSLs.append(source.errorQSLs);
+    target.qsosDownloaded += source.qsosDownloaded;
 }
 
 bool LotwQSLDownloader::scheduleRetry(QNetworkReply *reply, const QString &reason)
@@ -627,7 +722,7 @@ bool LotwQSLDownloader::scheduleRetry(QNetworkReply *reply, const QString &reaso
 
     QTimer::singleShot(retryCount * 1000, this, [this]
     {
-        if ( !currentReply )
+        if ( !aborted && !currentReply )
             get(requestParams);
     });
     return true;

@@ -96,6 +96,10 @@ public:
     virtual ~LotwQSLDownloader();
 
     virtual void receiveQSL(const QDate &, bool, const QString &) override;
+    void receiveQSLs(const QDate &, bool, const QStringList &stationCallsigns);
+
+signals:
+    void stationCallsignComplete(const QString &stationCallsign);
 
 public slots:
     virtual void abortDownload() override;
@@ -103,11 +107,22 @@ public slots:
 private:
     QNetworkReply *currentReply;
     QList<QPair<QString, QString>> requestParams;
+    QStringList stationCallsignQueue;
+    QString currentStationCallsign;
+    QDate startDate;
+    bool qsoSince;
+    bool continueOnCallsignError;
+    QSLMergeStat downloadStat;
     int retryCount;
+    bool aborted;
     const QString ADIF_API = "https://lotw.arrl.org/lotwuser/lotwreport.adi";
     enum { MAX_REQUEST_RETRIES = 2 };
 
     virtual void processReply(QNetworkReply* reply) override;
+    void requestNextCallsign();
+    void completeCallsign(const QSLMergeStat &stats);
+    void skipCallsign(const QString &error);
+    static void mergeQSLStats(QSLMergeStat &target, const QSLMergeStat &source);
     bool scheduleRetry(QNetworkReply *reply, const QString &reason);
     void get(const QList<QPair<QString, QString>> &params);
 };

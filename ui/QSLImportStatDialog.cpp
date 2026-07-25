@@ -19,7 +19,8 @@ QSLImportStatDialog::QSLImportStatDialog(const QSLMergeStat &stats,
              stats.errorQSLs.size(),
              stats.newQSLs.join("\n"),
              stats.updatedQSOs.join("\n"),
-             stats.unmatchedQSLs.join("\n"));
+             stats.unmatchedQSLs.join("\n"),
+             stats.errorQSLs.join("\n"));
 }
 
 QSLImportStatDialog::QSLImportStatDialog(const QHash<QString, QSLMergeStat> &stats,
@@ -38,6 +39,7 @@ QSLImportStatDialog::QSLImportStatDialog(const QHash<QString, QSLMergeStat> &sta
     QString newQSLText;
     QString updatedQSLText;
     QString unmatchedQSLText;
+    QString errorQSLText;
 
     for (auto i = stats.begin(), end = stats.end(); i != end; ++i)
     {
@@ -51,10 +53,12 @@ QSLImportStatDialog::QSLImportStatDialog(const QHash<QString, QSLMergeStat> &sta
             updatedQSLText.append("* " + i.key() + "\n" + i.value().updatedQSOs.join("\n") + "\n\n");
         if ( !i.value().unmatchedQSLs.isEmpty() )
             unmatchedQSLText.append("* " + i.key() + "\n" + i.value().unmatchedQSLs.join("\n") + "\n\n");
+        if ( !i.value().errorQSLs.isEmpty() )
+            errorQSLText.append("* " + i.key() + "\n" + i.value().errorQSLs.join("\n") + "\n\n");
     }
 
     showStat(updated, downloaded, unmatched, errors,
-             newQSLText, updatedQSLText, unmatchedQSLText);
+             newQSLText, updatedQSLText, unmatchedQSLText, errorQSLText);
 }
 
 void QSLImportStatDialog::showStat(const quint64 updated,
@@ -63,7 +67,8 @@ void QSLImportStatDialog::showStat(const quint64 updated,
                                    const quint64 errors,
                                    const QString  &newQSLText,
                                    const QString  &updatedQSLText,
-                                   const QString  &unmatchedQSLText)
+                                   const QString  &unmatchedQSLText,
+                                   const QString  &errorQSLText)
 {
     FCT_IDENTIFICATION;
 
@@ -86,6 +91,7 @@ void QSLImportStatDialog::showStat(const quint64 updated,
     appendSection(tr("New QSLs:"), newQSLText);
     appendSection(tr("Updated QSOs:"), updatedQSLText);
     appendSection(tr("Unmatched QSLs:"), unmatchedQSLText);
+    appendSection(tr("Errors:"), errorQSLText);
 
     ui->detailsText->setPlainText(sections.join("\n\n"));
 }
