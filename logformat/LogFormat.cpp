@@ -1518,11 +1518,20 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                  QSLMSG_INTL (if non-null and containing international characters - see ADIF V3 specs)
                  APP_EQSL_SWL (tag only present if sender is SWL and then always Y)
                  APP_EQSL_AG (tag only present if sender has Authenticity Guaranteed status and then always Y)
+                 EQSL_AG (current Authenticity Guaranteed status)
                  GRIDSQUARE (tag only present if non-blank and at least 4 long)
             */
-            // LF: Since I consider this source unreliable, I will not update it here, as I do with LoTW
-            // try to update contact from received QSL only in case when contact != Y
-            if ( originalRecord.value("eqsl_qsl_rcvd").toString() != 'Y' )
+            // Unlike LoTW, eQSL data does not refresh other contact fields after
+            // the confirmation is received. EQSL_AG is updated whenever provided.
+            const bool newlyReceived = originalRecord.value("eqsl_qsl_rcvd").toString() != 'Y';
+            const QString eqslAg = QSLRecord.value("eqsl_ag").toString();
+            const bool eqslAgChanged = !eqslAg.isEmpty()
+                    && originalRecord.value("eqsl_ag").toString() != eqslAg;
+
+            if ( eqslAgChanged )
+                originalRecord.setValue("eqsl_ag", eqslAg);
+
+            if ( newlyReceived )
             {
                 originalRecord.setValue("eqsl_qsl_rcvd", QSLRecord.value("qsl_sent"));
 
@@ -1559,32 +1568,38 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
                 // QSL_RCVD_VIA belongs to the paper QSL_RCVD status. eQSL
                 // confirmations are tracked separately in EQSL_QSL_RCVD.
+            }
 
-                /*
-                 * It appears that the life cycle of EQSL_AQ field is not fully understood
-                 * at the moment. Unfortunately, even on the ADIF forum there are differing opinions,
-                 * but I have gained the impression that the only authority that knows the correct
-                 * value of EQSL_AG is eQSL itself. Therefore, I believe that the value received from eQSL
-                 * should always be set here, even though the field’s value may vary at the time the QSL is received.
-                 */
-                originalRecord.setValue("eqsl_ag", QSLRecord.value("eqsl_ag"));
+            if ( !newlyReceived && !eqslAgChanged )
+                break;
 
-                if ( !model.setRecord(0, originalRecord) )
-                {
-                    qCDebug(runtime) << originalRecord;
-                    failImport(tr("Cannot update QSO in logbook: ")
-                               + model.lastError().text());
-                    return;
-                }
+            if ( !model.setRecord(0, originalRecord) )
+            {
+                qCDebug(runtime) << originalRecord;
+                failImport(tr("Cannot update QSO in logbook: ")
+                           + model.lastError().text());
+                return;
+            }
 
-                if ( !model.submitAll() )
-                {
-                    failImport(tr("Cannot update QSO in logbook: ")
-                               + model.lastError().text());
-                    return;
-                }
+            if ( !model.submitAll() )
+            {
+                failImport(tr("Cannot update QSO in logbook: ")
+                           + model.lastError().text());
+                return;
+            }
+
+            if ( newlyReceived )
+            {
                 const DxccStatus status = Data::instance()->dxccStatus(originalRecord.value("dxcc").toInt(), band.toString(), mode.toString());
                 stats.newQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString(), {tr("DXCC State:") + " " + Data::statusToText(status)}));
+            }
+            else
+            {
+                stats.updatedQSOs.append(
+                            reportFormatter(start_time.toDateTime(),
+                                            call.toString(),
+                                            mode.toString(),
+                                            {QStringLiteral("EQSL_AG: ") + eqslAg}));
             }
 
             break;
