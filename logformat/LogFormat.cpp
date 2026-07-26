@@ -1383,7 +1383,8 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                                                   const QVariant &qslValue)
                 {
                     if ( qslValue.toString().isEmpty()
-                         || originalRecord.value(contactKey).toString() == qslValue.toString() )
+                         || originalRecord.value(contactKey).toString().compare(
+                                qslValue.toString(), Qt::CaseInsensitive) == 0 )
                         return false;
 
                     qCDebug(runtime) << "Updating:" << contactKey
