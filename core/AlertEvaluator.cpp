@@ -8,6 +8,9 @@
 #include "data/WsjtxEntry.h"
 #include "data/SpotAlert.h"
 #include "data/BandPlan.h"
+#include "data/StationProfile.h"
+#include "core/LogParam.h"
+#include <QDate>
 
 MODULE_IDENTIFICATION("qlog.ui.alertevaluator");
 
@@ -125,6 +128,7 @@ AlertRule::AlertRule(QObject *parent) :
     sota(false),
     iota(false),
     wwff(false),
+    dxMarathon(false),
     ruleValid(false)
 {
     FCT_IDENTIFICATION;
@@ -143,12 +147,12 @@ bool AlertRule::save()
     QSqlQuery insertUpdateStmt;
 
     if ( ! insertUpdateStmt.prepare("INSERT INTO alert_rules(rule_name, enabled, source, dx_callsign, dx_country, "
-                                    "dx_logstatus, dx_continent, spot_comment, mode, band, spotter_country, spotter_continent, dx_member, ituz, cqz, pota, sota, iota, wwff) "
+                                    "dx_logstatus, dx_continent, spot_comment, mode, band, spotter_country, spotter_continent, dx_member, ituz, cqz, pota, sota, iota, wwff, dx_marathon) "
                                     " VALUES (:ruleName, :enabled, :source, :dxCallsign, :dxCountry, "
-                                    ":dxLogstatus, :dxContinent, :spotComment, :mode, :band, :spotterCountry, :spotterContinent, :dxMember, :ituz, :cqz, :pota, :sota, :iota, :wwff) "
+                                    ":dxLogstatus, :dxContinent, :spotComment, :mode, :band, :spotterCountry, :spotterContinent, :dxMember, :ituz, :cqz, :pota, :sota, :iota, :wwff, :dxMarathon) "
                                     " ON CONFLICT(rule_name) DO UPDATE SET enabled = :enabled, source = :source, dx_callsign =:dxCallsign, "
                                     "dx_country = :dxCountry, dx_logstatus = :dxLogstatus, dx_continent = :dxContinent, spot_comment = :spotComment, "
-                                    "mode = :mode, band = :band, spotter_country = :spotterCountry, spotter_continent = :spotterContinent, dx_member = :dxMember, ituz = :ituz, cqz = :cqz, pota = :pota, sota = :sota, iota = :iota, wwff = :wwff "
+                                    "mode = :mode, band = :band, spotter_country = :spotterCountry, spotter_continent = :spotterContinent, dx_member = :dxMember, ituz = :ituz, cqz = :cqz, pota = :pota, sota = :sota, iota = :iota, wwff = :wwff, dx_marathon = :dxMarathon "
                                     " WHERE rule_name = :ruleName"))
     {
         qWarning() << "Cannot prepare insert/update Alert Rule statement" << insertUpdateStmt.lastError();
@@ -174,6 +178,7 @@ bool AlertRule::save()
     insertUpdateStmt.bindValue(":sota", sota);
     insertUpdateStmt.bindValue(":iota", iota);
     insertUpdateStmt.bindValue(":wwff", wwff);
+    insertUpdateStmt.bindValue(":dxMarathon", dxMarathon);
 
     if ( ! insertUpdateStmt.exec() )
     {
@@ -192,7 +197,7 @@ bool AlertRule::load(const QString &in_ruleName)
     QSqlQuery query;
 
     if ( ! query.prepare("SELECT rule_name, enabled, source, dx_callsign, dx_country, dx_logstatus, "
-                         "dx_continent, spot_comment, mode, band, spotter_country, spotter_continent, dx_member, ituz, cqz, pota, sota, iota, wwff "
+                         "dx_continent, spot_comment, mode, band, spotter_country, spotter_continent, dx_member, ituz, cqz, pota, sota, iota, wwff, dx_marathon "
                          "FROM alert_rules "
                          "WHERE rule_name = :rule") )
     {
@@ -232,6 +237,7 @@ bool AlertRule::load(const QString &in_ruleName)
         sota             = record.value("sota").toBool();
         iota             = record.value("iota").toBool();
         wwff             = record.value("wwff").toBool();
+        dxMarathon       = record.value("dx_marathon").toBool();
 
         callsignRE.setPattern(dxCallsign);
         callsignRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
@@ -270,6 +276,7 @@ bool AlertRule::match(const WsjtxEntry &wsjtx) const
     if ( dxCountry && dxCountry != wsjtx.dxcc.dxcc )  return fail();
     if ( ituz      && ituz      != wsjtx.dxcc.ituz )  return fail();
     if ( cqz       && cqz       != wsjtx.dxcc.cqz )   return fail();
+    if ( dxMarathon && !isDXMarathonNew(wsjtx.dxcc.dxcc, wsjtx.dxcc.cqz, wsjtx.band, wsjtx.callsign) ) return fail();
     if ( pota || sota || iota || wwff )
     {
         const bool refMatch =
@@ -281,7 +288,9 @@ bool AlertRule::match(const WsjtxEntry &wsjtx) const
         if ( !refMatch ) return fail();
     }
 
-    if ( !(wsjtx.status & dxLogStatusMap) ) return fail();
+    // DX Marathon has its own annual entity/zone status. Combining it with the
+    // normal lifetime DXCC status can hide a needed zone in a worked entity.
+    if ( !dxMarathon && !(wsjtx.status & dxLogStatusMap) ) return fail();
 
     if ( mode != "*" )
     {
@@ -332,6 +341,7 @@ bool AlertRule::match(const DxSpot &spot) const
     if ( dxCountry != 0 && dxCountry != spot.dxcc.dxcc ) return fail();
     if ( ituz      != 0 && ituz      != spot.dxcc.ituz ) return fail();
     if ( cqz       != 0 && cqz       != spot.dxcc.cqz )  return fail();
+    if ( dxMarathon && !isDXMarathonNew(spot.dxcc.dxcc, spot.dxcc.cqz, spot.band, spot.callsign) ) return fail();
     if ( pota || sota || iota || wwff )
     {
         const bool refMatch =
@@ -343,7 +353,9 @@ bool AlertRule::match(const DxSpot &spot) const
         if ( !refMatch ) return fail();
     }
 
-    if ( !(spot.status & dxLogStatusMap) ) return fail();
+    // See the WSJT-X path above: Marathon need replaces, rather than augments,
+    // the normal DXCC log-status filter.
+    if ( !dxMarathon && !(spot.status & dxLogStatusMap) ) return fail();
 
     if ( mode != "*" )
     {
@@ -410,6 +422,7 @@ AlertRule::operator QString() const
             + "SOTA: "             + (sota ? "true" : "false") + "; "
             + "IOTA: "             + (iota ? "true" : "false") + "; "
             + "WWFF: "             + (wwff ? "true" : "false") + "; "
+            + "DX Marathon: "       + (dxMarathon ? "true" : "false") + "; "
             + "dxMember: "         + dxMember.join(", ") + "; "
             + "dxCountry: "        + QString::number(dxCountry) + "; "
             + "dxLogStatusMap: 0b" + QString::number(dxLogStatusMap,2) + "; "
@@ -419,4 +432,43 @@ AlertRule::operator QString() const
             + "spotterCountry: "   + QString::number(spotterCountry) + "; "
             + "spotterContinent: " + spotterContinent + "; "
             + ")";
+}
+
+bool AlertRule::isDXMarathonNew(int dxcc, int cqz, const QString &spotBand, const QString &callsign) const
+{
+    static const QStringList eligibleBands = {"160m","80m","60m","40m","30m","20m","17m","15m","12m","10m","6m"};
+    if (dxcc <= 0 || cqz <= 0 || !eligibleBands.contains(spotBand)
+        || callsign.endsWith("/AM", Qt::CaseInsensitive) || callsign.endsWith("/MM", Qt::CaseInsensitive))
+        return false;
+    const StationProfile profile = StationProfilesManager::instance()->getCurProfile1();
+    QSqlQuery query;
+    const bool callsignOnly = LogParam::getDXMarathonAlertByCallsign();
+    const QString stationCondition = callsignOnly
+        ? QStringLiteral("UPPER(station_callsign)=UPPER(:stationCallsign)")
+        : QString("EXISTS (SELECT 1 FROM station_profiles WHERE profile_name=:profile AND %1)").arg(profile.getContactInnerJoin());
+    const QString marathonEligible = QStringLiteral(
+        "band IN ('160m','80m','60m','40m','30m','20m','17m','15m','12m','10m','6m') "
+        "AND UPPER(callsign) NOT LIKE '%/AM' AND UPPER(callsign) NOT LIKE '%/MM'");
+    const QString sql = QString("SELECT EXISTS(SELECT 1 FROM contacts WHERE %1 "
+                                "AND start_time>=:start AND start_time<:end AND dxcc=:dxcc AND %2), "
+                                "EXISTS(SELECT 1 FROM contacts WHERE %1 "
+                                "AND start_time>=:start AND start_time<:end AND cqz=:cqz AND %2)")
+                            .arg(stationCondition, marathonEligible);
+    if (!query.prepare(sql)) { qCWarning(runtime) << "DX Marathon alert prepare error:" << query.lastError(); return false; }
+    query.bindValue(":stationCallsign", profile.callsign);
+    query.bindValue(":profile", profile.profileName);
+    query.bindValue(":start", QString("%1-01-01T00:00:00").arg(QDate::currentDate().year()));
+    query.bindValue(":end", QString("%1-01-01T00:00:00").arg(QDate::currentDate().year()+1));
+    query.bindValue(":dxcc", dxcc);
+    query.bindValue(":cqz", cqz);
+    if (!query.exec() || !query.next()) { qCWarning(runtime) << "DX Marathon alert query error:" << query.lastError(); return false; }
+    const bool entityWorked = query.value(0).toBool();
+    const bool zoneWorked = query.value(1).toBool();
+    const bool isNew = !entityWorked || !zoneWorked;
+    qCDebug(runtime) << "DX Marathon alert" << callsign << "profile" << profile.profileName
+                     << "match" << (callsignOnly ? "callsign" : "station profile")
+                     << "entity" << dxcc << "worked" << entityWorked
+                     << "zone" << cqz << "worked" << zoneWorked
+                     << "new" << isNew;
+    return isNew;
 }

@@ -59,6 +59,7 @@ SOURCES += \
         antenna/SteppirController.cpp \
         awards/AwardDefinition.cpp \
         awards/AwardDXCC.cpp \
+        awards/AwardDXMarathon.cpp \
         awards/AwardGridsquare.cpp \
         awards/AwardIOTA.cpp \
         awards/AwardITU.cpp \
@@ -255,6 +256,7 @@ HEADERS += \
         antenna/SteppirController.h \
         awards/AwardDefinition.h \
         awards/AwardDXCC.h \
+        awards/AwardDXMarathon.h \
         awards/AwardGridsquare.h \
         awards/AwardIOTA.h \
         awards/AwardITU.h \

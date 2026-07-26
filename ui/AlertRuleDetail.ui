@@ -455,6 +455,12 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QCheckBox" name="dxMarathonCheckbox">
+             <property name="toolTip"><string>Alert when the entity or CQ zone is new for the current year and active station profile. DXCC Log Status selections do not apply.</string></property>
+             <property name="text"><string>DX Marathon</string></property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>

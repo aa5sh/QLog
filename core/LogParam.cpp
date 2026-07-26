@@ -153,6 +153,16 @@ bool LogParam::getDxccConfirmedByEqslState()
     return getParam("others/dxccconfirmedbyeqsl", false).toBool();
 }
 
+bool LogParam::getDXMarathonAlertByCallsign()
+{
+    return getParam("others/dxmarathonalertbycallsign", false).toBool();
+}
+
+bool LogParam::setDXMarathonAlertByCallsign(bool state)
+{
+    return setParam("others/dxmarathonalertbycallsign", state);
+}
+
 int LogParam::getContestSeqno(const QString &band)
 {
     return getParam(( band.isEmpty() ) ? "contest/seqnos/single"

@@ -321,6 +321,7 @@ void AlertRuleDetail::save()
      * WWFF
      **********/
     rule.wwff = ui->wwffCheckbox->isChecked();
+    rule.dxMarathon = ui->dxMarathonCheckbox->isChecked();
 
     qCDebug(runtime) << rule;
 
@@ -590,6 +591,7 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
          * WWFF
          **********/
         ui->wwffCheckbox->setChecked(rule.wwff);
+        ui->dxMarathonCheckbox->setChecked(rule.dxMarathon);
     }
     else
         qCDebug(runtime) << "Cannot load rule " << ruleName;

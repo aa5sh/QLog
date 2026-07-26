@@ -41,12 +41,14 @@ public:
     bool sota;
     bool iota;
     bool wwff;
+    bool dxMarathon;
 
 private:
     bool ruleValid;
     QRegularExpression callsignRE;
     QRegularExpression commentRE;
     QSet<QString> dxMemberSet;
+    bool isDXMarathonNew(int dxcc, int cqz, const QString &band, const QString &callsign) const;
 
 };
 
