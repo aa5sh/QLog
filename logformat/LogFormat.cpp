@@ -1309,11 +1309,24 @@ void LogFormat::runQSLImport(QSLFrom fromService)
             }
         }
 
+        const bool multipleMatches = model.rowCount() > 1;
+
+        // A LoTW report contains the timestamp of the user's submitted QSO.
+        // Use it to disambiguate otherwise valid candidates.
+        if ( multipleMatches && fromService == LOTW )
+        {
+            model.setFilter(model.filter() + QString(
+                " AND STRFTIME('%s', start_time) = "
+                "STRFTIME('%s', datetime('%1'))"
+            ).arg(startTimeStr));
+            model.select();
+        }
+
         if ( model.rowCount() != 1 )
         {
-            const QString unmatchedReason = model.rowCount() == 0
-                    ? tr("Reason: no match")
-                    : tr("Reason: multiple matches");
+            const QString unmatchedReason = multipleMatches
+                    ? tr("Reason: multiple matches")
+                    : tr("Reason: no match");
 
             stats.unmatchedQSLs.append(
                         reportFormatter(start_time.toDateTime(),
