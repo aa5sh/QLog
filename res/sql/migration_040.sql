@@ -1,1 +1,0 @@
-ALTER TABLE alert_rules ADD COLUMN dx_marathon INTEGER DEFAULT 0;

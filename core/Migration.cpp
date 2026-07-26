@@ -26,63 +26,86 @@ bool DBSchemaMigration::run(bool force)
 
     int currentVersion = getVersion();
 
-    if (currentVersion == latestVersion) {
-        qCDebug(runtime) << "Database schema already up to date";
-        updateExternalResource(force);
-        // temporarily added to create a trigger without calling db migration
-        //refreshUploadStatusTrigger();
-        return true;
-    }
-    else if ( currentVersion > latestVersion )
+    if ( currentVersion > latestVersion )
     {
         qCritical() << "Database from the future" << currentVersion;
         return false;
     }
 
-    qCDebug(runtime) << "Backup before migration";
-    backupAllQSOsToADX(true);
-
-    qCDebug(runtime) << "Starting database migration";
-
-    QProgressDialog progress("Migrating the database...", nullptr, currentVersion, latestVersion);
-    progress.show();
-
-    while ((currentVersion = getVersion()) < latestVersion)
+    if (currentVersion == latestVersion) {
+        qCDebug(runtime) << "Database schema already up to date";
+        // temporarily added to create a trigger without calling db migration
+        //refreshUploadStatusTrigger();
+    }
+    else
     {
-        bool res = migrate(currentVersion+1);
-        if ( !res || getVersion() == currentVersion )
-        {
-            progress.close();
-            return false;
-        }
-        // sometimes (especially when DROP INDEX is called), it is needed to
-        // reopen database. (issue occurs between DB versions 15 and 16)
-        QSqlDatabase::database().close();
+        qCDebug(runtime) << "Backup before migration";
+        backupAllQSOsToADX(true);
 
-        if ( !QSqlDatabase::database().open() )
+        qCDebug(runtime) << "Starting database migration";
+
+        QProgressDialog progress("Migrating the database...", nullptr, currentVersion, latestVersion);
+        progress.show();
+
+        while ((currentVersion = getVersion()) < latestVersion)
         {
+            bool res = migrate(currentVersion+1);
+            if ( !res || getVersion() == currentVersion )
+            {
+                progress.close();
+                return false;
+            }
+            // sometimes (especially when DROP INDEX is called), it is needed to
+            // reopen database. (issue occurs between DB versions 15 and 16)
+            QSqlDatabase::database().close();
+
+            if ( !QSqlDatabase::database().open() )
+            {
+                progress.close();
+                qCritical() << QSqlDatabase::database().lastError();
+                return false;
+            }
+            // Re-register custom SQL functions after connection reopen
+            // (sqlite3_create_function bindings are lost on close/open)
+            LogDatabase::instance()->createSQLFunctions();
+            progress.setValue(currentVersion);
+        }
+
+        if ( !refreshUploadStatusTrigger() )
+        {
+            qCritical() << "Cannot refresh Upload Status Trigger";
             progress.close();
-            qCritical() << QSqlDatabase::database().lastError();
             return false;
         }
-        // Re-register custom SQL functions after connection reopen
-        // (sqlite3_create_function bindings are lost on close/open)
-        LogDatabase::instance()->createSQLFunctions();
-        progress.setValue(currentVersion);
+
+        progress.close();
+
+        qCDebug(runtime) << "Database migration successful";
     }
 
-    if ( !refreshUploadStatusTrigger() )
+    int currentMyFeaturesVersion = getMyFeaturesVersion();
+    if ( currentMyFeaturesVersion > latestMyFeaturesVersion )
     {
-        qCritical() << "Cannot refresh Upload Status Trigger";
-        progress.close();
+        qCritical() << "MyFeatures database schema from the future" << currentMyFeaturesVersion;
         return false;
     }
 
-    progress.close();
+    while ((currentMyFeaturesVersion = getMyFeaturesVersion()) < latestMyFeaturesVersion)
+    {
+        bool res = migrateMyFeatures(currentMyFeaturesVersion+1);
+        if ( !res || getMyFeaturesVersion() == currentMyFeaturesVersion )
+            return false;
+
+        QSqlDatabase::database().close();
+        if ( !QSqlDatabase::database().open() )
+        {
+            qCritical() << QSqlDatabase::database().lastError();
+            return false;
+        }
+        LogDatabase::instance()->createSQLFunctions();
+    }
 
     updateExternalResource(force);
-
-    qCDebug(runtime) << "Database migration successful";
 
     return true;
 }
@@ -252,6 +275,79 @@ bool DBSchemaMigration::migrate(int toVersion)
     result = result && functionMigration(toVersion);
 
     if (result && setVersion(toVersion) && db.commit()) {
+        return true;
+    }
+    else {
+        if (!db.rollback()) {
+            qCritical() << "rollback failed";
+        }
+        return false;
+    }
+}
+
+/**
+ * Returns the current version of the fork-private (MyFeatures) schema track.
+ */
+int DBSchemaMigration::getMyFeaturesVersion()
+{
+    FCT_IDENTIFICATION;
+
+    QSqlQuery query("SELECT version FROM myfeatures_schema_versions "
+                    "ORDER BY version DESC LIMIT 1");
+
+    int i = query.first() ? query.value(0).toInt() : 0;
+    qCDebug(runtime) << i;
+    return i;
+}
+
+/**
+ * Changes the version of the fork-private (MyFeatures) schema track.
+ * Returns true of the operation was successful.
+ */
+bool DBSchemaMigration::setMyFeaturesVersion(int version)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << version;
+
+    QSqlQuery query;
+    if ( ! query.prepare("INSERT INTO myfeatures_schema_versions (version, updated) "
+                  "VALUES (:version, datetime('now'))") )
+    {
+        qWarning() << "Cannot prepare Insert statement";
+    }
+
+    query.bindValue(":version", version);
+
+    if (!query.exec()) {
+        qWarning() << "setting myfeatures schema version failed" << query.lastError();
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+/**
+ * Migrate the fork-private (MyFeatures) schema track to the given version.
+ * Returns true if the operation was successful.
+ */
+bool DBSchemaMigration::migrateMyFeatures(int toVersion)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(runtime) << "migrate myfeatures schema to" << toVersion;
+
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!db.transaction()) {
+        qCritical() << "transaction failed";
+        return false;
+    }
+
+    QString migration_file = QString(":/res/sql/myfeatures_migration_%1.sql").arg(toVersion, 3, 10, QChar('0'));
+    bool result = runSqlFile(migration_file);
+
+    if (result && setMyFeaturesVersion(toVersion) && db.commit()) {
         return true;
     }
     else {

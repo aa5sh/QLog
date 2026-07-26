@@ -18,6 +18,8 @@ private slots:
     void cleanupTestCase();
     void migrateVersion_data();
     void migrateVersion();
+    void migrateMyFeaturesVersion_data();
+    void migrateMyFeaturesVersion();
 
 private:
     QScopedPointer<QTemporaryDir> tempDir;
@@ -25,6 +27,8 @@ private:
 
     bool executeSqlFile(int version);
     int currentVersion() const;
+    bool executeMyFeaturesSqlFile(int version);
+    int currentMyFeaturesVersion() const;
 };
 
 void MigrationSqlTest::initTestCase()
@@ -118,10 +122,73 @@ int MigrationSqlTest::currentVersion() const
     return query.value(0).toInt();
 }
 
+bool MigrationSqlTest::executeMyFeaturesSqlFile(int version)
+{
+    const QString resourceName = QStringLiteral(":/res/sql/myfeatures_migration_%1.sql")
+                                     .arg(version, 3, 10, QChar('0'));
+    QFile sqlFile(resourceName);
+    if (!sqlFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QWARN(qPrintable(QStringLiteral("Cannot open %1").arg(resourceName)));
+        return false;
+    }
+
+    const QString sqlContent = QTextStream(&sqlFile).readAll();
+    sqlFile.close();
+
+    const QStringList statements = sqlContent.split('\n').join(QStringLiteral(" ")).split(';');
+
+    QSqlDatabase db = QSqlDatabase::database();
+    QSqlQuery query(db);
+
+    if (!db.transaction())
+        return false;
+
+    for (const QString &statement : statements)
+    {
+        const QString trimmed = statement.trimmed();
+        if (trimmed.isEmpty())
+            continue;
+
+        if (!query.exec(trimmed))
+        {
+            qWarning() << "MyFeatures SQL execution failed for version" << version
+                       << ":" << trimmed << query.lastError();
+            db.rollback();
+            return false;
+        }
+    }
+
+    QSqlQuery versionInsert(db);
+    if (!versionInsert.prepare(QStringLiteral("INSERT INTO myfeatures_schema_versions (version, updated) VALUES (:version, datetime('now'))")))
+    {
+        db.rollback();
+        return false;
+    }
+    versionInsert.bindValue(QStringLiteral(":version"), version);
+    if (!versionInsert.exec())
+    {
+        db.rollback();
+        return false;
+    }
+
+    return db.commit();
+}
+
+int MigrationSqlTest::currentMyFeaturesVersion() const
+{
+    // The tracking table is created by myfeatures_migration_001.sql itself,
+    // so it may not exist yet - that means version 0, mirroring
+    // DBSchemaMigration::getMyFeaturesVersion().
+    QSqlQuery query(QStringLiteral("SELECT version FROM myfeatures_schema_versions ORDER BY version DESC LIMIT 1"));
+    return query.first() ? query.value(0).toInt() : 0;
+}
+
 class MigrationSqlTest_FriendAccessor
 {
 public:
     static int latestVersion() { return DBSchemaMigration::latestVersion; }
+    static int latestMyFeaturesVersion() { return DBSchemaMigration::latestMyFeaturesVersion; }
 };
 
 void MigrationSqlTest::migrateVersion_data()
@@ -146,6 +213,30 @@ void MigrationSqlTest::migrateVersion()
     QVERIFY2(executeSqlFile(targetVersion),
              qPrintable(QStringLiteral("Migration SQL file %1 failed").arg(targetVersion, 3, 10, QChar('0'))));
     QCOMPARE(currentVersion(), targetVersion);
+}
+
+void MigrationSqlTest::migrateMyFeaturesVersion_data()
+{
+    QTest::addColumn<int>("targetVersion");
+
+    const int latestMyFeaturesVersion = MigrationSqlTest_FriendAccessor::latestMyFeaturesVersion();
+    for (int version = 1; version <= latestMyFeaturesVersion; ++version)
+    {
+        QTest::newRow(QStringLiteral("myfeatures_migration_%1").arg(version, 3, 10, QChar('0')).toUtf8().constData())
+            << version;
+    }
+}
+
+void MigrationSqlTest::migrateMyFeaturesVersion()
+{
+    QFETCH(int, targetVersion);
+
+    const int expectedCurrent = targetVersion - 1;
+    QCOMPARE(currentMyFeaturesVersion(), expectedCurrent);
+
+    QVERIFY2(executeMyFeaturesSqlFile(targetVersion),
+             qPrintable(QStringLiteral("MyFeatures migration SQL file %1 failed").arg(targetVersion, 3, 10, QChar('0'))));
+    QCOMPARE(currentMyFeaturesVersion(), targetVersion);
 }
 
 QTEST_MAIN(MigrationSqlTest)

@@ -14,13 +14,21 @@ public:
     bool run(bool force = false);
     static bool backupAllQSOsToADX(bool force = false);
 
-    static constexpr int latestVersion = 40;
+    static constexpr int latestVersion = 39;
+
+    // Fork-private schema track for MyFeatures-only changes. Kept separate
+    // from latestVersion/migration_0NN.sql so upstream syncs never collide
+    // with personal-branch schema changes.
+    static constexpr int latestMyFeaturesVersion = 1;
 
 private:
     bool functionMigration(int version);
     bool migrate(int toVersion);
     int getVersion();
     bool setVersion(int version);
+    bool migrateMyFeatures(int toVersion);
+    int getMyFeaturesVersion();
+    bool setMyFeaturesVersion(int version);
     bool runSqlFile(QString filename);
     int tableRows(const QString &name);
     bool updateExternalResource(bool force = false);
