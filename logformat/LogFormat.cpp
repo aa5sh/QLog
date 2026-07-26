@@ -1311,11 +1311,15 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
         if ( model.rowCount() != 1 )
         {
+            const QString unmatchedReason = model.rowCount() == 0
+                    ? tr("Reason: no match")
+                    : tr("Reason: multiple matches");
+
             stats.unmatchedQSLs.append(
                         reportFormatter(start_time.toDateTime(),
                                         call.toString(),
                                         mode.toString(),
-                                        QStringList(),
+                                        {unmatchedReason},
                                         fromService == LOTW ? stationCallsign : QString()));
             continue;
         }
