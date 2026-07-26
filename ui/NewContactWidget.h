@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QFormLayout>
 #include <QList>
+#include <QSet>
 #include <QToolButton>
 
 #include "data/DxSpot.h"
@@ -325,7 +326,12 @@ private:
     void updateDxccStatus();
     void updatePartnerLocTime();
     void setDefaultReport();
+    void showExternalQSOWarningOnce(const QString &message,
+                                    const StationProfile &profile,
+                                    const QSqlRecord &record);
     void addAddlFields(QSqlRecord &record, const StationProfile &profile);
+    bool externalQSOConflictsWithProfile(const QSqlRecord &record,
+                                         const StationProfile &profile) const;
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isQSOTimeStarted();
     void QSYContactWiping(double);
@@ -406,6 +412,7 @@ private:
     QToolButton *tabCollapseBtn;
     ModeSelectionController *modeController;
     QStringList memberListHtmlItems;
+    QSet<QString> warnedExternalStationContexts;
 };
 
 #endif // QLOG_UI_NEWCONTACTWIDGET_H
