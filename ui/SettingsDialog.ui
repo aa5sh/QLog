@@ -4652,6 +4652,44 @@
            </widget>
           </item>
          </layout>
+       </widget>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="fldigiUDPGroupBox">
+         <property name="title">
+          <string>FLDigi</string>
+         </property>
+         <layout class="QFormLayout" name="fldigiUDPFormLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="fldigiUDPPortLabel">
+            <property name="text">
+             <string>ADIF UDP Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="fldigiUDPPortSpin">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Port where QLog listens for incoming ADIF records from FLDigi</string>
+            </property>
+            <property name="minimum">
+             <number>1025</number>
+            </property>
+            <property name="maximum">
+             <number>65534</number>
+            </property>
+            <property name="value">
+             <number>9876</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -5402,6 +5440,7 @@
   <tabstop>wsjtMulticastCheckbox</tabstop>
   <tabstop>wsjtMulticastAddressEdit</tabstop>
   <tabstop>wsjtMulticastTTLSpin</tabstop>
+  <tabstop>fldigiUDPPortSpin</tabstop>
   <tabstop>notifLogIDEdit</tabstop>
   <tabstop>notifDXSpotsEdit</tabstop>
   <tabstop>notifSpotAlertEdit</tabstop>

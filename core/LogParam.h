@@ -233,6 +233,8 @@ public:
     static void setNetworkNotifAlertsSpotAddrs(const QString &addrs);
     static QString getNetworkNotifRigStateAddrs();
     static void setNetworkNotifRigStateAddrs(const QString &addrs);
+    static int getNetworkFldigiUDPListenerPort(int defaultPort);
+    static void setNetworkFldigiUDPListenerPort(int port);
     static int getNetworkWsjtxListenerPort(int defaultPort);
     static void setNetworkNotifRigStateAddrs(int port);
     static QString getNetworkWsjtxForwardAddrs();

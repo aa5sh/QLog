@@ -85,6 +85,7 @@ SOURCES += \
         core/CredentialStore.cpp \
         core/FileCompressor.cpp \
         core/FldigiTCPServer.cpp \
+        core/FldigiUDPReceiver.cpp \
         core/LOVDownloader.cpp \
         core/LogDatabase.cpp \
         core/LogLocale.cpp \
@@ -270,6 +271,7 @@ HEADERS += \
         core/CredentialStore.h \
         core/FileCompressor.h \
         core/FldigiTCPServer.h \
+        core/FldigiUDPReceiver.h \
         core/LOVDownloader.h \
         core/LogDatabase.h \
         core/LogLocale.h \

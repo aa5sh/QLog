@@ -19,6 +19,7 @@
 #include "ui/DevToolsDialog.h"
 #include "ui/CabrilloExportDialog.h"
 #include "core/FldigiTCPServer.h"
+#include "core/FldigiUDPReceiver.h"
 #include "rig/Rig.h"
 #include "rotator/Rotator.h"
 #include "cwkey/CWKeyer.h"
@@ -299,6 +300,15 @@ MainWindow::MainWindow(QWidget* parent) :
     FldigiTCPServer* fldigi = new FldigiTCPServer(this);
     connect(fldigi, &FldigiTCPServer::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
 
+    FldigiUDPReceiver *fldigiUDP = new FldigiUDPReceiver(this);
+    connect(fldigiUDP, &FldigiUDPReceiver::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
+    connect(fldigiUDP, &FldigiUDPReceiver::testMessageReceived, this, [this]()
+    {
+        QMessageBox::information(this,
+                                 tr("FLDigi"),
+                                 tr("FLDigi test message received."));
+    });
+
     connect(adifRecoveryManager, &AdifRecoveryManager::contactsRecovered, ui->logbookWidget, &LogbookWidget::updateTable);
     connect(adifRecoveryManager, &AdifRecoveryManager::problem, this, [this](const QString &message)
     {
@@ -325,6 +335,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->wsjtxWidget, &WsjtxWidget::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
 
     connect(this, &MainWindow::settingsChanged, wsjtx, &WsjtxUDPReceiver::reloadSetting);
+    connect(this, &MainWindow::settingsChanged, fldigiUDP, &FldigiUDPReceiver::reloadSetting);
     connect(this, &MainWindow::settingsChanged, adifRecoveryManager, &AdifRecoveryManager::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rotatorWidget, &RotatorWidget::reloadSettings);
     connect(this, &MainWindow::settingsChanged, ui->rigWidget, &RigWidget::reloadSettings);

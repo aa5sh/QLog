@@ -727,6 +727,16 @@ void LogParam::setNetworkNotifRigStateAddrs(const QString &addrs)
     setParam("network/notif/rig/state/addrs", addrs);
 }
 
+int LogParam::getNetworkFldigiUDPListenerPort(int defaultPort)
+{
+    return getParam("network/listener/fldigi/udp/port", defaultPort).toInt();
+}
+
+void LogParam::setNetworkFldigiUDPListenerPort(int port)
+{
+    setParam("network/listener/fldigi/udp/port", port);
+}
+
 int LogParam::getNetworkWsjtxListenerPort(int defaultPort)
 {
     return getParam("network/listener/wsjtx/port", defaultPort).toInt();
