@@ -10,6 +10,7 @@
 #include "ui/NewContactWidget.h"
 #include "service/kstchat/KSTChat.h"
 #include "data/WsjtxEntry.h"
+#include "service/MapSpotProvider.h"
 
 namespace Ui {
 class OnlineMapWidget;
@@ -43,6 +44,10 @@ public slots:
     void drawChatUsers(const QList<KSTUsersInfo> &list);
     void drawWSJTXSpot(const WsjtxEntry &spot);
     void clearWSJTXSpots();
+    void mapLayerChanged(const QString &key, bool visible);
+    void stationProfileChanged();
+    void rigConnectionChanged();
+    void drawReceptionSpot(const MapReceptionSpot &spot);
 
 protected slots:
     void finishLoading();
@@ -57,6 +62,8 @@ private:
     const NewContactWidget *contact;
     double lastSeenAzimuth, lastSeenElevation;
     bool isRotConnected;
+    QScopedPointer<MapSpotProvider> spotProvider;
+    QString currentBand;
 };
 
 #endif // QLOG_UI_ONLINEMAPWIDGET_H

@@ -128,12 +128,20 @@ public:
                       const QString &color,
                       const QString &textColor);
     void clearWsjtxSpots();
+    void addReceptionSpot(const QString &source,
+                          const QString &id,
+                          const MapPoint &point,
+                          const QString &details,
+                          const QDateTime &timestamp);
+    void clearReceptionSpots(const QString &source);
+    bool isLayerVisible(const QString &key) const;
 
 signals:
     void loaded();
     void chatCallsignPressed(QString callsign);
     void wsjtxCallsignPressed(QString callsign);
     void IBPPressed(QString callsign, double frequency);
+    void layerSelectionChanged(QString key, bool visible);
 
 public slots:
     void handleLayerSelectionChanged(const QVariant &data,

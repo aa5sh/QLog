@@ -432,6 +432,35 @@ void MapPageController::clearWsjtxSpots()
     runJavaScript(QLatin1String("clearWSJTXSpots();"));
 }
 
+void MapPageController::addReceptionSpot(const QString &source,
+                                         const QString &id,
+                                         const MapPoint &point,
+                                         const QString &details,
+                                         const QDateTime &timestamp)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("addReceptionSpot(%1, %2, %3, %4, %5);")
+                  .arg(jsonString(source),
+                       jsonString(id),
+                       jsonObject(pointObject(point)),
+                       jsonString(details))
+                  .arg(timestamp.toMSecsSinceEpoch()));
+}
+
+void MapPageController::clearReceptionSpots(const QString &source)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("clearReceptionSpots(%1);")
+                  .arg(jsonString(source)));
+}
+
+bool MapPageController::isLayerVisible(const QString &key) const
+{
+    return LogParam::getMapLayerState(configID, key);
+}
+
 QString MapPageController::generateIbpDataJS()
 {
     FCT_IDENTIFICATION;
@@ -476,6 +505,12 @@ QString MapPageController::generateLayerControlJS(MapLayer::Layers layers)
     appendOption(MapLayer::Wsjtx, tr("WSJTX - CQ"), QStringLiteral("wsjtxStationsLayer"));
 
     appendOption(MapLayer::Path, tr("Path"), QStringLiteral("pathLayer"));
+
+    appendOption(MapLayer::PskReporter, tr("PSK Reporter (30 min)"),
+                 QStringLiteral("pskReporterLayer"));
+
+    appendOption(MapLayer::ReverseBeacon, tr("Reverse Beacon (30 min)"),
+                 QStringLiteral("reverseBeaconLayer"));
 
     QString ret = QStringLiteral("configureLayerControl(%1);")
                   .arg(jsonArray(options));
@@ -543,8 +578,9 @@ void MapPageController::handleLayerSelectionChanged(const QVariant &data, const 
 
     qCDebug(function_parameters) << data << state;
 
-    LogParam::setMapLayerState(configID, data.toString(),
-                               (state.toString().toLower() == "on") ? true : false);
+    const bool visible = state.toString().toLower() == "on";
+    LogParam::setMapLayerState(configID, data.toString(), visible);
+    emit layerSelectionChanged(data.toString(), visible);
 }
 
 void MapPageController::chatCallsignClicked(const QVariant &data)

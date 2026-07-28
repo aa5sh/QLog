@@ -30,7 +30,8 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
   contact(nullptr),
   lastSeenAzimuth(0.0),
   lastSeenElevation(0.0),
-  isRotConnected(false)
+  isRotConnected(false),
+  spotProvider(new MapSpotProvider(this))
 {
     FCT_IDENTIFICATION;
 
@@ -42,7 +43,9 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
                           | MapLayer::Ibp
                           | MapLayer::Beam
                           | MapLayer::Chat
-                          | MapLayer::Wsjtx);
+                          | MapLayer::Wsjtx
+                          | MapLayer::PskReporter
+                          | MapLayer::ReverseBeacon);
     connect(mapController.data(), &MapPageController::loaded,
             this, &OnlineMapWidget::finishLoading);
     setFocusPolicy(Qt::ClickFocus);
@@ -56,6 +59,20 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
+    connect(mapController.data(), &MapPageController::layerSelectionChanged,
+            this, &OnlineMapWidget::mapLayerChanged);
+    connect(spotProvider.data(), &MapSpotProvider::spotReceived,
+            this, &OnlineMapWidget::drawReceptionSpot);
+    connect(spotProvider.data(), &MapSpotProvider::sourceCleared,
+            mapController.data(), &MapPageController::clearReceptionSpots);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            this, [this](const QString &) { stationProfileChanged(); });
+    connect(Rig::instance(), &Rig::rigConnected,
+            this, &OnlineMapWidget::rigConnectionChanged);
+    connect(Rig::instance(), &Rig::rigDisconnected,
+            this, &OnlineMapWidget::rigConnectionChanged);
+    stationProfileChanged();
+    rigConnectionChanged();
 }
 
 void OnlineMapWidget::setTarget(double lat, double lon)
@@ -155,7 +172,9 @@ void OnlineMapWidget::setIBPBand(VFOID vfoid, double, double ritFreq, double)
     if ( vfoid == VFO2 )
         return;
 
-    mapController->setCurrentBand(BandPlan::freq2Band(ritFreq).name);
+    currentBand = BandPlan::freq2Band(ritFreq).name;
+    mapController->setCurrentBand(currentBand);
+    spotProvider->setBandFilter(currentBand, Rig::instance()->isRigConnected());
 }
 
 void OnlineMapWidget::antPositionChanged(double in_azimuth, double in_elevation)
@@ -222,6 +241,61 @@ void OnlineMapWidget::finishLoading()
 
     flyToMyQTH();
     auroraDataUpdate();
+    mapLayerChanged(QStringLiteral("pskReporterLayer"),
+                    mapController->isLayerVisible(QStringLiteral("pskReporterLayer")));
+    mapLayerChanged(QStringLiteral("reverseBeaconLayer"),
+                    mapController->isLayerVisible(QStringLiteral("reverseBeaconLayer")));
+}
+
+void OnlineMapWidget::mapLayerChanged(const QString &key, bool visible)
+{
+    FCT_IDENTIFICATION;
+
+    if (key == QStringLiteral("pskReporterLayer"))
+        spotProvider->setPskEnabled(visible);
+    else if (key == QStringLiteral("reverseBeaconLayer"))
+        spotProvider->setRbnEnabled(visible);
+}
+
+void OnlineMapWidget::stationProfileChanged()
+{
+    FCT_IDENTIFICATION;
+
+    spotProvider->setStationCallsign(
+        StationProfilesManager::instance()->getCurProfile1().callsign);
+}
+
+void OnlineMapWidget::rigConnectionChanged()
+{
+    FCT_IDENTIFICATION;
+
+    spotProvider->setBandFilter(currentBand, Rig::instance()->isRigConnected());
+}
+
+void OnlineMapWidget::drawReceptionSpot(const MapReceptionSpot &spot)
+{
+    FCT_IDENTIFICATION;
+
+    const Gridsquare grid = Gridsquare::mapDisplayGrid(spot.remoteLocator);
+    if (!grid.isValid())
+        return;
+
+    QString details = QStringLiteral("%1 %2 on %3 MHz")
+                      .arg(spot.direction,
+                           spot.mode.isEmpty() ? spot.band : spot.mode,
+                           QString::number(spot.frequencyMHz, 'f', 4));
+    if (spot.signal != 0)
+        details += QStringLiteral(" (%1 dB)").arg(spot.signal);
+    details += QStringLiteral(" at %1 UTC")
+               .arg(spot.timestamp.toUTC().toString(QStringLiteral("HH:mm")));
+
+    mapController->addReceptionSpot(spot.source,
+                                    spot.id,
+                                    MapPoint(spot.remoteCallsign,
+                                             grid.getLatitude(),
+                                             grid.getLongitude()),
+                                    details,
+                                    spot.timestamp);
 }
 
 void OnlineMapWidget::chatCallsignTrigger(const QString &callsign)

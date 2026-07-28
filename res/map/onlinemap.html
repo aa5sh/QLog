@@ -943,6 +943,68 @@
     }
 
     var wsjtxStationsLayer = L.layerGroup();
+    var pskReporterLayer = L.layerGroup();
+    var reverseBeaconLayer = L.layerGroup();
+    const receptionSpotMarkers = { psk: new Map(), rbn: new Map() };
+
+    function receptionSpotLayer(source) {
+        return source === 'psk' ? pskReporterLayer : reverseBeaconLayer;
+    }
+
+    function clearReceptionSpots(source) {
+        const layer = receptionSpotLayer(source);
+        layer.clearLayers();
+        if (receptionSpotMarkers[source])
+            receptionSpotMarkers[source].clear();
+    }
+
+    function addReceptionSpot(source, id, point, details, timestamp) {
+        const maxAge = 30 * 60 * 1000;
+        const remaining = maxAge - (Date.now() - timestamp);
+        if (remaining <= 0 || !receptionSpotMarkers[source])
+            return;
+
+        const layer = receptionSpotLayer(source);
+        const markers = receptionSpotMarkers[source];
+        const previous = markers.get(id);
+        if (previous) {
+            previous.forEach(marker => layer.removeLayer(marker));
+            markers.delete(id);
+        }
+
+        const spot = normalizePoint(point);
+        const color = source === 'psk' ? '#1769aa' : '#c62828';
+        const popup = document.createElement('div');
+        const heading = document.createElement('strong');
+        heading.textContent = spot.label;
+        popup.appendChild(heading);
+        popup.appendChild(document.createElement('br'));
+        popup.appendChild(document.createTextNode(details));
+
+        function createMarker(longitude) {
+            return L.circleMarker([spot.lat, longitude], {
+                radius: 6,
+                color: color,
+                weight: 2,
+                fillColor: color,
+                fillOpacity: 0.65
+            }).bindPopup(popup.cloneNode(true));
+        }
+
+        const marker = createMarker(spot.lng);
+        const mirror = createMarker(spot.lng >= 0 ? spot.lng - 360 : spot.lng + 360);
+        layer.addLayer(marker);
+        layer.addLayer(mirror);
+        markers.set(id, [marker, mirror]);
+
+        setTimeout(function() {
+            const current = markers.get(id);
+            if (!current || current[0] !== marker)
+                return;
+            current.forEach(item => layer.removeLayer(item));
+            markers.delete(id);
+        }, remaining);
+    }
 
     // this function show WSJTX spots
     function addWSJTXSpot(point, color, textColor) {
