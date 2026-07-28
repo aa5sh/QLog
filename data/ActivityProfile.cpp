@@ -5,7 +5,6 @@
 #include "data/BandmapGuide.h"
 #include "data/MainLayoutProfile.h"
 #include "data/RigProfile.h"
-#include "data/RotProfile.h"
 #include "data/StationProfile.h"
 
 MODULE_IDENTIFICATION("qlog.data.activityprofile");
@@ -208,7 +207,7 @@ void ActivityProfilesManager::setAllProfiles()
             RigProfilesManager::instance()->setCurProfile1(i.value().name);
             break;
         case ActivityProfile::ROT_PROFILE:
-            RotProfilesManager::instance()->setCurProfile1(i.value().name);
+            // Rotators are selected from the antenna mounting.
             break;
         case ActivityProfile::MAIN_LAYOUT_PROFILE:
             MainLayoutProfilesManager::instance()->setCurProfile1(i.value().name);

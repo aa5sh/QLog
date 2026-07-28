@@ -555,6 +555,58 @@
                    </property>
                   </widget>
                  </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="antRotProfileLabel">
+                   <property name="text">
+                    <string>Assigned Rotator</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QComboBox" name="antRotProfileCombo">
+                   <property name="toolTip">
+                    <string>Rotator used by this antenna. Select None for a fixed antenna.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0" colspan="2">
+                  <widget class="QGroupBox" name="antBandsGroup">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="title">
+                    <string>Bands</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="antBandsGroupLayout">
+                    <property name="spacing">
+                     <number>2</number>
+                    </property>
+                    <item>
+                     <layout class="QGridLayout" name="antBandsLayout">
+                      <property name="verticalSpacing">
+                       <number>2</number>
+                      </property>
+                     </layout>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="antBandsWarningLabel">
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -2592,14 +2644,14 @@
                  <property name="verticalSpacing">
                   <number>2</number>
                  </property>
-                 <item row="1" column="0">
+                 <item row="0" column="0">
                   <widget class="QLabel" name="rotProfileNameLabel">
                    <property name="text">
                     <string>Profile Name</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
+                 <item row="0" column="1">
                   <widget class="QLineEdit" name="rotProfileNameEdit">
                    <property name="toolTip">
                     <string/>
@@ -2609,14 +2661,14 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
+                 <item row="1" column="0">
                   <widget class="QLabel" name="rotInterfaceLabel">
                    <property name="text">
                     <string>Interface</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
+                 <item row="1" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_42">
                    <item>
                     <widget class="QComboBox" name="rotInterfaceCombo">
@@ -2636,14 +2688,14 @@
                    </item>
                   </layout>
                  </item>
-                 <item row="4" column="0">
+                 <item row="2" column="0">
                   <widget class="QLabel" name="rotPortTypeLabel">
                    <property name="text">
                     <string>Port Type</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
+                 <item row="2" column="1">
                   <widget class="QComboBox" name="rotPortTypeCombo">
                    <item>
                     <property name="text">
@@ -2657,7 +2709,7 @@
                    </item>
                   </widget>
                  </item>
-                 <item row="5" column="0" colspan="2">
+                 <item row="3" column="0" colspan="2">
                   <widget class="QStackedWidget" name="rotStackedWidget">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -2984,6 +3036,9 @@
                  </item>
                  <item row="1" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_15">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3035,6 +3090,9 @@
                  </item>
                  <item row="2" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_16">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3074,6 +3132,9 @@
                  </item>
                  <item row="3" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_24">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3107,6 +3168,9 @@
                  </item>
                  <item row="4" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_25">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -5265,6 +5329,7 @@
   <tabstop>antDescEdit</tabstop>
   <tabstop>antAzBeamWidthSpinBox</tabstop>
   <tabstop>antAzOffsetSpinBox</tabstop>
+  <tabstop>antRotProfileCombo</tabstop>
   <tabstop>antAddProfileButton</tabstop>
   <tabstop>antDelProfileButton</tabstop>
   <tabstop>cwProfileNameEdit</tabstop>
@@ -6804,8 +6869,8 @@
   <slot>bandmapGuideChanged(int)</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

@@ -52,6 +52,8 @@ public slots:
 private slots:
     void rigConnect();
     void rotConnect();
+    void selectEquipmentProfilesForBand(const QString &bandName);
+    void selectRotatorForAntennaProfile(const QString &antennaProfileName);
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -127,6 +129,9 @@ private:
     QPushButton *activityButton;
     QMetaObject::Connection alertTextButtonConn;
     bool firstRun = false;
+    bool equipmentProfileSelectionSuspended = false;
+    bool rotatorConnectPending = false;
+    QString pendingEquipmentBand;
     void setupActivitiesMenu();
 
 
