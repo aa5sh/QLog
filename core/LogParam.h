@@ -217,6 +217,8 @@ public:
     static void setPrimaryCallbook(const QString& callbookName);
     static QString getSecondaryCallbook(const QString &defaultValue);
     static void setSecondaryCallbook(const QString& callbookName);
+    static bool getQSLInfoCallbookEnabled();
+    static void setQSLInfoCallbookEnabled(bool enabled);
     static QString getCallbookWebLookupURL(const QString &defaultURL);
     static void setCallbookWebLookupURL(const QString& url);
 

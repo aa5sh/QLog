@@ -669,7 +669,10 @@ void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
     if ( uiDynamic->iotaEdit->text().isEmpty() )   uiDynamic->iotaEdit->setText(data.iota);
     if ( uiDynamic->emailEdit->text().isEmpty() )  uiDynamic->emailEdit->setText(data.email);
     if ( uiDynamic->countyEdit->text().isEmpty() ) uiDynamic->countyEdit->setText(data.county);
-    if ( ui->qslViaEdit->text().isEmpty() )        ui->qslViaEdit->setText(data.qsl_via);
+    if ( data.qsl_via_override && !data.qsl_via.isEmpty() )
+        ui->qslViaEdit->setText(data.qsl_via);
+    else if ( ui->qslViaEdit->text().isEmpty() )
+        ui->qslViaEdit->setText(data.qsl_via);
     if ( uiDynamic->urlEdit->text().isEmpty() )    uiDynamic->urlEdit->setText(data.url);
     if ( uiDynamic->stateEdit->text().isEmpty() )  uiDynamic->stateEdit->setText(data.us_state);
     if ( data.eqsl == "Y" )                        ui->eqslLabel->setText("eQSL");

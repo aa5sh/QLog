@@ -667,6 +667,16 @@ void LogParam::setSecondaryCallbook(const QString &callbookName)
     setParam("callbook/secondary", callbookName);
 }
 
+bool LogParam::getQSLInfoCallbookEnabled()
+{
+    return getParam("callbook/qslinfo/enabled", false).toBool();
+}
+
+void LogParam::setQSLInfoCallbookEnabled(bool enabled)
+{
+    setParam("callbook/qslinfo/enabled", enabled);
+}
+
 QString LogParam::getCallbookWebLookupURL(const QString &defaultURL)
 {
     return getParam("callbook/weblookupurl", defaultURL).toString();

@@ -172,6 +172,7 @@ SOURCES += \
         service/lotw/Lotw.cpp \
         service/potaapp/PotaApp.cpp \
         service/qrzcom/QRZ.cpp \
+        service/qslinfo/QSLInfo.cpp \
         ui/ActivityEditor.cpp \
         ui/AdifRecoveryManager.cpp \
         ui/AlertRuleDetail.cpp \
@@ -375,6 +376,7 @@ HEADERS += \
         service/lotw/Lotw.h \
         service/potaapp/PotaApp.h \
         service/qrzcom/QRZ.h \
+        service/qslinfo/QSLInfo.h \
         ui/ActivityEditor.h \
         ui/AdifRecoveryManager.h \
         ui/AlertRuleDetail.h \

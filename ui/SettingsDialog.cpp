@@ -2678,6 +2678,7 @@ void SettingsDialog::readSettings()
 
     ui->qrzUsernameEdit->setText(QRZBase::getUsername());
     ui->qrzPasswordEdit->setText(QRZBase::getPasswd(QRZBase::getUsername()));
+    ui->qslInfoEnableCheckBox->setChecked(LogParam::getQSLInfoCallbookEnabled());
 
     ui->webLookupURLEdit->setText(GenericCallbook::getWebLookupURL("", QString(), false));
 
@@ -2807,6 +2808,7 @@ void SettingsDialog::writeSettings()
 
     LogParam::setPrimaryCallbook(ui->primaryCallbookCombo->itemData(ui->primaryCallbookCombo->currentIndex()).toString());
     LogParam::setSecondaryCallbook(ui->secondaryCallbookCombo->itemData(ui->secondaryCallbookCombo->currentIndex()).toString());
+    LogParam::setQSLInfoCallbookEnabled(ui->qslInfoEnableCheckBox->isChecked());
     LogParam::setCallbookWebLookupURL(ui->webLookupURLEdit->text());
 
     /********/

@@ -490,7 +490,8 @@ void LogbookWidget::updateQSORecordFromCallbook(const CallbookResponseData& data
     setIfEmpty(LogbookModel::COLUMN_IOTA, data.iota);
     setIfEmpty(LogbookModel::COLUMN_EMAIL, data.email);
     setIfEmpty(LogbookModel::COLUMN_COUNTY, data.county);
-    setIfEmpty(LogbookModel::COLUMN_QSL_VIA, data.qsl_via);
+    setIfEmpty(LogbookModel::COLUMN_QSL_VIA, data.qsl_via,
+               false, data.qsl_via_override);
     setIfEmpty(LogbookModel::COLUMN_WEB, data.url);
     setIfEmpty(LogbookModel::COLUMN_STATE, data.us_state);
     setIfEmpty(LogbookModel::COLUMN_ITUZ, data.ituz, false, true); // always replace if different

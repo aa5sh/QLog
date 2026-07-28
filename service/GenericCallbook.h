@@ -11,6 +11,9 @@ struct CallbookResponseData
     QString qth;
     QString gridsquare;
     QString qsl_via;
+    // True when a supplemental service explicitly requested replacement of
+    // the existing QSL Via value instead of the usual fill-if-empty behavior.
+    bool qsl_via_override = false;
     QString cqz;
     QString ituz;
     QString dok;

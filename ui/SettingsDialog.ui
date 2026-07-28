@@ -3399,6 +3399,35 @@
            </widget>
           </item>
          </layout>
+       </widget>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="qslInfoGroupBox">
+         <property name="title">
+          <string>QSLInfo.de</string>
+         </property>
+         <layout class="QVBoxLayout" name="qslInfoVerticalLayout">
+          <item>
+           <widget class="QCheckBox" name="qslInfoEnableCheckBox">
+            <property name="toolTip">
+             <string>Look up DX QSL routing information and replace the QSL Via value returned by the primary or secondary callbook.</string>
+            </property>
+            <property name="text">
+             <string>Use QSLInfo.de for QSL manager lookup</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="qslInfoNotice">
+            <property name="text">
+             <string>When enabled, QSLInfo.de is queried after the selected callbook and its current information replaces the QSL Via field.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
