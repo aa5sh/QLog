@@ -54,6 +54,7 @@ private slots:
     void writeSqlRecordExportsRawFieldsFiltersInvalidNames();
     void exportContactNormalizesGridAndTerminatesRecord();
     void importNextMapsAdiFieldsAndStoresUnknownFields();
+    void importNextNormalizesConstrainedEnumFields();
     void importNextStoresZeroLengthFields();
     void importNextAcceptsLeadingZeroLengthSpecifier();
     void importNextStoresUserDefinedFieldsFromHeader();
@@ -430,6 +431,49 @@ void AdiFormatTest::importNextMapsAdiFieldsAndStoresUnknownFields()
     const QJsonObject fields = QJsonDocument::fromJson(record.value(QStringLiteral("fields")).toByteArray()).object();
     QCOMPARE(fields.value(QStringLiteral("app_qlog_test")).toString(), QStringLiteral("abc"));
     QCOMPARE(fields.value(QStringLiteral("unknown_field")).toString(), QStringLiteral("xyz"));
+}
+
+void AdiFormatTest::importNextNormalizesConstrainedEnumFields()
+{
+    QByteArray input;
+    input += tag("QSL_RCVD_VIA", " d ");
+    input += tag("QSL_SENT_VIA", "Ignore");
+    input += tag("ANT_PATH", "o");
+    input += tag("FORCE_INIT", "invalid");
+    input += tag("QSO_COMPLETE", "nil");
+    input += tag("QSO_RANDOM", "maybe");
+    input += tag("SILENT_KEY", "y");
+    input += tag("SWL", "unknown");
+    input += "<EOR>\r\n";
+
+    QBuffer buffer(&input);
+    QVERIFY(buffer.open(QIODevice::ReadOnly | QIODevice::Text));
+    QTextStream stream(&buffer);
+    TestAdiFormat format(stream);
+
+    QSqlRecord record;
+    for ( const QString &field : {QStringLiteral("qsl_rcvd_via"),
+                                  QStringLiteral("qsl_sent_via"),
+                                  QStringLiteral("ant_path"),
+                                  QStringLiteral("force_init"),
+                                  QStringLiteral("qso_complete"),
+                                  QStringLiteral("qso_random"),
+                                  QStringLiteral("silent_key"),
+                                  QStringLiteral("swl")} )
+    {
+        appendField(record, field, QString());
+    }
+
+    QVERIFY(format.importNext(record));
+
+    QCOMPARE(record.value(QStringLiteral("qsl_rcvd_via")).toString(), QStringLiteral("D"));
+    QVERIFY(record.value(QStringLiteral("qsl_sent_via")).isNull());
+    QCOMPARE(record.value(QStringLiteral("ant_path")).toString(), QStringLiteral("O"));
+    QVERIFY(record.value(QStringLiteral("force_init")).isNull());
+    QCOMPARE(record.value(QStringLiteral("qso_complete")).toString(), QStringLiteral("NIL"));
+    QVERIFY(record.value(QStringLiteral("qso_random")).isNull());
+    QCOMPARE(record.value(QStringLiteral("silent_key")).toString(), QStringLiteral("Y"));
+    QVERIFY(record.value(QStringLiteral("swl")).isNull());
 }
 
 void AdiFormatTest::importNextStoresZeroLengthFields()
