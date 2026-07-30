@@ -667,6 +667,16 @@ void LogParam::setSecondaryCallbook(const QString &callbookName)
     setParam("callbook/secondary", callbookName);
 }
 
+QString LogParam::getQSLManagerSource(const QString &defaultValue)
+{
+    return getParam("qslmanager/source", defaultValue).toString();
+}
+
+void LogParam::setQSLManagerSource(const QString &sourceId)
+{
+    setParam("qslmanager/source", sourceId);
+}
+
 QString LogParam::getCallbookWebLookupURL(const QString &defaultURL)
 {
     return getParam("callbook/weblookupurl", defaultURL).toString();

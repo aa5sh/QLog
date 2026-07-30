@@ -12,6 +12,7 @@
 #include "models/LogbookModel.h"
 #include "data/Gridsquare.h"
 #include "core/CallbookManager.h"
+#include "service/QSLManager.h"
 #include "ui/MapPageController.h"
 #include "core/MembershipQE.h"
 #include "core/LogLocale.h"
@@ -82,6 +83,7 @@ private slots:
     void DXGridChanged(const QString&);
     void callsignFound(const CallbookResponseData &data);
     void callsignNotFound(const QString&);
+    void qslManagerQueryFinished(QSLQueryResult result);
     void callbookLoginFailed(const QString&);
     void callbookError(const QString&);
     void handleBeforeUpdate(int, QSqlRecord&);
@@ -142,6 +144,7 @@ private:
     double freqLockDiff;
     QScopedPointer<MapPageController> mapController;
     CallbookManager callbookManager;
+    QSLManager qslManager;
     QScopedPointer<QCompleter> iotaCompleter;
     QScopedPointer<QCompleter> myIotaCompleter;
     QScopedPointer<QCompleter> sotaCompleter;

@@ -3402,6 +3402,35 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="qslManagerGroupBox">
+         <property name="title">
+          <string>QSL Manager</string>
+         </property>
+         <layout class="QFormLayout" name="qslManagerFormLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="qslManagerSourceLabel">
+            <property name="text">
+             <string>Source</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="qslManagerSourceCombo"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="qslManagerNoticeLabel">
+            <property name="text">
+             <string>Automatically finds a QSL manager for an empty QSL Via field. Existing values are never replaced.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
           <string>Web Lookup Button</string>
@@ -5368,6 +5397,7 @@
   <tabstop>hamQthPasswordEdit</tabstop>
   <tabstop>qrzUsernameEdit</tabstop>
   <tabstop>qrzPasswordEdit</tabstop>
+  <tabstop>qslManagerSourceCombo</tabstop>
   <tabstop>webLookupURLEdit</tabstop>
   <tabstop>webLookupURLTestButton</tabstop>
   <tabstop>clublogEmailEdit</tabstop>
@@ -6804,8 +6834,8 @@
   <slot>bandmapGuideChanged(int)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

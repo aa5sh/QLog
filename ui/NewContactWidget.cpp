@@ -222,6 +222,12 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     connect(&callbookManager, &CallbookManager::callsignResult,
             this, &NewContactWidget::setCallbookFields);
 
+    connect(&callbookManager, &CallbookManager::callsignNotFound,
+            this, &NewContactWidget::callbookCallsignNotFound);
+
+    connect(&qslManager, &QSLManager::queryFinished,
+            this, &NewContactWidget::qslManagerQueryFinished);
+
     connect(&callbookManager, &CallbookManager::loginFailed, this, [this](const QString &callbookString)
     {
         QMessageBox::critical(this, tr("QLog Error"), callbookString + " " + tr("Callbook login failed"));
@@ -400,6 +406,7 @@ void NewContactWidget::readGlobalSettings()
     /* Reload Callbooks */
     /********************/
     callbookManager.initCallbooks();
+    qslManager.initSource();
     setCallbookStatusEnabled(callbookManager.isActive());
 
     /***********************************/
@@ -452,6 +459,7 @@ void NewContactWidget::handleCallsignFromUser()
 
     callsign = newCallsign;
 
+    qslManager.abortQuery();
     clearCallbookQueryFields();
     clearMemberQueryFields();
 
@@ -669,7 +677,6 @@ void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
     if ( uiDynamic->iotaEdit->text().isEmpty() )   uiDynamic->iotaEdit->setText(data.iota);
     if ( uiDynamic->emailEdit->text().isEmpty() )  uiDynamic->emailEdit->setText(data.email);
     if ( uiDynamic->countyEdit->text().isEmpty() ) uiDynamic->countyEdit->setText(data.county);
-    if ( ui->qslViaEdit->text().isEmpty() )        ui->qslViaEdit->setText(data.qsl_via);
     if ( uiDynamic->urlEdit->text().isEmpty() )    uiDynamic->urlEdit->setText(data.url);
     if ( uiDynamic->stateEdit->text().isEmpty() )  uiDynamic->stateEdit->setText(data.us_state);
     if ( data.eqsl == "Y" )                        ui->eqslLabel->setText("eQSL");
@@ -692,6 +699,32 @@ void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
 
     emit callboolImageUrl(data.image_url);
     lastCallbookQueryData = data;
+
+    if ( ui->qslViaEdit->text().isEmpty() )
+        qslManager.queryCallsign(data.call, data.qsl_via);
+}
+
+void NewContactWidget::callbookCallsignNotFound(const QString &notFoundCallsign)
+{
+    FCT_IDENTIFICATION;
+
+    if ( notFoundCallsign.compare(callsign, Qt::CaseInsensitive) == 0
+         && ui->qslViaEdit->text().isEmpty() )
+    {
+        qslManager.queryCallsign(notFoundCallsign);
+    }
+}
+
+void NewContactWidget::qslManagerQueryFinished(QSLQueryResult result)
+{
+    FCT_IDENTIFICATION;
+
+    if ( result.callsign.compare(callsign, Qt::CaseInsensitive) == 0
+         && ui->qslViaEdit->text().isEmpty()
+         && !result.qslVia.isEmpty() )
+    {
+        ui->qslViaEdit->setText(result.qslVia);
+    }
 }
 
 QString NewContactWidget::memberListLabelHtml(int itemCount, bool elided) const

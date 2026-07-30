@@ -20,8 +20,10 @@
 #include "models/RigTypeModel.h"
 #include "models/RotTypeModel.h"
 #include "service/GenericCallbook.h"
+#include "service/QSLManager.h"
 #include "service/qrzcom/QRZ.h"
 #include "service/hamqth/HamQTH.h"
+#include "service/qslinfo/QSLInfo.h"
 #include "service/lotw/Lotw.h"
 #include "service/clublog/ClubLog.h"
 #include "service/eqsl/Eqsl.h"
@@ -594,6 +596,9 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->primaryCallbookCombo->addItem(tr("Disabled"), QVariant(GenericCallbook::CALLBOOK_NAME));
     ui->primaryCallbookCombo->addItem(tr("HamQTH"),   QVariant(HamQTHCallbook::CALLBOOK_NAME));
     ui->primaryCallbookCombo->addItem(tr("QRZ.com"),  QVariant(QRZCallbook::CALLBOOK_NAME));
+
+    ui->qslManagerSourceCombo->addItem(tr("From Callbook"), QVariant(QSLManager::NO_SOURCE));
+    ui->qslManagerSourceCombo->addItem(tr("QSLInfo.de"),    QVariant(QSLInfo::SOURCE_ID));
 
     populateFlowControlCombo(ui->rigFlowControlSelect);
     populateParityCombo(ui->rigParitySelect);
@@ -2673,6 +2678,9 @@ void SettingsDialog::readSettings()
 
     ui->secondaryCallbookCombo->setCurrentIndex(secondaryCallbookIndex);
 
+    int qslManagerSourceIndex = ui->qslManagerSourceCombo->findData(LogParam::getQSLManagerSource(QSLManager::NO_SOURCE));
+    ui->qslManagerSourceCombo->setCurrentIndex((qslManagerSourceIndex >= 0) ? qslManagerSourceIndex : 0);
+
     ui->hamQthUsernameEdit->setText(HamQTHBase::getUsername());
     ui->hamQthPasswordEdit->setText(HamQTHBase::getPasswd());
 
@@ -2807,6 +2815,7 @@ void SettingsDialog::writeSettings()
 
     LogParam::setPrimaryCallbook(ui->primaryCallbookCombo->itemData(ui->primaryCallbookCombo->currentIndex()).toString());
     LogParam::setSecondaryCallbook(ui->secondaryCallbookCombo->itemData(ui->secondaryCallbookCombo->currentIndex()).toString());
+    LogParam::setQSLManagerSource(ui->qslManagerSourceCombo->currentData().toString());
     LogParam::setCallbookWebLookupURL(ui->webLookupURLEdit->text());
 
     /********/

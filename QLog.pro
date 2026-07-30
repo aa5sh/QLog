@@ -163,6 +163,7 @@ SOURCES += \
         service/GenericCallbook.cpp \
         service/GenericQSLDownloader.cpp \
         service/GenericQSOUploader.cpp \
+        service/QSLManager.cpp \
         service/cloudlog/Cloudlog.cpp \
         service/clublog/ClubLog.cpp \
         service/eqsl/Eqsl.cpp \
@@ -172,6 +173,7 @@ SOURCES += \
         service/lotw/Lotw.cpp \
         service/potaapp/PotaApp.cpp \
         service/qrzcom/QRZ.cpp \
+        service/qslinfo/QSLInfo.cpp \
         ui/ActivityEditor.cpp \
         ui/AdifRecoveryManager.cpp \
         ui/AlertRuleDetail.cpp \
@@ -366,6 +368,8 @@ HEADERS += \
         service/GenericCallbook.h \
         service/GenericQSLDownloader.h \
         service/GenericQSOUploader.h \
+        service/QSLManager.h \
+        service/QSLManagerSource.h \
         service/cloudlog/Cloudlog.h \
         service/clublog/ClubLog.h \
         service/eqsl/Eqsl.h \
@@ -375,6 +379,7 @@ HEADERS += \
         service/lotw/Lotw.h \
         service/potaapp/PotaApp.h \
         service/qrzcom/QRZ.h \
+        service/qslinfo/QSLInfo.h \
         ui/ActivityEditor.h \
         ui/AdifRecoveryManager.h \
         ui/AlertRuleDetail.h \
