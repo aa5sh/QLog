@@ -1,4 +1,5 @@
 TBC - 0.52.0
+- [CHANGED] - QSL Printing - Added Custom Paper Size (issue #1089)
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
