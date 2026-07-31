@@ -1,8 +1,10 @@
 TBC - 0.52.0
 - [NEW] - QSL Printing - Added Custom Paper Size (issue #1089)
+- [NEW] - FLDigi Logging - Added ADIF UDP logging method (issue #1113)
 - [CHANGED] - Online Map - Improve dark mode night-side visibility
-- [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119)
+- [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)
 - [CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)
+- [CHANGED] - Logging External QSO - Warn once per station context is different
 - Fixed Cannot directly edit notes or multiline fields (issue #1111)
 
 2026/07/07 - 0.51.1
