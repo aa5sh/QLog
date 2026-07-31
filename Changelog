@@ -3,12 +3,19 @@ TBC - 0.52.0
 - [NEW] - FLDigi Logging - Added ADIF UDP logging method (issue #1113)
 - [NEW] - Services - Added QSLInfo.de as the QSL Manager Service (PR #1116 @aa5sh @foldynl)
 - [NEW] - Alerts - Add ability to clear selected alerts (PR #1104 @aa5sh)
+- [NEW] - LoTW - Added an All Callsigns option (PR #1084 @aa5sh)
+- [NEW] - LoTW/eQSL - Report reasons for unmatched QSOs
 - [CHANGED] - Online Map - Improve dark mode night-side visibility
 - [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)
 - [CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)
 - [CHANGED] - Logging External QSO - Warn once per station context is different
+- [CHANGED] - LoTW - Do not overwrite paper QSL received-via field
+- [CHANGED] - LoTW - Resolve ambiguous QSL matches by exact time
 - Fixed WAAC not connected to the Log (issue #1097)
 - Fixed Cannot directly edit notes or multiline fields (issue #1111)
+- Fixed LoTW - Merge QSL credits instead of overwriting them
+- Fixed LoTW - Case-insensitive compare for SAT_NAME
+- Fixed eQSL - Refresh AG status for redownloaded confirmations
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
