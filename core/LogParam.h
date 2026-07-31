@@ -146,8 +146,18 @@ public:
     static void setDownloadQSLServiceLastDate(const QString& name, const QDate &date);
     static bool getDownloadQSLServiceLastQSOQSL(const QString& name);
     static void setDownloadQSLServiceLastQSOQSL(const QString& name, bool state);
+    static QDate getDownloadQSLLoTWLastDate(const QString &call, bool qslSince);
+    static void setDownloadQSLLoTWLastDate(const QString &call, bool qslSince, const QDate &date);
+    static bool hasDownloadQSLLoTWLastCall();
     static QString getDownloadQSLLoTWLastCall();
     static void setDownloadQSLLoTWLastCall(const QString &call);
+    static QDate getDownloadQSLeQSLLastDate(const QString &username,
+                                            const QString &profile,
+                                            bool qslSince);
+    static void setDownloadQSLeQSLLastDate(const QString &username,
+                                           const QString &profile,
+                                           bool qslSince,
+                                           const QDate &date);
     static QString getDownloadQSLeQSLLastProfile();
     static void setDownloadQSLeQSLLastProfile(const QString &profile);
 

@@ -492,6 +492,51 @@ void LogParam::setDownloadQSLServiceLastQSOQSL(const QString &name, bool state)
     setParam("downloadqsl/" + name + "/qsoqsl", state);
 }
 
+static QString downloadQSLLoTWLastDateKey(const QString &call, bool qslSince)
+{
+    const QByteArray normalizedCall = call.trimmed().toUpper().toUtf8();
+
+    return QStringLiteral("downloadqsl/lotw/lastdate/%1/%2")
+            .arg(qslSince ? QStringLiteral("qsl") : QStringLiteral("qso"),
+                 QString::fromLatin1(normalizedCall.toHex()));
+}
+
+QDate LogParam::getDownloadQSLLoTWLastDate(const QString &call, bool qslSince)
+{
+    if ( call.trimmed().isEmpty() )
+        return QDate(1900, 1, 1);
+
+    const QString key = downloadQSLLoTWLastDateKey(call, qslSince);
+    const QVariant value = getParam(key);
+    if ( value.isValid() )
+        return value.toDate();
+
+    const QString legacyCall = getDownloadQSLLoTWLastCall().trimmed().toUpper();
+    if ( !legacyCall.isEmpty()
+         && legacyCall == call.trimmed().toUpper()
+         && qslSince == getDownloadQSLServiceLastQSOQSL("lotw") )
+    {
+        const QDate legacyDate = getDownloadQSLServiceLastDate("lotw");
+        setParam(key, legacyDate);
+        return legacyDate;
+    }
+
+    return QDate(1900, 1, 1);
+}
+
+void LogParam::setDownloadQSLLoTWLastDate(const QString &call, bool qslSince, const QDate &date)
+{
+    if ( call.trimmed().isEmpty() )
+        return;
+
+    setParam(downloadQSLLoTWLastDateKey(call, qslSince), date);
+}
+
+bool LogParam::hasDownloadQSLLoTWLastCall()
+{
+    return getParam("downloadqsl/lotw/lastmycallsign").isValid();
+}
+
 QString LogParam::getDownloadQSLLoTWLastCall()
 {
     return getParam("downloadqsl/lotw/lastmycallsign").toString();
@@ -500,6 +545,73 @@ QString LogParam::getDownloadQSLLoTWLastCall()
 void LogParam::setDownloadQSLLoTWLastCall(const QString &call)
 {
     setParam("downloadqsl/lotw/lastmycallsign", call);
+}
+
+static QString downloadQSLeQSLLastDateKey(const QString &username,
+                                          const QString &profile,
+                                          bool qslSince)
+{
+    const QByteArray normalizedUsername = username.trimmed().toUpper().toUtf8();
+    const QByteArray normalizedProfile = profile.trimmed().toUtf8();
+    const QString profileScope = normalizedProfile.isEmpty()
+            ? QStringLiteral("all")
+            : QString::fromLatin1(normalizedProfile.toHex());
+
+    return QStringLiteral("downloadqsl/eqsl/lastdate/%1/%2/%3")
+            .arg(qslSince ? QStringLiteral("qsl") : QStringLiteral("qso"),
+                 QString::fromLatin1(normalizedUsername.toHex()),
+                 profileScope);
+}
+
+QDate LogParam::getDownloadQSLeQSLLastDate(const QString &username,
+                                           const QString &profile,
+                                           bool qslSince)
+{
+    if ( username.trimmed().isEmpty() )
+        return QDate(1900, 1, 1);
+
+    const QString key = downloadQSLeQSLLastDateKey(username, profile, qslSince);
+    const QVariant value = getParam(key);
+    if ( value.isValid() )
+        return value.toDate();
+
+    const QVariant legacyDate = getParam("downloadqsl/eqsl/lastdate");
+    if ( !legacyDate.isValid() )
+        return QDate(1900, 1, 1);
+
+    // Older versions stored only one eQSL date. Bind it once to the current
+    // account and the last selected profile/query type so another scope cannot
+    // inherit it later.
+    const QString migrationKey = QStringLiteral("downloadqsl/eqsl/lastdate/legacyscope");
+    QVariant legacyScope = getParam(migrationKey);
+
+    if ( !legacyScope.isValid()
+         && profile.trimmed() == getDownloadQSLeQSLLastProfile().trimmed()
+         && qslSince == getDownloadQSLServiceLastQSOQSL("eqsl") )
+    {
+        if ( setParam(migrationKey, key) )
+        {
+            setParam(key, legacyDate);
+            return legacyDate.toDate();
+        }
+        return QDate(1900, 1, 1);
+    }
+
+    if ( legacyScope.toString() == key )
+        return legacyDate.toDate();
+
+    return QDate(1900, 1, 1);
+}
+
+void LogParam::setDownloadQSLeQSLLastDate(const QString &username,
+                                          const QString &profile,
+                                          bool qslSince,
+                                          const QDate &date)
+{
+    if ( username.trimmed().isEmpty() )
+        return;
+
+    setParam(downloadQSLeQSLLastDateKey(username, profile, qslSince), date);
 }
 
 QString LogParam::getDownloadQSLeQSLLastProfile()

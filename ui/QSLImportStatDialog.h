@@ -27,7 +27,8 @@ private:
                   const quint64 errors,
                   const QString  &newQSLText,
                   const QString  &updatedQSLText,
-                  const QString  &unmatchedQSLText);
+                  const QString  &unmatchedQSLText,
+                  const QString  &errorQSLText);
 };
 
 #endif // QLOG_UI_QSLIMPORTSTATDIALOG_H

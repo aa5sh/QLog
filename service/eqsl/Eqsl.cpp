@@ -558,6 +558,11 @@ void EQSLQSLDownloader::processReply(QNetworkReply *reply)
             emit receiveQSLComplete(stats);
         });
 
+        connect(&adi, &AdiFormat::QSLMergeFailed, this, [this](const QString &error)
+        {
+            emit receiveQSLFailed(error);
+        });
+
         adi.runQSLImport(adi.EQSL);
 
         tempFile.close();

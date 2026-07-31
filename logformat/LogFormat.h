@@ -88,6 +88,7 @@ signals:
     void exportProgress(float value);
     void finished(int count);
     void QSLMergeFinished(QSLMergeStat stats);
+    void QSLMergeFailed(QString error);
 
 protected:
     struct DXCCCreditRecord
