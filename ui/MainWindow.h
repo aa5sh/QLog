@@ -126,6 +126,8 @@ private:
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
     QMetaObject::Connection alertTextButtonConn;
+    SpotAlert displayedAlert;
+    bool hasDisplayedAlert = false;
     bool firstRun = false;
     void setupActivitiesMenu();
 

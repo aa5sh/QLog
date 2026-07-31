@@ -127,6 +127,30 @@ void AlertTableModel::clear()
     endResetModel();
 }
 
+bool AlertTableModel::containsAlert(const SpotAlert &alert)
+{
+    QMutexLocker locker(&alertListMutex);
+    return alertList.contains(AlertTableRecord(alert));
+}
+
+bool AlertTableModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    QMutexLocker locker(&alertListMutex);
+
+    if ( parent.isValid()
+         || row < 0
+         || count <= 0
+         || count > alertList.count() - row )
+        return false;
+
+    beginRemoveRows(parent, row, row + count - 1);
+    for ( int i = 0; i < count; ++i )
+        alertList.removeAt(row);
+    endRemoveRows();
+
+    return true;
+}
+
 const AlertTableModel::AlertTableRecord AlertTableModel::getTableRecord(const QModelIndex &index)
 {
     QMutexLocker locker(&alertListMutex);

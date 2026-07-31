@@ -1054,6 +1054,8 @@ void MainWindow::processSpotAlert(SpotAlert alert)
     ui->alertsWidget->addAlert(alert);
     alertButton->setText(QString::number(ui->alertsWidget->alertCount()));
     alertTextButton->setText(alert.ruleNameList.join(", ") + ": " + alert.spot.callsign + ", " + alert.spot.band + ", " + alert.spot.modeGroupString);
+    displayedAlert = alert;
+    hasDisplayedAlert = true;
     if (alertTextButtonConn) QObject::disconnect(alertTextButtonConn);
 
     alertTextButtonConn = connect(alertTextButton, &QPushButton::clicked, this, [this, alert]()
@@ -1075,10 +1077,12 @@ void MainWindow::clearAlertEvent()
 
     alertButton->setText(QString::number(newCount));
 
-    if ( newCount == 0 )
+    if ( newCount == 0
+         || ( hasDisplayedAlert && !ui->alertsWidget->containsAlert(displayedAlert) ) )
     {
         alertTextButton->setText(" ");
         if (alertTextButtonConn) QObject::disconnect(alertTextButtonConn);
+        hasDisplayedAlert = false;
     }
 }
 
