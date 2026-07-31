@@ -15,6 +15,7 @@ protected:
     QString sqlDetailTable(const QString &entity) const override;
     QString additionalWhere(const QString &entity) const override;
     QString clickFilter(const QString &col1Value, const QString &col2Value) const override;
+    bool clickUsesCountryName() const override;
 };
 
 #endif // QLOG_AWARDS_AWARDWAAC_H

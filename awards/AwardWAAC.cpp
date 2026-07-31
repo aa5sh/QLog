@@ -33,5 +33,10 @@ QString AwardWAAC::additionalWhere(const QString &) const
 
 QString AwardWAAC::clickFilter(const QString &, const QString &col2Value) const
 {
-    return QString("dxcc = '%1' ").arg(col2Value);
+    return QString();
+}
+
+bool AwardWAAC::clickUsesCountryName() const
+{
+    return true;
 }
