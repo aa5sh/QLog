@@ -1,5 +1,6 @@
 TBC - 0.52.0
-- [CHANGED] - QSL Printing - Added Custom Paper Size (issue #1089)
+- [NEW] - QSL Printing - Added Custom Paper Size (issue #1089)
+- [CHANGED] - Online Map - Improve dark mode night-side visibility
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
