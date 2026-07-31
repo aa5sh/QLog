@@ -1489,6 +1489,28 @@ void LogParam::setQslLabelPageSize(int pageSize)
     setParam("qsllabel/page_size", pageSize);
 }
 
+double LogParam::getQslLabelCustomPageWidth()
+{
+    const double defaultWidth = QPageSize(QPageSize::A4).size(QPageSize::Millimeter).width();
+    return getParam("qsllabel/custom_page_width_mm", defaultWidth).toDouble();
+}
+
+void LogParam::setQslLabelCustomPageWidth(double width)
+{
+    setParam("qsllabel/custom_page_width_mm", width);
+}
+
+double LogParam::getQslLabelCustomPageHeight()
+{
+    const double defaultHeight = QPageSize(QPageSize::A4).size(QPageSize::Millimeter).height();
+    return getParam("qsllabel/custom_page_height_mm", defaultHeight).toDouble();
+}
+
+void LogParam::setQslLabelCustomPageHeight(double height)
+{
+    setParam("qsllabel/custom_page_height_mm", height);
+}
+
 QString LogParam::getQslLabelImageExportPath(const QString &defaultPath)
 {
     const QString path = getParam("qsllabel/image_export_path", defaultPath).toString();
