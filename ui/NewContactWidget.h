@@ -17,6 +17,7 @@
 #include "data/DxSpot.h"
 #include "rig/Rig.h"
 #include "core/CallbookManager.h"
+#include "service/QSLManager.h"
 #include "data/StationProfile.h"
 #include "core/PropConditions.h"
 #include "core/LogLocale.h"
@@ -287,6 +288,8 @@ private slots:
     void finalizeCallsignEdit();
     void setMembershipList(const QString&, QMap<QString, ClubStatusQuery::ClubInfo>);
     void setCallbookFields(const CallbookResponseData &data);
+    void callbookCallsignNotFound(const QString &callsign);
+    void qslManagerQueryFinished(QSLQueryResult result);
     void propModeChanged(const QString&);
     void sotaChanged(const QString&);
     void sotaEditFinished();
@@ -375,6 +378,7 @@ private:
     DxccEntity dxccEntity;
     QString defaultReport;
     CallbookManager callbookManager;
+    QSLManager qslManager;
     QTimer* contactTimer;
     Ui::NewContactWidget *ui;
     NewContactDynamicWidgets *uiDynamic;

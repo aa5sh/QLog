@@ -8,6 +8,7 @@
 #include <QActionGroup>
 
 #include "core/CallbookManager.h"
+#include "service/QSLManager.h"
 #include "component/ShutdownAwareWidget.h"
 
 namespace Ui {
@@ -91,6 +92,7 @@ public slots:
     void actionCallbookLookup();
     void callsignFound(const CallbookResponseData &data);
     void callsignNotFound(const QString&);
+    void qslManagerQueryFinished(QSLQueryResult result);
     void callbookLoginFailed(const QString&);
     void callbookError(const QString&);
     void setCallsignSearch();
@@ -128,7 +130,9 @@ private:
     void adjusteComboMinSize(QComboBox * combo);
     void updateQSORecordFromCallbook(const CallbookResponseData &data);
     void queryNextQSOLookupBatch();
+    void completeCurrentQSOLookup();
     void finishQSOLookupBatch();
+    bool currentLookupMatches(const QString &callsign) const;
     void clearSearchText();
     void setupSearchMenu();
     void setContactTableColumnVisible(int columnIndex, bool visible);
@@ -136,6 +140,9 @@ private:
     QModelIndexList callbookLookupBatch;
     QModelIndex currLookupIndex;
     CallbookManager callbookManager;
+    QSLManager qslManager;
+    CallbookResponseData pendingCallbookData;
+    bool qslLookupEnabledForBatch;
     QProgressDialog *lookupDialog;
     QString callsignSearchValue;
     QActionGroup *searchTypeGroup;
