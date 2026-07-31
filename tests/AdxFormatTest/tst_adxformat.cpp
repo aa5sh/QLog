@@ -20,6 +20,7 @@ private slots:
     void writeSqlRecordExportsRawFieldsFiltersInvalidNames();
     void exportContactNormalizesGridAndTerminatesRecord();
     void importNextMapsAdxFieldsAndStoresUnknownFields();
+    void importNextNormalizesConstrainedEnumFields();
     void importNextStoresZeroLengthApplicationFields();
     void importNextAppliesDefaultsForMissingFields();
     void importNextKeepsImportedValuesOverDefaults();
@@ -308,6 +309,29 @@ void AdxFormatTest::importNextStoresZeroLengthApplicationFields()
     QVERIFY(fields.contains(QStringLiteral("app_qlog_empty")));
     QCOMPARE(appField.value(QStringLiteral("value")).toString(), QString());
     QCOMPARE(appField.value(QStringLiteral("type")).toString(), QStringLiteral("M"));
+}
+
+void AdxFormatTest::importNextNormalizesConstrainedEnumFields()
+{
+    QByteArray input = xmlRecord(
+        "<QSL_RCVD_VIA> d </QSL_RCVD_VIA>"
+        "<QSL_SENT_VIA>Ignore</QSL_SENT_VIA>");
+
+    QBuffer buffer(&input);
+    QVERIFY(buffer.open(QIODevice::ReadOnly | QIODevice::Text));
+    QTextStream stream(&buffer);
+    AdxFormat format(stream);
+    format.importStart();
+
+    QSqlRecord record;
+    appendField(record, QStringLiteral("qsl_rcvd_via"), QString());
+    appendField(record, QStringLiteral("qsl_sent_via"), QString());
+
+    QVERIFY(format.importNext(record));
+    format.importEnd();
+
+    QCOMPARE(record.value(QStringLiteral("qsl_rcvd_via")).toString(), QStringLiteral("D"));
+    QVERIFY(record.value(QStringLiteral("qsl_sent_via")).isNull());
 }
 
 void AdxFormatTest::importNextAppliesDefaultsForMissingFields()

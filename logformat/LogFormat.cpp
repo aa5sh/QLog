@@ -399,6 +399,10 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
 
         processedRec++;
 
+        for ( const QString &message : importWarnings )
+            writeImportLog(importLogStream, WARNING_SEVERITY, errors, warnings,
+                           processedRec, record, message);
+
         /* Compute the Band if missing
          *   Band is one of the mandatory fields
          */
