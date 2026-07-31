@@ -33,6 +33,7 @@
 #include "data/AntProfile.h"
 #include "data/Data.h"
 #include "data/Gridsquare.h"
+#include "core/FldigiUDPReceiver.h"
 #include "core/WsjtxUDPReceiver.h"
 #include "core/NetworkNotification.h"
 #include "rig/Rig.h"
@@ -2748,6 +2749,7 @@ void SettingsDialog::readSettings()
     /* NETWORK */
     /***********/
 
+    ui->fldigiUDPPortSpin->setValue(FldigiUDPReceiver::getConfigPort());
     ui->wsjtPortSpin->setValue(WsjtxUDPReceiver::getConfigPort());
     ui->wsjtForwardEdit->setText(WsjtxUDPReceiver::getConfigForwardAddresses());
     ui->wsjtMulticastCheckbox->setChecked(WsjtxUDPReceiver::getConfigMulticastJoin());
@@ -2887,6 +2889,7 @@ void SettingsDialog::writeSettings()
     /***********/
     /* NETWORK */
     /***********/
+    FldigiUDPReceiver::saveConfigPort(ui->fldigiUDPPortSpin->value());
     WsjtxUDPReceiver::saveConfigPort(ui->wsjtPortSpin->value());
     WsjtxUDPReceiver::saveConfigForwardAddresses(ui->wsjtForwardEdit->text());
     WsjtxUDPReceiver::saveConfigMulticastJoin(ui->wsjtMulticastCheckbox->isChecked());

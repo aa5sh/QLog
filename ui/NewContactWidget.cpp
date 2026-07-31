@@ -822,6 +822,38 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
 }
 
 
+void NewContactWidget::showExternalQSOWarningOnce(const QString &message,
+                                                  const StationProfile &profile,
+                                                  const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    // Treat a changed profile callsign or grid as a new station context.
+    const QStringList warningContext = {
+        profile.profileName,
+        profile.callsign.trimmed().toUpper(),
+        profile.locator.trimmed().toUpper(),
+        record.value("station_callsign").toString().trimmed().toUpper(),
+        record.value("my_gridsquare").toString().trimmed().toUpper()
+    };
+    const QString warningKey = warningContext.join(QChar(0x1f));
+
+    if ( warnedExternalStationContexts.contains(warningKey) )
+        return;
+
+    warnedExternalStationContexts.insert(warningKey);
+
+    QMessageBox* messageBox =
+            new QMessageBox(QMessageBox::Information,
+                            tr("QLog Information"),
+                            message,
+                            QMessageBox::Ok,
+                            this);
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    messageBox->setTextFormat(Qt::PlainText);
+    messageBox->open();
+}
+
 /* function just refresh Station Profile Combo */
 void NewContactWidget::refreshStationProfileCombo()
 {
@@ -1977,6 +2009,38 @@ void NewContactWidget::saveContact()
     emit contactAdded(record);
 }
 
+bool NewContactWidget::externalQSOConflictsWithProfile(const QSqlRecord &record,
+                                                       const StationProfile &profile) const
+{
+    FCT_IDENTIFICATION;
+
+    const QString receivedCallsign = record.value("station_callsign").toString().trimmed();
+    const QString profileCallsign = profile.callsign.trimmed();
+
+    // Missing identity fields do not prove a conflict. OPERATOR identifies
+    // the operator and cannot replace STATION_CALLSIGN here.
+    if ( !receivedCallsign.isEmpty()
+         && receivedCallsign.compare(profileCallsign, Qt::CaseInsensitive) != 0 )
+    {
+        return true;
+    }
+
+    const QString receivedGrid = record.value("my_gridsquare").toString().trimmed();
+    const QString profileGrid = profile.locator.trimmed();
+
+    if ( receivedGrid.isEmpty() )
+        return false;
+
+    const Gridsquare receivedLocation(receivedGrid);
+    const Gridsquare profileLocation(profileGrid);
+
+    if ( !receivedLocation.isValid() || !profileLocation.isValid() )
+        return true;
+
+    return !receivedLocation.getGrid().startsWith(profileLocation.getGrid())
+           && !profileLocation.getGrid().startsWith(receivedLocation.getGrid());
+}
+
 void NewContactWidget::saveExternalContact(QSqlRecord record)
 {
     FCT_IDENTIFICATION;
@@ -2047,6 +2111,13 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
         record.setValue("band", BandPlan::freq2Band(freq).name);
     }
 
+    if ( record.value("pfx").toString().isEmpty() )
+    {
+        const QString prefix = Callsign(savedCallsign).getWPXPrefix();
+        if ( !prefix.isEmpty() )
+            record.setValue("pfx", prefix);
+    }
+
     // if DXCC field is present then it must be used as DXCC Entity
     int recordDXCCId = record.value("dxcc").toInt(); // 0 = NAN or not present
                                                      // otherwise = DXCC ID
@@ -2073,9 +2144,38 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
     // contain GRIDSQUARE + GRIDSQUARE_EXT in one field.
     AdiFormat::normalizeGridFields(record);
 
+    record.setValue("station_callsign",
+                    record.value("station_callsign").toString().trimmed());
+    record.setValue("my_gridsquare",
+                    record.value("my_gridsquare").toString().trimmed());
+
+    if ( !record.value("gridsquare").toString().isEmpty()
+         && !record.value("my_gridsquare").toString().isEmpty() )
+    {
+        const Gridsquare stationGrid(record.value("my_gridsquare").toString());
+        double distance;
+        if ( stationGrid.distanceTo(
+                 Gridsquare(record.value("gridsquare").toString()), distance) )
+        {
+            record.setValue("distance", distance);
+        }
+    }
+
+    const StationProfile profile =
+            StationProfilesManager::instance()->getCurProfile1();
+    const bool activeProfileAvailable = !profile.profileName.isEmpty();
+    const bool stationProfileConflict =
+            activeProfileAvailable
+            && externalQSOConflictsWithProfile(record, profile);
+    const bool useCurrentStationContext =
+            activeProfileAvailable
+            && !isManualEnterMode
+            && !stationProfileConflict;
+
     // add information from callbook if it is a known callsign
     // based on the poll #420, QLog adds more information from callbook
-    if ( savedCallsign == ui->callsignEdit->text() )
+    if ( useCurrentStationContext
+         && savedCallsign == ui->callsignEdit->text() )
     {
         stopContactTimer();
         updateTime();
@@ -2156,11 +2256,42 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
         }
     }
 
-    const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
+    QString externalQSOWarning;
+
+    if ( isManualEnterMode )
+    {
+        externalQSOWarning =
+                tr("The external QSO was saved without current station data "
+                   "because Manual QSO Entry is active.");
+    }
+    else if ( !activeProfileAvailable )
+    {
+        externalQSOWarning =
+                tr("The external QSO was saved without current station data "
+                   "because no active Station Profile is available.");
+    }
+    else if ( stationProfileConflict )
+    {
+        const auto displayedValue = [this](const QString &value)
+        {
+            return value.isEmpty() ? tr("not provided") : value;
+        };
+
+        externalQSOWarning =
+                tr("The external QSO was saved without current station data: "
+                   "received station %1 / %2 does not match active Station "
+                   "Profile \"%3\" (%4 / %5).")
+                        .arg(displayedValue(record.value("station_callsign").toString()),
+                             displayedValue(record.value("my_gridsquare").toString()),
+                             profile.profileName,
+                             displayedValue(profile.callsign.trimmed()),
+                             displayedValue(profile.locator.trimmed()));
+    }
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
 
-    addAddlFields(record, profile);
+    if ( useCurrentStationContext )
+        addAddlFields(record, profile);
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
 
@@ -2193,6 +2324,12 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
 
     updateNearestSpotDupe();
     setNearestSpotColor();
+
+    if ( !externalQSOWarning.isEmpty() )
+    {
+        qWarning() << externalQSOWarning;
+        showExternalQSOWarningOnce(externalQSOWarning, profile, record);
+    }
 
     emit contactAdded(record);
 }
