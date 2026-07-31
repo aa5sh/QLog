@@ -388,7 +388,7 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("a_index", contact.take("a_index"));
     record.setValue("ant_az", contact.take("ant_az"));
     record.setValue("ant_el", contact.take("ant_el"));
-    record.setValue("ant_path", parseEnumValue(contact.take("ant_path").toString(), antPathValues));
+    record.setValue("ant_path", parseEnumValue("ANT_PATH", contact.take("ant_path").toString(), antPathValues));
     record.setValue("arrl_sect", contact.take("arrl_sect"));
     record.setValue("award_submitted",contact.take("award_submitted"));
     record.setValue("award_granted",contact.take("award_granted"));
@@ -420,7 +420,7 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("eqsl_qsl_sent",parseQslSent(contact.take("eqsl_qsl_sent").toString()));
     record.setValue("fists",contact.take("fists"));
     record.setValue("fists_cc",contact.take("fists_cc"));
-    record.setValue("force_init",parseEnumValue(contact.take("force_init").toString(), booleanValues));
+    record.setValue("force_init",parseEnumValue("FORCE_INIT", contact.take("force_init").toString(), booleanValues));
     record.setValue("freq_rx",contact.take("freq_rx"));
     record.setValue("gridsquare_ext",contact.take("gridsquare_ext"));
     record.setValue("guest_op",contact.take("guest_op"));
@@ -495,11 +495,11 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("qrzcom_qso_download_status",parseDownloadStatus(contact.take("qrzcom_qso_download_status").toString()));
     record.setValue("qrzcom_qso_upload_date",parseDate(contact.take("qrzcom_qso_upload_date").toString()));
     record.setValue("qrzcom_qso_upload_status",parseUploadStatus(contact.take("qrzcom_qso_upload_status").toString()));
-    record.setValue("qsl_rcvd_via",parseEnumValue(contact.take("qsl_rcvd_via").toString(), qslViaValues));
-    record.setValue("qsl_sent_via",parseEnumValue(contact.take("qsl_sent_via").toString(), qslViaValues));
+    record.setValue("qsl_rcvd_via",parseEnumValue("QSL_RCVD_VIA", contact.take("qsl_rcvd_via").toString(), qslViaValues));
+    record.setValue("qsl_sent_via",parseEnumValue("QSL_SENT_VIA", contact.take("qsl_sent_via").toString(), qslViaValues));
     record.setValue("qsl_via",contact.take("qsl_via"));
-    record.setValue("qso_complete",parseEnumValue(contact.take("qso_complete").toString(), qsoCompleteValues));
-    record.setValue("qso_random",parseEnumValue(contact.take("qso_random").toString(), booleanValues));
+    record.setValue("qso_complete",parseEnumValue("QSO_COMPLETE", contact.take("qso_complete").toString(), qsoCompleteValues));
+    record.setValue("qso_random",parseEnumValue("QSO_RANDOM", contact.take("qso_random").toString(), booleanValues));
     record.setValue("qslmsg",contact.take("qslmsg"));
     record.setValue("qslmsg_intl",contact.take("qslmsg_intl"));
     record.setValue("qslmsg_rcvd",contact.take("qslmsg_rcvd"));
@@ -516,7 +516,7 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("sig_intl",contact.take("sig_intl"));
     record.setValue("sig_info",contact.take("sig_info"));
     record.setValue("sig_info_intl",contact.take("sig_info_intl"));
-    record.setValue("silent_key",parseEnumValue(contact.take("silent_key").toString(), booleanValues));
+    record.setValue("silent_key",parseEnumValue("SILENT_KEY", contact.take("silent_key").toString(), booleanValues));
     record.setValue("skcc",contact.take("skcc"));
     record.setValue("sota_ref",contact.take("sota_ref").toString().toUpper());
     record.setValue("srx",contact.take("srx"));
@@ -524,7 +524,7 @@ void AdiFormat::contactFields2SQLRecord(QMap<QString, QVariant> &contact, QSqlRe
     record.setValue("station_callsign",contact.take("station_callsign").toString().toUpper());
     record.setValue("stx",contact.take("stx"));
     record.setValue("stx_string",contact.take("stx_string"));
-    record.setValue("swl",parseEnumValue(contact.take("swl").toString(), booleanValues));
+    record.setValue("swl",parseEnumValue("SWL", contact.take("swl").toString(), booleanValues));
     record.setValue("ten_ten",contact.take("ten_ten"));
     record.setValue("uksmg",contact.take("uksmg"));
     record.setValue("usaca_counties",contact.take("usaca_counties"));
@@ -812,6 +812,8 @@ bool AdiFormat::importNext(QSqlRecord& record)
 
     qCDebug(function_parameters)<<record;
 
+    clearImportWarnings();
+
     QMap<QString, QVariant> contact;
 
     if ( !readContact(contact) )
@@ -932,14 +934,25 @@ QString AdiFormat::parseQslSent(const QString &value) {
     return "N";
 }
 
-QVariant AdiFormat::parseEnumValue(const QString &value,
+QVariant AdiFormat::parseEnumValue(const QString &fieldName,
+                                   const QString &value,
                                    const QStringList &allowedValues)
 {
     FCT_IDENTIFICATION;
 
     const QString normalizedValue = value.trimmed().toUpper();
 
-    return allowedValues.contains(normalizedValue) ? QVariant(normalizedValue) : QVariant();
+    if ( normalizedValue.isEmpty() )
+        return QVariant();
+
+    if ( !allowedValues.contains(normalizedValue) )
+    {
+        addImportWarning(tr("Invalid value \"%1\" for ADIF field %2; value ignored")
+                         .arg(value.simplified().left(80), fieldName));
+        return QVariant();
+    }
+
+    return QVariant(normalizedValue);
 }
 
 QString AdiFormat::parseUploadStatus(const QString &value)
