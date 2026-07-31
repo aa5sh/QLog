@@ -10,18 +10,31 @@ class ModeSelectionController;
 
 class ModeSubmodeEditor : public QWidget
 {
+    Q_OBJECT
+
 public:
     explicit ModeSubmodeEditor(bool showMode, QWidget *parent = nullptr);
 
     void setModeSubmode(const QString &mode, const QString &submode);
-    void installComboEventFilter(QObject *filter);
     QString mode() const;
     QString submode() const;
 
+signals:
+    void saveRequested();
+    void cancelRequested();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
+    bool ownsFocus(const QWidget *widget) const;
+    void requestSave();
+    void requestCancel();
+
     QComboBox *modeCombo;
     QComboBox *submodeCombo;
     ModeSelectionController *modeController;
+    bool finished;
 };
 
 class ModeSubmodeDelegate : public QStyledItemDelegate
@@ -38,7 +51,6 @@ public:
     void updateEditorGeometry(QWidget *editor,
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const override;
-    bool eventFilter(QObject *object, QEvent *event) override;
 };
 
 class SubmodeDelegate : public QStyledItemDelegate
@@ -55,7 +67,6 @@ public:
     void updateEditorGeometry(QWidget *editor,
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const override;
-    bool eventFilter(QObject *object, QEvent *event) override;
 };
 
 #endif // QLOG_UI_MODESUBMODEDELEGATE_H

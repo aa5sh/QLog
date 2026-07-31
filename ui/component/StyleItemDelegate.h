@@ -11,7 +11,6 @@
 #include <QComboBox>
 #include <QAbstractItemModel>
 #include <QDebug>
-#include <QTextEdit>
 #include <QKeySequenceEdit>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -438,51 +437,6 @@ private slots:
         if (!cb) return;
         emit commitData(cb);
         emit closeEditor(cb, QAbstractItemDelegate::NoHint);
-    }
-};
-
-class TextBoxDelegate: public QItemDelegate
-{
-    Q_OBJECT
-public:
-    TextBoxDelegate(QObject *parent = 0 ) :QItemDelegate(parent){};
-
-    QWidget* createEditor(QWidget* parent,
-                          const QStyleOptionViewItem&,
-                          const QModelIndex&) const
-    {
-        return new QTextEdit(parent);
-    }
-
-    void updateEditorGeometry(QWidget* editor,
-                              const QStyleOptionViewItem& option,
-                              const QModelIndex&) const
-    {
-        editor->setGeometry(option.rect.x(),option.rect.y(),editor->sizeHint().width(),editor->sizeHint().height());
-    }
-
-    void setEditorData(QWidget* editor, const QModelIndex& index) const
-    {
-        QString value = index.model()->data(index, Qt::EditRole).toString();
-        QTextEdit* textEditor = static_cast<QTextEdit*>(editor);
-        textEditor->setPlainText(value);
-        textEditor->setAcceptRichText(false);
-    }
-
-    void setModelData(QWidget* editor, QAbstractItemModel* model,
-                      const QModelIndex& index) const
-    {
-        QTextEdit* textEditor = static_cast<QTextEdit*>(editor);
-        QString value = textEditor->toPlainText();
-        model->setData(index,value, Qt::EditRole);
-    }
-
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
-    {
-        QString line = index.model()->data(index, Qt::EditRole).toString().simplified();
-
-        drawDisplay(painter,option,option.rect, line);
-        drawFocus(painter, option, option.rect);
     }
 };
 
