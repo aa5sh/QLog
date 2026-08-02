@@ -171,6 +171,7 @@ SOURCES += \
         service/kstchat/KSTChat.cpp \
         service/lotw/Lotw.cpp \
         service/potaapp/PotaApp.cpp \
+        service/pskreporter/PSKReporter.cpp \
         service/qrzcom/QRZ.cpp \
         ui/ActivityEditor.cpp \
         ui/AdifRecoveryManager.cpp \
@@ -315,6 +316,7 @@ HEADERS += \
         data/MainLayoutProfile.h \
         data/POTAEntity.h \
         data/POTASpot.h \
+        data/PskDecode.h \
         data/ProfileManager.h \
         data/RigProfile.h \
         data/RotProfile.h \
@@ -374,6 +376,7 @@ HEADERS += \
         service/kstchat/KSTChat.h \
         service/lotw/Lotw.h \
         service/potaapp/PotaApp.h \
+        service/pskreporter/PSKReporter.h \
         service/qrzcom/QRZ.h \
         ui/ActivityEditor.h \
         ui/AdifRecoveryManager.h \

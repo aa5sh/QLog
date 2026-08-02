@@ -207,7 +207,7 @@ public:
     QString getMyWWFT() const;
     QString getMyVUCC() const;
     QString getMyPWR() const;
-    QString getBand() const;
+    Band getBand() const;
     QString getMode() const;
     QString getSentNr() const;
     QString getSentExch() const;
@@ -231,6 +231,7 @@ signals:
                         const QDateTime date);
     void rigProfileChanged();
     void callsignChanged(const QString& callsign);
+    void stationCallsignChanged(const QString &callsign);
     void contactReset();
 
 public slots:

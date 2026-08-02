@@ -42,7 +42,8 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
                           | MapLayer::Ibp
                           | MapLayer::Beam
                           | MapLayer::Chat
-                          | MapLayer::Wsjtx);
+                          | MapLayer::Wsjtx
+                          | MapLayer::HeardMe);
     connect(mapController.data(), &MapPageController::loaded,
             this, &OnlineMapWidget::finishLoading);
     setFocusPolicy(Qt::ClickFocus);
@@ -56,6 +57,8 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
+    connect(mapController.data(), &MapPageController::pskReporterMessageReceived,
+            this, &OnlineMapWidget::pskReporterMessageReceived);
 }
 
 void OnlineMapWidget::setTarget(double lat, double lon)
@@ -314,6 +317,42 @@ void OnlineMapWidget::clearWSJTXSpots()
     FCT_IDENTIFICATION;
 
     mapController->clearWsjtxSpots();
+}
+
+void OnlineMapWidget::setPskReporterSubscription(const QString &callsign)
+{
+    FCT_IDENTIFICATION;
+
+    mapController->setPskReporterSubscription(callsign);
+}
+
+void OnlineMapWidget::addHeardMePoint(const PskDecode &spot,
+                                      PSKReporter::Direction direction)
+{
+    FCT_IDENTIFICATION;
+
+    const bool sentBy = (direction == PSKReporter::Direction::SentBy);
+    const QString &remoteCallsign = sentBy ? spot.receiverCallsign
+                                           : spot.senderCallsign;
+    const QString &remoteLocator = sentBy ? spot.receiverLocator
+                                          : spot.senderLocator;
+    const Gridsquare spotGrid = Gridsquare::mapDisplayGrid(remoteLocator);
+    const Band bandDecoded = BandPlan::freq2Band(spot.frequency);
+
+    if ( spotGrid.isValid() && !bandDecoded.name.isEmpty() )
+    {
+        const QColor background = Data::statusToColor(spot.status,
+                                                       spot.dupeCount,
+                                                       QColor(Qt::white));
+        mapController->addHeardMePoint(MapPoint(remoteCallsign,
+                                                spotGrid.getLatitude(),
+                                                spotGrid.getLongitude()),
+                                       spot.report,
+                                       bandDecoded.name,
+                                       Data::colorToHTMLColor(background),
+                                       0.8,
+                                       spot.report > -15);
+    }
 }
 
 OnlineMapWidget::~OnlineMapWidget()

@@ -17,6 +17,7 @@ class MainWindow;
 class QLabel;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
+class PSKReporter;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -117,6 +118,7 @@ private:
     NetworkNotification networknotification;
     AlertEvaluator alertEvaluator;
     PropConditions *conditions;
+    PSKReporter *pskReporter;
     bool isFusionStyle;
     ClubLogUploader* clublogRT;
     AdifRecoveryManager* adifRecoveryManager;

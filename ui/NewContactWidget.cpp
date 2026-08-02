@@ -850,6 +850,7 @@ void NewContactWidget::refreshStationProfileCombo()
     setDxccInfo(ui->callsignEdit->text());
     updateDxccStatus();
     ui->stationProfileCombo->blockSignals(false);
+    emit stationCallsignChanged(getMyCallsign());
 }
 
 /* function just refresh Rig Profile Combo */
@@ -1025,13 +1026,10 @@ void NewContactWidget::updateRXBand(double freq)
     bandRX = BandPlan::freq2Band(freq);
 
     if (bandRX.name.isEmpty())
-    {
         setBandLabel("OOB!");
-    }
     else if (bandRX.name != ui->bandRXLabel->text())
-    {
         setBandLabel(bandRX.name);
-    }
+
     updateSatMode();
     setSTXSeq();
     refreshCallsignsColors();
@@ -3393,11 +3391,11 @@ QString NewContactWidget::getMyPWR() const
                                                           && uiDynamic->powerEdit->value() < 1 ) ? 1 : 0);
 }
 
-QString NewContactWidget::getBand() const
+Band NewContactWidget::getBand() const
 {
     FCT_IDENTIFICATION;
 
-    return ui->bandRXLabel->text();
+    return bandRX;
 }
 
 QString NewContactWidget::getMode() const
@@ -3490,6 +3488,7 @@ void NewContactWidget::stationProfileComboChanged(const QString &profileName)
     }
 
     StationProfilesManager::instance()->setCurProfile1(profileName);
+    emit stationCallsignChanged(getMyCallsign());
 
     // recalculate all stats
     setDxccInfo(ui->callsignEdit->text());

@@ -44,6 +44,7 @@
 #include "ui/UploadQSODialog.h"
 #include "ui/QSLImportStatDialog.h"
 #include "service/lotw/Lotw.h"
+#include "service/pskreporter/PSKReporter.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
 #include "data/WsjtxEntry.h"
@@ -68,6 +69,7 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     stats(new StatisticsWidget),
+    pskReporter(new PSKReporter(this)),
     clublogRT(new ClubLogUploader(this)),
     adifRecoveryManager(new AdifRecoveryManager(this))
 {
@@ -394,6 +396,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::rigProfileChanged, this, &MainWindow::rigConnect);
     connect(ui->newContactWidget, &NewContactWidget::callsignChanged, ui->cwconsoleWidget, &CWConsoleWidget::stopRepeateButtons);
     connect(ui->newContactWidget, &NewContactWidget::contactReset, ui->cwconsoleWidget, &CWConsoleWidget::stopRepeateButtons);
+    connect(ui->newContactWidget, &NewContactWidget::stationCallsignChanged, pskReporter, &PSKReporter::setSubscription);
 
     connect(ui->dxWidget, &DxWidget::newFilteredSpot, ui->bandmapWidget, &BandmapWidget::addSpot);
     connect(ui->dxWidget, &DxWidget::newFilteredSpot, Rig::instance(), &Rig::sendDXSpot);
@@ -421,6 +424,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->onlineMapWidget, &OnlineMapWidget::chatCallsignPressed, ui->chatWidget, &ChatWidget::setChatCallsign);
     connect(ui->onlineMapWidget, &OnlineMapWidget::wsjtxCallsignPressed, ui->wsjtxWidget, &WsjtxWidget::callsignClicked);
+    connect(ui->onlineMapWidget, &OnlineMapWidget::pskReporterMessageReceived, pskReporter, &PSKReporter::processMessage);
+
+    connect(pskReporter, &PSKReporter::subscriptionChanged, ui->onlineMapWidget, &OnlineMapWidget::setPskReporterSubscription);
+    connect(pskReporter, &PSKReporter::heardMePointRequested, ui->onlineMapWidget, &OnlineMapWidget::addHeardMePoint);
+
+    pskReporter->setSubscription(ui->newContactWidget->getMyCallsign());
 
     connect(ui->alertsWidget, &AlertWidget::rulesChanged, &alertEvaluator, &AlertEvaluator::loadRules);
     connect(ui->alertsWidget, &AlertWidget::alertsCleared, this, &MainWindow::clearAlertEvent);

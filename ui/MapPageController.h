@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QWebChannel>
 
+#include "service/pskreporter/PSKReporter.h"
 #include "ui/MapLayer.h"
 
 class WebEnginePage;
@@ -128,12 +129,22 @@ public:
                       const QString &color,
                       const QString &textColor);
     void clearWsjtxSpots();
+    void setPskReporterSubscription(const QString &callsign);
+    void addHeardMePoint(const MapPoint &point,
+                         qint32 report,
+                         const QString &band,
+                         const QString &color,
+                         double opacity,
+                         bool halo);
 
 signals:
     void loaded();
     void chatCallsignPressed(QString callsign);
     void wsjtxCallsignPressed(QString callsign);
     void IBPPressed(QString callsign, double frequency);
+    void pskReporterMessageReceived(PSKReporter::Direction direction,
+                                    QString topic,
+                                    QString payload);
 
 public slots:
     void handleLayerSelectionChanged(const QVariant &data,
@@ -142,6 +153,11 @@ public slots:
     void wsjtxCallsignClicked(const QVariant &data);
     void IBPCallsignClicked(const QVariant &callsign,
                             const QVariant &freq);
+    void handlePskReporterMessage(const QString &direction,
+                                  const QString &topic,
+                                  const QString &payload);
+    void handlePskReporterStatus(const QString &status,
+                                 const QString &detail);
 
 private:
     static QString jsonArray(const QJsonArray &array);

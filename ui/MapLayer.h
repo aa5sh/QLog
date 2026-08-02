@@ -16,7 +16,8 @@ public:
         Beam = 0x0020,
         Chat = 0x0040,
         Wsjtx = 0x0080,
-        Path = 0x0100
+        Path = 0x0100,
+        HeardMe = 0x0200
     };
     Q_DECLARE_FLAGS(Layers, Layer)
 };

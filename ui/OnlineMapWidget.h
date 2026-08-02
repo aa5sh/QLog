@@ -9,6 +9,7 @@
 #include "rig/Rig.h"
 #include "ui/NewContactWidget.h"
 #include "service/kstchat/KSTChat.h"
+#include "data/PskDecode.h"
 #include "data/WsjtxEntry.h"
 
 namespace Ui {
@@ -29,6 +30,9 @@ public:
 signals:
     void chatCallsignPressed(QString);
     void wsjtxCallsignPressed(QString);
+    void pskReporterMessageReceived(PSKReporter::Direction direction,
+                                    QString topic,
+                                    QString payload);
 
 public slots:
     void setTarget(double lat, double lon);
@@ -43,6 +47,9 @@ public slots:
     void drawChatUsers(const QList<KSTUsersInfo> &list);
     void drawWSJTXSpot(const WsjtxEntry &spot);
     void clearWSJTXSpots();
+    void setPskReporterSubscription(const QString &callsign);
+    void addHeardMePoint(const PskDecode &spot,
+                         PSKReporter::Direction direction);
 
 protected slots:
     void finishLoading();

@@ -12,6 +12,7 @@
   <script src="https://foldynl.github.io/QLog/js/heatmap.js"></script>
   <script src="https://foldynl.github.io/QLog/js/leaflet-heatmap.js"></script>
   <script src="https://unpkg.com/leaflet.geodesic@2.6.1/dist/leaflet.geodesic.umd.min.js"></script>
+  <script src="https://unpkg.com/mqtt@4.3.8/dist/mqtt.min.js"></script>
   <style>
     body {
       padding: 0;
@@ -144,6 +145,9 @@
     var mapBridge = null;
     const qlogLayerStateKeys = new Map();
     let qlogLayerStateBridgeConnected = false;
+    let pskReporterClient = null;
+    let pskReporterCallsign = '';
+    let pskReporterTopics = [];
 
     function mapLayerByKey(key) {
       return window[key] || null;
@@ -154,6 +158,94 @@
         return;
 
       window.mapBridge[method].apply(window.mapBridge, Array.prototype.slice.call(arguments, 1));
+    }
+
+    function reportPskReporterStatus(status, detail) {
+      sendToQt('handlePskReporterStatus', status, detail || '');
+    }
+
+    function pskReporterMessageDirection(topic) {
+      const parts = topic.split('/');
+      if (parts.length < 7)
+        return '';
+
+      if (parts[5].toUpperCase() === pskReporterCallsign)
+        return 'SentBy';
+      if (parts[6].toUpperCase() === pskReporterCallsign)
+        return 'ReceivedBy';
+
+      return '';
+    }
+
+    function connectPskReporterClient() {
+      if (pskReporterClient || !window.mapBridge || pskReporterTopics.length === 0)
+        return;
+
+      if (typeof mqtt === 'undefined') {
+        reportPskReporterStatus('error', 'MQTT.js is not available');
+        return;
+      }
+
+      const url = 'wss://mqtt.pskreporter.info:1886';
+      const client = mqtt.connect(url);
+      pskReporterClient = client;
+      reportPskReporterStatus('connecting', url);
+
+      client.on('connect', function() {
+        reportPskReporterStatus('connected', url);
+        client.subscribe(pskReporterTopics, function(error) {
+          if (error) {
+            reportPskReporterStatus('error', `subscription failed: ${error.message}`);
+            return;
+          }
+
+          reportPskReporterStatus('subscribed', pskReporterTopics.join(', '));
+        });
+      });
+
+      client.on('message', function(topic, payload) {
+        const direction = pskReporterMessageDirection(topic);
+        if (!direction)
+          return;
+
+        sendToQt('handlePskReporterMessage', direction, topic, payload.toString());
+      });
+
+      client.on('reconnect', function() {
+        reportPskReporterStatus('reconnecting', url);
+      });
+
+      client.on('offline', function() {
+        reportPskReporterStatus('offline', url);
+      });
+
+      client.on('close', function() {
+        reportPskReporterStatus('disconnected', url);
+      });
+
+      client.on('error', function(error) {
+        reportPskReporterStatus('error', error.message);
+      });
+    }
+
+    function configurePskReporterSubscription(callsign) {
+      if (pskReporterClient) {
+        pskReporterClient.end(true);
+        pskReporterClient = null;
+      }
+
+      clearHeardMeSpots();
+      pskReporterCallsign = String(callsign || '').trim().toUpperCase();
+      pskReporterTopics = [];
+
+      if (pskReporterCallsign) {
+        pskReporterTopics = [
+          `pskr/filter/v2/+/+/${pskReporterCallsign}/+/#`,
+          `pskr/filter/v2/+/+/+/${pskReporterCallsign}/#`
+        ];
+      }
+
+      connectPskReporterClient();
     }
 
     function setQLogLayerVisibility(key, visible) {
@@ -202,6 +294,7 @@
 
     function connectQtMapBridge(handler) {
       window.mapBridge = handler;
+      connectPskReporterClient();
 
       if (qlogLayerStateBridgeConnected)
         return;
@@ -833,7 +926,7 @@
 
     var ibpBands = [];
     var ibpBeacons = [];
-    var ibpCurrentBand = "";
+    var currentMapBand = "";
     var IBPLayer = L.layerGroup().addTo(map);
     var prevStationIndex = -1;
 
@@ -844,18 +937,19 @@
        updateBeacon();
     }
 
-    function setIbpCurrentBand(bandName) {
-       ibpCurrentBand = bandName || "";
+    function setCurrentBand(bandName) {
+       currentMapBand = bandName || "";
        prevStationIndex = -1;
        updateBeacon();
+       refreshHeardMeLayer();
     }
 
     function IBPCallsignPressed(e) {
-       const currentBand = ibpBands.find(object => {return object.name === ibpCurrentBand;});
-       if (!currentBand)
+       const band = ibpBands.find(object => {return object.name === currentMapBand;});
+       if (!band)
          return;
 
-       sendToQt('IBPCallsignClicked', this.callsign, currentBand.frequency);
+       sendToQt('IBPCallsignClicked', this.callsign, band.frequency);
      }
 
     // render IBP Beacon Point
@@ -886,7 +980,7 @@
     // Update IBP Beacon Points
     function updateBeacon() {
 
-       const currentBandIndex = ibpBands.findIndex(object => {return object.name === ibpCurrentBand;});
+       const currentBandIndex = ibpBands.findIndex(object => {return object.name === currentMapBand;});
 
        if ( currentBandIndex == -1 || ibpBeacons.length == 0 ) {
            IBPLayer.clearLayers();
@@ -943,6 +1037,121 @@
     }
 
     var wsjtxStationsLayer = L.layerGroup();
+
+    const heardMeLifetimeMs = 15 * 60 * 1000;
+    const heardMeSpots = new Map();
+    var heardMeLayer = L.layerGroup().addTo(map);
+
+    function heardMeSpotKey(callsign, band) {
+        return `${band}\n${callsign}`;
+    }
+
+    function heardMeLabel(spot) {
+        const label = document.createElement('span');
+        const callsign = document.createElement('strong');
+        callsign.textContent = spot.callsign;
+        label.appendChild(callsign);
+        label.appendChild(document.createTextNode(` · ${spot.report} dB`));
+        return label;
+    }
+
+    function refreshHeardMeLayer() {
+        heardMeLayer.clearLayers();
+
+        heardMeSpots.forEach(function(spot) {
+            if (spot.band !== currentMapBand)
+                return;
+
+            if (spot.halo) {
+                const haloOutline = L.circleMarker([spot.lat, spot.lng], {
+                    radius: 9,
+                    color: '#000000',
+                    weight: 6,
+                    opacity: 0.65,
+                    fill: false,
+                    interactive: false
+                });
+                const halo = L.circleMarker([spot.lat, spot.lng], {
+                    radius: 9,
+                    color: spot.color,
+                    weight: 4,
+                    opacity: spot.opacity,
+                    fill: false,
+                    interactive: false
+                });
+                heardMeLayer.addLayer(haloOutline);
+                heardMeLayer.addLayer(halo);
+            }
+
+            const marker = L.circleMarker([spot.lat, spot.lng], {
+                radius: 6,
+                color: '#000000',
+                weight: 1,
+                stroke: !spot.halo,
+                fillColor: spot.color,
+                opacity: 1.0,
+                fillOpacity: spot.opacity
+            });
+            marker.bindPopup(heardMeLabel(spot));
+            heardMeLayer.addLayer(marker);
+
+            const center = L.circleMarker([spot.lat, spot.lng], {
+                radius: 2,
+                stroke: false,
+                fillColor: '#000000',
+                fillOpacity: 1.0,
+                interactive: false
+            });
+            heardMeLayer.addLayer(center);
+        });
+    }
+
+    function clearHeardMeSpots() {
+        heardMeSpots.forEach(function(spot) {
+            clearTimeout(spot.timeoutId);
+        });
+        heardMeSpots.clear();
+        heardMeLayer.clearLayers();
+    }
+
+    function addHeardMePoint(point, report, band, color, opacity, halo) {
+        const mapPoint = normalizePoint(point);
+        const callsign = String(mapPoint.label || '').trim().toUpperCase();
+        const spotBand = String(band || '');
+
+        if (!callsign || !spotBand)
+            return;
+
+        const key = heardMeSpotKey(callsign, spotBand);
+        const previousSpot = heardMeSpots.get(key);
+        if (previousSpot)
+            clearTimeout(previousSpot.timeoutId);
+
+        const spot = {
+            callsign: callsign,
+            report: report,
+            band: spotBand,
+            color: color,
+            opacity: opacity,
+            halo: halo,
+            lat: mapPoint.lat,
+            lng: mapPoint.lng,
+            timeoutId: null
+        };
+
+        spot.timeoutId = setTimeout(function() {
+            if (heardMeSpots.get(key) !== spot)
+                return;
+
+            heardMeSpots.delete(key);
+            if (spot.band === currentMapBand)
+                refreshHeardMeLayer();
+        }, heardMeLifetimeMs);
+
+        heardMeSpots.set(key, spot);
+        if (spot.band === currentMapBand)
+            refreshHeardMeLayer();
+    }
 
     // this function show WSJTX spots
     function addWSJTXSpot(point, color, textColor) {

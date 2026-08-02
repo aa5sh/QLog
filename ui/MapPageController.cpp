@@ -409,7 +409,7 @@ void MapPageController::setCurrentBand(const QString &band)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("setIbpCurrentBand(%1);")
+    runJavaScript(QStringLiteral("setCurrentBand(%1);")
                   .arg(jsonString(band)));
 }
 
@@ -430,6 +430,32 @@ void MapPageController::clearWsjtxSpots()
     FCT_IDENTIFICATION;
 
     runJavaScript(QLatin1String("clearWSJTXSpots();"));
+}
+
+void MapPageController::setPskReporterSubscription(const QString &callsign)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("configurePskReporterSubscription(%1);")
+                  .arg(jsonString(callsign)));
+}
+
+void MapPageController::addHeardMePoint(const MapPoint &point,
+                                        qint32 report,
+                                        const QString &band,
+                                        const QString &color,
+                                        double opacity,
+                                        bool halo)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("addHeardMePoint(%1, %2, %3, %4, %5, %6);")
+                  .arg(jsonObject(pointObject(point)))
+                  .arg(report)
+                  .arg(jsonString(band))
+                  .arg(jsonString(color))
+                  .arg(opacity)
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 QString MapPageController::generateIbpDataJS()
@@ -468,6 +494,8 @@ QString MapPageController::generateLayerControlJS(MapLayer::Layers layers)
     appendOption(MapLayer::Grid, tr("Grid"), QStringLiteral("maidenheadConfWorked"));
 
     appendOption(MapLayer::Grayline, tr("Gray-Line"), QStringLiteral("grayline"));
+
+    appendOption(MapLayer::HeardMe, tr("Heard Me"), QStringLiteral("heardMeLayer"));
 
     appendOption(MapLayer::Ibp, tr("IBP"), QStringLiteral("IBPLayer"));
 
@@ -566,6 +594,34 @@ void MapPageController::IBPCallsignClicked(const QVariant &callsign, const QVari
     FCT_IDENTIFICATION;
 
     emit IBPPressed(callsign.toString(), freq.toDouble());
+}
+
+void MapPageController::handlePskReporterMessage(const QString &direction,
+                                                 const QString &topic,
+                                                 const QString &payload)
+{
+    FCT_IDENTIFICATION;
+
+    if ( direction == QLatin1String("SentBy") )
+    {
+        emit pskReporterMessageReceived(PSKReporter::Direction::SentBy,
+                                        topic,
+                                        payload);
+    }
+    else if ( direction == QLatin1String("ReceivedBy") )
+    {
+        emit pskReporterMessageReceived(PSKReporter::Direction::ReceivedBy,
+                                        topic,
+                                        payload);
+    }
+}
+
+void MapPageController::handlePskReporterStatus(const QString &status,
+                                                const QString &detail)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(runtime).noquote() << "PSK Reporter MQTT" << status << detail;
 }
 
 void MapPageController::finishLoading(bool ok)
