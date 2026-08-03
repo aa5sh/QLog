@@ -127,7 +127,8 @@ public:
 
     void addWsjtxSpot(const MapPoint &point,
                       const QString &color,
-                      const QString &textColor);
+                      const QString &textColor,
+                      bool halo);
     void clearWsjtxSpots();
     void setPskReporterSubscription(const QString &callsign);
     void addHeardMePoint(const MapPoint &point,

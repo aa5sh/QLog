@@ -308,7 +308,8 @@ void OnlineMapWidget::drawWSJTXSpot(const WsjtxEntry &spot)
                                              spotGrid.getLongitude()),
                                     Data::colorToHTMLColor(background),
                                     Data::colorToHTMLColor(Data::textColorForBackground(background,
-                                                                                       QColor(Qt::black))));
+                                                                                       QColor(Qt::black))),
+                                    spot.decode.snr > -15);
     }
 }
 

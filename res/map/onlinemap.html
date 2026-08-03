@@ -1154,15 +1154,18 @@
     }
 
     // this function show WSJTX spots
-    function addWSJTXSpot(point, color, textColor) {
+    function addWSJTXSpot(point, color, textColor, halo) {
         const spot = normalizePoint(point);
         const fadeSchedule = [
             { timeout: 30000, className: 'fade-out75' },
             { timeout: 45000, className: 'fade-out50' },
         ];
+        const haloStyle = halo
+            ? `box-shadow:0 0 0 1px #000000,0 0 0 5px ${color},0 0 0 6px rgba(0,0,0,0.65);`
+            : '';
 
         const tooltipHTML = content =>
-            `<div style="background-color: ${color};color: ${textColor};border-radius:20px;padding:5px;font-weight:bold;">${content}</div>`;
+            `<div style="background-color:${color};color:${textColor};border-radius:20px;padding:5px;font-weight:bold;${haloStyle}">${content}</div>`;
 
         function createSpotMarker(latitude, longitude) {
             const marker = new L.marker([latitude, longitude], { opacity: 0.001 });
@@ -1184,6 +1187,15 @@
             return marker;
         }
 
+        function fadeSpotMarker(marker, className) {
+            const tooltip = marker.getTooltip();
+            tooltip.options.className = `wsjtx-tooltip ${className}`;
+
+            const element = tooltip.getElement();
+            if (element)
+                element.classList.add(className);
+        }
+
         // the main marker
         const marker = createSpotMarker(spot.lat, spot.lng);
 
@@ -1196,14 +1208,14 @@
 
         fadeSchedule.forEach(item => {
             setTimeout(() => {
-                marker.getTooltip().getElement().classList.add(item.className);
-                markerMirror.getTooltip().getElement().classList.add(item.className);
+                fadeSpotMarker(marker, item.className);
+                fadeSpotMarker(markerMirror, item.className);
             }, item.timeout);
         });
 
         setTimeout(() => {
-            map.removeLayer(marker);
-            map.removeLayer(markerMirror);
+            wsjtxStationsLayer.removeLayer(marker);
+            wsjtxStationsLayer.removeLayer(markerMirror);
         }, 60000);
     }
 

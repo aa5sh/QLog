@@ -415,14 +415,16 @@ void MapPageController::setCurrentBand(const QString &band)
 
 void MapPageController::addWsjtxSpot(const MapPoint &point,
                                      const QString &color,
-                                     const QString &textColor)
+                                     const QString &textColor,
+                                     bool halo)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("addWSJTXSpot(%1, %2, %3);")
-                  .arg(jsonObject(pointObject(point)),
-                       jsonString(color),
-                       jsonString(textColor)));
+    runJavaScript(QStringLiteral("addWSJTXSpot(%1, %2, %3, %4);")
+                  .arg(jsonObject(pointObject(point)))
+                  .arg(jsonString(color))
+                  .arg(jsonString(textColor))
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 void MapPageController::clearWsjtxSpots()
