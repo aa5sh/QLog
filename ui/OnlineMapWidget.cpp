@@ -57,8 +57,6 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
-    connect(mapController.data(), &MapPageController::pskReporterMessageReceived,
-            this, &OnlineMapWidget::pskReporterMessageReceived);
 }
 
 void OnlineMapWidget::setTarget(double lat, double lon)
@@ -320,11 +318,11 @@ void OnlineMapWidget::clearWSJTXSpots()
     mapController->clearWsjtxSpots();
 }
 
-void OnlineMapWidget::setPskReporterSubscription(const QString &callsign)
+void OnlineMapWidget::clearHeardMeSpots()
 {
     FCT_IDENTIFICATION;
 
-    mapController->setPskReporterSubscription(callsign);
+    mapController->clearHeardMeSpots();
 }
 
 void OnlineMapWidget::addHeardMePoint(const PskDecode &spot,

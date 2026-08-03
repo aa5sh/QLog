@@ -91,6 +91,7 @@ SOURCES += \
         core/LogParam.cpp \
         core/MembershipQE.cpp \
         core/Migration.cpp \
+        core/MqttClient.cpp \
         core/NetworkNotification.cpp \
         core/PasswordCipher.cpp \
         core/PlatformParameterManager.cpp \
@@ -277,6 +278,7 @@ HEADERS += \
         core/LogParam.h \
         core/MembershipQE.h \
         core/Migration.h \
+        core/MqttClient.h \
         core/NetworkNotification.h \
         core/PasswordCipher.h \
         core/PlatformParameterManager.h \

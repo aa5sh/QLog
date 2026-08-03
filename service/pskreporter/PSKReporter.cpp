@@ -5,6 +5,7 @@
 #include <QTimeZone>
 #endif
 #include "PSKReporter.h"
+#include "core/MqttClient.h"
 #include "core/debug.h"
 #include "rig/macros.h"
 #include "data/BandPlan.h"
@@ -13,9 +14,15 @@
 MODULE_IDENTIFICATION("qlog.core.pskreporter");
 
 PSKReporter::PSKReporter(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      mqttClient(new MqttClient(QStringLiteral("mqtt.pskreporter.info"),
+                                1884,
+                                this))
 {
     FCT_IDENTIFICATION;
+
+    connect(mqttClient, &MqttClient::messageReceived,
+            this, &PSKReporter::mqttMessageReceived);
 }
 
 void PSKReporter::setSubscription(const QString &callsign)
@@ -30,6 +37,24 @@ void PSKReporter::setSubscription(const QString &callsign)
         return;
 
     subscriptionCallsign = newCallsign;
+
+    if ( subscriptionCallsign.isEmpty() )
+    {
+        mqttClient->clearSubscriptions();
+    }
+    else
+    {
+        mqttClient->setSubscriptions(QStringList()
+                                     << QStringLiteral("pskr/filter/v2/+/+/%1/+/#")
+                                        .arg(subscriptionCallsign)
+                                     // Uncomment together with the test operation
+                                     // in processMessage() to receive stations
+                                     // heard by this callsign.
+                                     // << QStringLiteral("pskr/filter/v2/+/+/+/%1/#")
+                                     //    .arg(subscriptionCallsign)
+                                     );
+    }
+
     emit subscriptionChanged(subscriptionCallsign);
 }
 
@@ -40,9 +65,40 @@ void PSKReporter::clearSubscription()
     setSubscription(QString());
 }
 
+void PSKReporter::mqttMessageReceived(const QString &topic,
+                                      const QByteArray &payload)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << topic << payload.size();
+
+    if ( subscriptionCallsign.isEmpty() )
+        return;
+
+    const QStringList topicParts = topic.split(QLatin1Char('/'));
+    if ( topicParts.size() < 7 )
+    {
+        qCDebug(runtime) << "Ignoring unexpected PSK Reporter MQTT topic" << topic;
+        return;
+    }
+
+    if ( topicParts.at(5).compare(subscriptionCallsign, Qt::CaseInsensitive) == 0 )
+    {
+        processMessage(Direction::SentBy, topic, payload);
+    }
+    else if ( topicParts.at(6).compare(subscriptionCallsign, Qt::CaseInsensitive) == 0 )
+    {
+        processMessage(Direction::ReceivedBy, topic, payload);
+    }
+    else
+    {
+        qCDebug(runtime) << "Ignoring PSK Reporter MQTT topic for another callsign" << topic;
+    }
+}
+
 void PSKReporter::processMessage(PSKReporter::Direction direction,
                                  const QString &topic,
-                                 const QString &payload)
+                                 const QByteArray &payload)
 {
     FCT_IDENTIFICATION;
 
@@ -51,8 +107,7 @@ void PSKReporter::processMessage(PSKReporter::Direction direction,
                                  << payload;
 
     QJsonParseError parseError;
-    const QJsonDocument document = QJsonDocument::fromJson(payload.toUtf8(),
-                                                            &parseError);
+    const QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
     if ( parseError.error != QJsonParseError::NoError
          || !document.isObject() )
     {
@@ -88,7 +143,7 @@ void PSKReporter::processMessage(PSKReporter::Direction direction,
     decode.receiverDxcc = message.value(QStringLiteral("ra")).toInt();
     decode.band = message.value(QStringLiteral("b")).toString();
 
-#if 0 // Normal operation: show stations which heard this callsign.
+#if 1 // Normal operation: show stations which heard this callsign.
     if ( direction != Direction::SentBy )
         return;
 #else // Test operation: show stations heard by this callsign.

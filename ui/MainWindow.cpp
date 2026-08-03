@@ -424,9 +424,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->onlineMapWidget, &OnlineMapWidget::chatCallsignPressed, ui->chatWidget, &ChatWidget::setChatCallsign);
     connect(ui->onlineMapWidget, &OnlineMapWidget::wsjtxCallsignPressed, ui->wsjtxWidget, &WsjtxWidget::callsignClicked);
-    connect(ui->onlineMapWidget, &OnlineMapWidget::pskReporterMessageReceived, pskReporter, &PSKReporter::processMessage);
-
-    connect(pskReporter, &PSKReporter::subscriptionChanged, ui->onlineMapWidget, &OnlineMapWidget::setPskReporterSubscription);
+    connect(pskReporter, &PSKReporter::subscriptionChanged, ui->onlineMapWidget, &OnlineMapWidget::clearHeardMeSpots);
     connect(pskReporter, &PSKReporter::heardMePointRequested, ui->onlineMapWidget, &OnlineMapWidget::addHeardMePoint);
 
     pskReporter->setSubscription(ui->newContactWidget->getMyCallsign());
