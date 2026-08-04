@@ -10,7 +10,7 @@
 #include "core/CredentialStore.h"
 #include "core/LogParam.h"
 
-MODULE_IDENTIFICATION("qlog.core.hamqth");
+MODULE_IDENTIFICATION("qlog.service.hamqth.hamqth");
 
 const QString HamQTHBase::SECURE_STORAGE_KEY = "HamQTH";
 const QString HamQTHCallbook::CALLBOOK_NAME = "hamqth";

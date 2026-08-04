@@ -20,7 +20,7 @@
 #include "core/LogParam.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.lotw");
+MODULE_IDENTIFICATION("qlog.service.lotw.lotw");
 
 QStringList LotwUploader::uploadedFields =
 {

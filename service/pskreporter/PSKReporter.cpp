@@ -11,7 +11,7 @@
 #include "data/BandPlan.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.pskreporter");
+MODULE_IDENTIFICATION("qlog.service.pskreporter.pskreporter");
 
 PSKReporter::PSKReporter(QObject *parent)
     : QObject(parent),
