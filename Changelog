@@ -5,6 +5,8 @@ TBC - 0.52.0
 - [NEW] - Alerts - Add ability to clear selected alerts (PR #1104 @aa5sh)
 - [NEW] - LoTW - Added an All Callsigns option (PR #1084 @aa5sh)
 - [NEW] - LoTW/eQSL - Report reasons for unmatched QSOs
+- [NEW] - Online Map - Added HeardMe Spot from PSKReporter and RBN (PR #1115 #1107 @aa5sh @foldynl)
+- [NEW] - Online Map - WSJTX-CQ Added the second ring if SNR > -15dB
 - [CHANGED] - Online Map - Improve dark mode night-side visibility
 - [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)
 - [CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)
