@@ -174,6 +174,7 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
                 // it is not needed to update entry.callsign_clubs because addOrReplaceEntry does not
                 // update it. Only CQ provides the club membeship info
 
+                entry.grid = wsjtxTableModel->getEntry(entry.callsign).grid;
                 wsjtxTableModel->addOrReplaceEntry(entry);
                 emit filteredCQSpot(entry);
                 emit updatedCQSpot(entry);
