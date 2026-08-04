@@ -8,9 +8,6 @@
 #include <QStringList>
 #include <QTcpSocket>
 #include <QTimer>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-#include <QTimeZone>
-#endif
 
 #include "RBNNetwork.h"
 #include "core/debug.h"
@@ -59,16 +56,6 @@ RBNNetwork::RBNNetwork(QObject *parent)
 #endif    
 }
 
-RBNNetwork::~RBNNetwork()
-{
-    FCT_IDENTIFICATION;
-
-    reconnectTimer->stop();
-    connectionTimer->stop();
-    nodeListRefreshTimer->stop();
-    socket->abort();
-}
-
 void RBNNetwork::setCallsign(const QString &newCallsign)
 {
     FCT_IDENTIFICATION;
@@ -82,14 +69,8 @@ void RBNNetwork::setCallsign(const QString &newCallsign)
 
     callsign = normalizedCallsign;
     callsignBytes = callsign.toLatin1();
-    restartConnection();
-}
-
-void RBNNetwork::clearCallsign()
-{
-    FCT_IDENTIFICATION;
-
-    setCallsign(QString());
+    stopConnection();
+    updateConnection();
 }
 
 void RBNNetwork::setCurrentMode(const QString &mode)
@@ -138,20 +119,11 @@ void RBNNetwork::updateConnection()
     if ( nodeLocators.isEmpty() )
         refreshNodeList();
 
-    if ( socket->state() == QAbstractSocket::UnconnectedState
-         && !reconnectTimer->isActive() )
+    if ( socket->state() == QAbstractSocket::UnconnectedState )
     {
         reconnectDelayMs = InitialReconnectDelayMs;
         reconnectTimer->start(0);
     }
-}
-
-void RBNNetwork::restartConnection()
-{
-    FCT_IDENTIFICATION;
-
-    stopConnection();
-    updateConnection();
 }
 
 void RBNNetwork::stopConnection()
@@ -370,7 +342,7 @@ void RBNNetwork::processMatchingSpot(const char *line, int length)
      * The text after the spotted callsign differs by mode. Parse only the
      * stable outer fields here and extract the dB report separately. */
     static const QRegularExpression spotExpression(
-        QStringLiteral("^DX de\\s+([^:]+):\\s+([0-9.]+)\\s+(\\S+)\\s+(.*?)\\s+(\\d{4})Z\\s*$"),
+        QStringLiteral("^DX de\\s+([^:]+):\\s+([0-9.]+)\\s+\\S+\\s+(\\S+)\\s+(.*?)\\s+\\d{4}Z\\s*$"),
         QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression reportExpression(
         QStringLiteral("(-?\\d+)\\s*dB"),
@@ -385,8 +357,7 @@ void RBNNetwork::processMatchingSpot(const char *line, int length)
         return;
     }
 
-    const QString comment = match.captured(4).simplified();
-    const QString mode = comment.section(QLatin1Char(' '), 0, 0).toUpper();
+    const QString mode = match.captured(3).toUpper();
 
     if ( mode != currentMode )
         return;
@@ -416,7 +387,7 @@ void RBNNetwork::processMatchingSpot(const char *line, int length)
         return;
     }
 
-    const QRegularExpressionMatch reportMatch = reportExpression.match(comment);
+    const QRegularExpressionMatch reportMatch = reportExpression.match(match.captured(4));
 
     if ( !reportMatch.hasMatch() )
         return;
@@ -431,23 +402,18 @@ void RBNNetwork::processMatchingSpot(const char *line, int length)
     spot.callsign = nodeCallsign;
     spot.locator = locator;
     spot.frequency = frequency;
-    spot.mode = mode;
     spot.report = reportMatch.captured(1).toInt();
-    spot.timestamp = spotTimestamp(match.captured(5));
     spot.status = dxcc.dxcc
                   ? Data::instance()->dxccStatus(dxcc.dxcc, band.name, modeGroup)
                   : DxccStatus::UnknownStatus;
     spot.dupeCount = Data::countDupe(lookupCallsign, band.name, modeGroup);
-    spot.strongSignal = spot.report > StrongSignalThresholdDb;
     spot.displayGroup = (mode == BandPlan::MODE_GROUP_STRING_CW)
                         ? HeardMeSpot::DisplayGroup::CW
                         : HeardMeSpot::DisplayGroup::RTTY;
-    spot.fadeAfterMs = SpotFadeAfterMs;
-    spot.removeAfterMs = SpotRemoveAfterMs;
 
     qCDebug(runtime) << "RBN heard-me spot"
-                     << spot.callsign << spot.locator
-                     << spot.frequency << spot.mode << spot.report;
+                     << spot.callsign << spot.locator << spot.frequency
+                     << mode << spot.report;
     emit heardMeSpotReceived(spot);
 }
 
@@ -570,26 +536,4 @@ QString RBNNetwork::stationCallsign(const QString &nodeCallsign)
     bool numericSuffix = false;
     nodeCallsign.mid(separator + 1).toUInt(&numericSuffix);
     return numericSuffix ? nodeCallsign.left(separator) : nodeCallsign;
-}
-
-QDateTime RBNNetwork::spotTimestamp(const QString &hhmm)
-{
-    FCT_IDENTIFICATION;
-
-    if ( hhmm.size() != 4 )
-        return QDateTime::currentDateTimeUtc();
-
-    const QTime time(hhmm.left(2).toInt(), hhmm.mid(2, 2).toInt());
-    if ( !time.isValid() )
-        return QDateTime::currentDateTimeUtc();
-
-    const QDateTime now = QDateTime::currentDateTimeUtc();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-    QDateTime timestamp(now.date(), time, QTimeZone::UTC);
-#else
-    QDateTime timestamp(now.date(), time, Qt::UTC);
-#endif
-    if ( timestamp > now.addSecs(60) )
-        timestamp = timestamp.addDays(-1);
-    return timestamp;
 }

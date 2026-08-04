@@ -455,22 +455,18 @@ void MapPageController::addHeardMePoint(const MapPoint &point,
                                         const QString &displayGroup,
                                         const QString &color,
                                         double opacity,
-                                        bool halo,
-                                        qint32 fadeAfterMs,
-                                        qint32 removeAfterMs)
+                                        bool halo)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("addHeardMePoint(%1, %2, %3, %4, %5, %6, %7, %8, %9);")
+    runJavaScript(QStringLiteral("addHeardMePoint(%1, %2, %3, %4, %5, %6, %7);")
                   .arg(jsonObject(pointObject(point)))
                   .arg(report)
                   .arg(jsonString(band))
                   .arg(jsonString(displayGroup))
                   .arg(jsonString(color))
                   .arg(opacity)
-                  .arg(halo ? QLatin1String("true") : QLatin1String("false"))
-                  .arg(fadeAfterMs)
-                  .arg(removeAfterMs));
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 QString MapPageController::generateIbpDataJS()

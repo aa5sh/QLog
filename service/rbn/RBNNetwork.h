@@ -20,10 +20,8 @@ class RBNNetwork : public QObject
 
 public:
     explicit RBNNetwork(QObject *parent = nullptr);
-    ~RBNNetwork() override;
 
     void setCallsign(const QString &callsign);
-    void clearCallsign();
     void setCurrentMode(const QString &mode);
 
 signals:
@@ -49,10 +47,7 @@ private:
         ReconnectBackoffMultiplier = 2,
         NodeListRefreshIntervalMs = 24 * 60 * 60 * 1000,
         UnknownNodeRefreshIntervalSeconds = 60 * 60,
-        MaximumLineLength = 512,
-        StrongSignalThresholdDb = 15,
-        SpotFadeAfterMs = 5 * 60 * 1000,
-        SpotRemoveAfterMs = 10 * 60 * 1000
+        MaximumLineLength = 512
     };
 
     enum class State
@@ -71,7 +66,6 @@ private:
     bool shouldBeConnected() const;
     bool lineMatchesCallsign(const char *line, int length) const;
     void updateConnection();
-    void restartConnection();
     void stopConnection();
     void scheduleReconnect();
     void processMatchingSpot(const char *line, int length);
@@ -80,7 +74,6 @@ private:
 
     static QString htmlText(QString value);
     static QString stationCallsign(const QString &nodeCallsign);
-    static QDateTime spotTimestamp(const QString &hhmm);
 
     QString callsign;
     QByteArray callsignBytes;

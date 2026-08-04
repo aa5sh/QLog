@@ -25,10 +25,8 @@ public:
     explicit MqttClient(const QString &hostName,
                         quint16 port,
                         QObject *parent = nullptr);
-    ~MqttClient() override;
 
     void setSubscriptions(const QStringList &topics);
-    void clearSubscriptions();
 
 signals:
     void messageReceived(QString topic, QByteArray payload);

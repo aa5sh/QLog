@@ -137,9 +137,7 @@ public:
                          const QString &displayGroup,
                          const QString &color,
                          double opacity,
-                         bool halo,
-                         qint32 fadeAfterMs,
-                         qint32 removeAfterMs);
+                         bool halo);
 
 signals:
     void loaded();

@@ -23,7 +23,6 @@ public:
     explicit PSKReporter(QObject *parent = nullptr);
 
     void setSubscription(const QString &callsign);
-    void clearSubscription();
 
 public slots:
     void processMessage(PSKReporter::Direction direction,
@@ -31,7 +30,7 @@ public slots:
                         const QByteArray &payload);
 
 signals:
-    void subscriptionChanged(QString callsign);
+    void subscriptionChanged();
     void heardMePointRequested(PskDecode decode,
                                PSKReporter::Direction direction);
 

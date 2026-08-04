@@ -70,14 +70,14 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     stats(new StatisticsWidget),
-    pskReporter(new PSKReporter(this)),
-    rbnNetwork(new RBNNetwork(this)),
     clublogRT(new ClubLogUploader(this)),
     adifRecoveryManager(new AdifRecoveryManager(this))
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    PSKReporter *pskReporter = new PSKReporter(this);
+    RBNNetwork *rbnNetwork = new RBNNetwork(this);
 
     restoreContestMenuSeqnoType();
     restoreContestMenuDupeType();

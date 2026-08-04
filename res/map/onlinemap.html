@@ -950,20 +950,11 @@
     var currentHeardMeDisplayGroup = "PSK";
     var heardMeLayer = L.layerGroup().addTo(map);
 
-    function heardMeDisplayGroupForMode(mode) {
-        const normalizedMode = String(mode || '').trim().toUpperCase();
-        return normalizedMode === 'CW' || normalizedMode === 'RTTY'
-            ? normalizedMode
-            : 'PSK';
-    }
-
     function setHeardMeMode(mode) {
-        currentHeardMeDisplayGroup = heardMeDisplayGroupForMode(mode);
+        const normalizedMode = String(mode || '').trim().toUpperCase();
+        currentHeardMeDisplayGroup = normalizedMode === 'CW' || normalizedMode === 'RTTY'
+                                    ? normalizedMode : 'PSK';
         refreshHeardMeLayer();
-    }
-
-    function heardMeSpotKey(callsign, band, displayGroup) {
-        return `${band}\n${displayGroup}\n${callsign}`;
     }
 
     function isHeardMeSpotVisible(spot) {
@@ -1046,8 +1037,7 @@
         heardMeLayer.clearLayers();
     }
 
-    function addHeardMePoint(point, report, band, displayGroup, color, opacity, halo,
-                             fadeAfterMs, removeAfterMs) {
+    function addHeardMePoint(point, report, band, displayGroup, color, opacity, halo) {
         const mapPoint = normalizePoint(point);
         const callsign = String(mapPoint.label || '').trim().toUpperCase();
         const spotBand = String(band || '');
@@ -1056,10 +1046,14 @@
         if (!callsign || !spotBand || !spotDisplayGroup)
             return;
 
-        const key = heardMeSpotKey(callsign, spotBand, spotDisplayGroup);
+        const key = `${spotBand}\n${spotDisplayGroup}\n${callsign}`;
         const previousSpot = heardMeSpots.get(key);
         if (previousSpot)
             clearHeardMeSpotTimers(previousSpot);
+
+        const pskReporterSpot = spotDisplayGroup === 'PSK';
+        const fadeAfterMs = (pskReporterSpot ? 30 : 5) * 60 * 1000;
+        const removeAfterMs = (pskReporterSpot ? 45 : 10) * 60 * 1000;
 
         const spot = {
             callsign: callsign,

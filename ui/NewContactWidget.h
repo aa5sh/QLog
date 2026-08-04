@@ -207,7 +207,7 @@ public:
     QString getMyWWFT() const;
     QString getMyVUCC() const;
     QString getMyPWR() const;
-    Band getBand() const;
+    QString getBand() const;
     QString getMode() const;
     QString getSentNr() const;
     QString getSentExch() const;

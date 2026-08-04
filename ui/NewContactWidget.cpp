@@ -934,6 +934,7 @@ void NewContactWidget::__modeChanged()
     ui->submodeEdit->setFixedWidth(maxWidth);
     queryMemberList();
     refreshCallsignsColors();
+    emit currentModeChanged(ui->modeEdit->currentText());
 }
 
 /* Mode is changed from GUI */
@@ -945,7 +946,6 @@ void NewContactWidget::changeMode()
         return;
 
     __modeChanged();
-    emit currentModeChanged(ui->modeEdit->currentText());
 
     // if manual mode is not enabled then change the mode
     if ( !isManualEnterMode )
@@ -1027,10 +1027,13 @@ void NewContactWidget::updateRXBand(double freq)
     bandRX = BandPlan::freq2Band(freq);
 
     if (bandRX.name.isEmpty())
+    {
         setBandLabel("OOB!");
+    }
     else if (bandRX.name != ui->bandRXLabel->text())
+    {
         setBandLabel(bandRX.name);
-
+    }
     updateSatMode();
     setSTXSeq();
     refreshCallsignsColors();
@@ -2568,7 +2571,6 @@ void NewContactWidget::changeModeWithoutRigUpdate(const QString &mode, const QSt
     ui->submodeEdit->setCurrentText(subMode);
     ui->submodeEdit->blockSignals(false);
     ui->modeEdit->blockSignals(false);
-    emit currentModeChanged(ui->modeEdit->currentText());
 }
 
 void NewContactWidget::showRXTXFreqs(bool enable)
@@ -3393,11 +3395,11 @@ QString NewContactWidget::getMyPWR() const
                                                           && uiDynamic->powerEdit->value() < 1 ) ? 1 : 0);
 }
 
-Band NewContactWidget::getBand() const
+QString NewContactWidget::getBand() const
 {
     FCT_IDENTIFICATION;
 
-    return bandRX;
+    return ui->bandRXLabel->text();
 }
 
 QString NewContactWidget::getMode() const

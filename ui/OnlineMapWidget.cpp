@@ -345,12 +345,9 @@ void OnlineMapWidget::addHeardMePoint(const PskDecode &spot,
     heardMeSpot.locator = sentBy ? spot.receiverLocator
                                  : spot.senderLocator;
     heardMeSpot.frequency = spot.frequency;
-    heardMeSpot.mode = spot.mode;
     heardMeSpot.report = spot.report;
-    heardMeSpot.timestamp = spot.timestamp;
     heardMeSpot.status = spot.status;
     heardMeSpot.dupeCount = spot.dupeCount;
-    heardMeSpot.strongSignal = spot.report > -15;
 
     addHeardMeSpot(heardMeSpot);
 }
@@ -361,19 +358,12 @@ void OnlineMapWidget::addHeardMeSpot(const HeardMeSpot &spot)
 
     const Gridsquare spotGrid = Gridsquare::mapDisplayGrid(spot.locator);
     const Band bandDecoded = BandPlan::freq2Band(spot.frequency);
-    QString displayGroup;
-    switch ( spot.displayGroup )
-    {
-    case HeardMeSpot::DisplayGroup::CW:
-        displayGroup = QStringLiteral("CW");
-        break;
-    case HeardMeSpot::DisplayGroup::RTTY:
-        displayGroup = QStringLiteral("RTTY");
-        break;
-    case HeardMeSpot::DisplayGroup::PskReporter:
-        displayGroup = QStringLiteral("PSK");
-        break;
-    }
+    const bool pskReporterSpot = spot.displayGroup == HeardMeSpot::DisplayGroup::PskReporter;
+    const QString displayGroup = spot.displayGroup == HeardMeSpot::DisplayGroup::CW
+                                 ? QStringLiteral("CW")
+                                 : spot.displayGroup == HeardMeSpot::DisplayGroup::RTTY
+                                   ? QStringLiteral("RTTY")
+                                   : QStringLiteral("PSK");
 
     if ( spotGrid.isValid() && !bandDecoded.name.isEmpty() )
     {
@@ -388,9 +378,7 @@ void OnlineMapWidget::addHeardMeSpot(const HeardMeSpot &spot)
                                        displayGroup,
                                        Data::colorToHTMLColor(background),
                                        0.8,
-                                       spot.strongSignal,
-                                       spot.fadeAfterMs,
-                                       spot.removeAfterMs);
+                                       spot.report > (pskReporterSpot ? -15 : 15));
     }
 }
 

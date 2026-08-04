@@ -37,32 +37,18 @@ void PSKReporter::setSubscription(const QString &callsign)
         return;
 
     subscriptionCallsign = newCallsign;
+    QStringList topics;
 
-    if ( subscriptionCallsign.isEmpty() )
+    if ( !subscriptionCallsign.isEmpty() )
     {
-        mqttClient->clearSubscriptions();
-    }
-    else
-    {
-        mqttClient->setSubscriptions(QStringList()
-                                     << QStringLiteral("pskr/filter/v2/+/+/%1/+/#")
-                                        .arg(subscriptionCallsign)
-                                     // Uncomment together with the test operation
-                                     // in processMessage() to receive stations
-                                     // heard by this callsign.
-                                     // << QStringLiteral("pskr/filter/v2/+/+/+/%1/#")
-                                     //    .arg(subscriptionCallsign)
-                                     );
+        topics << QStringLiteral("pskr/filter/v2/+/+/%1/+/#").arg(subscriptionCallsign);
+        // Uncomment together with the test operation in processMessage() to
+        // receive stations heard by this callsign.
+        // topics << QStringLiteral("pskr/filter/v2/+/+/+/%1/#").arg(subscriptionCallsign);
     }
 
-    emit subscriptionChanged(subscriptionCallsign);
-}
-
-void PSKReporter::clearSubscription()
-{
-    FCT_IDENTIFICATION;
-
-    setSubscription(QString());
+    mqttClient->setSubscriptions(topics);
+    emit subscriptionChanged();
 }
 
 void PSKReporter::mqttMessageReceived(const QString &topic,

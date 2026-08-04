@@ -64,17 +64,6 @@ MqttClient::MqttClient(const QString &hostName,
 #endif
 }
 
-MqttClient::~MqttClient()
-{
-    FCT_IDENTIFICATION;
-
-    subscriptions.clear();
-    reconnectTimer->stop();
-    connectionTimer->stop();
-    keepAliveTimer->stop();
-    socket->abort();
-}
-
 void MqttClient::setSubscriptions(const QStringList &topics)
 {
     FCT_IDENTIFICATION;
@@ -92,13 +81,6 @@ void MqttClient::setSubscriptions(const QStringList &topics)
      * Clean Session this guarantees that the broker keeps exactly this list. */
     subscriptions = newSubscriptions;
     restartConnection();
-}
-
-void MqttClient::clearSubscriptions()
-{
-    FCT_IDENTIFICATION;
-
-    setSubscriptions(QStringList());
 }
 
 void MqttClient::connectToBroker()
