@@ -945,14 +945,30 @@
 
     var wsjtxStationsLayer = L.layerGroup();
 
-    const heardMeFadeAfterMs = 30 * 60 * 1000;
-    const heardMeRemoveAfterMs = 45 * 60 * 1000;
     const heardMeFadedOpacity = 0.5;
     const heardMeSpots = new Map();
+    var currentHeardMeDisplayGroup = "PSK";
     var heardMeLayer = L.layerGroup().addTo(map);
 
-    function heardMeSpotKey(callsign, band) {
-        return `${band}\n${callsign}`;
+    function heardMeDisplayGroupForMode(mode) {
+        const normalizedMode = String(mode || '').trim().toUpperCase();
+        return normalizedMode === 'CW' || normalizedMode === 'RTTY'
+            ? normalizedMode
+            : 'PSK';
+    }
+
+    function setHeardMeMode(mode) {
+        currentHeardMeDisplayGroup = heardMeDisplayGroupForMode(mode);
+        refreshHeardMeLayer();
+    }
+
+    function heardMeSpotKey(callsign, band, displayGroup) {
+        return `${band}\n${displayGroup}\n${callsign}`;
+    }
+
+    function isHeardMeSpotVisible(spot) {
+        return spot.band === currentMapBand
+            && spot.displayGroup === currentHeardMeDisplayGroup;
     }
 
     function heardMeLabel(spot) {
@@ -968,7 +984,7 @@
         heardMeLayer.clearLayers();
 
         heardMeSpots.forEach(function(spot) {
-            if (spot.band !== currentMapBand)
+            if (!isHeardMeSpotVisible(spot))
                 return;
 
             const ageOpacity = spot.faded ? heardMeFadedOpacity : 1.0;
@@ -1030,15 +1046,17 @@
         heardMeLayer.clearLayers();
     }
 
-    function addHeardMePoint(point, report, band, color, opacity, halo) {
+    function addHeardMePoint(point, report, band, displayGroup, color, opacity, halo,
+                             fadeAfterMs, removeAfterMs) {
         const mapPoint = normalizePoint(point);
         const callsign = String(mapPoint.label || '').trim().toUpperCase();
         const spotBand = String(band || '');
+        const spotDisplayGroup = String(displayGroup || '').trim().toUpperCase();
 
-        if (!callsign || !spotBand)
+        if (!callsign || !spotBand || !spotDisplayGroup)
             return;
 
-        const key = heardMeSpotKey(callsign, spotBand);
+        const key = heardMeSpotKey(callsign, spotBand, spotDisplayGroup);
         const previousSpot = heardMeSpots.get(key);
         if (previousSpot)
             clearHeardMeSpotTimers(previousSpot);
@@ -1047,6 +1065,7 @@
             callsign: callsign,
             report: report,
             band: spotBand,
+            displayGroup: spotDisplayGroup,
             color: color,
             opacity: opacity,
             halo: halo,
@@ -1062,21 +1081,21 @@
                 return;
 
             spot.faded = true;
-            if (spot.band === currentMapBand)
+            if (isHeardMeSpotVisible(spot))
                 refreshHeardMeLayer();
-        }, heardMeFadeAfterMs);
+        }, fadeAfterMs);
 
         spot.removeTimeoutId = setTimeout(function() {
             if (heardMeSpots.get(key) !== spot)
                 return;
 
             heardMeSpots.delete(key);
-            if (spot.band === currentMapBand)
+            if (isHeardMeSpotVisible(spot))
                 refreshHeardMeLayer();
-        }, heardMeRemoveAfterMs);
+        }, removeAfterMs);
 
         heardMeSpots.set(key, spot);
-        if (spot.band === currentMapBand)
+        if (isHeardMeSpotVisible(spot))
             refreshHeardMeLayer();
     }
 

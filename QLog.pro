@@ -173,6 +173,7 @@ SOURCES += \
         service/lotw/Lotw.cpp \
         service/potaapp/PotaApp.cpp \
         service/pskreporter/PSKReporter.cpp \
+        service/rbn/RBNNetwork.cpp \
         service/qrzcom/QRZ.cpp \
         ui/ActivityEditor.cpp \
         ui/AdifRecoveryManager.cpp \
@@ -314,6 +315,7 @@ HEADERS += \
         data/DxSpot.h \
         data/Dxcc.h \
         data/Gridsquare.h \
+        data/HeardMeSpot.h \
         data/HostsPortString.h \
         data/MainLayoutProfile.h \
         data/POTAEntity.h \
@@ -379,6 +381,7 @@ HEADERS += \
         service/lotw/Lotw.h \
         service/potaapp/PotaApp.h \
         service/pskreporter/PSKReporter.h \
+        service/rbn/RBNNetwork.h \
         service/qrzcom/QRZ.h \
         ui/ActivityEditor.h \
         ui/AdifRecoveryManager.h \

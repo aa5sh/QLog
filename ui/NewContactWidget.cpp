@@ -945,6 +945,7 @@ void NewContactWidget::changeMode()
         return;
 
     __modeChanged();
+    emit currentModeChanged(ui->modeEdit->currentText());
 
     // if manual mode is not enabled then change the mode
     if ( !isManualEnterMode )
@@ -973,7 +974,7 @@ void NewContactWidget::changeModefromRig(VFOID, const QString &, const QString &
 
     bandwidthFilter = width;
 
-    changeModeWithoutSignals(mode, subMode);
+    changeModeWithoutRigUpdate(mode, subMode);
 }
 
 void NewContactWidget::subModeChanged()
@@ -2542,7 +2543,7 @@ void NewContactWidget::changeSplit(VFOID, bool enabled)
                   || isManualEnterMode);
 }
 
-void NewContactWidget::changeModeWithoutSignals(const QString &mode, const QString &subMode)
+void NewContactWidget::changeModeWithoutRigUpdate(const QString &mode, const QString &subMode)
 {
     FCT_IDENTIFICATION;
 
@@ -2567,6 +2568,7 @@ void NewContactWidget::changeModeWithoutSignals(const QString &mode, const QStri
     ui->submodeEdit->setCurrentText(subMode);
     ui->submodeEdit->blockSignals(false);
     ui->modeEdit->blockSignals(false);
+    emit currentModeChanged(ui->modeEdit->currentText());
 }
 
 void NewContactWidget::showRXTXFreqs(bool enable)
@@ -3076,9 +3078,9 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         if ( !mode.isEmpty() )
         {
             // in case of SSB, do not sent 2 mode changes to rig
-            // therefore change Mode without signals and then set the
+            // therefore change the UI mode without a rig update and then set the
             // final mode
-            changeModeWithoutSignals(mode, subMode);
+            changeModeWithoutRigUpdate(mode, subMode);
             if (BandPlan::isFTxBandMode(spot.bandPlanMode)
                 || spot.bandPlanMode ==  BandPlan::BAND_MODE_DIGITAL )
             {

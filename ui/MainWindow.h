@@ -18,6 +18,7 @@ class QLabel;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
 class PSKReporter;
+class RBNNetwork;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -119,6 +120,7 @@ private:
     AlertEvaluator alertEvaluator;
     PropConditions *conditions;
     PSKReporter *pskReporter;
+    RBNNetwork *rbnNetwork;
     bool isFusionStyle;
     ClubLogUploader* clublogRT;
     AdifRecoveryManager* adifRecoveryManager;

@@ -223,6 +223,7 @@ signals:
     void userFrequencyChanged(VFOID, double, double, double);
     void userModeChanged(VFOID, const QString &, const QString &mode,
                          const QString &subMode, qint32 width);
+    void currentModeChanged(QString mode);
     void markQSO(DxSpot spot);
 
     void callboolImageUrl(const QString&);
@@ -247,7 +248,7 @@ public slots:
     // to receive RIG instructions
     void changeFrequency(VFOID, double, double, double);
     void changeSplit(VFOID, bool);
-    void changeModeWithoutSignals(const QString &mode, const QString &subMode);
+    void changeModeWithoutRigUpdate(const QString &mode, const QString &subMode);
     void changeModefromRig(VFOID, const QString &rawMode, const QString &mode,
                     const QString &subMode, qint32 width);
     void changePower(VFOID, double power);

@@ -45,6 +45,7 @@
 #include "ui/QSLImportStatDialog.h"
 #include "service/lotw/Lotw.h"
 #include "service/pskreporter/PSKReporter.h"
+#include "service/rbn/RBNNetwork.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
 #include "data/WsjtxEntry.h"
@@ -70,6 +71,7 @@ MainWindow::MainWindow(QWidget* parent) :
     ui(new Ui::MainWindow),
     stats(new StatisticsWidget),
     pskReporter(new PSKReporter(this)),
+    rbnNetwork(new RBNNetwork(this)),
     clublogRT(new ClubLogUploader(this)),
     adifRecoveryManager(new AdifRecoveryManager(this))
 {
@@ -397,6 +399,9 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::callsignChanged, ui->cwconsoleWidget, &CWConsoleWidget::stopRepeateButtons);
     connect(ui->newContactWidget, &NewContactWidget::contactReset, ui->cwconsoleWidget, &CWConsoleWidget::stopRepeateButtons);
     connect(ui->newContactWidget, &NewContactWidget::stationCallsignChanged, pskReporter, &PSKReporter::setSubscription);
+    connect(ui->newContactWidget, &NewContactWidget::stationCallsignChanged, rbnNetwork, &RBNNetwork::setCallsign);
+    connect(ui->newContactWidget, &NewContactWidget::currentModeChanged, rbnNetwork, &RBNNetwork::setCurrentMode);
+    connect(ui->newContactWidget, &NewContactWidget::currentModeChanged, ui->onlineMapWidget, &OnlineMapWidget::setHeardMeMode);
 
     connect(ui->dxWidget, &DxWidget::newFilteredSpot, ui->bandmapWidget, &BandmapWidget::addSpot);
     connect(ui->dxWidget, &DxWidget::newFilteredSpot, Rig::instance(), &Rig::sendDXSpot);
@@ -426,8 +431,12 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->onlineMapWidget, &OnlineMapWidget::wsjtxCallsignPressed, ui->wsjtxWidget, &WsjtxWidget::callsignClicked);
     connect(pskReporter, &PSKReporter::subscriptionChanged, ui->onlineMapWidget, &OnlineMapWidget::clearHeardMeSpots);
     connect(pskReporter, &PSKReporter::heardMePointRequested, ui->onlineMapWidget, &OnlineMapWidget::addHeardMePoint);
+    connect(rbnNetwork, &RBNNetwork::heardMeSpotReceived, ui->onlineMapWidget, &OnlineMapWidget::addHeardMeSpot);
 
     pskReporter->setSubscription(ui->newContactWidget->getMyCallsign());
+    rbnNetwork->setCallsign(ui->newContactWidget->getMyCallsign());
+    rbnNetwork->setCurrentMode(ui->newContactWidget->getMode());
+    ui->onlineMapWidget->setHeardMeMode(ui->newContactWidget->getMode());
 
     connect(ui->alertsWidget, &AlertWidget::rulesChanged, &alertEvaluator, &AlertEvaluator::loadRules);
     connect(ui->alertsWidget, &AlertWidget::alertsCleared, this, &MainWindow::clearAlertEvent);

@@ -123,6 +123,7 @@ public:
     void setAuroraData(const QList<MapHeatPoint> &points);
     void drawMuf(const QList<MapPoint> &points);
     void setCurrentBand(const QString &band);
+    void setHeardMeMode(const QString &mode);
 
     void addWsjtxSpot(const MapPoint &point,
                       const QString &color,
@@ -133,9 +134,12 @@ public:
     void addHeardMePoint(const MapPoint &point,
                          qint32 report,
                          const QString &band,
+                         const QString &displayGroup,
                          const QString &color,
                          double opacity,
-                         bool halo);
+                         bool halo,
+                         qint32 fadeAfterMs,
+                         qint32 removeAfterMs);
 
 signals:
     void loaded();

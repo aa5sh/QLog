@@ -325,32 +325,72 @@ void OnlineMapWidget::clearHeardMeSpots()
     mapController->clearHeardMeSpots();
 }
 
+void OnlineMapWidget::setHeardMeMode(const QString &mode)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << mode;
+    mapController->setHeardMeMode(mode);
+}
+
 void OnlineMapWidget::addHeardMePoint(const PskDecode &spot,
                                       PSKReporter::Direction direction)
 {
     FCT_IDENTIFICATION;
 
     const bool sentBy = (direction == PSKReporter::Direction::SentBy);
-    const QString &remoteCallsign = sentBy ? spot.receiverCallsign
-                                           : spot.senderCallsign;
-    const QString &remoteLocator = sentBy ? spot.receiverLocator
-                                          : spot.senderLocator;
-    const Gridsquare spotGrid = Gridsquare::mapDisplayGrid(remoteLocator);
+    HeardMeSpot heardMeSpot;
+    heardMeSpot.callsign = sentBy ? spot.receiverCallsign
+                                  : spot.senderCallsign;
+    heardMeSpot.locator = sentBy ? spot.receiverLocator
+                                 : spot.senderLocator;
+    heardMeSpot.frequency = spot.frequency;
+    heardMeSpot.mode = spot.mode;
+    heardMeSpot.report = spot.report;
+    heardMeSpot.timestamp = spot.timestamp;
+    heardMeSpot.status = spot.status;
+    heardMeSpot.dupeCount = spot.dupeCount;
+    heardMeSpot.strongSignal = spot.report > -15;
+
+    addHeardMeSpot(heardMeSpot);
+}
+
+void OnlineMapWidget::addHeardMeSpot(const HeardMeSpot &spot)
+{
+    FCT_IDENTIFICATION;
+
+    const Gridsquare spotGrid = Gridsquare::mapDisplayGrid(spot.locator);
     const Band bandDecoded = BandPlan::freq2Band(spot.frequency);
+    QString displayGroup;
+    switch ( spot.displayGroup )
+    {
+    case HeardMeSpot::DisplayGroup::CW:
+        displayGroup = QStringLiteral("CW");
+        break;
+    case HeardMeSpot::DisplayGroup::RTTY:
+        displayGroup = QStringLiteral("RTTY");
+        break;
+    case HeardMeSpot::DisplayGroup::PskReporter:
+        displayGroup = QStringLiteral("PSK");
+        break;
+    }
 
     if ( spotGrid.isValid() && !bandDecoded.name.isEmpty() )
     {
         const QColor background = Data::statusToColor(spot.status,
                                                        spot.dupeCount,
                                                        QColor(Qt::white));
-        mapController->addHeardMePoint(MapPoint(remoteCallsign,
+        mapController->addHeardMePoint(MapPoint(spot.callsign,
                                                 spotGrid.getLatitude(),
                                                 spotGrid.getLongitude()),
                                        spot.report,
                                        bandDecoded.name,
+                                       displayGroup,
                                        Data::colorToHTMLColor(background),
                                        0.8,
-                                       spot.report > -15);
+                                       spot.strongSignal,
+                                       spot.fadeAfterMs,
+                                       spot.removeAfterMs);
     }
 }
 
