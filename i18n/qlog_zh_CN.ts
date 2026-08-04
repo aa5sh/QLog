@@ -200,12 +200,12 @@
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1406"/>
         <source>Bandmap Guide</source>
-        <translation type="unfinished">频段图指南</translation>
+        <translation>频段图指南</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1412"/>
         <source>Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>指南</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1425"/>
@@ -220,12 +220,12 @@
     <message>
         <location filename="../ui/ActivityEditor.cpp" line="514"/>
         <source>Leave unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>保持不变</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.cpp" line="515"/>
         <source>Off</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.h" line="117"/>
@@ -253,15 +253,15 @@
     <message numerus="yes">
         <location filename="../ui/AdifRecoveryManager.cpp" line="210"/>
         <source>Startup ADI from %1 finished with %n error(s); load point was not advanced.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>来自 %1 的启动 ADI 处理完成，出现 %n 个错误；加载点未前移。</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../ui/AdifRecoveryManager.cpp" line="309"/>
         <source>Startup ADI was disabled for %n file(s) because the assigned Station Profile no longer exists.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>由于所分配的电台配置文件已不存在，已为 %n 个文件禁用启动 ADI。</numerusform>
         </translation>
     </message>
 </context>
@@ -1862,8 +1862,8 @@
     <message numerus="yes">
         <location filename="../ui/CabrilloExportDialog.cpp" line="512"/>
         <source>Exported %n QSO(s) to Cabrillo file.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>已将 %n 条 QSO 导出到 Cabrillo 文件。</numerusform>
         </translation>
     </message>
 </context>
@@ -2027,32 +2027,32 @@
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="290"/>
         <source>Limited</source>
-        <translation type="unfinished"></translation>
+        <translation>有限</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="291"/>
         <source>Unlimited</source>
-        <translation type="unfinished"></translation>
+        <translation>无限</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="292"/>
         <source>SWL</source>
-        <translation type="unfinished">SWL</translation>
+        <translation>SWL</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="299"/>
         <source>6 Hours</source>
-        <translation type="unfinished"></translation>
+        <translation>6 小时</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="300"/>
         <source>12 Hours</source>
-        <translation type="unfinished"></translation>
+        <translation>12 小时</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="301"/>
         <source>24 Hours</source>
-        <translation type="unfinished"></translation>
+        <translation>24 小时</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="308"/>
@@ -2067,7 +2067,7 @@
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="310"/>
         <source>TB Wires</source>
-        <translation type="unfinished"></translation>
+        <translation>TB Wires</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="311"/>
@@ -2077,42 +2077,42 @@
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="312"/>
         <source>Over 50</source>
-        <translation type="unfinished"></translation>
+        <translation>50 岁以上</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="319"/>
         <source>Text (left-aligned)</source>
-        <translation type="unfinished"></translation>
+        <translation>文本（左对齐）</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="320"/>
         <source>Frequency (kHz)</source>
-        <translation type="unfinished"></translation>
+        <translation>频率（kHz）</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="321"/>
         <source>Time (HHMM)</source>
-        <translation type="unfinished"></translation>
+        <translation>时间（HHMM）</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="322"/>
         <source>Date (YYYY-MM-DD)</source>
-        <translation type="unfinished"></translation>
+        <translation>日期（YYYY-MM-DD）</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="323"/>
         <source>RST Short (drop last digit)</source>
-        <translation type="unfinished"></translation>
+        <translation>RST 简写（去掉最后一位）</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="324"/>
         <source>Uppercase</source>
-        <translation type="unfinished"></translation>
+        <translation>大写</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="325"/>
         <source>Mode (Cabrillo)</source>
-        <translation type="unfinished"></translation>
+        <translation>模式（Cabrillo）</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="326"/>
@@ -2122,7 +2122,7 @@
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="327"/>
         <source>Transmitter ID</source>
-        <translation type="unfinished"></translation>
+        <translation>发射机 ID</translation>
     </message>
 </context>
 <context>
@@ -2553,7 +2553,7 @@
     <message>
         <location filename="../core/Migration.cpp" line="416"/>
         <source>Clublog CTY.XML</source>
-        <translation type="unfinished"></translation>
+        <translation>Clublog CTY.XML</translation>
     </message>
     <message>
         <location filename="../core/Migration.cpp" line="419"/>
@@ -4355,7 +4355,7 @@
         <location filename="../ui/DXCCSubmissionDialog.ui" line="216"/>
         <location filename="../ui/DXCCSubmissionDialog.cpp" line="340"/>
         <source>Paper</source>
-        <translation type="unfinished"></translation>
+        <translation>纸质卡片</translation>
     </message>
     <message>
         <location filename="../ui/DXCCSubmissionDialog.ui" line="241"/>
@@ -4943,18 +4943,18 @@
         <location filename="../ui/DevToolsDialog.cpp" line="82"/>
         <location filename="../ui/DevToolsDialog.cpp" line="382"/>
         <source>TXT</source>
-        <translation type="unfinished"></translation>
+        <translation>TXT</translation>
     </message>
     <message>
         <location filename="../ui/DevToolsDialog.cpp" line="84"/>
         <location filename="../ui/DevToolsDialog.cpp" line="400"/>
         <source>CSV</source>
-        <translation type="unfinished">CSV</translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="../ui/DevToolsDialog.cpp" line="86"/>
         <source>ADI</source>
-        <translation type="unfinished"></translation>
+        <translation>ADI</translation>
     </message>
     <message>
         <location filename="../ui/DevToolsDialog.cpp" line="192"/>
@@ -5310,7 +5310,7 @@ Example:
     <message>
         <location filename="../ui/DxFilterDialog.ui" line="138"/>
         <source>FTx (FT8/FT4)</source>
-        <translation type="unfinished">FTx (FT8/FT4)</translation>
+        <translation>FTx (FT8/FT4)</translation>
     </message>
     <message>
         <location filename="../ui/DxFilterDialog.ui" line="172"/>
@@ -6389,7 +6389,7 @@ The password will be needed to restore them later.</source>
     <message>
         <location filename="../ui/ImportDialog.ui" line="215"/>
         <source>&lt;p&gt;⚠ Missing QSL Sent fields are set to &lt;b&gt;&quot;N&quot;&lt;/b&gt; (do not send) by default in ADIF.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;⚠ 在 ADIF 中，缺失的 QSL Sent 字段默认会被设为 &lt;b&gt;&quot;N&quot;&lt;/b&gt;（不发送）。</translation>
     </message>
     <message>
         <location filename="../ui/ImportDialog.ui" line="228"/>
@@ -7440,7 +7440,7 @@ Submode: %2</source>
     <message>
         <location filename="../models/LogbookModel.cpp" line="811"/>
         <source>eQSL AG</source>
-        <translation type="unfinished"></translation>
+        <translation>eQSL AG</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="812"/>
@@ -9065,7 +9065,7 @@ Submode: %2</source>
     <message>
         <location filename="../ui/MainWindow.cpp" line="2069"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;基于 Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;图标由 &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt; 提供&lt;br /&gt;卫星图像由 &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt; 提供&lt;br /&gt;ZoneDetect 由 &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt; 提供&lt;br /&gt;时区数据库由 &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt; 提供</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="2100"/>
@@ -10427,8 +10427,8 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/QSLGalleryDialog.cpp" line="165"/>
         <location filename="../ui/QSLGalleryDialog.cpp" line="423"/>
         <source>%n QSL card(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n 张 QSL 卡片</numerusform>
         </translation>
     </message>
     <message>
@@ -10444,27 +10444,27 @@ You can leave fields empty and configure them later in Settings.</source>
     <message>
         <location filename="../ui/QSLGalleryDialog.cpp" line="204"/>
         <source>By Country</source>
-        <translation type="unfinished"></translation>
+        <translation>按国家/地区</translation>
     </message>
     <message>
         <location filename="../ui/QSLGalleryDialog.cpp" line="224"/>
         <source>By Date</source>
-        <translation type="unfinished"></translation>
+        <translation>按日期</translation>
     </message>
     <message>
         <location filename="../ui/QSLGalleryDialog.cpp" line="253"/>
         <source>By Band</source>
-        <translation type="unfinished"></translation>
+        <translation>按波段</translation>
     </message>
     <message>
         <location filename="../ui/QSLGalleryDialog.cpp" line="267"/>
         <source>By Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>按模式</translation>
     </message>
     <message>
         <location filename="../ui/QSLGalleryDialog.cpp" line="281"/>
         <source>By Continent</source>
-        <translation type="unfinished"></translation>
+        <translation>按洲别</translation>
     </message>
     <message>
         <location filename="../ui/QSLGalleryDialog.cpp" line="566"/>
@@ -10957,8 +10957,8 @@ You can leave fields empty and configure them later in Settings.</source>
     <message numerus="yes">
         <location filename="../ui/QSLPrintLabelDialog.cpp" line="1240"/>
         <source>Exported %n QSL card image(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>已导出 %n 张 QSL 卡片图像。</numerusform>
         </translation>
     </message>
     <message>
@@ -12674,22 +12674,22 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2186"/>
         <source>CIV Addr</source>
-        <translation type="unfinished"></translation>
+        <translation>CIV 地址</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2205"/>
         <source>Auto</source>
-        <translation type="unfinished">自动</translation>
+        <translation>自动</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2333"/>
         <source>RTS</source>
-        <translation type="unfinished">RTS</translation>
+        <translation>RTS</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2364"/>
         <source>DTR</source>
-        <translation type="unfinished">DTR</translation>
+        <translation>DTR</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="2527"/>
@@ -12810,7 +12810,7 @@ Please install Hamlib or specify the path manually.</source>
 &lt;+&gt; = Speed +5 WPM (&lt;++&gt; = +10 WPM, etc.)
 &lt;-&gt; = Speed -5 WPM (&lt;--&gt; = -10 WPM, etc.)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;CALL&gt; = DX 呼号&#10;&lt;NAME&gt; = DX 操作员姓名&#10;&lt;RST&gt; = 信号报告 599&#10;&lt;RSTN&gt; = 信号报告 5NN&#10;&lt;GREETING&gt; = 问候语 GM/GA/GE&#10;&lt;QTH&gt; = QTH&#10;&lt;MYCALL&gt; = 我的呼号&#10;&lt;MYNAME&gt; = 我的姓名&#10;&lt;MYQTH&gt; = 我的 QTH&#10;&lt;MYLOCATOR&gt; = 我的网格坐标&#10;&lt;MYGRID&gt; = 我的网格坐标&#10;&lt;MYSIG&gt; = 我的 SIG&#10;&lt;MYSIGINFO&gt; = 我的 SIG 信息&#10;&lt;MYIOTA&gt; = 我的 IOTA&#10;&lt;MYSOTA&gt; = 我的 SOTA&#10;&lt;MYWWFT&gt; = 我的 WWFT&#10;&lt;MYVUCC&gt; = 我的 VUCC&#10;&lt;MYPWR&gt; = 我的功率（W）&#10;&lt;EXCHSTR&gt; = 比赛交换信息&#10;&lt;EXCHNR&gt; = 比赛交换流水号&#10;&lt;EXCHNRN&gt; = 比赛交换流水号（9→N，0→T）&#10;&lt;+&gt; = 速度 +5 WPM（&lt;++&gt; = +10 WPM，依此类推）&#10;&lt;-&gt; = 速度 -5 WPM（&lt;--&gt; = -10 WPM，依此类推）</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="1694"/>
