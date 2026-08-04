@@ -12,7 +12,7 @@
 #include "core/LogParam.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.hrdlog");
+MODULE_IDENTIFICATION("qlog.service.hrdlog.hrdlog");
 
 const QString HRDLogBase::SECURE_STORAGE_KEY = "HRDLog";
 REGISTRATION_SECURE_SERVICE(HRDLogBase);

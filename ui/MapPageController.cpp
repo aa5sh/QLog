@@ -409,20 +409,30 @@ void MapPageController::setCurrentBand(const QString &band)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("setIbpCurrentBand(%1);")
+    runJavaScript(QStringLiteral("setCurrentBand(%1);")
                   .arg(jsonString(band)));
+}
+
+void MapPageController::setHeardMeMode(const QString &mode)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("setHeardMeMode(%1);")
+                  .arg(jsonString(mode)));
 }
 
 void MapPageController::addWsjtxSpot(const MapPoint &point,
                                      const QString &color,
-                                     const QString &textColor)
+                                     const QString &textColor,
+                                     bool halo)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("addWSJTXSpot(%1, %2, %3);")
-                  .arg(jsonObject(pointObject(point)),
-                       jsonString(color),
-                       jsonString(textColor)));
+    runJavaScript(QStringLiteral("addWSJTXSpot(%1, %2, %3, %4);")
+                  .arg(jsonObject(pointObject(point)))
+                  .arg(jsonString(color))
+                  .arg(jsonString(textColor))
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 void MapPageController::clearWsjtxSpots()
@@ -430,6 +440,33 @@ void MapPageController::clearWsjtxSpots()
     FCT_IDENTIFICATION;
 
     runJavaScript(QLatin1String("clearWSJTXSpots();"));
+}
+
+void MapPageController::clearHeardMeSpots()
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QLatin1String("clearHeardMeSpots();"));
+}
+
+void MapPageController::addHeardMePoint(const MapPoint &point,
+                                        qint32 report,
+                                        const QString &band,
+                                        const QString &displayGroup,
+                                        const QString &color,
+                                        double opacity,
+                                        bool halo)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("addHeardMePoint(%1, %2, %3, %4, %5, %6, %7);")
+                  .arg(jsonObject(pointObject(point)))
+                  .arg(report)
+                  .arg(jsonString(band))
+                  .arg(jsonString(displayGroup))
+                  .arg(jsonString(color))
+                  .arg(opacity)
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 QString MapPageController::generateIbpDataJS()
@@ -468,6 +505,8 @@ QString MapPageController::generateLayerControlJS(MapLayer::Layers layers)
     appendOption(MapLayer::Grid, tr("Grid"), QStringLiteral("maidenheadConfWorked"));
 
     appendOption(MapLayer::Grayline, tr("Gray-Line"), QStringLiteral("grayline"));
+
+    appendOption(MapLayer::HeardMe, tr("Heard Me"), QStringLiteral("heardMeLayer"));
 
     appendOption(MapLayer::Ibp, tr("IBP"), QStringLiteral("IBPLayer"));
 

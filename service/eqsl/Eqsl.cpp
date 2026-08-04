@@ -15,7 +15,7 @@
 #include "core/LogParam.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.eqsl");
+MODULE_IDENTIFICATION("qlog.service.eqsl.eqsl");
 
 extern QTemporaryDir tempDir;
 

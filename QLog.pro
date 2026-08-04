@@ -92,6 +92,7 @@ SOURCES += \
         core/LogParam.cpp \
         core/MembershipQE.cpp \
         core/Migration.cpp \
+        core/MqttClient.cpp \
         core/NetworkNotification.cpp \
         core/PasswordCipher.cpp \
         core/PlatformParameterManager.cpp \
@@ -173,6 +174,8 @@ SOURCES += \
         service/kstchat/KSTChat.cpp \
         service/lotw/Lotw.cpp \
         service/potaapp/PotaApp.cpp \
+        service/pskreporter/PSKReporter.cpp \
+        service/rbn/RBNNetwork.cpp \
         service/qrzcom/QRZ.cpp \
         service/qslinfo/QSLInfo.cpp \
         ui/ActivityEditor.cpp \
@@ -281,6 +284,7 @@ HEADERS += \
         core/LogParam.h \
         core/MembershipQE.h \
         core/Migration.h \
+        core/MqttClient.h \
         core/NetworkNotification.h \
         core/PasswordCipher.h \
         core/PlatformParameterManager.h \
@@ -316,10 +320,12 @@ HEADERS += \
         data/DxSpot.h \
         data/Dxcc.h \
         data/Gridsquare.h \
+        data/HeardMeSpot.h \
         data/HostsPortString.h \
         data/MainLayoutProfile.h \
         data/POTAEntity.h \
         data/POTASpot.h \
+        data/PskDecode.h \
         data/ProfileManager.h \
         data/RigProfile.h \
         data/RotProfile.h \
@@ -381,6 +387,8 @@ HEADERS += \
         service/kstchat/KSTChat.h \
         service/lotw/Lotw.h \
         service/potaapp/PotaApp.h \
+        service/pskreporter/PSKReporter.h \
+        service/rbn/RBNNetwork.h \
         service/qrzcom/QRZ.h \
         service/qslinfo/QSLInfo.h \
         ui/ActivityEditor.h \

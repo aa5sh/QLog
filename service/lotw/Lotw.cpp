@@ -21,7 +21,7 @@
 #include "core/LogParam.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.lotw");
+MODULE_IDENTIFICATION("qlog.service.lotw.lotw");
 
 static bool containsLotwADIFTag(const QByteArray &data, const QString &tagName)
 {

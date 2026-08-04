@@ -915,6 +915,7 @@ void NewContactWidget::refreshStationProfileCombo()
     setDxccInfo(ui->callsignEdit->text());
     updateDxccStatus();
     ui->stationProfileCombo->blockSignals(false);
+    emit stationCallsignChanged(getMyCallsign());
 }
 
 /* function just refresh Rig Profile Combo */
@@ -998,6 +999,7 @@ void NewContactWidget::__modeChanged()
     ui->submodeEdit->setFixedWidth(maxWidth);
     queryMemberList();
     refreshCallsignsColors();
+    emit currentModeChanged(ui->modeEdit->currentText());
 }
 
 /* Mode is changed from GUI */
@@ -1037,7 +1039,7 @@ void NewContactWidget::changeModefromRig(VFOID, const QString &, const QString &
 
     bandwidthFilter = width;
 
-    changeModeWithoutSignals(mode, subMode);
+    changeModeWithoutRigUpdate(mode, subMode);
 }
 
 void NewContactWidget::subModeChanged()
@@ -2714,7 +2716,7 @@ void NewContactWidget::changeSplit(VFOID, bool enabled)
                   || isManualEnterMode);
 }
 
-void NewContactWidget::changeModeWithoutSignals(const QString &mode, const QString &subMode)
+void NewContactWidget::changeModeWithoutRigUpdate(const QString &mode, const QString &subMode)
 {
     FCT_IDENTIFICATION;
 
@@ -3248,9 +3250,9 @@ void NewContactWidget::tuneDx(const DxSpot &spot)
         if ( !mode.isEmpty() )
         {
             // in case of SSB, do not sent 2 mode changes to rig
-            // therefore change Mode without signals and then set the
+            // therefore change the UI mode without a rig update and then set the
             // final mode
-            changeModeWithoutSignals(mode, subMode);
+            changeModeWithoutRigUpdate(mode, subMode);
             if (BandPlan::isFTxBandMode(spot.bandPlanMode)
                 || spot.bandPlanMode ==  BandPlan::BAND_MODE_DIGITAL )
             {
@@ -3660,6 +3662,7 @@ void NewContactWidget::stationProfileComboChanged(const QString &profileName)
     }
 
     StationProfilesManager::instance()->setCurProfile1(profileName);
+    emit stationCallsignChanged(getMyCallsign());
 
     // recalculate all stats
     setDxccInfo(ui->callsignEdit->text());
