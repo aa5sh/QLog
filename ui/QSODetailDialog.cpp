@@ -363,13 +363,13 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     /* QSL */
     mapper->addMapping(ui->qslPaperSentStatusBox, LogbookModel::COLUMN_QSL_SENT);
     mapper->addMapping(ui->qslPaperReceiveStatusBox, LogbookModel::COLUMN_QSL_RCVD);
-    mapper->addMapping(ui->qslEqslReceiveDateLabel, LogbookModel::COLUMN_EQSL_QSLRDATE);
+    mapper->addMapping(ui->qslEqslReceiveDateLabel, LogbookModel::COLUMN_EQSL_QSLRDATE, "text");
     mapper->addMapping(ui->qslEqslSentDateEdit, LogbookModel::COLUMN_EQSL_QSLSDATE);
-    mapper->addMapping(ui->qslLotwReceiveDateLabel, LogbookModel::COLUMN_LOTW_RCVD_DATE);
+    mapper->addMapping(ui->qslLotwReceiveDateLabel, LogbookModel::COLUMN_LOTW_RCVD_DATE, "text");
     mapper->addMapping(ui->qslLotwSentDateEdit, LogbookModel::COLUMN_LOTW_SENT_DATE);
-    mapper->addMapping(ui->qslEqslReceiveStatusLabel, LogbookModel::COLUMN_EQSL_QSL_RCVD);
+    mapper->addMapping(ui->qslEqslReceiveStatusLabel, LogbookModel::COLUMN_EQSL_QSL_RCVD, "text");
     mapper->addMapping(ui->qslEqslSentStatusBox, LogbookModel::COLUMN_EQSL_QSL_SENT);
-    mapper->addMapping(ui->qslLotwReceiveStatusLabel, LogbookModel::COLUMN_LOTW_RCVD);
+    mapper->addMapping(ui->qslLotwReceiveStatusLabel, LogbookModel::COLUMN_LOTW_RCVD, "text");
     mapper->addMapping(ui->qslLotwSentStatusBox, LogbookModel::COLUMN_LOTW_SENT);
     mapper->addMapping(ui->qslReceivedMsgEdit, LogbookModel::COLUMN_QSLMSG_RCVD, "text");
     mapper->addMapping(ui->qslSentMsgEdit, LogbookModel::COLUMN_QSLMSG_INTL, "text");
@@ -1667,7 +1667,7 @@ void QSOEditMapperDelegate::setEditorData(QWidget *editor,
 
         if ( label )
         {
-          QString statusIcon = QString("<img src=':/icons/%1-24px.svg'></td>").arg((index.data().toString() == "Y") ? "done" : "close");
+          QString statusIcon = QString("<img src='qrc:/icons/%1-24px.svg'>").arg((index.data().toString() == "Y") ? "done" : "close");
           label->setText(statusIcon);
           label->setProperty("originvalue", index.data());
         }

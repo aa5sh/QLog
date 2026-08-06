@@ -169,6 +169,13 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
 
     if ( role == Qt::ToolTipRole && index.column() == COLUMN_CALL )
     {
+        const auto qslStatus = [this, &index](ColumnID column)
+        {
+            const bool confirmed = QSqlTableModel::data(this->index(index.row(), column),
+                                                        Qt::DisplayRole).toString() == "Y";
+            return QStringLiteral("  <td style='color:#ababab; font-size:20px'>%1</td>")
+                    .arg(confirmed ? QStringLiteral("&#10003;") : QStringLiteral("&#10005;"));
+        };
         QString flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
 
         return QString("<img src=':/flags/64/%1.png'>").arg(flag) +
@@ -218,27 +225,15 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
                "  </tr>" +
                "  <tr> " +
                "  <td><b>" + tr("QSL Received") + "</b></td>" +
-               QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                           COLUMN_QSL_RCVD),
-                                                                                               Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-               QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                           COLUMN_LOTW_RCVD),
-                                                                                               Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-               QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                           COLUMN_EQSL_QSL_RCVD),
-                                                                                               Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
+               qslStatus(COLUMN_QSL_RCVD) +
+               qslStatus(COLUMN_LOTW_RCVD) +
+               qslStatus(COLUMN_EQSL_QSL_RCVD) +
                 "  </tr> " +
                 "  <tr> " +
                 "  <td><b>" + tr("QSL Sent") + "</b></td>" +
-                QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                            COLUMN_QSL_SENT),
-                                                                                                Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-                QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                            COLUMN_LOTW_SENT),
-                                                                                                Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-                QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                            COLUMN_EQSL_QSL_SENT),
-                                                                                                Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
+                qslStatus(COLUMN_QSL_SENT) +
+                qslStatus(COLUMN_LOTW_SENT) +
+                qslStatus(COLUMN_EQSL_QSL_SENT) +
                 "  </tr> " +
                "</table>";
     }
