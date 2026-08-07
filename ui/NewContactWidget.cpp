@@ -43,6 +43,8 @@ MODULE_IDENTIFICATION("qlog.ui.newcontactwidget");
 NewContactWidget::NewContactWidget(QWidget *parent) :
     QWidget(parent),
     rig(Rig::instance()),
+    realRigFreq(0.0),
+    realFreqForManualExit(0.0),
     dxDistance(qQNaN()),
     contactTimer(new QTimer(this)),
     ui(new Ui::NewContactWidget),
@@ -56,12 +58,14 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     rigOnline(false),
     isManualEnterMode(false),
     rigSplitEnabled(false),
+    txBandReportRequested(false),
     callbookSearchPaused(false),
     modeController(nullptr)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+
     // tab pane with QSO fields - expand & collapse
     tabCollapseBtn = new QToolButton(this);
     QIcon toggleIcon;
@@ -1058,12 +1062,13 @@ void NewContactWidget::subModeChanged()
                          bandwidthFilter);
 }
 
-void NewContactWidget::updateTXBand(double freq)
+void NewContactWidget::updateTXBand(double freq, bool reportChange)
 {
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters)<<freq;
 
+    const QString previousBandName = bandTX.name;
     bandTX = BandPlan::freq2Band(freq);
 
     if (bandTX.name.isEmpty())
@@ -1075,12 +1080,38 @@ void NewContactWidget::updateTXBand(double freq)
         ui->bandTXLabel->setText(bandTX.name);
     }
 
+    if ( reportChange
+         && !isManualEnterMode
+         && (txBandReportRequested || bandTX.name != previousBandName) )
+    {
+        txBandReportRequested = false;
+        emit txBandChanged(bandTX.name);
+    }
+
     updateSatMode();
     updateDxccStatus();
     queryPota(); // It is not possible to call the potaquert everywhere when the freq changes,
                  // call it when band is changed
     ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, BandPlan::freq2Band(ui->freqTXEdit->value()));
     ui->stationTableWidget->setDxCallsign(ui->callsignEdit->text(), BandPlan::freq2Band(ui->freqTXEdit->value()));
+}
+
+void NewContactWidget::reportTXBand()
+{
+    FCT_IDENTIFICATION;
+
+    if ( isManualEnterMode )
+        return;
+
+    txBandReportRequested = false;
+    emit txBandChanged(bandTX.name);
+}
+
+void NewContactWidget::requestTXBandReport()
+{
+    FCT_IDENTIFICATION;
+
+    txBandReportRequested = true;
 }
 
 void NewContactWidget::updateRXBand(double freq)
@@ -2696,15 +2727,30 @@ void NewContactWidget::changeSplit(VFOID, bool enabled)
 
     qCDebug(function_parameters) << enabled;
 
+    if ( isManualEnterMode )
+    {
+        qCDebug(runtime) << "Manual mode enabled - ignore event";
+        return;
+    }
+
+    applyRigSplitState(enabled, true);
+}
+
+void NewContactWidget::applyRigSplitState(bool enabled, bool reportBandChange)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << enabled << reportBandChange;
+
     rigSplitEnabled = enabled;
 
     if ( !enabled )
     {
         // Split turned off — sync TX freq back to VFO1 + XIT
-        double xitFreq = realRigFreq + RigProfilesManager::instance()->getCurProfile1().xitOffset;
+        const double xitFreq = realRigFreq + RigProfilesManager::instance()->getCurProfile1().xitOffset;
         ui->freqTXEdit->blockSignals(true);
         ui->freqTXEdit->setValue(xitFreq);
-        updateTXBand(xitFreq);
+        updateTXBand(xitFreq, reportBandChange);
         ui->freqTXEdit->blockSignals(false);
     }
 
@@ -2846,7 +2892,7 @@ void NewContactWidget::rigDisconnected()
         return;
     }
 
-    changeSplit(VFO1, false);
+    applyRigSplitState(false, false);
     uiDynamic->powerEdit->setEnabled(true);
     uiDynamic->powerEdit->setValue(RigProfilesManager::instance()->getCurProfile1().defaultPWR);
 
@@ -2899,9 +2945,7 @@ void NewContactWidget::setManualMode(bool isEnabled)
     bool isExitManualMode = ! isEnabled && isManualEnterMode;
 
     if ( isEnabled && rigOnline )
-    {
         rigDisconnected();
-    }
 
     isManualEnterMode = isEnabled;
 

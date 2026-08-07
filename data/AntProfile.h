@@ -18,6 +18,8 @@ public:
     QString description;
     double azimuthBeamWidth;
     double azimuthOffset;
+    QStringList bands;
+    QString rotProfileName;
 
     bool operator== (const AntProfile &profile);
     bool operator!= (const AntProfile &profile);
@@ -44,6 +46,9 @@ public:
         return &instance;
     };
     void save();
+    QStringList profileNamesForBand(const QString &bandName);
+    QString profileNameForBand(const QString &bandName,
+                               const QString &preferredProfileName = QString());
 
 };
 

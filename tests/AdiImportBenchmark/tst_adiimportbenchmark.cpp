@@ -415,7 +415,7 @@ bool AdiImportBenchmark::resetDatabase(QString *error)
         return false;
     }
 
-    for ( int version = 1; version <= 39; ++version )
+    for ( int version = 1; version <= 40; ++version )
     {
         if ( !executeSqlFile(version, error) )
             return false;

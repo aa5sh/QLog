@@ -105,23 +105,25 @@ void RotProfilesManager::save()
         const QStringList &keys = profileNameList();
         for ( const QString &key: keys )
         {
-            const RotProfile &rigProfile = getProfile(key);
+            const RotProfile &rotProfile = getProfile(key);
 
             insertQuery.bindValue(":profile_name", key);
-            insertQuery.bindValue(":model", rigProfile.model);
-            insertQuery.bindValue(":port_pathname", rigProfile.portPath);
-            insertQuery.bindValue(":hostname", rigProfile.hostname);
-            insertQuery.bindValue(":netport", rigProfile.netport);
-            insertQuery.bindValue(":baudrate", rigProfile.baudrate);
-            insertQuery.bindValue(":databits", rigProfile.databits);
-            insertQuery.bindValue(":stopbits", rigProfile.stopbits);
-            insertQuery.bindValue(":flowcontrol", rigProfile.flowcontrol);
-            insertQuery.bindValue(":parity", rigProfile.parity);
-            insertQuery.bindValue(":driver", rigProfile.driver);
+            insertQuery.bindValue(":model", rotProfile.model);
+            insertQuery.bindValue(":port_pathname", rotProfile.portPath);
+            insertQuery.bindValue(":hostname", rotProfile.hostname);
+            insertQuery.bindValue(":netport", rotProfile.netport);
+            insertQuery.bindValue(":baudrate", rotProfile.baudrate);
+            insertQuery.bindValue(":databits", rotProfile.databits);
+            insertQuery.bindValue(":stopbits", rotProfile.stopbits);
+            insertQuery.bindValue(":flowcontrol", rotProfile.flowcontrol);
+            insertQuery.bindValue(":parity", rotProfile.parity);
+            insertQuery.bindValue(":driver", rotProfile.driver);
 
             if ( ! insertQuery.exec() )
             {
-                qInfo() << "Station Profile DB insert error " << insertQuery.lastError().text() << insertQuery.lastQuery();
+                qInfo() << "Rotator Profile DB insert error "
+                        << insertQuery.lastError().text()
+                        << insertQuery.lastQuery();
             }
         }
     }
@@ -133,8 +135,7 @@ void RotProfilesManager::save()
     saveCurProfile1();
 }
 
-
-bool RotProfile::operator==(const RotProfile &profile)
+bool RotProfile::operator==(const RotProfile &profile) const
 {
     return (profile.profileName == this->profileName
             && profile.model == this->model
@@ -149,7 +150,7 @@ bool RotProfile::operator==(const RotProfile &profile)
             && profile.driver == this->driver);
 }
 
-bool RotProfile::operator!=(const RotProfile &profile)
+bool RotProfile::operator!=(const RotProfile &profile) const
 {
     return !operator==(profile);
 }

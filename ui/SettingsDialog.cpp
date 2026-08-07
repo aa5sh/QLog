@@ -46,6 +46,7 @@
 #include "data/Callsign.h"
 #include "core/MembershipQE.h"
 #include "data/BandmapGuide.h"
+#include "data/BandPlan.h"
 #include "models/SqlListModel.h"
 #include "service/kstchat/KSTChat.h"
 #include "data/HostsPortString.h"
@@ -413,6 +414,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    snapshotEquipmentProfiles();
     setupAdifRecoveryTab();
     setupQsoStatusColorsTable();
     refreshBandmapGuideCombo();
@@ -536,6 +538,17 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     ui->bandTableView->setItemDelegateForColumn(4,new CheckBoxDelegate(ui->bandTableView));
 
     bandTableModel->select();
+    connect(bandTableModel, &QAbstractItemModel::dataChanged, this,
+            [this](const QModelIndex &topLeft, const QModelIndex &bottomRight)
+    {
+        const int enabledColumn = bandTableModel->fieldIndex(QStringLiteral("enabled"));
+        if ( topLeft.column() <= enabledColumn
+             && bottomRight.column() >= enabledColumn )
+        {
+            updateAntBandCheckboxVisibility();
+        }
+    });
+    generateAntBandCheckboxes();
 
     ui->stationCallsignEdit->setValidator(new QRegularExpressionValidator(Callsign::callsignRegEx(), ui->stationCallsignEdit));
     ui->stationOperatorCallsignEdit->setValidator(new QRegularExpressionValidator(Callsign::callsignRegEx(), ui->stationOperatorCallsignEdit));
@@ -635,6 +648,126 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     readSettings();
 }
 
+void SettingsDialog::generateAntBandCheckboxes()
+{
+    FCT_IDENTIFICATION;
+
+    for ( const Band &band : BandPlan::bandsList(false, false) )
+    {
+        QCheckBox *antCheckbox = new QCheckBox(band.name, ui->antBandsGroup);
+        antCheckbox->setToolTip(tr("Automatically select this antenna profile on this band"));
+        antBandCheckBoxes.append(antCheckbox);
+        connect(antCheckbox, &QCheckBox::toggled, this, &SettingsDialog::updateAntBandWarning);
+    }
+
+    connect(ui->antProfileNameEdit, &QLineEdit::textChanged, this, &SettingsDialog::updateAntBandWarning);
+
+    updateAntBandCheckboxVisibility();
+}
+
+void SettingsDialog::updateAntBandCheckboxVisibility()
+{
+    FCT_IDENTIFICATION;
+
+    const int nameColumn = bandTableModel->fieldIndex(QStringLiteral("name"));
+    const int enabledColumn = bandTableModel->fieldIndex(QStringLiteral("enabled"));
+    QSet<QString> enabledBands;
+
+    for ( int row = 0; row < bandTableModel->rowCount(); ++row )
+    {
+        if ( bandTableModel->data(bandTableModel->index(row, enabledColumn),
+                                  Qt::EditRole).toBool() )
+        {
+            enabledBands.insert(bandTableModel->data(bandTableModel->index(row, nameColumn),
+                                                     Qt::EditRole).toString());
+        }
+    }
+
+    for ( QCheckBox *checkbox : antBandCheckBoxes )
+    {
+        ui->antBandsLayout->removeWidget(checkbox);
+        checkbox->hide();
+    }
+
+    int index = 0;
+    for ( QCheckBox *checkbox : antBandCheckBoxes )
+    {
+        if ( enabledBands.contains(checkbox->text()) )
+        {
+            ui->antBandsLayout->addWidget(checkbox,
+                                          index / BAND_CHECKBOX_COLUMNS,
+                                          index % BAND_CHECKBOX_COLUMNS);
+            checkbox->show();
+            ++index;
+        }
+    }
+
+    updateAntBandWarning();
+}
+
+QStringList SettingsDialog::updatedAntProfileBands(
+        const QStringList &existingBands) const
+{
+    QStringList result = existingBands;
+
+    for ( const QCheckBox *checkbox : antBandCheckBoxes )
+        result.removeAll(checkbox->text());
+
+    for ( const QCheckBox *checkbox : antBandCheckBoxes )
+    {
+        if ( checkbox->isChecked() )
+            result.append(checkbox->text());
+    }
+
+    result.removeDuplicates();
+    return result;
+}
+
+void SettingsDialog::setAntProfileBands(const QStringList &bands)
+{
+    for ( QCheckBox *checkbox : antBandCheckBoxes )
+    {
+        const QSignalBlocker blocker(checkbox);
+        checkbox->setChecked(bands.contains(checkbox->text()));
+    }
+}
+
+QString SettingsDialog::antBandConflictWarning() const
+{
+    QStringList conflicts;
+
+    for ( const QCheckBox *checkbox : antBandCheckBoxes )
+    {
+        if ( checkbox->isHidden() || !checkbox->isChecked() )
+            continue;
+
+        QStringList profileNames = antProfManager->profileNamesForBand(checkbox->text());
+        profileNames.removeAll(ui->antProfileNameEdit->text());
+        if ( !profileNames.isEmpty() )
+        {
+            conflicts.append(tr("%1 (%2)")
+                             .arg(checkbox->text().toHtmlEscaped(),
+                                  profileNames.join(QStringLiteral(", ")).toHtmlEscaped()));
+        }
+    }
+
+    if ( conflicts.isEmpty() )
+        return QString();
+
+    return tr("<b>Warning:</b> These bands are already assigned: %1.<br>"
+              "If multiple profiles match, QLog may select any of them.")
+            .arg(conflicts.join(QStringLiteral("; ")));
+}
+
+void SettingsDialog::updateAntBandWarning()
+{
+    FCT_IDENTIFICATION;
+
+    const QString warning = antBandConflictWarning();
+    ui->antBandsWarningLabel->setText(warning);
+    ui->antBandsWarningLabel->setVisible(!warning.isEmpty());
+}
+
 void SettingsDialog::save()
 {
     FCT_IDENTIFICATION;
@@ -694,6 +827,65 @@ void SettingsDialog::save()
 
     writeSettings();
     accept();
+}
+
+void SettingsDialog::reject()
+{
+    FCT_IDENTIFICATION;
+
+    restoreEquipmentProfiles();
+    QDialog::reject();
+}
+
+void SettingsDialog::snapshotEquipmentProfiles()
+{
+    FCT_IDENTIFICATION;
+
+    initialAntProfileName = antProfManager->getCurProfile1().profileName;
+    for ( const QString &profileName : antProfManager->profileNameList() )
+        initialAntProfiles.insert(profileName, antProfManager->getProfile(profileName));
+
+    initialRotProfileName = rotProfManager->getCurProfile1().profileName;
+    for ( const QString &profileName : rotProfManager->profileNameList() )
+        initialRotProfiles.insert(profileName, rotProfManager->getProfile(profileName));
+}
+
+void SettingsDialog::restoreEquipmentProfiles()
+{
+    FCT_IDENTIFICATION;
+
+    if ( equipmentProfilesRestored )
+        return;
+
+    equipmentProfilesRestored = true;
+
+    const QString currentAntProfileName = antProfManager->getCurProfile1().profileName;
+    const QString restoredAntProfileName = initialAntProfiles.contains(currentAntProfileName) ? currentAntProfileName
+                                                                                              : initialAntProfileName;
+
+    for ( const QString &profileName : antProfManager->profileNameList() )
+        if ( !initialAntProfiles.contains(profileName) )
+            antProfManager->removeProfile(profileName);
+
+    for ( auto profile = initialAntProfiles.cbegin(); profile != initialAntProfiles.cend(); ++profile )
+        antProfManager->addProfile(profile.key(), profile.value());
+
+    if ( antProfManager->getCurProfile1().profileName != restoredAntProfileName )
+        antProfManager->setCurProfile1(restoredAntProfileName);
+
+    const QString currentRotProfileName = rotProfManager->getCurProfile1().profileName;
+    const QString restoredRotProfileName = initialRotProfiles.contains(currentRotProfileName) ? currentRotProfileName
+                                                                                              : initialRotProfileName;
+
+    for ( const QString &profileName : rotProfManager->profileNameList() )
+        if ( !initialRotProfiles.contains(profileName) )
+            rotProfManager->removeProfile(profileName);
+
+    for ( auto profile = initialRotProfiles.cbegin(); profile != initialRotProfiles.cend(); ++profile )
+        rotProfManager->addProfile(profile.key(), profile.value());
+
+    if ( rotProfManager->getCurProfile1().profileName != restoredRotProfileName )
+        rotProfManager->setCurProfile1(restoredRotProfileName);
 }
 
 void SettingsDialog::addRigProfile()
@@ -1122,7 +1314,17 @@ void SettingsDialog::delRotProfile()
     FCT_IDENTIFICATION;
     deleteSelectedProfiles(ui->rotProfilesListView, [this](const QString &name) {
         rotProfManager->removeProfile(name);
+        for ( const QString &antProfileName : antProfManager->profileNameList() )
+        {
+            AntProfile profile = antProfManager->getProfile(antProfileName);
+            if ( profile.rotProfileName == name )
+            {
+                profile.rotProfileName.clear();
+                antProfManager->addProfile(antProfileName, profile);
+            }
+        }
     });
+    refreshAntRotProfileCombo();
     clearRotProfileForm();
 }
 
@@ -1130,6 +1332,21 @@ void SettingsDialog::refreshRotProfilesView()
 {
     FCT_IDENTIFICATION;
     refreshProfileView(ui->rotProfilesListView, rotProfManager->profileNameList());
+    refreshAntRotProfileCombo();
+}
+
+void SettingsDialog::refreshAntRotProfileCombo()
+{
+    FCT_IDENTIFICATION;
+
+    const QString selectedProfile = ui->antRotProfileCombo->currentData().toString();
+    ui->antRotProfileCombo->clear();
+    ui->antRotProfileCombo->addItem(tr("None"), QString());
+
+    for ( const QString &profileName : rotProfManager->profileNameList() )
+        ui->antRotProfileCombo->addItem(profileName, profileName);
+
+    setComboByData(ui->antRotProfileCombo, selectedProfile);
 }
 
 void SettingsDialog::doubleClickRotProfile(QModelIndex i)
@@ -1331,9 +1548,7 @@ void SettingsDialog::addAntProfile()
     }
 
     if ( ui->antAddProfileButton->text() == tr("Modify"))
-    {
         ui->antAddProfileButton->setText(tr("Add"));
-    }
 
     AntProfile profile;
 
@@ -1341,6 +1556,14 @@ void SettingsDialog::addAntProfile()
     profile.description = ui->antDescEdit->toPlainText();
     profile.azimuthBeamWidth = ui->antAzBeamWidthSpinBox->value();
     profile.azimuthOffset = ui->antAzOffsetSpinBox->value();
+
+    QStringList existingBands;
+
+    if ( antProfManager->profileNameList().contains(profile.profileName) )
+        existingBands = antProfManager->getProfile(profile.profileName).bands;
+
+    profile.bands = updatedAntProfileBands(existingBands);
+    profile.rotProfileName = ui->antRotProfileCombo->currentData().toString();
 
     antProfManager->addProfile(profile.profileName, profile);
 
@@ -1373,6 +1596,9 @@ void SettingsDialog::doubleClickAntProfile(QModelIndex i)
     ui->antDescEdit->setPlainText(profile.description);
     ui->antAzBeamWidthSpinBox->setValue(profile.azimuthBeamWidth);
     ui->antAzOffsetSpinBox->setValue(profile.azimuthOffset);
+    setAntProfileBands(profile.bands);
+    setComboByData(ui->antRotProfileCombo, profile.rotProfileName);
+    updateAntBandWarning();
 
     ui->antAddProfileButton->setText(tr("Modify"));
 
@@ -1388,8 +1614,11 @@ void SettingsDialog::clearAntProfileForm()
     ui->antDescEdit->clear();
     ui->antAzBeamWidthSpinBox->setValue(0.0);
     ui->antAzOffsetSpinBox->setValue(0.0);
+    setAntProfileBands(QStringList());
+    ui->antRotProfileCombo->setCurrentIndex(0);
 
     ui->antAddProfileButton->setText(tr("Add"));
+    updateAntBandWarning();
 }
 
 void SettingsDialog::addCWKeyProfile()

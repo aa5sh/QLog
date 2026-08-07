@@ -1,5 +1,6 @@
 #ifndef QLOG_ROTATOR_ROTATOR_H
 #define QLOG_ROTATOR_ROTATOR_H
+#include <atomic>
 #include <QTimer>
 
 #include "data/RotProfile.h"
@@ -51,7 +52,6 @@ public slots:
 private slots:
     void setPositionImpl(double azimuth, double elevation);
     void stopTimerImplt();
-    void openImpl();
     void closeImpl();
     void shutdownImpl();
     void sendStateImpl();
@@ -89,8 +89,9 @@ private:
 
     QMap<int, DrvParams> drvMapping;
 
+    void openImpl(const RotProfile &profile, quint64 requestSequence);
     void __closeRot();
-    void __openRot();
+    void __openRot(const RotProfile &profile);
 
     GenericRotDrv *getDriver(const RotProfile &profile);
 
@@ -100,6 +101,7 @@ private:
     bool connected;
     double cacheAzimuth;
     double cacheElevation;
+    std::atomic<quint64> openRequestSequence;
 };
 
 #endif // QLOG_ROTATOR_ROTATOR_H

@@ -236,6 +236,7 @@ signals:
     void callsignChanged(const QString& callsign);
     void stationCallsignChanged(const QString &callsign);
     void contactReset();
+    void txBandChanged(const QString &bandName);
 
 public slots:
     void refreshRigProfileCombo();
@@ -256,6 +257,8 @@ public slots:
     void changePower(VFOID, double power);
     void rigConnected();
     void rigDisconnected();
+    void reportTXBand();
+    void requestTXBandReport();
     void setNearestSpot(const DxSpot &);
     void setNearestSpotColor();
     void setManualMode(bool);
@@ -324,7 +327,7 @@ private:
     void readWidgetSettings();
     void writeWidgetSetting();
     void __modeChanged();
-    void updateTXBand(double freq);
+    void updateTXBand(double freq, bool reportChange = true);
     void updateRXBand(double freq);
     void updateCoordinates(double lat, double lon, CoordPrecision prec);
     void clearCoordinates();
@@ -344,6 +347,7 @@ private:
     void changeCallsignManually(const QString &);
     void changeCallsignManually(const QString &, double);
     void __changeFrequency(VFOID, double vfoFreq, double ritFreq, double xitFreq);
+    void applyRigSplitState(bool enabled, bool reportBandChange);
     void showRXTXFreqs(bool);
     void setComboBaseData(QComboBox *, const QString &);
     void queryMemberList();
@@ -405,6 +409,7 @@ private:
     WWFFEntity lastWWFF;
     bool isManualEnterMode;
     bool rigSplitEnabled;
+    bool txBandReportRequested;
     LogLocale locale;
     QDateTime timeOff;
     bool callbookSearchPaused;

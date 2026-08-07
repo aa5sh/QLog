@@ -20,7 +20,8 @@ Rotator::Rotator(QObject *parent) :
     rotDriver(nullptr),
     connected(false),
     cacheAzimuth(0.0),
-    cacheElevation(0.0)
+    cacheElevation(0.0),
+    openRequestSequence(0)
 {
     FCT_IDENTIFICATION;
 
@@ -131,6 +132,8 @@ void Rotator::shutdown()
 {
     FCT_IDENTIFICATION;
 
+    ++openRequestSequence;
+
     if ( QThread::currentThread() == thread() )
     {
         shutdownImpl();
@@ -180,15 +183,27 @@ void Rotator::open()
 {
     FCT_IDENTIFICATION;
 
-    QMetaObject::invokeMethod(this, &Rotator::openImpl, Qt::QueuedConnection);
+    const RotProfile profile = RotProfilesManager::instance()->getCurProfile1();
+    const quint64 requestSequence = ++openRequestSequence;
+    QMetaObject::invokeMethod(this, [this, profile, requestSequence]()
+    {
+        openImpl(profile, requestSequence);
+    }, Qt::QueuedConnection);
 }
 
-void Rotator::openImpl()
+void Rotator::openImpl(const RotProfile &profile, quint64 requestSequence)
 {
     FCT_IDENTIFICATION;
 
     MUTEXLOCKER;
-    __openRot();
+
+    if ( requestSequence != openRequestSequence.load() )
+    {
+        qCDebug(runtime) << "Skipping obsolete Rotator open request";
+        return;
+    }
+
+    __openRot(profile);
 }
 
 void Rotator::sendState()
@@ -210,14 +225,9 @@ void Rotator::sendStateImpl()
     rotDriver->sendState();
 }
 
-void Rotator::__openRot()
+void Rotator::__openRot(const RotProfile &newRotProfile)
 {
     FCT_IDENTIFICATION;
-
-    // if rot is active then close it
-    __closeRot();
-
-    RotProfile newRotProfile = RotProfilesManager::instance()->getCurProfile1();
 
     if ( newRotProfile == RotProfile() )
     {
@@ -225,6 +235,20 @@ void Rotator::__openRot()
                              QString());
         return;
     }
+
+    if ( rotDriver )
+    {
+        const RotProfile &currentProfile = rotDriver->getCurrRotProfile();
+        if ( currentProfile == newRotProfile )
+        {
+            qCDebug(runtime) << "Rotator profile is already open:"
+                             << newRotProfile.profileName;
+            return;
+        }
+    }
+
+    // if rot is active then close it
+    __closeRot();
 
     qCDebug(runtime) << "Opening profile name: " << newRotProfile.profileName;
 
@@ -296,6 +320,7 @@ void Rotator::close()
 {
     FCT_IDENTIFICATION;
 
+    ++openRequestSequence;
     QMetaObject::invokeMethod(this, &Rotator::closeImpl, Qt::QueuedConnection);
 }
 

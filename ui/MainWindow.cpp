@@ -41,6 +41,7 @@
 #include "data/StationProfile.h"
 #include "data/RigProfile.h"
 #include "data/RotProfile.h"
+#include "data/BandPlan.h"
 #include "ui/DownloadQSLDialog.h"
 #include "ui/UploadQSODialog.h"
 #include "ui/QSLImportStatDialog.h"
@@ -209,11 +210,15 @@ MainWindow::MainWindow(QWidget* parent) :
             this, &MainWindow::handleActivityChange);
     connect(ActivityProfilesManager::instance(), &ActivityProfilesManager::changeFinished,
             ui->newContactWidget, &NewContactWidget::setValuesFromActivity);
+    connect(ui->newContactWidget, &NewContactWidget::txBandChanged,
+            this, &MainWindow::selectEquipmentProfilesForBand);
 
     connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::refreshAntProfileCombo);
     connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
             ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
+    connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
+            this, &MainWindow::selectRotatorForAntennaProfile);
 
     connect(RotProfilesManager::instance(), &RotProfilesManager::profileChanged,
             ui->rotatorWidget, &RotatorWidget::refreshRotProfileCombo);
@@ -222,6 +227,8 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->newContactWidget, &NewContactWidget::refreshRigProfileCombo);
     connect(RigProfilesManager::instance(), &RigProfilesManager::profileChanged,
             ui->rigWidget, &RigWidget::refreshRigProfileCombo);
+
+    ui->newContactWidget->reportTXBand();
 
     connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::setupCustomUi);
@@ -680,7 +687,11 @@ void MainWindow::rigConnect()
     if ( ui->actionConnectRig->isChecked() )
         Rig::instance()->open();
     else
+    {
+        if ( rotatorConnectPending )
+            ui->newContactWidget->reportTXBand();
         Rig::instance()->close();
+    }
 }
 
 void MainWindow::rigErrorHandler(const QString &error, const QString &errorDetail)
@@ -690,7 +701,10 @@ void MainWindow::rigErrorHandler(const QString &error, const QString &errorDetai
     QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
                          QMessageBox::tr("<b>Rig Error:</b> ") + error
                                          + "<p>" + tr("<b>Error Detail:</b> ") + errorDetail + "</p>");
-    ui->actionConnectRig->setChecked(false);
+    if ( ui->actionConnectRig->isChecked() )
+        ui->actionConnectRig->setChecked(false);
+    else
+        rigConnect();
 }
 
 void MainWindow::rotErrorHandler(const QString &error, const QString &errorDetail)
@@ -1915,9 +1929,18 @@ void MainWindow::handleActivityChange(const QString name)
 
     const QVariant &valueRig = profile.getProfileParam(ActivityProfile::ProfileType::RIG_PROFILE,
                                                        ActivityProfile::ProfileParamType::CONNECT);
+    const RigProfile &rigProfile = RigProfilesManager::instance()->getCurProfile1();
+    const bool activityRigIsCurrent = !valueRig.isNull()
+                                      && rigProfile.profileName == profile.profiles.value(ActivityProfile::RIG_PROFILE).name;
+    const bool waitForRigBand = activityRigIsCurrent
+                                && valueRig.toBool()
+                                && !ui->actionManualContact->isChecked()
+                                && rigProfile.getFreqInfo;
 
-    if ( !valueRig.isNull()
-        && RigProfilesManager::instance()->getCurProfile1().profileName == profile.profiles[ActivityProfile::ProfileType::RIG_PROFILE].name )
+    if ( waitForRigBand )
+        ui->newContactWidget->requestTXBandReport();
+
+    if ( activityRigIsCurrent )
     {
         if ( ui->actionConnectRig->isChecked() && valueRig.toBool() )
             rigConnect();
@@ -1925,17 +1948,8 @@ void MainWindow::handleActivityChange(const QString name)
             ui->actionConnectRig->setChecked(valueRig.toBool()); // rigConnect is called when the signal is processed
     }
 
-    const QVariant &valueRot = profile.getProfileParam(ActivityProfile::ProfileType::ROT_PROFILE,
-                                                       ActivityProfile::ProfileParamType::CONNECT);
-
-    if ( !valueRig.isNull()
-          && RotProfilesManager::instance()->getCurProfile1().profileName == profile.profiles[ActivityProfile::ProfileType::ROT_PROFILE].name )
-    {
-        if ( ui->actionConnectRotator->isChecked() && valueRig.toBool() )
-            rotConnect();
-        else
-            ui->actionConnectRotator->setChecked(valueRot.toBool()); // rotConnect is called when the signal is processed
-    }
+    if ( !waitForRigBand )
+        ui->newContactWidget->reportTXBand();
 }
 
 void MainWindow::rotConnect()
@@ -1948,6 +1962,97 @@ void MainWindow::rotConnect()
         Rotator::instance()->open();
     else
         Rotator::instance()->close();
+}
+
+void MainWindow::selectEquipmentProfilesForBand(const QString &bandName)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << bandName;
+
+    if ( equipmentProfileSelectionSuspended )
+    {
+        pendingEquipmentBand = bandName;
+        return;
+    }
+
+    bool isEnabledBand = false;
+    for ( const Band &band : BandPlan::bandsList(false, true) )
+    {
+        if ( band.name == bandName )
+        {
+            isEnabledBand = true;
+            break;
+        }
+    }
+
+    if ( !isEnabledBand )
+    {
+        if ( rotatorConnectPending )
+        {
+            rotatorConnectPending = false;
+            rotConnect();
+        }
+        return;
+    }
+
+    AntProfilesManager *antManager = AntProfilesManager::instance();
+    const ActivityProfile &activity = ActivityProfilesManager::instance()->getCurProfile1();
+    const QString preferredAntenna = activity.profiles.value(ActivityProfile::ANTENNA_PROFILE).name;
+    const QString antProfileName = antManager->profileNameForBand(bandName, preferredAntenna);
+
+    if ( !antProfileName.isEmpty() )
+    {
+        if ( antProfileName != antManager->getCurProfile1().profileName )
+            antManager->setCurProfile1(antProfileName);
+        else
+            selectRotatorForAntennaProfile(antProfileName);
+    }
+
+    if ( rotatorConnectPending )
+    {
+        rotatorConnectPending = false;
+        rotConnect();
+    }
+}
+
+void MainWindow::selectRotatorForAntennaProfile(const QString &antennaProfileName)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << antennaProfileName;
+
+    if ( equipmentProfileSelectionSuspended || antennaProfileName.isEmpty() )
+        return;
+
+    const AntProfile &antennaProfile = AntProfilesManager::instance()->getProfile(antennaProfileName);
+    const QString &rotProfileName = antennaProfile.rotProfileName;
+    RotProfilesManager *rotManager = RotProfilesManager::instance();
+
+    if ( rotProfileName.isEmpty()
+         || !rotManager->profileNameList().contains(rotProfileName) )
+    {
+        rotatorConnectPending = false;
+        if ( ui->actionConnectRotator->isChecked() )
+            ui->actionConnectRotator->setChecked(false);
+        return;
+    }
+
+    bool profileChanged = false;
+    if ( rotProfileName != rotManager->getCurProfile1().profileName )
+    {
+        rotManager->setCurProfile1(rotProfileName);
+        profileChanged = rotManager->getCurProfile1().profileName == rotProfileName;
+        if ( !profileChanged )
+            return;
+    }
+
+    const bool reconnectPending = rotatorConnectPending;
+    rotatorConnectPending = false;
+    if ( !ui->actionConnectRotator->isChecked() )
+        ui->actionConnectRotator->setChecked(true);
+    else if ( profileChanged || reconnectPending )
+        Rotator::instance()->open();
 }
 
 void MainWindow::cwKeyerConnect()
@@ -2021,13 +2126,45 @@ void MainWindow::showSettings()
 {
     FCT_IDENTIFICATION;
 
+    equipmentProfileSelectionSuspended = true;
+    pendingEquipmentBand.clear();
     SettingsDialog sw(this);
+    const int result = sw.exec();
+    equipmentProfileSelectionSuspended = false;
 
-    if ( sw.exec() == QDialog::Accepted )
+    const RigProfile &rigProfile = RigProfilesManager::instance()->getCurProfile1();
+    const bool waitForRigBand = result == QDialog::Accepted
+                                && ui->actionConnectRig->isChecked()
+                                && !ui->actionManualContact->isChecked()
+                                && rigProfile.getFreqInfo;
+    rotatorConnectPending = result == QDialog::Accepted;
+    bool equipmentBandSelectionUpdated = false;
+
+    if ( !pendingEquipmentBand.isEmpty() )
     {
+        const QString bandName = pendingEquipmentBand;
+        pendingEquipmentBand.clear();
+        if ( !waitForRigBand )
+        {
+            selectEquipmentProfilesForBand(bandName);
+            equipmentBandSelectionUpdated = true;
+        }
+    }
+
+    if ( result == QDialog::Accepted )
+    {
+        if ( waitForRigBand )
+            ui->newContactWidget->requestTXBandReport();
+        else if ( !equipmentBandSelectionUpdated )
+            ui->newContactWidget->reportTXBand();
+
         Data::instance()->clearDXCCStatusCache();
         rigConnect();
-        rotConnect();
+        if ( !waitForRigBand && rotatorConnectPending )
+        {
+            rotatorConnectPending = false;
+            rotConnect();
+        }
         stationProfileChanged();
 
         MembershipQE::instance()->updateLists();
@@ -2035,7 +2172,10 @@ void MainWindow::showSettings()
         emit settingsChanged();
     }
     else
+    {
+        rotatorConnectPending = false;
         restoreUserDefinedShortcuts();
+    }
 }
 
 void MainWindow::showStatistics()
