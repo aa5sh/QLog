@@ -218,7 +218,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
             ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
-            this, &MainWindow::selectRotatorForAntennaProfile);
+            this, &MainWindow::selectEffectiveRotatorProfile);
 
     connect(RotProfilesManager::instance(), &RotProfilesManager::profileChanged,
             ui->rotatorWidget, &RotatorWidget::refreshRotProfileCombo);
@@ -1644,8 +1644,7 @@ void MainWindow::setupActivitiesMenu()
     }
     connect(classicLayoutAction, &QAction::triggered, this, [this, classicLayoutAction]()
     {
-        //save empty profile
-        // Classic Action is only about Layout
+        // Classic has no explicit Activity equipment overrides.
         MainLayoutProfilesManager::instance()->setCurProfile1("");
         ActivityProfilesManager::instance()->setCurProfile1("");
         ui->actionSaveGeometry->setEnabled(false);
@@ -1948,6 +1947,9 @@ void MainWindow::handleActivityChange(const QString name)
             ui->actionConnectRig->setChecked(valueRig.toBool()); // rigConnect is called when the signal is processed
     }
 
+    if ( profile.profiles.contains(ActivityProfile::ProfileType::ROT_PROFILE) )
+        selectEffectiveRotatorProfile(AntProfilesManager::instance()->getCurProfile1().profileName);
+
     if ( !waitForRigBand )
         ui->newContactWidget->reportTXBand();
 }
@@ -2006,7 +2008,7 @@ void MainWindow::selectEquipmentProfilesForBand(const QString &bandName)
         if ( antProfileName != antManager->getCurProfile1().profileName )
             antManager->setCurProfile1(antProfileName);
         else
-            selectRotatorForAntennaProfile(antProfileName);
+            selectEffectiveRotatorProfile(antProfileName);
     }
 
     if ( rotatorConnectPending )
@@ -2016,21 +2018,46 @@ void MainWindow::selectEquipmentProfilesForBand(const QString &bandName)
     }
 }
 
-void MainWindow::selectRotatorForAntennaProfile(const QString &antennaProfileName)
+void MainWindow::selectEffectiveRotatorProfile(const QString &antennaProfileName)
 {
     FCT_IDENTIFICATION;
 
     qCDebug(function_parameters) << antennaProfileName;
 
-    if ( equipmentProfileSelectionSuspended || antennaProfileName.isEmpty() )
+    if ( equipmentProfileSelectionSuspended )
+        return;
+
+    const ActivityProfile &activity = ActivityProfilesManager::instance()->getCurProfile1();
+    const auto rotatorOverride = activity.profiles.constFind(ActivityProfile::ProfileType::ROT_PROFILE);
+
+    if ( rotatorOverride != activity.profiles.constEnd() )
+    {
+        applyRotatorProfile(rotatorOverride.value().name,
+                            activity.getProfileParam(ActivityProfile::ProfileType::ROT_PROFILE,
+                                                     ActivityProfile::ProfileParamType::CONNECT).toBool());
+        return;
+    }
+
+    if ( antennaProfileName.isEmpty() )
         return;
 
     const AntProfile &antennaProfile = AntProfilesManager::instance()->getProfile(antennaProfileName);
-    const QString &rotProfileName = antennaProfile.rotProfileName;
+    if ( antennaProfile.rotProfileName.isEmpty() )
+        return;
+
+    applyRotatorProfile(antennaProfile.rotProfileName, true);
+}
+
+void MainWindow::applyRotatorProfile(const QString &profileName, bool connectRotator)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << profileName << connectRotator;
+
     RotProfilesManager *rotManager = RotProfilesManager::instance();
 
-    if ( rotProfileName.isEmpty()
-         || !rotManager->profileNameList().contains(rotProfileName) )
+    if ( profileName.isEmpty()
+         || !rotManager->profileNameList().contains(profileName) )
     {
         rotatorConnectPending = false;
         if ( ui->actionConnectRotator->isChecked() )
@@ -2039,12 +2066,20 @@ void MainWindow::selectRotatorForAntennaProfile(const QString &antennaProfileNam
     }
 
     bool profileChanged = false;
-    if ( rotProfileName != rotManager->getCurProfile1().profileName )
+    if ( profileName != rotManager->getCurProfile1().profileName )
     {
-        rotManager->setCurProfile1(rotProfileName);
-        profileChanged = rotManager->getCurProfile1().profileName == rotProfileName;
+        rotManager->setCurProfile1(profileName);
+        profileChanged = rotManager->getCurProfile1().profileName == profileName;
         if ( !profileChanged )
             return;
+    }
+
+    if ( !connectRotator )
+    {
+        rotatorConnectPending = false;
+        if ( ui->actionConnectRotator->isChecked() )
+            ui->actionConnectRotator->setChecked(false);
+        return;
     }
 
     const bool reconnectPending = rotatorConnectPending;

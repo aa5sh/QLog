@@ -1293,10 +1293,10 @@
           <item row="1" column="0">
            <widget class="QCheckBox" name="antennaProfileCheckbox">
             <property name="toolTip">
-             <string>Override automatic band selection with this antenna while the Activity is active. If unchecked, the antenna is selected automatically.</string>
+             <string>Use this antenna profile instead of automatic TX-band selection while this Activity is active. If unchecked, QLog selects the antenna automatically from the current TX band when a matching profile exists.</string>
             </property>
             <property name="text">
-             <string>Activity Antenna</string>
+             <string>Antenna Override</string>
             </property>
            </widget>
           </item>
@@ -1343,6 +1343,49 @@
               </property>
               <property name="toolTip">
                <string>Connect automatically</string>
+              </property>
+              <property name="text">
+               <string>Connect</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="rotatorProfileCheckbox">
+            <property name="toolTip">
+             <string>Use this rotator profile instead of the active antenna's Assigned Rotator while this Activity is active. If unchecked, QLog uses the active antenna's Assigned Rotator, or leaves the current rotator unchanged when none is assigned.</string>
+            </property>
+            <property name="text">
+             <string>Rotator Override</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QComboBox" name="rotatorProfileCombo">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="rotatorAutoconnectCheckbox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Connect the overridden rotator while this Activity is active. If unchecked, the rotator profile is selected but the rotator is disconnected.</string>
               </property>
               <property name="text">
                <string>Connect</string>
@@ -1522,6 +1565,9 @@
   <tabstop>rigProfileCheckbox</tabstop>
   <tabstop>rigProfileCombo</tabstop>
   <tabstop>rigAutoconnectCheckbox</tabstop>
+  <tabstop>rotatorProfileCheckbox</tabstop>
+  <tabstop>rotatorProfileCombo</tabstop>
+  <tabstop>rotatorAutoconnectCheckbox</tabstop>
   <tabstop>bandmapGuideCombo</tabstop>
   <tabstop>contestIDCheckbox</tabstop>
   <tabstop>contestIDEdit</tabstop>
@@ -1658,6 +1704,22 @@
    <hints>
     <hint type="sourcelabel">
      <x>45</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rotatorProfileCheckbox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>ActivityEditor</receiver>
+   <slot>setValueState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
      <y>108</y>
     </hint>
     <hint type="destinationlabel">

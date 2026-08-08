@@ -7,15 +7,15 @@ TBC - 0.52.0
 - [NEW] - LoTW/eQSL - Report reasons for unmatched QSOs
 - [NEW] - Online Map - Added HeardMe Spot from PSKReporter and RBN (PR #1115 #1107 @aa5sh @foldynl)
 - [NEW] - Online Map - WSJTX-CQ Added the second ring if SNR > -15dB
-- [NEW] - Settings - Antenna profile can be selected according to the band (issue #392 #781)
-- [NEW] - Settings - Antenna profile can define Rotator profile
+- [NEW] - Settings - Antenna profile can be selected automatically by TX band (issue #392 #781)
+- [NEW] - Settings - Antenna profile can have an Assigned Rotator
 - [CHANGED] - Online Map - Improve dark mode night-side visibility
 - [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)
 - [CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)
 - [CHANGED] - Logging External QSO - Warn once per station context is different
 - [CHANGED] - LoTW - Do not overwrite paper QSL received-via field
 - [CHANGED] - LoTW - Resolve ambiguous QSL matches by exact time
-- [CHANGED] - Activity Editor - Removed Rotator - Control moved to Antenna Profile
+- [CHANGED] - Activity Editor - Rotator Override takes priority over the antenna's Assigned Rotator
 - Fixed WAAC not connected to the Log (issue #1097)
 - Fixed Cannot directly edit notes or multiline fields (issue #1111)
 - Fixed LoTW - Merge QSL credits instead of overwriting them

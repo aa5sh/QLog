@@ -565,7 +565,7 @@
                  <item row="4" column="1">
                   <widget class="QComboBox" name="antRotProfileCombo">
                    <property name="toolTip">
-                    <string>Rotator used by this antenna. Select None for a fixed antenna.</string>
+                    <string>Rotator profile selected and connected automatically when this antenna profile becomes active. An Activity Rotator Override takes priority. Select None to leave the current rotator profile and connection unchanged.</string>
                    </property>
                   </widget>
                  </item>
@@ -578,7 +578,7 @@
                     </sizepolicy>
                    </property>
                    <property name="title">
-                    <string>Bands</string>
+                    <string>Auto-Select on Bands</string>
                    </property>
                    <layout class="QVBoxLayout" name="antBandsGroupLayout">
                     <property name="spacing">

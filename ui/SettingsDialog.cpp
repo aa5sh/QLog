@@ -655,7 +655,7 @@ void SettingsDialog::generateAntBandCheckboxes()
     for ( const Band &band : BandPlan::bandsList(false, false) )
     {
         QCheckBox *antCheckbox = new QCheckBox(band.name, ui->antBandsGroup);
-        antCheckbox->setToolTip(tr("Automatically select this antenna profile on this band"));
+        antCheckbox->setToolTip(tr("Automatically select this antenna profile when this is the current TX band and no Activity Antenna Override is active"));
         antBandCheckBoxes.append(antCheckbox);
         connect(antCheckbox, &QCheckBox::toggled, this, &SettingsDialog::updateAntBandWarning);
     }
@@ -754,8 +754,9 @@ QString SettingsDialog::antBandConflictWarning() const
     if ( conflicts.isEmpty() )
         return QString();
 
-    return tr("<b>Warning:</b> These bands are already assigned: %1.<br>"
-              "If multiple profiles match, QLog may select any of them.")
+    return tr("<b>Warning:</b> These bands are also assigned to other antenna profiles: %1.<br>"
+              "If multiple profiles match, QLog keeps the current matching profile; "
+              "otherwise it selects the first profile by name.")
             .arg(conflicts.join(QStringLiteral("; ")));
 }
 

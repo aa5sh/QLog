@@ -53,7 +53,7 @@ private slots:
     void rigConnect();
     void rotConnect();
     void selectEquipmentProfilesForBand(const QString &bandName);
-    void selectRotatorForAntennaProfile(const QString &antennaProfileName);
+    void selectEffectiveRotatorProfile(const QString &antennaProfileName);
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -145,6 +145,7 @@ private:
     void restoreContestMenuLinkExchange();
 
     QString stationCallsignStatus(const StationProfile &profile) const;
+    void applyRotatorProfile(const QString &profileName, bool connectRotator);
 
     void openNonVfoBandmaps(const QList<QPair<QString, QString>> &list);
     void clearNonVfoBandmaps();
