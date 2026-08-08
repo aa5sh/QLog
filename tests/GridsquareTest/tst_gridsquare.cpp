@@ -420,7 +420,12 @@ void GridsquareTest::distanceToCoordinates_data()
 
     const Case cases[] = {
         {"invalid_grid", false, "18123", 0.0, 0.0, 12.0, 17.9, false, 0},
+        {"invalid_target_nan", true, "", 18.0, 17.9, qQNaN(), 17.9, false, 0},
+        {"invalid_target_latitude", true, "", 18.0, 17.9, 90.0, 17.9, false, 0},
+        {"invalid_target_longitude", true, "", 18.0, 17.9, 12.0, 180.0, false, 0},
         {"from_latlon", true, "", 18.0, 17.9, 12.0, 17.9, true, 667},
+        {"antipodal_rounding", true, "", -89.52083333333333, -179.95833333333334,
+         89.52083333333333, 0.04166666666665719, true, 20016},
         {"grid_aa11", false, "AA11", 0.0, 0.0, 12.0, 17.9, true, 11504},
         {"grid_aa11cd", false, "AA11CD", 0.0, 0.0, 12.0, 17.9, true, 11465},
         {"grid_aa11cd22", false, "AA11CD22", 0.0, 0.0, 12.0, 17.9, true, 11464},
@@ -461,6 +466,7 @@ void GridsquareTest::distanceToCoordinates()
 
     if (expectedResult)
     {
+        QVERIFY(qIsFinite(distance));
         QCOMPARE(qRound(distance), expectedRoundedDistance);
     }
     else
