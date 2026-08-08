@@ -355,7 +355,7 @@ DXSpotNotificationMsg::DXSpotNotificationMsg(const DxSpot &spot, QObject *parent
 
     QJsonObject spotData;
     spotData["rcvtime"] = spot.dateTime.toString("yyyyMMdd hh:mm:ss");
-    spotData["freq"] = qRound(spot.freq * 10000.0) / 10000.0;
+    spotData["freq"] = normalizeFrequency(spot.freq);
     spotData["band"] = spot.band;
     spotData["mode"] = spot.modeGroupString; 
     spotData["comment"] = spot.comment;
@@ -427,7 +427,7 @@ WSJTXCQSpotNotificationMsg::WSJTXCQSpotNotificationMsg(const WsjtxEntry &spot, Q
 
     QJsonObject spotData;
     spotData["rcvtime"] = spot.receivedTime.toString("yyyyMMdd hh:mm:ss");
-    spotData["freq"] = qRound(spot.freq * 10000.0) / 10000.0;
+    spotData["freq"] = normalizeFrequency(spot.freq);
     spotData["band"] = spot.band;
     spotData["mode"] = spot.decodedMode;
     spotData["comment"] = spot.decode.message;
@@ -455,6 +455,13 @@ GenericSpotNotificationMsg::GenericSpotNotificationMsg(QObject *parent)
     : GenericNotificationMsg(parent)
 {
     FCT_IDENTIFICATION;
+}
+
+double GenericSpotNotificationMsg::normalizeFrequency(double frequency)
+{
+    // Network notification frequencies use four decimal places in MHz (100 Hz).
+    constexpr double roundingScale = 10000.0;
+    return qRound64(frequency * roundingScale) / roundingScale;
 }
 
 /* Spot Alert Message
@@ -508,7 +515,7 @@ SpotAlertNotificationMsg::SpotAlertNotificationMsg(const SpotAlert &alert, QObje
 
     QJsonObject spotData;
     spotData["rcvtime"] = alert.spot.dateTime.toString("yyyyMMdd hh:mm:ss");
-    spotData["freq"] = qRound(alert.spot.freq * 10000.0) / 10000.0;
+    spotData["freq"] = normalizeFrequency(alert.spot.freq);
     spotData["band"] = alert.spot.band;
     spotData["mode"] = alert.spot.modeGroupString;
     spotData["comment"] = alert.spot.comment;

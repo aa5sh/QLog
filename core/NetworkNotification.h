@@ -59,6 +59,8 @@ public:
     explicit GenericSpotNotificationMsg(QObject *parent = nullptr);
 
 protected:
+    static double normalizeFrequency(double frequency);
+
     QMap<int, QString> DxccStatus2String = {
         {DxccStatus::NewEntity, "newentity"},
         {DxccStatus::NewBandMode, "newbandmode"},
