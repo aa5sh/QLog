@@ -91,6 +91,9 @@ private:
     void openImpl(const RotProfile &profile, quint64 requestSequence);
     void __closeRot();
     void __openRot(const RotProfile &profile);
+    void driverPositionChanged(double azimuth, double elevation);
+    void driverErrorOccurred(const QString &error, const QString &detail);
+    void driverReady();
 
     GenericRotDrv *getDriver(const RotProfile &profile);
 

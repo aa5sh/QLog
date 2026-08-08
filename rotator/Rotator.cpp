@@ -117,10 +117,12 @@ void Rotator::stopTimer()
     FCT_IDENTIFICATION;
 
     MUTEXLOCKER;
-    bool check = QMetaObject::invokeMethod(Rotator::instance(),
-                                           &Rotator::stopTimerImplt,
-                                           Qt::QueuedConnection);
-    Q_ASSERT( check );
+    const bool queued = QMetaObject::invokeMethod(Rotator::instance(),
+                                                   &Rotator::stopTimerImplt,
+                                                   Qt::QueuedConnection);
+    if ( !queued )
+        qCWarning(runtime) << "Cannot queue Rotator timer stop";
+    Q_ASSERT( queued );
 }
 
 void Rotator::shutdown()
@@ -257,34 +259,14 @@ void Rotator::__openRot(const RotProfile &newRotProfile)
         return;
     }
 
-    connect(rotDriver, &GenericRotDrv::positioningChanged, this, [this](double a, double b)
-    {
-        {
-            QMutexLocker locker(&stateLock);
-            cacheAzimuth = a;
-            cacheElevation = b;
-        }
-        emit positionChanged(a, b);
-    });
+    connect(rotDriver, &GenericRotDrv::positioningChanged,
+            this, &Rotator::driverPositionChanged);
 
-    connect(rotDriver, &GenericRotDrv::errorOccurred, this, [this](const QString &a,
-                                                                const QString &b)
-    {
-        close();
-        emit rotErrorPresent(a, b);
-    });
+    connect(rotDriver, &GenericRotDrv::errorOccurred,
+            this, &Rotator::driverErrorOccurred);
 
-    connect(rotDriver, &GenericRotDrv::rotIsReady, this, [this, newRotProfile]()
-    {
-        {
-            QMutexLocker locker(&stateLock);
-            connected = true;
-        }
-
-        emit rotConnected();
-
-        sendState();
-    });
+    connect(rotDriver, &GenericRotDrv::rotIsReady,
+            this, &Rotator::driverReady);
 
     if ( !rotDriver->open() )
     {
@@ -294,6 +276,39 @@ void Rotator::__openRot(const RotProfile &newRotProfile)
         __closeRot();
         return;
     }
+}
+
+void Rotator::driverPositionChanged(double azimuth, double elevation)
+{
+    FCT_IDENTIFICATION;
+
+    {
+        QMutexLocker locker(&stateLock);
+        cacheAzimuth = azimuth;
+        cacheElevation = elevation;
+    }
+    emit positionChanged(azimuth, elevation);
+}
+
+void Rotator::driverErrorOccurred(const QString &error, const QString &detail)
+{
+    FCT_IDENTIFICATION;
+
+    close();
+    emit rotErrorPresent(error, detail);
+}
+
+void Rotator::driverReady()
+{
+    FCT_IDENTIFICATION;
+
+    {
+        QMutexLocker locker(&stateLock);
+        connected = true;
+    }
+
+    emit rotConnected();
+    sendState();
 }
 
 GenericRotDrv *Rotator::getDriver(const RotProfile &profile)
