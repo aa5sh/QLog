@@ -11,6 +11,7 @@
 #include "BandPlan.h"
 #include "data/StationProfile.h"
 #include "core/LogParam.h"
+#include "rig/macros.h"
 
 MODULE_IDENTIFICATION("qlog.data.data");
 
@@ -837,25 +838,27 @@ double Data::MHz2UserFriendlyFreq(double freqMHz,
 {
     FCT_IDENTIFICATION;
 
-    if ( freqMHz < 0.001 )
+    const qint64 frequencyHz = MHz2Hz(freqMHz);
+
+    if ( frequencyHz < 1000 )
     {
         unit = tr("Hz");
         efectiveDecP = 0;
-        return freqMHz * 1000000.0;
+        return frequencyHz;
     }
 
-    if ( freqMHz < 1 )
+    if ( frequencyHz < 1000000 )
     {
         unit = tr("kHz");
         efectiveDecP = 3;
-        return freqMHz * 1000.0;
+        return frequencyHz / 1000.0;
     }
 
-    if ( freqMHz >= 1000 )
+    if ( frequencyHz >= 1000000000 )
     {
         unit = tr("GHz");
         efectiveDecP = 3;
-        return freqMHz / 1000.0;
+        return frequencyHz / 1000000000.0;
     }
 
     unit = tr("MHz");

@@ -2,18 +2,24 @@
 #define QLOG_DATA_BAND_H
 
 #include <QtCore>
+#include "rig/macros.h"
 
 class Band {
 public:
     QString name;
-    double start;
-    double end;
+    double start = 0.0;
+    double end = 0.0;
     QString satDesignator;
+    bool contains(double frequency) const
+    {
+        const qint64 frequencyHz = MHz2Hz(frequency);
+        return frequencyHz >= MHz2Hz(start) && frequencyHz <= MHz2Hz(end);
+    }
     bool operator==(const Band &band) const
     {
         return ( this->name == band.name
-                 && this->start == band.start
-                 && this->end == band.end
+                 && MHz2Hz(this->start) == MHz2Hz(band.start)
+                 && MHz2Hz(this->end) == MHz2Hz(band.end)
                  && this->satDesignator == band.satDesignator );
     }
 };

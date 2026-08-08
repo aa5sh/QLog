@@ -84,7 +84,7 @@ void FlrigRigDrv::setFrequency(double newFreq)
 
     if ( !rigProfile.getFreqInfo || !rigReady ) return;
 
-    if ( newFreq == currFreq )
+    if ( newFreq == MHz2Hz(currFreq) )
     {
         qCDebug(runtime) << "The same Freq - skip change" << currFreq << currFreq;
         return;
@@ -313,11 +313,12 @@ void FlrigRigDrv::rspGET_VFO(const QVariant &value)
 
     qCDebug(function_parameters) << value;
 
-    double vfoFreq = Hz2MHz(value.toLongLong());
+    const qint64 vfoFreqHz = value.toLongLong();
+    const double vfoFreq = Hz2MHz(vfoFreqHz);
     qCDebug(runtime) << "Rig Freq: "<< QSTRING_FREQ(vfoFreq);
     qCDebug(runtime) << "Object Freq: "<< QSTRING_FREQ(currFreq);
 
-    if ( vfoFreq != currFreq )
+    if ( vfoFreqHz != MHz2Hz(currFreq) )
     {
         currFreq = vfoFreq;
         qCDebug(runtime) << "emitting FREQ changed";
@@ -589,12 +590,13 @@ void FlrigRigDrv::rspGET_TX_FREQ(const QVariant &value)
 
     qCDebug(function_parameters) << value;
 
-    double txFreq = Hz2MHz(value.toLongLong());
+    const qint64 txFreqHz = value.toLongLong();
+    const double txFreq = Hz2MHz(txFreqHz);
 
     qCDebug(runtime) << "Rig TX Freq:" << QSTRING_FREQ(txFreq);
     qCDebug(runtime) << "Object TX Freq:" << QSTRING_FREQ(currTxFreq);
 
-    if ( txFreq != currTxFreq )
+    if ( txFreqHz != MHz2Hz(currTxFreq) )
     {
         currTxFreq = txFreq;
         qCDebug(runtime) << "emitting TX FREQ changed";

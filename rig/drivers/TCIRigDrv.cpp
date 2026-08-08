@@ -324,7 +324,7 @@ void TCIRigDrv::sendDXSpot(const DxSpot &spot)
 
     const QColor &spotColor = Data::statusToColor(spot.status, spot.dupeCount, QColor(187,194,195));
 
-    unsigned long long internalFreq = static_cast<unsigned long long>(MHz(spot.freq));
+    unsigned long long internalFreq = static_cast<unsigned long long>(MHz2Hz(spot.freq));
 
     QString submode;
     const QString &mode = BandPlan::bandPlanMode2ExpectedMode(spot.bandPlanMode, submode);
@@ -665,12 +665,12 @@ void TCIRigDrv::rspVFO(const QStringList &cmdArgs)
             return;
 
         bool ok;
-        double txFreq = cmdArgs.at(2).toDouble(&ok);
+        const qint64 txFreqHz = cmdArgs.at(2).toLongLong(&ok);
         if ( ok )
         {
-            double txFreqMHz = Hz2MHz(txFreq);
+            const double txFreqMHz = Hz2MHz(txFreqHz);
             qCDebug(runtime) << "Rig TX Freq" << QSTRING_FREQ(txFreqMHz);
-            if ( txFreqMHz != currTxFreq )
+            if ( txFreqHz != MHz2Hz(currTxFreq) )
             {
                 currTxFreq = txFreqMHz;
                 qCDebug(runtime) << "emitting TX FREQ changed";
@@ -679,7 +679,7 @@ void TCIRigDrv::rspVFO(const QStringList &cmdArgs)
         }
         else
         {
-            qCDebug(runtime) << "Received TX Freq is not double" << cmdArgs.at(2);
+            qCDebug(runtime) << "Received TX Freq is not integer" << cmdArgs.at(2);
         }
         return;
     }
@@ -1035,4 +1035,3 @@ double TCIRigDrv::getRawXIT()
 {
     return ( ( XITEnabled ) ? currXIT : 0.0 );
 }
-

@@ -40,6 +40,7 @@
 #include "core/NetworkNotification.h"
 #include "rig/Rig.h"
 #include "rig/RigCaps.h"
+#include "rig/macros.h"
 #include "rotator/Rotator.h"
 #include "rotator/RotCaps.h"
 #include "core/LogParam.h"
@@ -934,7 +935,8 @@ void SettingsDialog::addRigProfile()
         return;
     }
 
-    if ( ui->rigTXFreqMaxSpinBox->value() <= ui->rigTXFreqMinSpinBox->value() )
+    if ( MHz2Hz(ui->rigTXFreqMaxSpinBox->value())
+         <= MHz2Hz(ui->rigTXFreqMinSpinBox->value()) )
     {
         QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
                               QMessageBox::tr("<b>TX Range</b>: Max Frequency must not be under Min Frequency."));

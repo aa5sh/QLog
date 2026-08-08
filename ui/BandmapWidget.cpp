@@ -427,7 +427,7 @@ void BandmapWidget::drawFreqMark(const double freq,
     clearFreqMark(currentPolygon);
 
     /* do not show the freq mark if it is outside the bandmap */
-    if ( freq < currentBand.start || freq > currentBand.end )
+    if ( !currentBand.contains(freq) )
     {
         return;
     }
@@ -462,9 +462,8 @@ void BandmapWidget::drawTXRXMarks(double step)
     /**************************/
     /* Draw TX frequency mark */
     /**************************/
-    if ( tx_freq >= currentBand.start
-         && tx_freq <= currentBand.end
-         && tx_freq != rx_freq )
+    if ( currentBand.contains(tx_freq)
+         && MHz2Hz(tx_freq) != MHz2Hz(rx_freq) )
     {
         drawFreqMark(tx_freq, step, QColor(255, 0, 0), &txMark);
     }
@@ -482,7 +481,7 @@ void BandmapWidget::drawLabeledFrequencyMarker(double frequency,
 {
     FCT_IDENTIFICATION;
 
-    if ( frequency < currentBand.start || frequency > currentBand.end )
+    if ( !currentBand.contains(frequency) )
         return;
 
     QFont markerFont;
@@ -576,10 +575,13 @@ void BandmapWidget::drawGuideOverlay(double step, const QString &widestFreqText)
 #endif
     const qreal guideRight = -12.0;
     const qreal guideX = guideRight - labelWidth;
+    const qint64 bandStartHz = MHz2Hz(currentBand.start);
+    const qint64 bandEndHz = MHz2Hz(currentBand.end);
 
     for ( const BandmapGuide::Range &range : profile.ranges )
     {
-        if ( range.to <= currentBand.start || range.from >= currentBand.end )
+        if ( MHz2Hz(range.to) <= bandStartHz
+             || MHz2Hz(range.from) >= bandEndHz )
             continue;
 
         const double from = qMax(range.from, currentBand.start);
@@ -1065,7 +1067,7 @@ void BandmapWidget::spotClicked(const QString &call,
 
     /* Do not emit the Spot two times - double click*/
     if ( lastTunedDX.callsign == call
-         && lastTunedDX.freq == freq )
+         && MHz2Hz(lastTunedDX.freq) == MHz2Hz(freq) )
         return;
 
     emit tuneDx(spots.value(freq));
@@ -1195,7 +1197,7 @@ void BandmapWidget::updateTunedFrequency(VFOID vfoid, double vfoFreq, double rit
 
     lastSeenVFOFreq = vfoFreq;
 
-    isActive = (ritFreq >= currentBand.start && ritFreq <= currentBand.end);
+    isActive = currentBand.contains(ritFreq);
 
     if ( isNonVfo )
     {
@@ -1298,7 +1300,7 @@ void BandmapWidget::drawIBPMarkers(double step)
 
     for ( const IBPBeacon::Band &band : IBPBeacon::bands() )
     {
-        if ( band.frequency >= currentBand.start && band.frequency <= currentBand.end )
+        if ( currentBand.contains(band.frequency) )
             drawLabeledFrequencyMarker(band.frequency,
                                        step,
                                        style,
@@ -1312,7 +1314,7 @@ void BandmapWidget::markerClicked(double frequency, const QString &mode, const Q
 
     qCDebug(function_parameters) << frequency << mode << submode;
 
-    Rig::instance()->setFrequency(MHz(frequency));
+    Rig::instance()->setFrequency(MHz2Hz(frequency));
     Rig::instance()->setMode(mode, submode);
 }
 
@@ -1456,7 +1458,7 @@ QPointF BandmapWidget::Freq2ScenePos(const double freq) const
 
     qCDebug(function_parameters) << freq;
 
-    if ( freq < currentBand.start || freq > currentBand.end )
+    if ( !currentBand.contains(freq) )
     {
         return QPointF();
     }

@@ -1,5 +1,6 @@
 #include "EmergencyFrequency.h"
 #include "core/debug.h"
+#include "rig/macros.h"
 
 MODULE_IDENTIFICATION("qlog.core.emergencyfrequency");
 
@@ -26,9 +27,14 @@ const EmergencyFreqEntry *EmergencyFrequency::inBand(double startMHz, double end
 {
     FCT_IDENTIFICATION;
 
+    const qint64 startHz = MHz2Hz(startMHz);
+    const qint64 endHz = MHz2Hz(endMHz);
     for ( const EmergencyFreqEntry &entry : list() )
-        if ( entry.frequency >= startMHz && entry.frequency <= endMHz )
+    {
+        const qint64 frequencyHz = MHz2Hz(entry.frequency);
+        if ( frequencyHz >= startHz && frequencyHz <= endHz )
             return &entry;
+    }
 
     return nullptr;
 }
@@ -38,9 +44,11 @@ const EmergencyFreqEntry *EmergencyFrequency::findEmergency(double freqMHz)
     FCT_IDENTIFICATION;
 
     const QList<EmergencyFreqEntry> &freqs = EmergencyFrequency::list();
+    const qint64 frequencyHz = MHz2Hz(freqMHz);
+    const qint64 toleranceHz = MHz2Hz(EmergencyFrequency::TOLERANCE_MHZ);
 
     for ( const EmergencyFreqEntry &entry : freqs )
-        if ( qAbs(freqMHz - entry.frequency) <= EmergencyFrequency::TOLERANCE_MHZ )
+        if ( qAbs(frequencyHz - MHz2Hz(entry.frequency)) <= toleranceHz )
             return &entry;
 
     return nullptr;

@@ -2,6 +2,7 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include "data/BandPlan.h"
+#include "rig/macros.h"
 
 FreqQSpinBox::FreqQSpinBox(QWidget *parent) :
     BaseDoubleSpinBox(parent),
@@ -133,7 +134,7 @@ void FreqQSpinBox::increaseByBand()
 
     for ( const Band &band : static_cast<const QList<Band>&>(enabledBands) )
     {
-        if ( band.start > value() )
+        if ( MHz2Hz(band.start) > MHz2Hz(value()) )
         {
             setValue(band.start);
             maybeSelectAll();
@@ -151,7 +152,7 @@ void FreqQSpinBox::decreaseByBand()
 
     for ( const Band &band : static_cast<const QList<Band>&>(enabledBands) )
     {
-        if ( band.start < value() )
+        if ( MHz2Hz(band.start) < MHz2Hz(value()) )
             result = band.start;
     }
 

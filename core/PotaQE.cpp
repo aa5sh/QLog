@@ -4,6 +4,7 @@
 
 #include "core/debug.h"
 #include "PotaQE.h"
+#include "rig/macros.h"
 
 MODULE_IDENTIFICATION("qlog.core.potaqe");
 
@@ -57,7 +58,7 @@ const POTASpot PotaQE::findReferenceId(const Callsign &callsign, double freq)
     while ( i != activatorSpots.cend() && i.key() == baseCallsign )
     {
         const POTASpot &spot = i.value();
-        if ( qAbs(spot.frequency - freq) <= FREQTOL ) return spot;
+        if ( qAbs(MHz2Hz(spot.frequency) - MHz2Hz(freq)) <= MHz2Hz(FREQTOL) ) return spot;
         i++;
     }
 

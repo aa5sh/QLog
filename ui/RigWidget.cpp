@@ -238,7 +238,7 @@ void RigWidget::bandComboChanged(const QString &newBand)
 
     qCDebug(runtime) << "Tunning freq: " << newFreq;
 
-    Rig::instance()->setFrequency(MHz(newFreq));
+    Rig::instance()->setFrequency(MHz2Hz(newFreq));
 }
 
 void RigWidget::modeComboChanged(const QString &newMode)
@@ -305,8 +305,11 @@ void RigWidget::refreshBandCombo()
 
     ui->bandComboBox->blockSignals(true);
     QSqlTableModel *bandComboModel = dynamic_cast<QSqlTableModel*>(ui->bandComboBox->model());
-    bandComboModel->setFilter(QString("enabled = 1 AND start_freq >= %1 AND end_freq <= %2").arg(profile.txFreqStart + profile.xitOffset)
-                                                                                            .arg(profile.txFreqEnd + profile.xitOffset));
+    bandComboModel->setFilter(QString("enabled = 1 "
+                                      "AND CAST(ROUND(start_freq * 1000000.0) AS INTEGER) >= %1 "
+                                      "AND CAST(ROUND(end_freq * 1000000.0) AS INTEGER) <= %2")
+                              .arg(MHz2Hz(profile.txFreqStart + profile.xitOffset))
+                              .arg(MHz2Hz(profile.txFreqEnd + profile.xitOffset)));
     bandComboModel->select();
     ui->bandComboBox->setCurrentText(currSelection);
     ui->bandComboBox->blockSignals(false);
@@ -430,7 +433,7 @@ void RigWidget::freqChanged(double)
 
     if ( !rigOnline ) return;
 
-    Rig::instance()->setFrequency(MHz(ui->freqLabel->value()));
+    Rig::instance()->setFrequency(MHz2Hz(ui->freqLabel->value()));
 }
 
 void RigWidget::txFreqChanged(double)
@@ -439,7 +442,7 @@ void RigWidget::txFreqChanged(double)
 
     if ( !rigOnline || !splitEnabled ) return;
 
-    Rig::instance()->setFrequency(VFO2, MHz(ui->txFreqLabel->value()));
+    Rig::instance()->setFrequency(VFO2, MHz2Hz(ui->txFreqLabel->value()));
 }
 
 void RigWidget::resetRigInfo()
@@ -564,10 +567,10 @@ void RigWidget::updateImportantFrequencyLabels(double frequency)
         clearFrequencyInfoLabel(ui->emergencyFrequencyLabel);
     }
 
-    const double ibpToleranceMHz = 0.001;
+    const qint64 ibpToleranceHz = 1000;
     for ( const IBPBeacon::Band &band : IBPBeacon::bands() )
     {
-        if ( qAbs(frequency - band.frequency) > ibpToleranceMHz )
+        if ( qAbs(MHz2Hz(frequency) - MHz2Hz(band.frequency)) > ibpToleranceHz )
             continue;
 
         const QColor ibpColor(QStringLiteral("#1e88e5"));

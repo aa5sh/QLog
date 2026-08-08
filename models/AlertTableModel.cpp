@@ -311,7 +311,8 @@ bool AlertTableModel::AlertTableRecord::operator==(const AlertTableRecord &spot)
 {
    return ( (spot.alert.spot.callsign == this->alert.spot.callsign)
             && (spot.alert.spot.modeGroupString == this->alert.spot.modeGroupString)
-            && (qAbs(this->alert.spot.freq - spot.alert.spot.freq) <= FREQ_MATCH_TOLERANCE)
+            && (qAbs(MHz2Hz(this->alert.spot.freq) - MHz2Hz(spot.alert.spot.freq))
+                <= MHz2Hz(FREQ_MATCH_TOLERANCE))
             );
 }
 

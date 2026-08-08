@@ -171,7 +171,12 @@ void BandmapGuideTest::rangeContainsUsesHalfOpenHzBoundaries()
 {
     const BandmapGuide::Range lower(14.000000, 14.070000, QColor(Qt::red));
     const BandmapGuide::Range upper(14.070000, 14.074000, QColor(Qt::blue));
+    const BandmapGuide::Range subHz(14.070000,
+                                    std::nextafter(14.070000, 15.0),
+                                    QColor(Qt::green));
 
+    QVERIFY(lower.isValid());
+    QVERIFY(!subHz.isValid());
     QVERIFY(!lower.contains(13.999999));
     QVERIFY(lower.contains(14.000000));
     QVERIFY(lower.contains(14.069999));

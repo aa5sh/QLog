@@ -225,7 +225,7 @@ void HRDLogUploader::sendOnAir(double freq, const QString &mode)
     params.addQueryItem("Callsign", getRegisteredCallsign().toUtf8().toPercentEncoding());
     params.addQueryItem("Code", getUploadCode().toUtf8().toPercentEncoding());
     params.addQueryItem("App", "QLog");
-    params.addQueryItem("Frequency", QString::number(static_cast<unsigned long long>(MHz(freq))));
+    params.addQueryItem("Frequency", QString::number(MHz2Hz(freq)));
     params.addQueryItem("Mode", mode);
     params.addQueryItem("Radio", " ");
 
@@ -336,4 +336,3 @@ void HRDLogUploader::processReply(QNetworkReply *reply)
 
     reply->deleteLater();
 }
-

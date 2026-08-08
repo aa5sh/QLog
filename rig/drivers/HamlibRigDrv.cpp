@@ -310,8 +310,8 @@ bool HamlibRigDrv::open()
     qCDebug(runtime) << "Rig Open - OK";
 
     opened = true;
-    currRIT = MHz(rigProfile.ritOffset);
-    currXIT = MHz(rigProfile.xitOffset);
+    currRIT = MHz2Hz(rigProfile.ritOffset);
+    currXIT = MHz2Hz(rigProfile.xitOffset);
     morseOverCatSupported = ( rig->caps->send_morse != nullptr );
 
     rmode_t localRigModes = RIG_MODE_NONE;
