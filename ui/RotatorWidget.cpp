@@ -2,6 +2,7 @@
 #include <QGraphicsEllipseItem>
 #include <QMenu>
 #include <QMouseEvent>
+#include <cmath>
 #include "rotator/Rotator.h"
 #include "rotator/Rotator.h"
 #include "RotatorWidget.h"
@@ -176,7 +177,9 @@ void RotatorWidget::positionChanged(double in_azimuth, double in_elevation)
         return;
     }
 
-    if ( qAbs(qRound(requestedAzimuth) - qRound(in_azimuth)) <= AZIMUTH_DEAD_BAND
+    const double azimuthDifference = qAbs(std::remainder(requestedAzimuth - in_azimuth, 360.0));
+
+    if ( azimuthDifference <= AZIMUTH_DEAD_BAND
          && requestedAzimuthNeedle )
         requestedAzimuthNeedle->hide();
 }
