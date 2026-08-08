@@ -17,6 +17,7 @@ TBC - 0.52.0
 - [CHANGED] - LoTW - Resolve ambiguous QSL matches by exact time
 - [CHANGED] - Activity Editor - Rotator Override takes priority over the antenna's Assigned Rotator
 - Fixed WAAC not connected to the Log (issue #1097)
+- Fixed Rig Widget displays an incorrect Bandmap Guide Label (issue #1108)
 - Fixed Cannot directly edit notes or multiline fields (issue #1111)
 - Fixed LoTW - Merge QSL credits instead of overwriting them
 - Fixed LoTW - Case-insensitive compare for SAT_NAME
