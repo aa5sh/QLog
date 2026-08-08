@@ -25,9 +25,8 @@ public:
         static Rotator instance;
         return &instance;
     };
-    double getAzimuth();
-    double getElevation();
-    bool isRotConnected();
+    bool getPosition(double &azimuth, double &elevation) const;
+    bool isRotConnected() const;
 
     const QList<QPair<int, QString>> getModelList(const DriverID &id) const;
     const QList<QPair<int, QString>> getDriverList() const;
@@ -98,6 +97,7 @@ private:
 private:
     GenericRotDrv *rotDriver;
     QMutex rotLock;
+    mutable QMutex stateLock;
     bool connected;
     double cacheAzimuth;
     double cacheElevation;

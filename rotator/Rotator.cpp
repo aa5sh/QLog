@@ -52,26 +52,21 @@ Rotator::~Rotator()
     stopTimerImplt();
 }
 
-double Rotator::getAzimuth()
+bool Rotator::getPosition(double &azimuth, double &elevation) const
 {
     FCT_IDENTIFICATION;
 
-    MUTEXLOCKER;
-    return cacheAzimuth;
+    QMutexLocker locker(&stateLock);
+    azimuth = cacheAzimuth;
+    elevation = cacheElevation;
+    return connected;
 }
 
-double Rotator::getElevation()
+bool Rotator::isRotConnected() const
 {
     FCT_IDENTIFICATION;
 
-    MUTEXLOCKER;
-    return cacheElevation;
-}
-
-bool Rotator::isRotConnected()
-{
-    FCT_IDENTIFICATION;
-
+    QMutexLocker locker(&stateLock);
     return connected;
 }
 
@@ -264,8 +259,11 @@ void Rotator::__openRot(const RotProfile &newRotProfile)
 
     connect(rotDriver, &GenericRotDrv::positioningChanged, this, [this](double a, double b)
     {
-        cacheAzimuth = a;
-        cacheElevation = b;
+        {
+            QMutexLocker locker(&stateLock);
+            cacheAzimuth = a;
+            cacheElevation = b;
+        }
         emit positionChanged(a, b);
     });
 
@@ -278,7 +276,10 @@ void Rotator::__openRot(const RotProfile &newRotProfile)
 
     connect(rotDriver, &GenericRotDrv::rotIsReady, this, [this, newRotProfile]()
     {
-        connected = true;
+        {
+            QMutexLocker locker(&stateLock);
+            connected = true;
+        }
 
         emit rotConnected();
 
@@ -353,7 +354,10 @@ void Rotator::__closeRot()
 
     delete rotDriver;
     rotDriver = nullptr;
-    connected = false;
+    {
+        QMutexLocker locker(&stateLock);
+        connected = false;
+    }
     emit rotDisconnected();
 }
 

@@ -1308,10 +1308,12 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
         }
     }
 
-    if ( Rotator::instance()->isRotConnected() )
+    double antennaAzimuth;
+    double antennaElevation;
+    if ( Rotator::instance()->getPosition(antennaAzimuth, antennaElevation) )
     {
-        record.setValue("ant_az", Rotator::instance()->getAzimuth());
-        record.setValue("ant_el", Rotator::instance()->getElevation());
+        record.setValue("ant_az", antennaAzimuth);
+        record.setValue("ant_el", antennaElevation);
     }
 
     if ( prop_cond )
