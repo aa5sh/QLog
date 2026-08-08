@@ -239,8 +239,8 @@ bool Gridsquare::distanceTo(double lat, double lon, double &distance) const
     if ( !isValid()
          || !qIsFinite(lat)
          || !qIsFinite(lon)
-         || qAbs(lat) >= 90.0
-         || qAbs(lon) >= 180.0 )
+         || qAbs(lat) > 90.0
+         || qAbs(lon) > 180.0 )
     {
         distance = 0.0;
         return false;
@@ -290,7 +290,11 @@ bool Gridsquare::bearingTo(double lat, double lon, double &bearing) const
 {
     FCT_IDENTIFICATION;
 
-    if ( !isValid() )
+    if ( !isValid()
+         || !qIsFinite(lat)
+         || !qIsFinite(lon)
+         || qAbs(lat) > 90.0
+         || qAbs(lon) > 180.0 )
     {
         bearing = 0.0;
         return false;
