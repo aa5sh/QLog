@@ -29,7 +29,11 @@ public:
                           const T &value,
                           const T *skipValue = nullptr)
     {
-        if ( skipValue && value == *skipValue )
+        if ( !qIsFinite(longitude)
+             || !qIsFinite(latitude)
+             || qAbs(longitude) > 180.0
+             || qAbs(latitude) > 90.0
+             || (skipValue && value == *skipValue) )
             return;
 
         GenericValueMap::MapPoint point;
