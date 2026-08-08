@@ -132,6 +132,7 @@ private:
     QSizeF pageSizeMm() const;
     QSizeF directCardPrintableSize(const QSizeF &pageSize) const;
     DirectCardGrid directCardGrid() const;
+    int directCardCount(double printableLength, double cardLength) const;
     int directCardCols(const QSizeF &printableSize, bool rotateCard) const;
     int directCardRows(const QSizeF &printableSize, bool rotateCard) const;
     qreal mmToUnits(const qreal mm, const qreal dpi) const;
