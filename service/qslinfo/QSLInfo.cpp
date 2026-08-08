@@ -166,6 +166,12 @@ void QSLInfo::processReply(QNetworkReply *reply)
 {
     FCT_IDENTIFICATION;
 
+    if ( !reply )
+    {
+        qCWarning(runtime) << "Ignoring null QSLInfo.de reply";
+        return;
+    }
+
     if ( reply != currentReply.data()  )
     {
         qCDebug(runtime) << "Ignoring stale QSLInfo.de reply from"
