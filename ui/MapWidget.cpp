@@ -101,27 +101,58 @@ void MapWidget::drawLine(const QPoint &pointA, const QPoint &pointB)
 
     QPainterPath path;
     double latA, lonA, latB, lonB;
-    double f = 0;
-    double steps = 200.0;
+    const int steps = 200;
 
     path.moveTo(pointA);
     pointToRad(pointA, latA, lonA);
     pointToRad(pointB, latB, lonB);
     double prevLon = lonA;
 
-    double d = 2.0*asin(sqrt(pow(sin(latA-latB)/2, 2) + cos(latA)* cos(latB) * pow(sin((lonA-lonB)/2), 2)));
+    const double sinHalfLat = sin((latA - latB) / 2.0);
+    const double sinHalfLon = sin((lonA - lonB) / 2.0);
+    const double haversine = qBound(0.0,
+                                    sinHalfLat * sinHalfLat
+                                    + cos(latA) * cos(latB) * sinHalfLon * sinHalfLon,
+                                    1.0);
+    const double d = 2.0 * asin(sqrt(haversine));
+    const bool samePoint = qFuzzyIsNull(d);
+    const bool antipodal = qFuzzyIsNull(M_PI - d);
+    const double sinD = sin(d);
 
-    for ( int i = 0; i < steps; i++ )
+    const double sourceX = cos(latA) * cos(lonA);
+    const double sourceY = cos(latA) * sin(lonA);
+    const double sourceZ = sin(latA);
+    const double orthogonalX = -sin(lonA);
+    const double orthogonalY = cos(lonA);
+
+    for ( int i = 0; !samePoint && i < steps; i++ )
     {
-        double A = sin((1.0-f)*d)/sin(d);
-        double B = sin(f*d)/sin(d);
-        double x = A*cos(latA)*cos(lonA) + B*cos(latB)*cos(lonB);
-        double y = A*cos(latA)*sin(lonA) + B*cos(latB)*sin(lonB);
-        double z = A*sin(latA)           + B*sin(latB);
+        const double f = static_cast<double>(i) / steps;
+        double x;
+        double y;
+        double z;
+
+        if ( antipodal )
+        {
+            // Antipodal points have no unique shortest path; use a deterministic great circle.
+            const double angle = M_PI * f;
+            x = cos(angle) * sourceX + sin(angle) * orthogonalX;
+            y = cos(angle) * sourceY + sin(angle) * orthogonalY;
+            z = cos(angle) * sourceZ;
+        }
+        else
+        {
+            const double A = sin((1.0 - f) * d) / sinD;
+            const double B = sin(f * d) / sinD;
+            x = A * sourceX + B * cos(latB) * cos(lonB);
+            y = A * sourceY + B * cos(latB) * sin(lonB);
+            z = A * sourceZ + B * sin(latB);
+        }
+
         double lat = atan2(z, sqrt(x*x + y*y));
         double lon = atan2(y, x);
 
-        if ( qIsNaN(lat) || qIsNaN(lon))
+        if ( !qIsFinite(lat) || !qIsFinite(lon) )
             continue;
 
         if ( qAbs(prevLon - lon) > M_PI )
@@ -144,8 +175,6 @@ void MapWidget::drawLine(const QPoint &pointA, const QPoint &pointB)
         path.lineTo(p);
         path.moveTo(p);
         prevLon = lon;
-
-        f += 1.0 / steps;
     }
 
     path.lineTo(pointB);

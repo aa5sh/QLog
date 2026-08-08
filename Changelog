@@ -23,6 +23,7 @@ TBC - 0.52.0
 - Fixed LoTW - Case-insensitive compare for SAT_NAME
 - Fixed eQSL - Refresh AG status for redownloaded confirmations
 - Fixed Rotator - Apply antenna azimuth offset consistently across drivers
+- Fixed Offline Map Ant Path calculation
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
