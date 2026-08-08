@@ -346,6 +346,9 @@ void BandmapWidget::determineStepDigits(double &step, int &digits) const
 {
     FCT_IDENTIFICATION;
 
+    step = 0.01;
+    digits = 2;
+
     switch (zoom) {
     case ZOOM_100HZ: step = 0.0001; digits = 4; break;
     case ZOOM_250HZ: step = 0.00025; digits = 4; break;
@@ -353,7 +356,7 @@ void BandmapWidget::determineStepDigits(double &step, int &digits) const
     case ZOOM_1KHZ: step = 0.001; digits = 3; break;
     case ZOOM_2K5HZ: step = 0.0025; digits = 3; break;
     case ZOOM_5KHZ: step = 0.005; digits = 3; break;
-    case ZOOM_10KHZ: step = 0.01; digits = 2; break;
+    case ZOOM_10KHZ: break;
     }
 
     /* bands below are too wide for BandMap, therefore it is needed to short them */
