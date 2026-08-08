@@ -4,7 +4,6 @@
 #include "HamlibRotDrv.h"
 #include "core/debug.h"
 #include "data/SerialPort.h"
-#include "data/AntProfile.h"
 
 #define MUTEXLOCKER     qCDebug(runtime) << "Waiting for Rot Drv mutex"; \
                         QMutexLocker locker(&drvLock); \
@@ -208,12 +207,7 @@ void HamlibRotDrv::setPosition(double in_azimuth, double in_elevation)
     }
 
     double newElevation = in_elevation;
-    double newAzimuth = in_azimuth - AntProfilesManager::instance()->getCurProfile1().azimuthOffset;
-    // offset interval is -180 to 180
-    // azimuth input interval is 0 to 360
-    // min value is -180
-    // max valus is 540
-    newAzimuth = fmod(newAzimuth + 360, 360);
+    double newAzimuth = toRotatorAzimuth(in_azimuth);
     qCDebug(runtime) << "Azimuth (with offset)" << newAzimuth;
 
     /**********************************/
@@ -329,11 +323,8 @@ void HamlibRotDrv::checkAzEl()
         int status = rot_get_position(rot, &az, &el);
         if ( isRotRespOK(status, tr("Get Possition Error")) )
         {
-            double newAzimuth = az;
+            double newAzimuth = fromRotatorAzimuth(az);
             double newElevation = el;
-            // Azimuth Normalization (-180,180) -> (0,360) - ADIF defined interval is 0-360
-            newAzimuth += AntProfilesManager::instance()->getCurProfile1().azimuthOffset;
-            newAzimuth = normalizeAzimuth(newAzimuth);
 
              qCDebug(runtime) << "Rot Position: " << newAzimuth << newElevation;
              qCDebug(runtime) << "Object Position: "<< azimuth << elevation;

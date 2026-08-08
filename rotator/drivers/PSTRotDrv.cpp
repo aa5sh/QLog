@@ -135,11 +135,13 @@ void PSTRotDrv::setPosition(double in_azimuth, double in_elevation)
    if ( !opened )
        return;
 
+   const double rotatorAzimuth = toRotatorAzimuth(in_azimuth);
+
    QString positionCommand = QString("<PST>"
                                      "<TRACK>0</TRACK>"
                                      "<AZIMUTH>%1</AZIMUTH>"
                                      "<ELEVATION>%2</ELEVATION>"
-                                     "</PST>").arg(in_azimuth, 0, 'f', 1)
+                                     "</PST>").arg(rotatorAzimuth, 0, 'f', 1)
                                               .arg(in_elevation, 0, 'f', 1);
 
    sendCommand(positionCommand);
@@ -222,7 +224,7 @@ void PSTRotDrv::readPendingDatagrams()
         if ( data.startsWith("EL") )
             newElevation = data.mid(3).toDouble();
         else if ( data.startsWith("AZ") )
-            newAzimuth = data.mid(3).toDouble();
+            newAzimuth = fromRotatorAzimuth(data.mid(3).toDouble());
 
         qCDebug(runtime) << "PSTRotator Positioning"
                          << newAzimuth
