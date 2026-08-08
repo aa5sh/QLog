@@ -31,7 +31,7 @@ QString AwardWAAC::additionalWhere(const QString &) const
     return " AND d.cont = 'AF' AND (d.deleted = 0 OR d.id IN (493, 488, 244)) ";
 }
 
-QString AwardWAAC::clickFilter(const QString &, const QString &col2Value) const
+QString AwardWAAC::clickFilter(const QString &, const QString &) const
 {
     return QString();
 }

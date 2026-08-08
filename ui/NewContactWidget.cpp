@@ -2341,7 +2341,7 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
     }
     else if ( stationProfileConflict )
     {
-        const auto displayedValue = [this](const QString &value)
+        const auto displayedValue = [](const QString &value)
         {
             return value.isEmpty() ? tr("not provided") : value;
         };
