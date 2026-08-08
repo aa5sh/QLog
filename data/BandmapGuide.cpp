@@ -11,6 +11,7 @@
 #include "data/BandPlan.h"
 #include "core/LogParam.h"
 #include "core/debug.h"
+#include "rig/macros.h"
 
 MODULE_IDENTIFICATION("qlog.data.bandmapguide");
 
@@ -47,6 +48,15 @@ BandmapGuide::Range::Range(double rangeFrom,
 bool BandmapGuide::Range::isValid() const
 {
     return from < to && color.isValid();
+}
+
+bool BandmapGuide::Range::contains(double frequency) const
+{
+    const qint64 frequencyHz = qRound64(MHz(frequency));
+    const qint64 fromHz = qRound64(MHz(from));
+    const qint64 toHz = qRound64(MHz(to));
+
+    return frequencyHz >= fromHz && frequencyHz < toHz;
 }
 
 bool BandmapGuide::Profile::isValid() const

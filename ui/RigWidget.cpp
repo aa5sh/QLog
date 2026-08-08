@@ -499,7 +499,7 @@ void RigWidget::updateBandmapGuideLabel(double frequency)
 
         hasValidRange = true;
 
-        if ( frequency < range.from || frequency > range.to )
+        if ( !range.contains(frequency) )
             continue;
 
         insideGuideRange = true;
