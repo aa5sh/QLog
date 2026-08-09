@@ -10,6 +10,7 @@
 #include <QSqlTableModel>
 #include <QTextStream>
 
+#include "core/Migration.h"
 #include "logformat/AdiFormat.h"
 
 class TestAdiFormat : public AdiFormat
@@ -415,7 +416,7 @@ bool AdiImportBenchmark::resetDatabase(QString *error)
         return false;
     }
 
-    for ( int version = 1; version <= 40; ++version )
+    for ( int version = 1; version <= DBSchemaMigration::latestVersion; ++version )
     {
         if ( !executeSqlFile(version, error) )
             return false;
