@@ -505,8 +505,10 @@ void StatisticsWidget::drawBarGraphs(const QString &title, QSqlQuery &query)
     axisY->applyNiceNumbers();
     axisY->setLabelFormat("%d");
 
-    series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
+    series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
     series->setLabelsVisible(true);
+
+    set->setLabelColor(QColor(Qt::black));
 
     chart->setTitle(title);
     chart->legend()->hide();
