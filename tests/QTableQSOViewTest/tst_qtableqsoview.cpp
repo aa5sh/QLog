@@ -267,8 +267,10 @@ void QTableQSOViewTest::modeSubmodeBatchUsesVirtualColumn()
     view.commitData(editor);
 
     QCOMPARE(model.modeSubmodeWrites, QList<int>({0, 1}));
-    QVERIFY(!model.regularWrites.contains(qMakePair(1, LogbookModel::COLUMN_MODE)));
-    QVERIFY(!model.regularWrites.contains(qMakePair(1, LogbookModel::COLUMN_SUBMODE)));
+    QVERIFY(!model.regularWrites.contains(
+        qMakePair(1, static_cast<int>(LogbookModel::COLUMN_MODE))));
+    QVERIFY(!model.regularWrites.contains(
+        qMakePair(1, static_cast<int>(LogbookModel::COLUMN_SUBMODE))));
     QCOMPARE(model.data(model.index(1, LogbookModel::COLUMN_MODE), Qt::EditRole).toString(),
              QString("MFSK"));
     QCOMPARE(model.data(model.index(1, LogbookModel::COLUMN_SUBMODE), Qt::EditRole).toString(),
