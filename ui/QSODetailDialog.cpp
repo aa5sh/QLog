@@ -1698,9 +1698,11 @@ void QSOEditMapperDelegate::setEditorData(QWidget *editor,
 
         if ( label )
         {
-          QString statusIcon = QString("<img src=':/icons/%1-24px.svg'></td>").arg((index.data().toString() == "Y") ? "done" : "close");
-          label->setText(statusIcon);
-          label->setProperty("originvalue", index.data());
+            const bool confirmed = index.data().toString() == "Y";
+            label->setText(QStringLiteral("<span style='color:#ababab; font-size:20px'>%1</span>")
+                           .arg(confirmed ? QStringLiteral("&#10003;")
+                                          : QStringLiteral("&#10005;")));
+            label->setProperty("originvalue", index.data());
         }
         return;
     }
