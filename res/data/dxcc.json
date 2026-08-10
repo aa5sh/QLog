@@ -384,7 +384,7 @@
     {"id":503,"name":"Czech Republic","cqz":15,"ituz":28,"flag":"CZ"},
     {"id":504,"name":"Slovak Republic","cqz":15,"ituz":28,"flag":"SK"},
     {"id":505,"name":"Pratas Island","cqz":24,"ituz":44,"flag":"TW"},
-    {"id":506,"name":"Scarborough Reef","cqz":27,"ituz":50,"flag":"PH"},
+    {"id":506,"name":"Scarborough Reef","cqz":27,"ituz":50,"flag":null},
     {"id":507,"name":"Temotu Province","cqz":32,"ituz":51,"flag":"SB"},
     {"id":508,"name":"Austral Islands","cqz":32,"ituz":63,"flag":"PF"},
     {"id":509,"name":"Marquesas Islands","cqz":31,"ituz":63,"flag":"FR"},

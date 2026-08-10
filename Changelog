@@ -28,6 +28,7 @@ TBC - 0.52.0
 - Fixed Offline Map Ant Path calculation
 - Fixed Rotator Widget - Use circular distance for azimuth deadband
 - Fixed QSL confirmation status is not displayed correctly in QSO Detail and tooltip (issue #1125)
+- Fixed Philippine national flag for DXCC 506 (Scarborough Reef) (issue #1129)
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
