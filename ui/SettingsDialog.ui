@@ -4745,9 +4745,9 @@
            </widget>
           </item>
          </layout>
-       </widget>
-      </item>
-      <item>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="fldigiUDPGroupBox">
          <property name="title">
           <string>FLDigi</string>
@@ -5005,7 +5005,7 @@
            <item>
             <widget class="QLabel" name="dateFormatDocLabel">
              <property name="text">
-              <string>&lt;a href=&quot;https://doc.qt.io/qt-6/qdate.html#fromString-1&quot;&gt;Time Format Documentation&lt;/a&gt;</string>
+              <string>&lt;a href=&quot;https://doc.qt.io/qt-6/qdate.html#fromString&quot;&gt;Time Format Documentation&lt;/a&gt;</string>
              </property>
              <property name="openExternalLinks">
               <bool>true</bool>
@@ -6939,7 +6939,7 @@
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
