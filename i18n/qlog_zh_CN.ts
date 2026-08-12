@@ -4583,57 +4583,57 @@
 <context>
     <name>Data</name>
     <message>
-        <location filename="../data/Data.cpp" line="774"/>
+        <location filename="../data/Data.cpp" line="775"/>
         <source>New Entity</source>
         <translation>新实体</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="776"/>
+        <location filename="../data/Data.cpp" line="777"/>
         <source>New Band</source>
         <translation>新波段</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="778"/>
+        <location filename="../data/Data.cpp" line="779"/>
         <source>New Mode</source>
         <translation>新模式</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="780"/>
+        <location filename="../data/Data.cpp" line="781"/>
         <source>New Band&amp;Mode</source>
         <translation>新波段模式(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="782"/>
+        <location filename="../data/Data.cpp" line="783"/>
         <source>New Slot</source>
         <translation>新组合</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="784"/>
+        <location filename="../data/Data.cpp" line="785"/>
         <source>Confirmed</source>
         <translation>已确认</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="786"/>
+        <location filename="../data/Data.cpp" line="787"/>
         <source>Worked</source>
         <translation>已通联</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="845"/>
+        <location filename="../data/Data.cpp" line="846"/>
         <source>Hz</source>
         <translation>Hz</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="852"/>
+        <location filename="../data/Data.cpp" line="853"/>
         <source>kHz</source>
         <translation>kHz</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="859"/>
+        <location filename="../data/Data.cpp" line="860"/>
         <source>GHz</source>
         <translation>GHz</translation>
     </message>
     <message>
-        <location filename="../data/Data.cpp" line="864"/>
+        <location filename="../data/Data.cpp" line="865"/>
         <source>MHz</source>
         <translation>MHz</translation>
     </message>
@@ -7159,277 +7159,277 @@ The password will be needed to restore them later.</source>
 <context>
     <name>LogbookModel</name>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="745"/>
+        <location filename="../models/LogbookModel.cpp" line="751"/>
         <source>QSO ID</source>
         <translation>QSO ID</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="746"/>
+        <location filename="../models/LogbookModel.cpp" line="752"/>
         <source>Time on</source>
         <translation>开始时间</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="747"/>
+        <location filename="../models/LogbookModel.cpp" line="753"/>
         <source>Time off</source>
         <translation>结束时间</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="748"/>
+        <location filename="../models/LogbookModel.cpp" line="754"/>
         <source>Call</source>
         <translation>呼号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="749"/>
+        <location filename="../models/LogbookModel.cpp" line="755"/>
         <source>RSTs</source>
         <translation>RST发</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="750"/>
+        <location filename="../models/LogbookModel.cpp" line="756"/>
         <source>RSTr</source>
         <translation>RST收</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="751"/>
+        <location filename="../models/LogbookModel.cpp" line="757"/>
         <source>Frequency</source>
         <translation>频率</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="193"/>
-        <location filename="../models/LogbookModel.cpp" line="752"/>
+        <location filename="../models/LogbookModel.cpp" line="199"/>
+        <location filename="../models/LogbookModel.cpp" line="758"/>
         <source>Band</source>
         <translation>波段</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="197"/>
-        <location filename="../models/LogbookModel.cpp" line="753"/>
+        <location filename="../models/LogbookModel.cpp" line="203"/>
+        <location filename="../models/LogbookModel.cpp" line="759"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="754"/>
+        <location filename="../models/LogbookModel.cpp" line="760"/>
         <source>Submode</source>
         <translation>子模式</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="755"/>
+        <location filename="../models/LogbookModel.cpp" line="761"/>
         <source>Name (ASCII)</source>
         <translation>姓名(ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="756"/>
+        <location filename="../models/LogbookModel.cpp" line="762"/>
         <source>QTH (ASCII)</source>
         <translation>QTH (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="209"/>
-        <location filename="../models/LogbookModel.cpp" line="757"/>
+        <location filename="../models/LogbookModel.cpp" line="215"/>
+        <location filename="../models/LogbookModel.cpp" line="763"/>
         <source>Gridsquare</source>
         <translation>网格坐标</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="758"/>
+        <location filename="../models/LogbookModel.cpp" line="764"/>
         <source>DXCC</source>
         <translation>DXCC</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="759"/>
+        <location filename="../models/LogbookModel.cpp" line="765"/>
         <source>Country (ASCII)</source>
         <translation>国家(ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="760"/>
+        <location filename="../models/LogbookModel.cpp" line="766"/>
         <source>Continent</source>
         <translation>大洲</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="761"/>
+        <location filename="../models/LogbookModel.cpp" line="767"/>
         <source>CQZ</source>
         <translation>CQ分区</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="762"/>
+        <location filename="../models/LogbookModel.cpp" line="768"/>
         <source>ITU</source>
         <translation>ITU</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="763"/>
+        <location filename="../models/LogbookModel.cpp" line="769"/>
         <source>Prefix</source>
         <translation>前缀</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="764"/>
+        <location filename="../models/LogbookModel.cpp" line="770"/>
         <source>State</source>
         <translation>省</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="765"/>
+        <location filename="../models/LogbookModel.cpp" line="771"/>
         <source>County</source>
         <translation>县/郡</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="767"/>
+        <location filename="../models/LogbookModel.cpp" line="773"/>
         <source>IOTA</source>
         <translation>IOTA</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="768"/>
+        <location filename="../models/LogbookModel.cpp" line="774"/>
         <source>QSLr</source>
         <translation>QSL收</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="769"/>
+        <location filename="../models/LogbookModel.cpp" line="775"/>
         <source>QSLr Date</source>
         <translation>QSL收日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="770"/>
+        <location filename="../models/LogbookModel.cpp" line="776"/>
         <source>QSLs</source>
         <translation>QSL发</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="771"/>
+        <location filename="../models/LogbookModel.cpp" line="777"/>
         <source>QSLs Date</source>
         <translation>QSL发日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="772"/>
+        <location filename="../models/LogbookModel.cpp" line="778"/>
         <source>LoTWr</source>
         <translation>LoTW收</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="773"/>
+        <location filename="../models/LogbookModel.cpp" line="779"/>
         <source>LoTWr Date</source>
         <translation>LoTW收日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="774"/>
+        <location filename="../models/LogbookModel.cpp" line="780"/>
         <source>LoTWs</source>
         <translation>LoTW发</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="775"/>
+        <location filename="../models/LogbookModel.cpp" line="781"/>
         <source>LoTWs Date</source>
         <translation>LoTW发日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="776"/>
+        <location filename="../models/LogbookModel.cpp" line="782"/>
         <source>TX PWR</source>
         <translation>发送功率</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="777"/>
+        <location filename="../models/LogbookModel.cpp" line="783"/>
         <source>Additional Fields</source>
         <translation>附加字段</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="778"/>
+        <location filename="../models/LogbookModel.cpp" line="784"/>
         <source>Address (ASCII)</source>
         <translation>地址 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="779"/>
+        <location filename="../models/LogbookModel.cpp" line="785"/>
         <source>Address</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="780"/>
+        <location filename="../models/LogbookModel.cpp" line="786"/>
         <source>Age</source>
         <translation>年龄</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="781"/>
+        <location filename="../models/LogbookModel.cpp" line="787"/>
         <source>Altitude</source>
         <translation>海拔</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="782"/>
+        <location filename="../models/LogbookModel.cpp" line="788"/>
         <source>A-Index</source>
         <translation>A-指数</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="783"/>
+        <location filename="../models/LogbookModel.cpp" line="789"/>
         <source>Antenna Az</source>
         <translation>天线方位</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="784"/>
+        <location filename="../models/LogbookModel.cpp" line="790"/>
         <source>Antenna El</source>
         <translation>天线单元数</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="785"/>
+        <location filename="../models/LogbookModel.cpp" line="791"/>
         <source>Signal Path</source>
         <translation>信号路径</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="786"/>
+        <location filename="../models/LogbookModel.cpp" line="792"/>
         <source>ARRL Section</source>
         <translation>ARRL 划分</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="787"/>
+        <location filename="../models/LogbookModel.cpp" line="793"/>
         <source>Award Submitted</source>
         <translation>已提交奖项</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="788"/>
+        <location filename="../models/LogbookModel.cpp" line="794"/>
         <source>Award Granted</source>
         <translation>已授予奖项</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="789"/>
+        <location filename="../models/LogbookModel.cpp" line="795"/>
         <source>Band RX</source>
         <translation>波段 RX</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="790"/>
+        <location filename="../models/LogbookModel.cpp" line="796"/>
         <source>Gridsquare Extended</source>
         <translation>网格坐标扩展</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="791"/>
+        <location filename="../models/LogbookModel.cpp" line="797"/>
         <source>Contest Check</source>
         <translation>竞赛检查</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="792"/>
+        <location filename="../models/LogbookModel.cpp" line="798"/>
         <source>Class</source>
         <translation>等级</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="793"/>
+        <location filename="../models/LogbookModel.cpp" line="799"/>
         <source>ClubLog Upload Date</source>
         <translation>ClubLog 上传日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="794"/>
+        <location filename="../models/LogbookModel.cpp" line="800"/>
         <source>ClubLog Upload State</source>
         <translation>ClubLog 上传状态</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="795"/>
+        <location filename="../models/LogbookModel.cpp" line="801"/>
         <source>Comment (ASCII)</source>
         <translation>备注 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="217"/>
-        <location filename="../models/LogbookModel.cpp" line="796"/>
+        <location filename="../models/LogbookModel.cpp" line="223"/>
+        <location filename="../models/LogbookModel.cpp" line="802"/>
         <source>Comment</source>
         <translation>备注</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="797"/>
+        <location filename="../models/LogbookModel.cpp" line="803"/>
         <source>Contacted Operator</source>
         <translation>联系过的操作员</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="798"/>
+        <location filename="../models/LogbookModel.cpp" line="804"/>
         <source>Contest ID</source>
         <translation>竞赛标识</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="189"/>
-        <location filename="../models/LogbookModel.cpp" line="799"/>
+        <location filename="../models/LogbookModel.cpp" line="195"/>
+        <location filename="../models/LogbookModel.cpp" line="805"/>
         <source>Country</source>
         <translation>国家/地区</translation>
     </message>
@@ -7445,670 +7445,670 @@ Submode: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="766"/>
+        <location filename="../models/LogbookModel.cpp" line="772"/>
         <source>County Alt</source>
         <translation>县/郡备用标识</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="800"/>
+        <location filename="../models/LogbookModel.cpp" line="806"/>
         <source>Credit Submitted</source>
         <translation>积分已提交</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="801"/>
+        <location filename="../models/LogbookModel.cpp" line="807"/>
         <source>Credit Granted</source>
         <translation>已授予的积分</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="802"/>
+        <location filename="../models/LogbookModel.cpp" line="808"/>
         <source>DOK</source>
         <translation>DOK</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="803"/>
+        <location filename="../models/LogbookModel.cpp" line="809"/>
         <source>DCLr Date</source>
         <translation>DCLr 日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="804"/>
+        <location filename="../models/LogbookModel.cpp" line="810"/>
         <source>DCLs Date</source>
         <translation>DCLs 日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="805"/>
+        <location filename="../models/LogbookModel.cpp" line="811"/>
         <source>DCLr</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="806"/>
+        <location filename="../models/LogbookModel.cpp" line="812"/>
         <source>DCLs</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="807"/>
+        <location filename="../models/LogbookModel.cpp" line="813"/>
         <source>Distance</source>
         <translation>距离</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="808"/>
+        <location filename="../models/LogbookModel.cpp" line="814"/>
         <source>Email</source>
         <translation>电子邮件</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="809"/>
-        <location filename="../models/LogbookModel.cpp" line="879"/>
+        <location filename="../models/LogbookModel.cpp" line="815"/>
+        <location filename="../models/LogbookModel.cpp" line="885"/>
         <source>Owner Callsign</source>
         <translation>主人呼号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="810"/>
+        <location filename="../models/LogbookModel.cpp" line="816"/>
         <source>eQSL AG</source>
         <translation>eQSL AG</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="811"/>
+        <location filename="../models/LogbookModel.cpp" line="817"/>
         <source>eQSLr Date</source>
         <translation>eQSL 接收日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="812"/>
+        <location filename="../models/LogbookModel.cpp" line="818"/>
         <source>eQSLs Date</source>
         <translation>eQSL 发送日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="813"/>
+        <location filename="../models/LogbookModel.cpp" line="819"/>
         <source>eQSLr</source>
         <translation>eQSL 接收</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="814"/>
+        <location filename="../models/LogbookModel.cpp" line="820"/>
         <source>eQSLs</source>
         <translation>eQSL 发送</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="815"/>
+        <location filename="../models/LogbookModel.cpp" line="821"/>
         <source>FISTS Number</source>
         <translation>FISTS 序号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="816"/>
+        <location filename="../models/LogbookModel.cpp" line="822"/>
         <source>FISTS CC</source>
         <translation>FISTS CC</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="817"/>
+        <location filename="../models/LogbookModel.cpp" line="823"/>
         <source>EME Init</source>
         <translation>EME Init</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="818"/>
+        <location filename="../models/LogbookModel.cpp" line="824"/>
         <source>Frequency RX</source>
         <translation>频率 RX</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="819"/>
+        <location filename="../models/LogbookModel.cpp" line="825"/>
         <source>Guest Operator</source>
         <translation>客座操作员</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="820"/>
+        <location filename="../models/LogbookModel.cpp" line="826"/>
         <source>HamlogEU Upload Date</source>
         <translation>HamlogEU 上传日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="821"/>
+        <location filename="../models/LogbookModel.cpp" line="827"/>
         <source>HamlogEU Upload Status</source>
         <translation>HamlogEU 上传状态</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="822"/>
+        <location filename="../models/LogbookModel.cpp" line="828"/>
         <source>HamQTH Upload Date</source>
         <translation>HamQTH 上传日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="823"/>
+        <location filename="../models/LogbookModel.cpp" line="829"/>
         <source>HamQTH Upload Status</source>
         <translation>HamQTH 上传状态</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="824"/>
+        <location filename="../models/LogbookModel.cpp" line="830"/>
         <source>HRDLog Upload Date</source>
         <translation>HRDLog 上传日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="825"/>
+        <location filename="../models/LogbookModel.cpp" line="831"/>
         <source>HRDLog Upload Status</source>
         <translation>HRDLog 上传状态</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="826"/>
+        <location filename="../models/LogbookModel.cpp" line="832"/>
         <source>IOTA Island ID</source>
         <translation>IOTA 岛屿 ID</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="827"/>
+        <location filename="../models/LogbookModel.cpp" line="833"/>
         <source>K-Index</source>
         <translation>K-指数</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="828"/>
+        <location filename="../models/LogbookModel.cpp" line="834"/>
         <source>Latitude</source>
         <translation>纬度</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="829"/>
+        <location filename="../models/LogbookModel.cpp" line="835"/>
         <source>Longitude</source>
         <translation>经度</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="830"/>
+        <location filename="../models/LogbookModel.cpp" line="836"/>
         <source>Max Bursts</source>
         <translation>最大流星散射爆发</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="833"/>
+        <location filename="../models/LogbookModel.cpp" line="839"/>
         <source>MS Shower Name</source>
         <translation>流星雨名称</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="834"/>
+        <location filename="../models/LogbookModel.cpp" line="840"/>
         <source>My Altitude</source>
         <translation>我的海拔</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="835"/>
+        <location filename="../models/LogbookModel.cpp" line="841"/>
         <source>My Antenna (ASCII)</source>
         <translation>我的天线 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="836"/>
+        <location filename="../models/LogbookModel.cpp" line="842"/>
         <source>My Antenna</source>
         <translation>我的天线</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="837"/>
+        <location filename="../models/LogbookModel.cpp" line="843"/>
         <source>My City (ASCII)</source>
         <translation>我的城市 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="838"/>
+        <location filename="../models/LogbookModel.cpp" line="844"/>
         <source>My City</source>
         <translation>我的城市</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="839"/>
+        <location filename="../models/LogbookModel.cpp" line="845"/>
         <source>My County</source>
         <translation>我的县/郡</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="840"/>
+        <location filename="../models/LogbookModel.cpp" line="846"/>
         <source>My County Alt</source>
         <translation>我的县/郡备用标识</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="841"/>
+        <location filename="../models/LogbookModel.cpp" line="847"/>
         <source>My Country (ASCII)</source>
         <translation>我的国家/地区 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="842"/>
+        <location filename="../models/LogbookModel.cpp" line="848"/>
         <source>My Country</source>
         <translation>我的国家/地区</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="843"/>
+        <location filename="../models/LogbookModel.cpp" line="849"/>
         <source>My CQZ</source>
         <translation>我的 CQ 分区</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="844"/>
+        <location filename="../models/LogbookModel.cpp" line="850"/>
         <source>My DARC DOK</source>
         <translation>我的DARC DOK</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="845"/>
+        <location filename="../models/LogbookModel.cpp" line="851"/>
         <source>My DXCC</source>
         <translation>我的 DXCC</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="846"/>
+        <location filename="../models/LogbookModel.cpp" line="852"/>
         <source>My FISTS</source>
         <translation>我的 FISTS</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="847"/>
+        <location filename="../models/LogbookModel.cpp" line="853"/>
         <source>My Gridsquare</source>
         <translation>我的网格坐标</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="848"/>
+        <location filename="../models/LogbookModel.cpp" line="854"/>
         <source>My Gridsquare Extended</source>
         <translation>我的网格扩展</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="849"/>
+        <location filename="../models/LogbookModel.cpp" line="855"/>
         <source>My IOTA</source>
         <translation>我的 IOTA</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="850"/>
+        <location filename="../models/LogbookModel.cpp" line="856"/>
         <source>My IOTA Island ID</source>
         <translation>我的 IOTA 海岛 ID</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="851"/>
+        <location filename="../models/LogbookModel.cpp" line="857"/>
         <source>My ITU</source>
         <translation>我的 ITU</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="852"/>
+        <location filename="../models/LogbookModel.cpp" line="858"/>
         <source>My Latitude</source>
         <translation>我的纬度</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="853"/>
+        <location filename="../models/LogbookModel.cpp" line="859"/>
         <source>My Longitude</source>
         <translation>我的经度</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="856"/>
+        <location filename="../models/LogbookModel.cpp" line="862"/>
         <source>My Name (ASCII)</source>
         <translation>我的姓名 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="857"/>
+        <location filename="../models/LogbookModel.cpp" line="863"/>
         <source>My Name</source>
         <translation>我的姓名</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="858"/>
+        <location filename="../models/LogbookModel.cpp" line="864"/>
         <source>My Postal Code (ASCII)</source>
         <translation>我的邮编 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="859"/>
+        <location filename="../models/LogbookModel.cpp" line="865"/>
         <source>My Postal Code</source>
         <translation>我的邮编</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="860"/>
+        <location filename="../models/LogbookModel.cpp" line="866"/>
         <source>My POTA Ref</source>
         <translation>我的 POTA 编号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="861"/>
+        <location filename="../models/LogbookModel.cpp" line="867"/>
         <source>My Rig (ASCII)</source>
         <translation>我的设备 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="862"/>
+        <location filename="../models/LogbookModel.cpp" line="868"/>
         <source>My Rig</source>
         <translation>我的设备</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="863"/>
+        <location filename="../models/LogbookModel.cpp" line="869"/>
         <source>My Special Interest Activity (ASCII)</source>
         <translation>我的特殊兴趣活动 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="864"/>
+        <location filename="../models/LogbookModel.cpp" line="870"/>
         <source>My Special Interest Activity</source>
         <translation>我的特殊兴趣活动</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="865"/>
+        <location filename="../models/LogbookModel.cpp" line="871"/>
         <source>My Spec. Interes Activity Info (ASCII)</source>
         <translation>我的特殊兴趣活动信息 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="866"/>
+        <location filename="../models/LogbookModel.cpp" line="872"/>
         <source>My Spec. Interest Activity Info</source>
         <translation>我的特殊兴趣活动信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="867"/>
+        <location filename="../models/LogbookModel.cpp" line="873"/>
         <source>My SOTA</source>
         <translation>我的 SOTA</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="868"/>
+        <location filename="../models/LogbookModel.cpp" line="874"/>
         <source>My State</source>
         <translation>我的省/州</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="869"/>
-        <location filename="../models/LogbookModel.cpp" line="870"/>
+        <location filename="../models/LogbookModel.cpp" line="875"/>
+        <location filename="../models/LogbookModel.cpp" line="876"/>
         <source>My Street</source>
         <translation>我的街道</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="871"/>
+        <location filename="../models/LogbookModel.cpp" line="877"/>
         <source>My USA-CA Counties</source>
         <translation>我的 USA-CA 县</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="872"/>
+        <location filename="../models/LogbookModel.cpp" line="878"/>
         <source>My VUCC Grids</source>
         <translation>我的 VUCC 网格</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="873"/>
+        <location filename="../models/LogbookModel.cpp" line="879"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="874"/>
+        <location filename="../models/LogbookModel.cpp" line="880"/>
         <source>Notes (ASCII)</source>
         <translation>笔记(ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="884"/>
+        <location filename="../models/LogbookModel.cpp" line="890"/>
         <source>QRZ Download Date</source>
         <translation>QRZ下载数据</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="885"/>
+        <location filename="../models/LogbookModel.cpp" line="891"/>
         <source>QRZ Download Status</source>
         <translation>QRZ下载状态</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="888"/>
+        <location filename="../models/LogbookModel.cpp" line="894"/>
         <source>QSLs Message (ASCII)</source>
         <translation>QSLs 信息 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="889"/>
+        <location filename="../models/LogbookModel.cpp" line="895"/>
         <source>QSLs Message</source>
         <translation>QSLs 信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="890"/>
+        <location filename="../models/LogbookModel.cpp" line="896"/>
         <source>QSLr Message</source>
         <translation>QSLr 信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="900"/>
+        <location filename="../models/LogbookModel.cpp" line="906"/>
         <source>RcvPWR</source>
         <translation>接收功率</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="911"/>
+        <location filename="../models/LogbookModel.cpp" line="917"/>
         <source>RcvNr</source>
         <translation>接收序号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="912"/>
+        <location filename="../models/LogbookModel.cpp" line="918"/>
         <source>RcvExch</source>
         <translation>接收交换信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="914"/>
+        <location filename="../models/LogbookModel.cpp" line="920"/>
         <source>SentNr</source>
         <translation>发送序号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="915"/>
+        <location filename="../models/LogbookModel.cpp" line="921"/>
         <source>SentExch</source>
         <translation>发送交换信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="221"/>
-        <location filename="../models/LogbookModel.cpp" line="875"/>
+        <location filename="../models/LogbookModel.cpp" line="227"/>
+        <location filename="../models/LogbookModel.cpp" line="881"/>
         <source>Notes</source>
         <translation>笔记</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="876"/>
+        <location filename="../models/LogbookModel.cpp" line="882"/>
         <source>#MS Bursts</source>
         <translation>流星散射爆发数</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="877"/>
+        <location filename="../models/LogbookModel.cpp" line="883"/>
         <source>#MS Pings</source>
         <translation>流星散射 ping 数</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="880"/>
+        <location filename="../models/LogbookModel.cpp" line="886"/>
         <source>POTA</source>
         <translation>POTA</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="881"/>
+        <location filename="../models/LogbookModel.cpp" line="887"/>
         <source>Contest Precedence</source>
         <translation>比赛优先</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="882"/>
+        <location filename="../models/LogbookModel.cpp" line="888"/>
         <source>Propagation Mode</source>
         <translation>传播模式</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="883"/>
+        <location filename="../models/LogbookModel.cpp" line="889"/>
         <source>Public Encryption Key</source>
         <translation>公钥加密算法</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="886"/>
+        <location filename="../models/LogbookModel.cpp" line="892"/>
         <source>QRZ Upload Date</source>
         <translation>QRZ 上传日期</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="887"/>
+        <location filename="../models/LogbookModel.cpp" line="893"/>
         <source>QRZ Upload Status</source>
         <translation>QRZ 上传状态</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="213"/>
+        <location filename="../models/LogbookModel.cpp" line="219"/>
         <source>QSL Message</source>
         <translation>QSL 信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="831"/>
+        <location filename="../models/LogbookModel.cpp" line="837"/>
         <source>CW Key Info</source>
         <translation>CW电键信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="832"/>
+        <location filename="../models/LogbookModel.cpp" line="838"/>
         <source>CW Key Type</source>
         <translation>CW电键类型</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="854"/>
+        <location filename="../models/LogbookModel.cpp" line="860"/>
         <source>My CW Key Info</source>
         <translation>我的CW电键信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="855"/>
+        <location filename="../models/LogbookModel.cpp" line="861"/>
         <source>My CW Key Type</source>
         <translation>我的CW电键类型</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="878"/>
+        <location filename="../models/LogbookModel.cpp" line="884"/>
         <source>Operator Callsign</source>
         <translation>操作员呼号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="891"/>
+        <location filename="../models/LogbookModel.cpp" line="897"/>
         <source>QSLr Via</source>
         <translation>QSL 接收经由</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="892"/>
+        <location filename="../models/LogbookModel.cpp" line="898"/>
         <source>QSLs Via</source>
         <translation>QSL 发送经由</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="893"/>
+        <location filename="../models/LogbookModel.cpp" line="899"/>
         <source>QSL Via</source>
         <translation>QSL 经由</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="894"/>
+        <location filename="../models/LogbookModel.cpp" line="900"/>
         <source>QSO Completed</source>
         <translation>通联完成</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="895"/>
+        <location filename="../models/LogbookModel.cpp" line="901"/>
         <source>QSO Random</source>
         <translation>随机通联</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="896"/>
+        <location filename="../models/LogbookModel.cpp" line="902"/>
         <source>QTH</source>
         <translation>QTH</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="897"/>
+        <location filename="../models/LogbookModel.cpp" line="903"/>
         <source>Region</source>
         <translation>地区</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="898"/>
+        <location filename="../models/LogbookModel.cpp" line="904"/>
         <source>Rig (ASCII)</source>
         <translation>设备 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="899"/>
+        <location filename="../models/LogbookModel.cpp" line="905"/>
         <source>Rig</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="901"/>
+        <location filename="../models/LogbookModel.cpp" line="907"/>
         <source>SAT Mode</source>
         <translation>卫星模式</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="902"/>
+        <location filename="../models/LogbookModel.cpp" line="908"/>
         <source>SAT Name</source>
         <translation>卫星名称</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="903"/>
+        <location filename="../models/LogbookModel.cpp" line="909"/>
         <source>Solar Flux</source>
         <translation>太阳通量</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="904"/>
+        <location filename="../models/LogbookModel.cpp" line="910"/>
         <source>SIG (ASCII)</source>
         <translation>特别活动或兴趣团体名 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="905"/>
+        <location filename="../models/LogbookModel.cpp" line="911"/>
         <source>SIG</source>
         <translation>SIG</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="906"/>
+        <location filename="../models/LogbookModel.cpp" line="912"/>
         <source>SIG Info (ASCII)</source>
         <translation>特别活动或兴趣团体信息 (ASCII)</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="907"/>
+        <location filename="../models/LogbookModel.cpp" line="913"/>
         <source>SIG Info</source>
         <translation>SIG 信息</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="908"/>
+        <location filename="../models/LogbookModel.cpp" line="914"/>
         <source>Silent Key</source>
         <translation>Silent Key</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="909"/>
+        <location filename="../models/LogbookModel.cpp" line="915"/>
         <source>SKCC Member</source>
         <translation>SKCC 成员</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="910"/>
+        <location filename="../models/LogbookModel.cpp" line="916"/>
         <source>SOTA</source>
         <translation>SOTA</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="913"/>
+        <location filename="../models/LogbookModel.cpp" line="919"/>
         <source>Logging Station Callsign</source>
         <translation>日志电台呼号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="916"/>
+        <location filename="../models/LogbookModel.cpp" line="922"/>
         <source>SWL</source>
         <translation>SWL</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="917"/>
+        <location filename="../models/LogbookModel.cpp" line="923"/>
         <source>Ten-Ten Number</source>
         <translation>Ten-Ten 序号</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="918"/>
+        <location filename="../models/LogbookModel.cpp" line="924"/>
         <source>UKSMG Member</source>
         <translation>UKSMG 成员</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="919"/>
+        <location filename="../models/LogbookModel.cpp" line="925"/>
         <source>USA-CA Counties</source>
         <translation>USA-CA 县</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="920"/>
+        <location filename="../models/LogbookModel.cpp" line="926"/>
         <source>VE Prov</source>
         <translation>VE 省</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="921"/>
+        <location filename="../models/LogbookModel.cpp" line="927"/>
         <source>VUCC</source>
         <translation>VUCC</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="922"/>
+        <location filename="../models/LogbookModel.cpp" line="928"/>
         <source>Web</source>
         <translation>网站</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="923"/>
+        <location filename="../models/LogbookModel.cpp" line="929"/>
         <source>My ARRL Section</source>
         <translation>我的 ARRL 划分</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="924"/>
+        <location filename="../models/LogbookModel.cpp" line="930"/>
         <source>My WWFF</source>
         <translation>我的 WWFF</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="925"/>
+        <location filename="../models/LogbookModel.cpp" line="931"/>
         <source>WWFF</source>
         <translation>WWFF</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="201"/>
+        <location filename="../models/LogbookModel.cpp" line="207"/>
         <source>RST Sent</source>
         <translation>RST 发</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="205"/>
+        <location filename="../models/LogbookModel.cpp" line="211"/>
         <source>RST Rcvd</source>
         <translation>RST 收</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="228"/>
+        <location filename="../models/LogbookModel.cpp" line="234"/>
         <source>Paper</source>
         <translation>纸质卡片</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="228"/>
+        <location filename="../models/LogbookModel.cpp" line="234"/>
         <source>LoTW</source>
         <translation>LoTW</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="228"/>
+        <location filename="../models/LogbookModel.cpp" line="234"/>
         <source>eQSL</source>
         <translation>eQSL</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="231"/>
+        <location filename="../models/LogbookModel.cpp" line="237"/>
         <source>QSL Received</source>
         <translation>QSL 已接收</translation>
     </message>
     <message>
-        <location filename="../models/LogbookModel.cpp" line="237"/>
+        <location filename="../models/LogbookModel.cpp" line="243"/>
         <source>QSL Sent</source>
         <translation>QSL 已发送</translation>
     </message>
@@ -8397,7 +8397,7 @@ Submode: %2</source>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="610"/>
         <source>LoTW returned a non-ADIF response</source>
-        <translation type="unfinished">LoTW 返回了非 ADIF 响应</translation>
+        <translation>LoTW 返回了非 ADIF 响应</translation>
     </message>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="619"/>
@@ -8892,7 +8892,7 @@ Submode: %2</source>
     <message>
         <location filename="../ui/MainWindow.ui" line="931"/>
         <source>Clear All</source>
-        <translation type="unfinished">清除全部</translation>
+        <translation>清除全部</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="950"/>
@@ -8992,7 +8992,7 @@ Submode: %2</source>
     <message>
         <location filename="../ui/MainWindow.cpp" line="319"/>
         <source>FLDigi</source>
-        <translation type="unfinished">FLDigi</translation>
+        <translation>FLDigi</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="320"/>
@@ -9428,12 +9428,12 @@ Submode: %2</source>
         <translation>天线</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4486"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4497"/>
         <source>Blank</source>
         <translation>空白</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4487"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4498"/>
         <source> W</source>
         <translation> W</translation>
     </message>
@@ -9508,117 +9508,117 @@ Submode: %2</source>
         <translation>电台黄页登陆失败</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="812"/>
+        <location filename="../ui/NewContactWidget.cpp" line="823"/>
         <source>Member</source>
         <translation>成员</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="885"/>
+        <location filename="../ui/NewContactWidget.cpp" line="896"/>
         <source>QLog Information</source>
-        <translation type="unfinished">QLog 信息</translation>
+        <translation>QLog 信息</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2333"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2344"/>
         <source>The external QSO was saved without current station data because Manual QSO Entry is active.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2339"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2350"/>
         <source>The external QSO was saved without current station data because no active Station Profile is available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2346"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2357"/>
         <source>not provided</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2350"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2361"/>
         <source>The external QSO was saved without current station data: received station %1 / %2 does not match active Station Profile &quot;%3&quot; (%4 / %5).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2520"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2531"/>
         <source>LP</source>
         <translation>长路径</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2572"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2583"/>
         <source>New Entity!</source>
         <translation>新实体！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2575"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2586"/>
         <source>New Band!</source>
         <translation>新波段！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2578"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2589"/>
         <source>New Mode!</source>
         <translation>新模式！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2581"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2592"/>
         <source>New Band &amp; Mode!</source>
         <translation>新波段与模式！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2584"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2595"/>
         <source>New Slot!</source>
         <translation>新组合！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2587"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2598"/>
         <source>Worked</source>
         <translation>已通联</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2590"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2601"/>
         <source>Confirmed</source>
         <translation>已确认</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3497"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3508"/>
         <source>GE</source>
         <translation>GE</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3507"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3518"/>
         <source>GM</source>
         <translation>GM</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3513"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3524"/>
         <source>GA</source>
         <translation>GA</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3832"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3843"/>
         <source> m</source>
         <translation> m</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4215"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4226"/>
         <source>Callbook search is active</source>
         <translation>电台黄页搜索可用</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4293"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4304"/>
         <source>Contest ID must be filled in to activate</source>
         <translation>必须填写 竞赛标识 才能激活</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4474"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4485"/>
         <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW)) </source>
         <translation>这里要填的不是比赛名称，而是分配的竞赛标识&lt;br&gt;（例如CQ-WW-CW 代表CQ WW DX比赛(CW)） </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4489"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4500"/>
         <source>Description of the contacted station&apos;s equipment</source>
         <translation>已通联台站的设备描述</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4210"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4221"/>
         <source>Callbook search is inactive</source>
         <translation>电台黄页搜索不可用</translation>
     </message>
@@ -9628,27 +9628,27 @@ Submode: %2</source>
         <translation>展开/折叠</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4415"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4426"/>
         <source>two or four adjacent Maidenhead grid locators, each four characters long, (ex. EN98,FM08,EM97,FM07)</source>
         <translation>两个或四个相邻的梅登黑德网格定位器，每个四个字符长，(例如 EN98, FM08, EM97, FM07)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4418"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4429"/>
         <source>the contacted station&apos;s DARC DOK (District Location Code) (ex. A01)</source>
         <translation>联络电台的DARC DOK (地区位置代码) (例如 A01)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4438"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4449"/>
         <source>World Wide Flora &amp; Fauna</source>
         <translation>世界动植物 (可选参数)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4442"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4453"/>
         <source>Special Activity Group</source>
         <translation>特别活动或兴趣团体名称</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4446"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4457"/>
         <source>Special Activity Group Information</source>
         <translation>特别活动或兴趣团体信息</translation>
     </message>
@@ -9898,7 +9898,7 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/MainWindow.cpp" line="701"/>
         <location filename="../ui/MainWindow.cpp" line="714"/>
         <location filename="../ui/MainWindow.cpp" line="724"/>
-        <location filename="../ui/NewContactWidget.cpp" line="1559"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1570"/>
         <location filename="../ui/SettingsDialog.cpp" line="779"/>
         <location filename="../ui/SettingsDialog.cpp" line="804"/>
         <location filename="../ui/SettingsDialog.cpp" line="813"/>
@@ -9954,7 +9954,7 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/AlertRuleDetail.cpp" line="329"/>
         <location filename="../ui/ExportDialog.cpp" line="180"/>
         <location filename="../ui/KSTChatWidget.cpp" line="311"/>
-        <location filename="../ui/NewContactWidget.cpp" line="1829"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1840"/>
         <location filename="../ui/QSOFilterDetail.cpp" line="531"/>
         <location filename="../ui/SettingsDialog.cpp" line="932"/>
         <location filename="../ui/SettingsDialog.cpp" line="941"/>
@@ -10107,12 +10107,12 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>&lt;b&gt;CW 键控器出错:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="1560"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1571"/>
         <source>The fields &lt;b&gt;%0&lt;/b&gt; will not be saved because the &lt;b&gt;%1&lt;/b&gt; is not filled.</source>
         <translation>不会保存字段&lt;b&gt;%0&lt;/b&gt;，因为&lt;b&gt;%1&lt;/b&gt;未填充。</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="1830"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1841"/>
         <source>Your callsign is empty. Please, set your Station Profile</source>
         <translation>你的呼号为空。请先设置台站配置文件</translation>
     </message>
@@ -10513,7 +10513,7 @@ You can leave fields empty and configure them later in Settings.</source>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="43"/>
         <source>LoTW returned a non-ADIF response</source>
-        <translation type="unfinished">LoTW 返回了非 ADIF 响应</translation>
+        <translation>LoTW 返回了非 ADIF 响应</translation>
     </message>
 </context>
 <context>
@@ -12454,7 +12454,7 @@ Please install Hamlib or specify the path manually.</source>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="3748"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3660"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3664"/>
         <source>Callsign</source>
         <translation>呼号</translation>
     </message>
@@ -13246,7 +13246,7 @@ Please install Hamlib or specify the path manually.</source>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4084"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3660"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3664"/>
         <source>API Key</source>
         <translation>API密钥</translation>
     </message>
@@ -13317,9 +13317,9 @@ Please install Hamlib or specify the path manually.</source>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4949"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3207"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3510"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3526"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3211"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3514"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3530"/>
         <source>Custom</source>
         <translation>自定义</translation>
     </message>
@@ -13698,42 +13698,57 @@ Please install Hamlib or specify the path manually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5129"/>
+        <location filename="../ui/SettingsDialog.ui" line="5121"/>
+        <source>DXCC Entity Flags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/SettingsDialog.ui" line="5128"/>
+        <source>Show DXCC entity flags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/SettingsDialog.ui" line="5131"/>
+        <source>Show</source>
+        <translation>显示</translation>
+    </message>
+    <message>
+        <location filename="../ui/SettingsDialog.ui" line="5149"/>
         <source>QSO DXCC Status Colors</source>
         <translation>QSO DXCC 状态颜色</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5141"/>
+        <location filename="../ui/SettingsDialog.ui" line="5161"/>
         <source>Used for DX spots, Bandmap, WSJT-X and QSO status hints. Confirmed has no highlight by default. Click a color cell to choose a color or set No color.</source>
         <translation>用于 DX spots、Bandmap、WSJT-X 和 QSO 状态提示。已确认的 QSO 默认没有高亮显示。点击颜色单元格选择颜色或设置为无颜色。</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5191"/>
+        <location filename="../ui/SettingsDialog.ui" line="5211"/>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5214"/>
+        <location filename="../ui/SettingsDialog.ui" line="5234"/>
         <source>Shortcuts</source>
         <translation>快捷键</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5256"/>
+        <location filename="../ui/SettingsDialog.ui" line="5276"/>
         <source>Danger Zone</source>
         <translation>危险区域</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5275"/>
+        <location filename="../ui/SettingsDialog.ui" line="5295"/>
         <source>&lt;b&gt;⚠ This is a danger zone. Proceed with caution, as actions performed here cannot be undone and may have a significant impact on your log.&lt;/b&gt;</source>
         <translation>&lt;b&gt;⚠ 这是一个危险区域。请谨慎操作，因为在此处执行的操作无法撤销，并且可能对您的日志产生重大影响。&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5310"/>
+        <location filename="../ui/SettingsDialog.ui" line="5330"/>
         <source>Delete All QSOs</source>
         <translation>删除所有 QSO</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="5339"/>
+        <location filename="../ui/SettingsDialog.ui" line="5359"/>
         <source>Delete All Passwords from the Secure Store</source>
         <translation>从安全存储中删除所有密码</translation>
     </message>
@@ -13932,10 +13947,10 @@ Please install Hamlib or specify the path manually.</source>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="119"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3205"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3462"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3506"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3522"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3209"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3466"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3510"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3526"/>
         <source>No</source>
         <translation>否</translation>
     </message>
@@ -14246,98 +14261,98 @@ Please install TQSL or specify the path manually.</source>
         <translation>删除所有 QSO 失败。</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3166"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3170"/>
         <source>Enabled</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3167"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3171"/>
         <source>Path</source>
         <translation>路径</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3168"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3172"/>
         <source>Station Profile</source>
         <translation>台站配置</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3168"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3172"/>
         <source>Missing QSL Sent</source>
         <translation>缺失的 QSL 发送</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3169"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3173"/>
         <source>Last Recovery</source>
         <translation>最后恢复</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3202"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3459"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3527"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3206"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3463"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3531"/>
         <source>Queued</source>
         <translation>排队中</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3203"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3461"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3502"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3518"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3207"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3465"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3506"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3522"/>
         <source>Ignored</source>
         <translation>已忽视</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3204"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3460"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3504"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3520"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3208"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3464"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3508"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3524"/>
         <source>Requested</source>
         <translation>已请求</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3206"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3463"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3508"/>
-        <location filename="../ui/SettingsDialog.cpp" line="3524"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3210"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3467"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3512"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3528"/>
         <source>Yes</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3246"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3250"/>
         <source>Station Profile does not exist. Select another profile and enable this row again.</source>
         <translation>台站配置不存在。请选择另一个配置并重新启用此行。</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3262"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3266"/>
         <source>File exists</source>
         <translation>文件存在</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3262"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3266"/>
         <source>File does not exist</source>
         <translation>文件不存在</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3391"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3395"/>
         <source>Startup ADI initialized</source>
         <translation>启动 ADI 已初始化</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3405"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3409"/>
         <source>Select ADIF File</source>
         <translation>选择 ADIF 文件</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3407"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3411"/>
         <source>ADIF Files (*.adi *.adif);;All Files (*)</source>
         <translation>ADIF 文件 (*.adi *.adif);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3645"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3649"/>
         <source>members</source>
         <translation>成员</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.cpp" line="3652"/>
+        <location filename="../ui/SettingsDialog.cpp" line="3656"/>
         <source>Required internet connection during application start</source>
         <translation>在应用程序启动时需要互联网连接</translation>
     </message>
@@ -14548,7 +14563,7 @@ Please install TQSL or specify the path manually.</source>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="735"/>
         <source>Operator Callsign</source>
-        <translation type="unfinished">操作员呼号</translation>
+        <translation>操作员呼号</translation>
     </message>
     <message>
         <location filename="../ui/StatisticsWidget.cpp" line="742"/>
