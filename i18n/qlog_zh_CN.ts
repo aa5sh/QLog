@@ -3896,7 +3896,7 @@
     <message>
         <location filename="dbstrings.tri" line="265"/>
         <source>Scarborough Reef</source>
-        <translation>斯卡伯勒礁</translation>
+        <translation>黄岩岛（民主礁）</translation>
     </message>
     <message>
         <location filename="dbstrings.tri" line="266"/>
