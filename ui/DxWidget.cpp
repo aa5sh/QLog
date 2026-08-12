@@ -2027,7 +2027,9 @@ void DxWidget::potaRefFromComment(DxSpot &spot) const
     if ( spot.dxcc.dxcc == 0 )
         return;
 
-    QString flagA2Code = Data::instance()->dxccFlag(spot.dxcc.dxcc);
+    // The flag code is also used as a POTA country prefix. This is semantic
+    // data and must remain available when flag images are hidden in the GUI.
+    QString flagA2Code = Data::instance()->dxccFlagCode(spot.dxcc.dxcc);
 
     if ( flagA2Code == "england" || flagA2Code == "scotland"
          || flagA2Code == "wales")

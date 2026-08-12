@@ -421,6 +421,8 @@ public:
     static void setMainWindowAlertBeep(bool state);
     static int getMainWindowDarkMode();
     static void setMainWindowDarkMode(int state);
+    static bool getShowDxccFlags();
+    static void setShowDxccFlags(bool state);
     static QVariantMap getQsoStatusColors();
     static void setQsoStatusColors(const QVariantMap &colors);
     static QByteArray getMainWindowGeometry();

@@ -1499,6 +1499,16 @@ void LogParam::setMainWindowDarkMode(int state)
     setParam("mainwindow/darkmode", state);
 }
 
+bool LogParam::getShowDxccFlags()
+{
+    return getParam("gui/show_dxcc_flags", true).toBool();
+}
+
+void LogParam::setShowDxccFlags(bool state)
+{
+    setParam("gui/show_dxcc_flags", state);
+}
+
 QVariantMap LogParam::getQsoStatusColors()
 {
     const QByteArray json = getParam("gui/qso_status_colors", QByteArray()).toByteArray();

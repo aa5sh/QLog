@@ -322,6 +322,7 @@ private:
                               const QString &grid = QString());
     void setDxccInfo(const DxccEntity &curr);
     void setDxccInfo(const QString &callsign);
+    void refreshDxccFlag();
     void clearCallbookQueryFields();
     void clearMemberQueryFields();
     void readWidgetSettings();

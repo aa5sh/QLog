@@ -227,6 +227,7 @@ void Data::reloadQsoStatusColors()
 
 Data::Data(QObject *parent) :
    QObject(parent),
+   showDxccFlags(LogParam::getShowDxccFlags()),
    zd(nullptr),
    isDXCCQueryValid(false)
 {
@@ -1401,6 +1402,8 @@ DxccEntity Data::lookupDxccAD1C(const QString &callsign)
         }
     }
 
+    // The cache stores DXCC data, while flag visibility is a live GUI setting.
+    dxccRet.flag = dxccFlag(dxccRet.dxcc);
     return dxccRet;
 }
 

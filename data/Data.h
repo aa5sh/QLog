@@ -171,7 +171,10 @@ public:
     SOTAEntity lookupSOTA(const QString &SOTACode);
     POTAEntity lookupPOTA(const QString &POTACode);
     WWFFEntity lookupWWFF(const QString &reference);
-    const QString dxccFlag(int dxcc) const {return dxccEntityStaticInfo.value(dxcc).value("flag").toString();};
+    QString dxccFlag(int dxcc) const { return showDxccFlags ? dxccFlagCode(dxcc) : QString(); }
+    QString dxccFlagCode(int dxcc) const { return dxccEntityStaticInfo.value(dxcc).value("flag").toString(); }
+    bool dxccFlagsVisible() const { return showDxccFlags; }
+    void setDxccFlagsVisible(bool visible) { showDxccFlags = visible; }
     const QString dxccName(int dxcc) const {return dxccEntityStaticInfo.value(dxcc).value("name").toString();};
     int dxccITUZ(int dxcc) const {return dxccEntityStaticInfo.value(dxcc).value("ituz").toInt();};
     QPair<QString, QString> legacyMode(const QString &mode);
@@ -219,6 +222,7 @@ private:
     QMap<QString, QString> sotaRefID;
     QMap<QString, QString> wwffRefID;
     QMap<QString, QString> potaRefID;
+    bool showDxccFlags;
     ZoneDetect * zd;
     QSqlQuery queryDXCC;
     QSqlQuery queryDXCCIDAD1C;

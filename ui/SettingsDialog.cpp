@@ -3019,6 +3019,7 @@ void SettingsDialog::readSettings()
     bool unitFormatMetric =  locale.getSettingUseMetric();
     ui->unitFormatMetricRadioButton->setChecked(unitFormatMetric);
     ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
+    ui->showDxccFlagsCheckBox->setChecked(LogParam::getShowDxccFlags());
     loadQsoStatusColors();
 
     /******************/
@@ -3154,6 +3155,9 @@ void SettingsDialog::writeSettings()
         locale.setSettingDateFormat(ui->dateFormatStringEdit->text());
 
     locale.setSettingUseMetric(ui->unitFormatMetricRadioButton->isChecked());
+    const bool showDxccFlags = ui->showDxccFlagsCheckBox->isChecked();
+    LogParam::setShowDxccFlags(showDxccFlags);
+    Data::instance()->setDxccFlagsVisible(showDxccFlags);
     saveQsoStatusColors();
     Data::reloadQsoStatusColors();
 }

@@ -32,7 +32,6 @@
 #include "models/LogbookModel.h"
 #include "data/BandPlan.h"
 #include "ui/ModeSelectionController.h"
-#include "core/LogParam.h"
 #include "data/ActivityProfile.h"
 #include "core/LogParam.h"
 #include "core/PotaQE.h"
@@ -65,6 +64,7 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    dxccEntity = DxccEntity();
 
     // tab pane with QSO fields - expand & collapse
     tabCollapseBtn = new QToolButton(this);
@@ -401,6 +401,8 @@ void NewContactWidget::readGlobalSettings()
 {
     FCT_IDENTIFICATION;
 
+    refreshDxccFlag();
+
     /*************************/
     /* Refresh mode combobox */
     /*************************/
@@ -506,6 +508,7 @@ void NewContactWidget::setDxccInfo(const DxccEntity &curr)
     FCT_IDENTIFICATION;
 
     dxccEntity = curr;
+    refreshDxccFlag();
 
     if ( dxccEntity.dxcc )
     {
@@ -516,8 +519,6 @@ void NewContactWidget::setDxccInfo(const DxccEntity &curr)
         ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, BandPlan::freq2Band(ui->freqTXEdit->value()));
         ui->stationTableWidget->setDxCallsign(ui->callsignEdit->text(), BandPlan::freq2Band(ui->freqTXEdit->value()));
         uiDynamic->contEdit->setCurrentText(dxccEntity.cont);
-        ui->flagView->setPixmap((!dxccEntity.flag.isEmpty() ) ? QPixmap(QString(":/flags/64/%1.png").arg(dxccEntity.flag))
-                                                              : QPixmap() );
         updateDxccStatus();
         updateCountyCompleter(dxccEntity.dxcc);
     }
@@ -530,12 +531,22 @@ void NewContactWidget::setDxccInfo(const DxccEntity &curr)
         ui->dxccTableWidget->clear();
         ui->stationTableWidget->clear();
         uiDynamic->contEdit->setCurrentText("");
-        ui->flagView->setPixmap(QPixmap());
         ui->dxccStatus->clear();
 
         emit newTarget(qQNaN(), qQNaN());
         updateCountyCompleter(0);
     }
+}
+
+void NewContactWidget::refreshDxccFlag()
+{
+    const bool visible = Data::instance()->dxccFlagsVisible();
+    const QString flag = Data::instance()->dxccFlag(dxccEntity.dxcc);
+
+    ui->flagView->setVisible(visible);
+    ui->flagView->setPixmap((!flag.isEmpty())
+                            ? QPixmap(QString(":/flags/64/%1.png").arg(flag))
+                            : QPixmap());
 }
 
 void NewContactWidget::setDxccInfo(const QString &callsign)

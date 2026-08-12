@@ -149,6 +149,9 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
         return modeSubmodeData(index.row(), role);
 
     if (role == Qt::DecorationRole && index.column() == COLUMN_CALL) {
+        if ( !Data::instance()->dxccFlagsVisible() )
+            return QVariant();
+
         const QString &flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
 
         return ( !flag.isEmpty() ) ? QIcon(QString(":/flags/16/%1.png").arg(flag))
@@ -180,9 +183,12 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
             return QStringLiteral("  <td style='color:#ababab; font-size:20px'>%1</td>")
                     .arg(confirmed ? QStringLiteral("&#10003;") : QStringLiteral("&#10005;"));
         };
-        QString flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
+        const QString flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
+        const QString flagHtml = flag.isEmpty()
+                                 ? QString()
+                                 : QString("<img src=':/flags/64/%1.png'>").arg(flag);
 
-        return QString("<img src=':/flags/64/%1.png'>").arg(flag) +
+        return flagHtml +
                "<h2>" + QSqlTableModel::data(index, Qt::DisplayRole).toString() + "</h2>   " +
                "<table>" +
                 " <tr>" +
