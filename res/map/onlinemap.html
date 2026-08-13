@@ -948,7 +948,7 @@
     const heardMeFadedOpacity = 0.5;
     const heardMeSpots = new Map();
     var currentHeardMeDisplayGroup = "PSK";
-    var heardMeLayer = L.layerGroup().addTo(map);
+    var heardMeLayer = L.layerGroup();
 
     function setHeardMeMode(mode) {
         const normalizedMode = String(mode || '').trim().toUpperCase();

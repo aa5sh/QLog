@@ -71,8 +71,8 @@ bool OnlineMapWidget::isHeardMeLayerVisible() const
 
     const QString key = QStringLiteral("heardMeLayer");
     const QStringList states = LogParam::getMapLayerStates(QStringLiteral("onlinemap"));
-    return !states.contains(key)
-           || LogParam::getMapLayerState(QStringLiteral("onlinemap"), key);
+    return states.contains(key)
+           && LogParam::getMapLayerState(QStringLiteral("onlinemap"), key);
 }
 
 void OnlineMapWidget::setTarget(double lat, double lon)
