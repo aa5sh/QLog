@@ -239,6 +239,8 @@ void Rig::__openRig()
         return;
     }
 
+    const qint32 controlledRigModel = newRigProfile.model;
+
     qCDebug(runtime) << "Opening profile name: " << newRigProfile.profileName;
 
     // If rig sharing is enabled, start rigctld and modify profile to connect via network
@@ -269,7 +271,7 @@ void Rig::__openRig()
         qCDebug(runtime) << "Connecting to rigctld at" << newRigProfile.hostname << ":" << newRigProfile.netport;
     }
 
-    rigDriver = getDriver(newRigProfile);
+    rigDriver = getDriver(newRigProfile, controlledRigModel);
 
     if ( !rigDriver )
     {
@@ -739,7 +741,7 @@ void Rig::sendDXSpotImpl(const DxSpot &spot)
     rigDriver->sendDXSpot(spot);
 }
 
-GenericRigDrv *Rig::getDriver( const RigProfile &profile )
+GenericRigDrv *Rig::getDriver(const RigProfile &profile, qint32 controlledRigModel)
 {
     FCT_IDENTIFICATION;
 
@@ -750,7 +752,7 @@ GenericRigDrv *Rig::getDriver( const RigProfile &profile )
     switch ( profile.driver )
     {
     case Rig::HAMLIB_DRIVER:
-        return new HamlibRigDrv(profile, this);
+        return new HamlibRigDrv(profile, controlledRigModel, this);
         break;
 #ifdef Q_OS_WIN
     case Rig::OMNIRIG_DRIVER:

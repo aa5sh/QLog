@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDir>
 #include <QCoreApplication>
+#include <hamlib/riglist.h>
 
 #include "rig/RigctldManager.h"
 #include "data/RigProfile.h"
@@ -26,6 +27,7 @@ private slots:
     void buildArguments_includesSerialSettings();
     void buildArguments_mapsSerialSettings();
     void buildArguments_includesPttSettings();
+    void buildArguments_includesModelSettings();
     void buildArguments_formatsCivAddressAsDecimal();
     void buildArguments_includesAdditionalArgs();
 
@@ -216,6 +218,22 @@ void RigctldManagerTest::buildArguments_includesPttSettings()
     profile.pttPortPath.clear();
     const QStringList noneArgs = manager.buildArguments(profile);
     QVERIFY(noneArgs.contains("ptt_type=None"));
+}
+
+void RigctldManagerTest::buildArguments_includesModelSettings()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+#ifdef RIG_MODEL_FT950
+    profile.model = RIG_MODEL_FT950;
+#endif
+
+    const QStringList args = manager.buildArguments(profile);
+
+#ifdef RIG_MODEL_FT950
+    QVERIFY(args.contains("disable_yaesu_bandselect=1"));
+#endif
 }
 
 void RigctldManagerTest::buildArguments_formatsCivAddressAsDecimal()

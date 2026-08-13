@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QRegularExpression>
+#include <hamlib/riglist.h>
 
 #include "RigctldManager.h"
 #include "core/debug.h"
@@ -405,6 +406,11 @@ QStringList RigctldManager::buildArguments(const RigProfile &profile) const
             if ( !rts.isEmpty() )
                 args << "-C" << QString("rts_state=%1").arg(rts);
         }
+
+#ifdef RIG_MODEL_FT950
+        if ( profile.model == RIG_MODEL_FT950 )
+            args << "-C" << "disable_yaesu_bandselect=1";
+#endif
     }
 
     // Additional user-specified arguments

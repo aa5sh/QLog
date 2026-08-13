@@ -137,8 +137,10 @@ RigCaps HamlibRigDrv::getCaps(int model)
 }
 
 HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
+                           qint32 controlledRigModel,
                            QObject *parent)
     : GenericRigDrv(profile, parent),
+      controlledRigModel(controlledRigModel),
       rig(nullptr),
       SmartSDRSpotCounter(0),
       forceSendState(false),
@@ -844,7 +846,7 @@ bool HamlibRigDrv::checkModeChange()
          * #999
          * This is a workaround for Yaesu FTDx10 to work properly.
          */
-        vfo_t modeVFO = ( rigProfile.model == RIG_MODEL_FTDX10 ) ? RIG_VFO_NONE : RIG_VFO_CURR;
+        vfo_t modeVFO = ( controlledRigModel == RIG_MODEL_FTDX10 ) ? RIG_VFO_NONE : RIG_VFO_CURR;
 
         int status = rig_get_mode(rig, modeVFO, &curr_modeId, &pbwidth);
 
