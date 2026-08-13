@@ -255,6 +255,7 @@ void Rig::__openRig()
             rigctldManager = new RigctldManager(this);
             connect(rigctldManager, &RigctldManager::errorOccurred, this, [this](const QString &error)
             {
+                close();
                 emit rigErrorPresent(tr("Rigctld Error"), error);
             });
         }

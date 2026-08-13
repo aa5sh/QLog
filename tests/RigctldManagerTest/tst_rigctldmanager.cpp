@@ -38,6 +38,7 @@ private slots:
     void getConnectHost_returnsLocalhost();
     void getConnectPort_returnsConfiguredPort();
     void stop_isIdempotentWithoutStart();
+    void unexpectedFinish_reportsExitCode();
 
     // getVersion tests
     void getVersion_returnsInvalidForNonexistentPath();
@@ -338,6 +339,20 @@ void RigctldManagerTest::stop_isIdempotentWithoutStart()
 
     QVERIFY(!manager.isRunning());
     QCOMPARE(stoppedSpy.count(), 0);
+}
+
+void RigctldManagerTest::unexpectedFinish_reportsExitCode()
+{
+    RigctldManager manager;
+    QSignalSpy stoppedSpy(&manager, &RigctldManager::stopped);
+    QSignalSpy errorSpy(&manager, &RigctldManager::errorOccurred);
+
+    manager.onProcessFinished(7, QProcess::NormalExit);
+
+    QCOMPARE(stoppedSpy.count(), 1);
+    QCOMPARE(errorSpy.count(), 1);
+    const QString error = errorSpy.first().first().toString();
+    QVERIFY(error.contains("7"));
 }
 
 // ============================================================================

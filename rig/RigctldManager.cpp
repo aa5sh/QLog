@@ -447,6 +447,9 @@ void RigctldManager::onProcessFinished(int exitCode, QProcess::ExitStatus exitSt
     if ( stoppingInProgress )
         return;
 
+    if ( exitStatus == QProcess::NormalExit )
+        emit errorOccurred(tr("rigctld stopped unexpectedly with exit code %1.").arg(exitCode));
+
     emit stopped();
 }
 
