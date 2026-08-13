@@ -25,6 +25,7 @@ private slots:
     void buildArguments_includesPort();
     void buildArguments_includesSerialSettings();
     void buildArguments_mapsSerialSettings();
+    void buildArguments_formatsCivAddressAsDecimal();
     void buildArguments_includesAdditionalArgs();
 
     // Lifecycle tests
@@ -193,6 +194,18 @@ void RigctldManagerTest::buildArguments_mapsSerialSettings()
     QVERIFY(args.contains("serial_handshake=Hardware"));
     QVERIFY(args.contains("dtr_state=ON"));
     QVERIFY(args.contains("rts_state=OFF"));
+}
+
+void RigctldManagerTest::buildArguments_formatsCivAddressAsDecimal()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.civAddr = 0x94;
+
+    const QStringList args = manager.buildArguments(profile);
+
+    QVERIFY(args.contains("civaddr=148"));
 }
 
 void RigctldManagerTest::buildArguments_includesAdditionalArgs()

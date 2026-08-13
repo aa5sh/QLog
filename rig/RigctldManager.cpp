@@ -373,7 +373,7 @@ QStringList RigctldManager::buildArguments(const RigProfile &profile) const
         }
 
         // CIV address for Icom
-        if (profile.civAddr >= 0) args << "-C" << QString("civaddr=%1").arg(profile.civAddr, 2, 16, QChar('0'));
+        if (profile.civAddr >= 0) args << "-C" << QString("civaddr=%1").arg(profile.civAddr);
 
         // DTR signal
         if ( !profile.dtr.isEmpty() )
