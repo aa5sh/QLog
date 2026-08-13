@@ -171,27 +171,27 @@
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1296"/>
         <source>Use this antenna profile instead of automatic TX-band selection while this Activity is active. If unchecked, QLog selects the antenna automatically from the current TX band when a matching profile exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>活动启用期间，使用此天线配置，而不按发射波段自动选择。若未勾选，且存在匹配的配置，QLog 会根据当前发射波段自动选择天线。</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1299"/>
         <source>Antenna Override</source>
-        <translation type="unfinished"></translation>
+        <translation>天线覆盖</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1360"/>
         <source>Use this rotator profile instead of the active antenna&apos;s Assigned Rotator while this Activity is active. If unchecked, QLog uses the active antenna&apos;s Assigned Rotator, or leaves the current rotator unchanged when none is assigned.</source>
-        <translation type="unfinished"></translation>
+        <translation>活动启用期间，使用此旋转云台配置，而不使用当前天线的已分配旋转云台。若未勾选，QLog 将使用当前天线的已分配旋转云台；若未分配，则保持当前旋转云台不变。</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1363"/>
         <source>Rotator Override</source>
-        <translation type="unfinished"></translation>
+        <translation>旋转云台覆盖</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1388"/>
         <source>Connect the overridden rotator while this Activity is active. If unchecked, the rotator profile is selected but the rotator is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>活动启用期间，连接覆盖指定的旋转云台。若未勾选，将选择旋转云台配置，但旋转云台保持断开。</translation>
     </message>
     <message>
         <location filename="../ui/ActivityEditor.ui" line="1320"/>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../logformat/AdiFormat.cpp" line="950"/>
         <source>Invalid value &quot;%1&quot; for ADIF field %2; value ignored</source>
-        <translation type="unfinished"></translation>
+        <translation>ADIF 字段 %2 的值“%1”无效；已忽略该值</translation>
     </message>
 </context>
 <context>
@@ -685,12 +685,12 @@
     <message>
         <location filename="../ui/AlertWidget.ui" line="134"/>
         <source>Clear Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>清除所选</translation>
     </message>
     <message>
         <location filename="../ui/AlertWidget.ui" line="144"/>
         <source>Clear All</source>
-        <translation type="unfinished">清除全部</translation>
+        <translation>清除全部</translation>
     </message>
 </context>
 <context>
@@ -2142,7 +2142,7 @@
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="327"/>
         <source>Zero-Padded Nr.</source>
-        <translation type="unfinished"></translation>
+        <translation>前导零编号</translation>
     </message>
     <message>
         <location filename="../logformat/CabrilloFormat.cpp" line="328"/>
@@ -5206,7 +5206,7 @@ Example:
     <message>
         <location filename="../ui/DownloadQSLDialog.cpp" line="31"/>
         <source>All Log Callsigns</source>
-        <translation type="unfinished"></translation>
+        <translation>日志中的所有呼号</translation>
     </message>
     <message>
         <location filename="../ui/DownloadQSLDialog.cpp" line="35"/>
@@ -5421,7 +5421,7 @@ Example:
     <message>
         <location filename="../ui/DxFilterDialog.ui" line="393"/>
         <source> kHz</source>
-        <translation></translation>
+        <translation> kHz</translation>
     </message>
     <message>
         <location filename="../ui/DxFilterDialog.ui" line="412"/>
@@ -6892,7 +6892,7 @@ The password will be needed to restore them later.</source>
     <message>
         <location filename="../ui/KSTHighlighterSettingDialog.cpp" line="17"/>
         <source>Name</source>
-        <translation></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../ui/KSTHighlighterSettingDialog.cpp" line="18"/>
@@ -7109,22 +7109,22 @@ The password will be needed to restore them later.</source>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1172"/>
         <source>Station Callsign:</source>
-        <translation type="unfinished"></translation>
+        <translation>电台呼号：</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1192"/>
         <source>Cannot start QSL import transaction: </source>
-        <translation type="unfinished"></translation>
+        <translation>无法启动 QSL 导入事务：</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1332"/>
         <source>Reason: multiple matches</source>
-        <translation type="unfinished"></translation>
+        <translation>原因：存在多个匹配项</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1333"/>
         <source>Reason: no match</source>
-        <translation type="unfinished"></translation>
+        <translation>原因：无匹配项</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1492"/>
@@ -7132,7 +7132,7 @@ The password will be needed to restore them later.</source>
         <location filename="../logformat/LogFormat.cpp" line="1601"/>
         <location filename="../logformat/LogFormat.cpp" line="1608"/>
         <source>Cannot update QSO in logbook: </source>
-        <translation type="unfinished"></translation>
+        <translation>无法更新日志中的 QSO：</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1510"/>
@@ -7143,7 +7143,7 @@ The password will be needed to restore them later.</source>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1639"/>
         <source>Cannot commit QSL updates: </source>
-        <translation type="unfinished"></translation>
+        <translation>无法提交 QSL 更新：</translation>
     </message>
     <message>
         <location filename="../logformat/LogFormat.cpp" line="1756"/>
@@ -7436,13 +7436,14 @@ The password will be needed to restore them later.</source>
     <message>
         <location filename="../models/LogbookModel.cpp" line="41"/>
         <source>Mode/Submode</source>
-        <translation type="unfinished"></translation>
+        <translation>模式/子模式</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="84"/>
         <source>Mode: %1
 Submode: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>模式：%1
+子模式：%2</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="772"/>
@@ -7477,12 +7478,12 @@ Submode: %2</source>
     <message>
         <location filename="../models/LogbookModel.cpp" line="811"/>
         <source>DCLr</source>
-        <translation></translation>
+        <translation>DCLr</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="812"/>
         <source>DCLs</source>
-        <translation></translation>
+        <translation>DCLs</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="813"/>
@@ -7794,7 +7795,7 @@ Submode: %2</source>
     <message>
         <location filename="../models/LogbookModel.cpp" line="879"/>
         <source>Name</source>
-        <translation></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../models/LogbookModel.cpp" line="880"/>
@@ -8156,7 +8157,7 @@ Submode: %2</source>
     <message>
         <location filename="../ui/LogbookWidget.ui" line="288"/>
         <source>Mark QSL Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>标记QSL已发送</translation>
     </message>
     <message>
         <location filename="../ui/LogbookWidget.ui" line="293"/>
@@ -8392,7 +8393,7 @@ Submode: %2</source>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="483"/>
         <source>No station callsigns found in the log</source>
-        <translation type="unfinished"></translation>
+        <translation>日志中未找到电台呼号</translation>
     </message>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="610"/>
@@ -8402,12 +8403,12 @@ Submode: %2</source>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="619"/>
         <source>LoTW returned an incomplete response</source>
-        <translation type="unfinished"></translation>
+        <translation>LoTW 返回了不完整的响应</translation>
     </message>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="622"/>
         <source>Incomplete LoTW response</source>
-        <translation type="unfinished"></translation>
+        <translation>LoTW 响应不完整</translation>
     </message>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="635"/>
@@ -8417,12 +8418,12 @@ Submode: %2</source>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="641"/>
         <source>Cannot write LoTW response to temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将 LoTW 响应写入临时文件</translation>
     </message>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="702"/>
         <source>Station Callsign:</source>
-        <translation type="unfinished"></translation>
+        <translation>电台呼号：</translation>
     </message>
     <message>
         <location filename="../service/lotw/Lotw.cpp" line="604"/>
@@ -8997,7 +8998,7 @@ Submode: %2</source>
     <message>
         <location filename="../ui/MainWindow.cpp" line="320"/>
         <source>FLDigi test message received.</source>
-        <translation type="unfinished"></translation>
+        <translation>已收到 FLDigi 测试消息。</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.cpp" line="327"/>
@@ -9211,7 +9212,7 @@ Submode: %2</source>
     <message>
         <location filename="../ui/MapPageController.cpp" line="509"/>
         <source>Heard Me</source>
-        <translation type="unfinished"></translation>
+        <translation>收听到我</translation>
     </message>
     <message>
         <location filename="../ui/MapPageController.cpp" line="511"/>
@@ -9239,12 +9240,12 @@ Submode: %2</source>
     <message>
         <location filename="../ui/component/MultilineTextDelegate.cpp" line="30"/>
         <source>Save changes (Ctrl+Enter)</source>
-        <translation type="unfinished"></translation>
+        <translation>保存更改 (Ctrl+Enter)</translation>
     </message>
     <message>
         <location filename="../ui/component/MultilineTextDelegate.cpp" line="31"/>
         <source>Discard changes (Esc)</source>
-        <translation type="unfinished"></translation>
+        <translation>放弃更改 (Esc)</translation>
     </message>
 </context>
 <context>
@@ -9520,22 +9521,22 @@ Submode: %2</source>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="2344"/>
         <source>The external QSO was saved without current station data because Manual QSO Entry is active.</source>
-        <translation type="unfinished"></translation>
+        <translation>由于已启用手动 QSO 录入，外部 QSO 已保存，但未包含当前台站数据。</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="2350"/>
         <source>The external QSO was saved without current station data because no active Station Profile is available.</source>
-        <translation type="unfinished"></translation>
+        <translation>由于没有可用的活动台站配置，外部 QSO 已保存，但未包含当前台站数据。</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="2357"/>
         <source>not provided</source>
-        <translation type="unfinished"></translation>
+        <translation>未提供</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="2361"/>
         <source>The external QSO was saved without current station data: received station %1 / %2 does not match active Station Profile &quot;%3&quot; (%4 / %5).</source>
-        <translation type="unfinished"></translation>
+        <translation>外部 QSO 已保存，但未包含当前台站数据：接收到的台站 %1 / %2 与活动台站配置“%3”(%4 / %5) 不匹配。</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="2531"/>
@@ -10712,7 +10713,7 @@ You can leave fields empty and configure them later in Settings.</source>
     <message>
         <location filename="../service/qslinfo/QSLInfo.cpp" line="223"/>
         <source>Invalid JSON response</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的 JSON 响应</translation>
     </message>
 </context>
 <context>
@@ -10720,7 +10721,7 @@ You can leave fields empty and configure them later in Settings.</source>
     <message>
         <location filename="../service/QSLManager.cpp" line="137"/>
         <source>QSL manager query timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>QSL 管理员查询超时</translation>
     </message>
 </context>
 <context>
@@ -10800,12 +10801,12 @@ You can leave fields empty and configure them later in Settings.</source>
     <message>
         <location filename="../ui/QSLPrintLabelDialog.ui" line="268"/>
         <source>Page Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>页面宽度：</translation>
     </message>
     <message>
         <location filename="../ui/QSLPrintLabelDialog.ui" line="297"/>
         <source>Page Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>页面高度：</translation>
     </message>
     <message>
         <location filename="../ui/QSLPrintLabelDialog.ui" line="335"/>
@@ -11110,7 +11111,7 @@ You can leave fields empty and configure them later in Settings.</source>
     <message>
         <location filename="../ui/QSLPrintLabelDialog.cpp" line="1126"/>
         <source>The QSL card does not fit on the selected page size</source>
-        <translation type="unfinished"></translation>
+        <translation>QSL 卡片不适合所选页面尺寸</translation>
     </message>
     <message>
         <location filename="../ui/QSLPrintLabelDialog.cpp" line="1144"/>
@@ -11930,7 +11931,7 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/QSODetailDialog.cpp" line="1362"/>
         <location filename="../ui/QSODetailDialog.cpp" line="1367"/>
         <source>&lt;b&gt;Warning: &lt;/b&gt;</source>
-        <translation>&lt;b&gt;告警&lt;/b&gt;: %n</translation>
+        <translation>&lt;b&gt;警告：&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../ui/QSODetailDialog.cpp" line="1575"/>
@@ -13303,7 +13304,7 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="5052"/>
         <source>AM/PM</source>
-        <translation></translation>
+        <translation>AM/PM</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4930"/>
@@ -13380,17 +13381,17 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="561"/>
         <source>Assigned Rotator</source>
-        <translation type="unfinished"></translation>
+        <translation>已分配的旋转云台</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="568"/>
         <source>Rotator profile selected and connected automatically when this antenna profile becomes active. An Activity Rotator Override takes priority. Select None to leave the current rotator profile and connection unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation>当天线配置启用时，自动选择并连接此旋转云台配置。活动中的旋转云台覆盖设置优先。选择“无”可保持当前旋转云台配置和连接状态不变。</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="581"/>
         <source>Auto-Select on Bands</source>
-        <translation type="unfinished"></translation>
+        <translation>按波段自动选择</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="1728"/>
@@ -13494,7 +13495,7 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="3477"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>来源</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="3487"/>
@@ -13690,22 +13691,22 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4759"/>
         <source>ADIF UDP Port</source>
-        <translation type="unfinished"></translation>
+        <translation>ADIF UDP 端口</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="4772"/>
         <source>Port where QLog listens for incoming ADIF records from FLDigi</source>
-        <translation type="unfinished"></translation>
+        <translation>QLog 用于监听来自 FLDigi 的传入 ADIF 记录的端口</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="5121"/>
         <source>DXCC Entity Flags</source>
-        <translation type="unfinished"></translation>
+        <translation>DXCC 实体旗帜</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="5128"/>
         <source>Show DXCC entity flags</source>
-        <translation type="unfinished"></translation>
+        <translation>显示 DXCC 实体旗帜</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="5131"/>
@@ -13987,7 +13988,7 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="625"/>
         <source>WinKey</source>
-        <translation></translation>
+        <translation>WinKey</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="626"/>
@@ -14138,27 +14139,27 @@ Please install Hamlib or specify the path manually.</source>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="615"/>
         <source>From Callbook</source>
-        <translation type="unfinished"></translation>
+        <translation>来自电台黄页</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="616"/>
         <source>QSLInfo.de</source>
-        <translation type="unfinished"></translation>
+        <translation>QSLInfo.de</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="659"/>
         <source>Automatically select this antenna profile when this is the current TX band and no Activity Antenna Override is active</source>
-        <translation type="unfinished"></translation>
+        <translation>当这是当前发射波段且未启用活动天线覆盖时，自动选择此天线配置</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="749"/>
         <source>%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="758"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; These bands are also assigned to other antenna profiles: %1.&lt;br&gt;If multiple profiles match, QLog keeps the current matching profile; otherwise it selects the first profile by name.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;警告：&lt;/b&gt;这些波段也分配给了其他天线配置：%1。&lt;br&gt;如果有多个配置匹配，QLog 将保留当前匹配的配置；否则将按名称选择第一个配置。</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.cpp" line="784"/>
@@ -14763,7 +14764,7 @@ Please install TQSL or specify the path manually.</source>
         <location filename="../ui/UploadQSODialog.ui" line="507"/>
         <location filename="../ui/UploadQSODialog.cpp" line="75"/>
         <source>Wavelog</source>
-        <translation></translation>
+        <translation>Wavelog</translation>
     </message>
     <message>
         <location filename="../ui/UploadQSODialog.ui" line="210"/>
