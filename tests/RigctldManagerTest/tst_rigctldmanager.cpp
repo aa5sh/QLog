@@ -20,10 +20,11 @@ private slots:
     void findRigctldPath_returnsNonEmptyIfInstalled();
     void findRigctldPath_prefersAppDirectory();
 
-    // buildArguments tests (via start with mock)
+    // buildArguments tests
     void buildArguments_includesModel();
     void buildArguments_includesPort();
     void buildArguments_includesSerialSettings();
+    void buildArguments_mapsSerialSettings();
     void buildArguments_includesAdditionalArgs();
 
     // Lifecycle tests
@@ -119,51 +120,90 @@ void RigctldManagerTest::findRigctldPath_prefersAppDirectory()
 }
 
 // ============================================================================
-// buildArguments tests (indirect via profile inspection)
+// buildArguments tests
 // ============================================================================
 
 void RigctldManagerTest::buildArguments_includesModel()
 {
-    // We can't directly test buildArguments (private), but we can verify
-    // that start() uses the correct model from profile
-    // This is more of a documentation test
-
+    RigctldManager manager;
     RigProfile profile;
     profile.model = 1234;
     profile.rigctldPort = 14532;
     profile.portPath = "/dev/ttyUSB0";
 
-    // Verify profile is set correctly
-    QCOMPARE(profile.model, 1234);
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args.value(0), QString("-m"));
+    QCOMPARE(args.value(1), QString("1234"));
 }
 
 void RigctldManagerTest::buildArguments_includesPort()
 {
+    RigctldManager manager;
     RigProfile profile;
     profile.rigctldPort = 5000;
 
-    QCOMPARE(profile.rigctldPort, static_cast<quint16>(5000));
+    const QStringList args = manager.buildArguments(profile);
+    const int portOption = args.indexOf("-t");
+
+    QVERIFY(portOption >= 0);
+    QCOMPARE(args.value(portOption + 1), QString("5000"));
 }
 
 void RigctldManagerTest::buildArguments_includesSerialSettings()
 {
+    RigctldManager manager;
     RigProfile profile;
-    profile.baudrate = 9600;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.baudrate = 38400;
     profile.databits = 8;
     profile.stopbits = 1;
-    profile.parity = "None";
-    profile.flowcontrol = "None";
+    profile.parity = "no";
+    profile.flowcontrol = "none";
+    profile.dtr = "none";
+    profile.rts = "none";
 
-    QCOMPARE(profile.baudrate, 9600u);
-    QCOMPARE(profile.databits, static_cast<quint8>(8));
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args, QStringList({"-m", "1",
+                                "-t", "4532",
+                                "-r", "/dev/ttyUSB0",
+                                "-s", "38400",
+                                "-C", "data_bits=8",
+                                "-C", "stop_bits=1",
+                                "-C", "serial_parity=None",
+                                "-C", "serial_handshake=None",
+                                "-C", "dtr_state=Unset",
+                                "-C", "rts_state=Unset"}));
+}
+
+void RigctldManagerTest::buildArguments_mapsSerialSettings()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.parity = "even";
+    profile.flowcontrol = "hardware";
+    profile.dtr = "high";
+    profile.rts = "low";
+
+    const QStringList args = manager.buildArguments(profile);
+
+    QVERIFY(args.contains("serial_parity=Even"));
+    QVERIFY(args.contains("serial_handshake=Hardware"));
+    QVERIFY(args.contains("dtr_state=ON"));
+    QVERIFY(args.contains("rts_state=OFF"));
 }
 
 void RigctldManagerTest::buildArguments_includesAdditionalArgs()
 {
+    RigctldManager manager;
     RigProfile profile;
     profile.rigctldArgs = "-v -v --debug";
 
-    QCOMPARE(profile.rigctldArgs, QString("-v -v --debug"));
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args.mid(args.size() - 3), QStringList({"-v", "-v", "--debug"}));
 }
 
 // ============================================================================

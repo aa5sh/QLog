@@ -30,6 +30,7 @@ TBC - 0.52.0
 - Fixed Rotator Widget - Use circular distance for azimuth deadband
 - Fixed QSL confirmation status is not displayed correctly in QSO Detail and tooltip (issue #1125)
 - Fixed DXCC flag assignments and documented neutral handling of territorial disputes (issue #1129)
+- Fixed serial parity configuration passed to rigctld
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
