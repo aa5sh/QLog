@@ -6202,165 +6202,165 @@ Esta contraseña será necesaria más adelante para restaurarlas.</translation>
         <translation>RTS</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="168"/>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="206"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="170"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="208"/>
         <source>Initialization Error</source>
         <translation>Error al Inicializar</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="241"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="243"/>
         <source>Cannot set PTT Type</source>
         <translatorcomment>No se puede configurar el tipo de PTT</translatorcomment>
         <translation>No se puede configurar el tipo de PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="248"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="250"/>
         <source>Cannot set PTT Share</source>
         <translatorcomment>No se puede configurar la acción del PTT</translatorcomment>
         <translation>No se puede configurar la acción del PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="261"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="263"/>
         <source>Cannot set CIV Addr</source>
         <translation>No se puede establecer la dirección CI-V</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="269"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="271"/>
         <source>Unsupported Rig Driver</source>
         <translation>Controlador de Radio No Soportado</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="276"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="278"/>
         <source>Cannot set auto_power_on</source>
         <translation>No se puede establecer auto_power_on</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="300"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="302"/>
         <source>Cannot set no_xchg to 1</source>
         <translation>No se puede establecer no_xchg en 1</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="307"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="309"/>
         <source>Rig Open Error</source>
         <translation>Conexión fallida</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="402"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="404"/>
         <source>Set TX Frequency Error</source>
         <translation>Error al establecer la frecuencia TX</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="407"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="409"/>
         <source>Set Frequency Error</source>
         <translation>Error al Establecer Frecuencia</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="445"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="447"/>
         <source>Set Split Error</source>
         <translation>Error al establecer split</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="494"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="496"/>
         <source>Set Mode Error</source>
         <translation>Error al establecer el modo</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="509"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="511"/>
         <source>Set Split Mode Error</source>
         <translation>Error al establecer el modo split</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="533"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="535"/>
         <source>Set PTT Error</source>
         <translation>Error al Establecer PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="600"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="602"/>
         <source>Cannot sent Morse</source>
         <translatorcomment>This cannot be displayed</translatorcomment>
         <translation>No se puede enviar Morse</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="619"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="621"/>
         <source>Cannot stop Morse</source>
         <translatorcomment>This cannot be displayed</translatorcomment>
         <translation>No se puede detener Morse</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="770"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="772"/>
         <source>Get PTT Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="805"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="807"/>
         <source>Get Frequency Error</source>
         <translation>Error al Obtener Frecuencia</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="851"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="853"/>
         <source>Get Mode Error</source>
         <translation>Error al Obtener Modo</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="900"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="902"/>
         <source>Get VFO Error</source>
         <translation>Error al obtener el VFO</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="938"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="940"/>
         <source>Get PWR Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener PWR</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="942"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="944"/>
         <source>Get PWR (power2mw) Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener PWR (power2mw)</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="980"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="982"/>
         <source>Get RIT Function Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtenerfunción de RIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="986"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="988"/>
         <source>Get RIT Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener RIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1037"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1039"/>
         <source>Get XIT Function Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener función XIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1043"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1045"/>
         <source>Get XIT Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener XIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1096"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1098"/>
         <source>Get Split Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1127"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1129"/>
         <source>Get TX Frequency Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1164"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1166"/>
         <source>Get KeySpeed Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener KeySpeed</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1216"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1218"/>
         <source>Set KeySpeed Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Configurar error de KeySpeed</translation>
@@ -8768,7 +8768,7 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="135"/>
-        <location filename="../ui/MainWindow.cpp" line="1886"/>
+        <location filename="../ui/MainWindow.cpp" line="1902"/>
         <source>Contest</source>
         <translation>Concurso</translation>
     </message>
@@ -8789,18 +8789,18 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="357"/>
-        <location filename="../ui/MainWindow.cpp" line="1326"/>
-        <location filename="../ui/MainWindow.cpp" line="1334"/>
-        <location filename="../ui/MainWindow.cpp" line="1355"/>
+        <location filename="../ui/MainWindow.cpp" line="1342"/>
+        <location filename="../ui/MainWindow.cpp" line="1350"/>
         <location filename="../ui/MainWindow.cpp" line="1371"/>
-        <location filename="../ui/MainWindow.cpp" line="1385"/>
-        <location filename="../ui/MainWindow.cpp" line="1391"/>
+        <location filename="../ui/MainWindow.cpp" line="1387"/>
+        <location filename="../ui/MainWindow.cpp" line="1401"/>
+        <location filename="../ui/MainWindow.cpp" line="1407"/>
         <source>Pack Data &amp;&amp; Settings</source>
         <translation>Empaquetar datos y configuración</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="365"/>
-        <location filename="../ui/MainWindow.cpp" line="1458"/>
+        <location filename="../ui/MainWindow.cpp" line="1474"/>
         <source>Unpack Data &amp;&amp; Settings</source>
         <translation>Desempaquetar datos y configuración</translation>
     </message>
@@ -9047,178 +9047,178 @@ Submode: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="477"/>
+        <location filename="../ui/MainWindow.cpp" line="493"/>
         <source>Clublog Immediately Upload Error</source>
         <translation>Error de carga inmediata de Clublog</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="703"/>
-        <location filename="../ui/MainWindow.cpp" line="716"/>
-        <location filename="../ui/MainWindow.cpp" line="726"/>
+        <location filename="../ui/MainWindow.cpp" line="719"/>
+        <location filename="../ui/MainWindow.cpp" line="732"/>
+        <location filename="../ui/MainWindow.cpp" line="742"/>
         <source>&lt;b&gt;Error Detail:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Detalle del Error:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="750"/>
+        <location filename="../ui/MainWindow.cpp" line="766"/>
         <source>op: </source>
         <translation>Op: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="927"/>
+        <location filename="../ui/MainWindow.cpp" line="943"/>
         <source>A New Version</source>
         <translation>Una nueva versión</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="928"/>
+        <location filename="../ui/MainWindow.cpp" line="944"/>
         <source>A new version %1 is available.</source>
         <translation>Una nueva versión %1 está disponible.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="932"/>
+        <location filename="../ui/MainWindow.cpp" line="948"/>
         <source>Remind Me Later</source>
         <translation>Recordármelo más tarde</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="933"/>
+        <location filename="../ui/MainWindow.cpp" line="949"/>
         <source>Download</source>
         <translation>Descargar</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1176"/>
-        <location filename="../ui/MainWindow.cpp" line="1224"/>
+        <location filename="../ui/MainWindow.cpp" line="1192"/>
+        <location filename="../ui/MainWindow.cpp" line="1240"/>
         <source>QLog Warning</source>
         <translation>Alerta de QLog</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1177"/>
+        <location filename="../ui/MainWindow.cpp" line="1193"/>
         <source>LoTW is not configured properly.&lt;p&gt;Please, use &lt;b&gt;Settings&lt;/b&gt; dialog to configure it.&lt;/p&gt;</source>
         <translation>LoTW no está configurado correctamente.&lt;p&gt;Use el diálogo &lt;b&gt;Configuración&lt;/b&gt; para configurarlo.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1198"/>
-        <location filename="../ui/MainWindow.cpp" line="1275"/>
+        <location filename="../ui/MainWindow.cpp" line="1214"/>
+        <location filename="../ui/MainWindow.cpp" line="1291"/>
         <source>QLog Error</source>
         <translation>Error de QLog</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1199"/>
+        <location filename="../ui/MainWindow.cpp" line="1215"/>
         <source>Cannot load local DXCC entities from the logbook: </source>
         <translation>No se pueden cargar las entidades DXCC locales desde el libro de guardia: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1213"/>
+        <location filename="../ui/MainWindow.cpp" line="1229"/>
         <source>Unknown DXCC Entity</source>
         <translation>Entidad DXCC desconocida</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1225"/>
+        <location filename="../ui/MainWindow.cpp" line="1241"/>
         <source>Cannot determine a local DXCC entity from logbook contacts.</source>
         <translation>No se puede determinar una entidad DXCC local a partir de los contactos del libro de guardia.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1231"/>
+        <location filename="../ui/MainWindow.cpp" line="1247"/>
         <source>LoTW DXCC Credits</source>
         <translation>Créditos DXCC de LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1232"/>
+        <location filename="../ui/MainWindow.cpp" line="1248"/>
         <source>Select the local DXCC entity for which LoTW DXCC credits will be downloaded:</source>
         <translation>Seleccione la entidad DXCC local para la que se descargarán los créditos DXCC de LoTW:</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1243"/>
+        <location filename="../ui/MainWindow.cpp" line="1259"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1247"/>
+        <location filename="../ui/MainWindow.cpp" line="1263"/>
         <source>Downloading LoTW DXCC credits</source>
         <translation>Descargando créditos DXCC de LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1255"/>
+        <location filename="../ui/MainWindow.cpp" line="1271"/>
         <source>Processing LoTW DXCC credits</source>
         <translation>Procesando créditos DXCC de LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1267"/>
+        <location filename="../ui/MainWindow.cpp" line="1283"/>
         <source>LoTW DXCC Credit Import Summary</source>
         <translation>Resumen de importación de créditos DXCC de LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1275"/>
+        <location filename="../ui/MainWindow.cpp" line="1291"/>
         <source>LoTW DXCC credit import failed: </source>
         <translation>Error al importar créditos DXCC de LoTW: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1327"/>
+        <location filename="../ui/MainWindow.cpp" line="1343"/>
         <source>Failed to encrypt credentials.</source>
         <translation>No se pudo cifrar las credenciales.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1336"/>
+        <location filename="../ui/MainWindow.cpp" line="1352"/>
         <source>Database files (*.dbe);;All files (*)</source>
         <translation>Archivos de base de datos (*.dbe);;Todos los archivos (*)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1356"/>
+        <location filename="../ui/MainWindow.cpp" line="1372"/>
         <source>Failed to create temporary file.</source>
         <translation>No se pudo crear el archivo temporal.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1372"/>
+        <location filename="../ui/MainWindow.cpp" line="1388"/>
         <source>Failed to dump the database.</source>
         <translation>No se pudo volcar la base de datos.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1377"/>
+        <location filename="../ui/MainWindow.cpp" line="1393"/>
         <source>Compressing database...</source>
         <translation>Comprimiendo base de datos…</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1386"/>
+        <location filename="../ui/MainWindow.cpp" line="1402"/>
         <source>Database successfully dumped to
 %1</source>
         <translation>Base de datos exportada con éxito a
 %1</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1392"/>
+        <location filename="../ui/MainWindow.cpp" line="1408"/>
         <source>Failed to compress the database.</source>
         <translation>No se pudo comprimir la base de datos.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1459"/>
+        <location filename="../ui/MainWindow.cpp" line="1475"/>
         <source>Failed to prepare database for import.</source>
         <translation>No se pudo preparar la base de datos para la importación.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1636"/>
+        <location filename="../ui/MainWindow.cpp" line="1652"/>
         <source>Classic</source>
         <translation>Clásico</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1887"/>
+        <location filename="../ui/MainWindow.cpp" line="1903"/>
         <source>Do you want to remove the Contest filter %1?</source>
         <translation>¿Desea eliminar el filtro Concurso %1?</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1918"/>
+        <location filename="../ui/MainWindow.cpp" line="1934"/>
         <source>Contest: </source>
         <translation>Concurso: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2275"/>
+        <location filename="../ui/MainWindow.cpp" line="2291"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
         <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Basado en Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Iconos por &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Imágenes satelitales por &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;Detección de zonas por &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;Base de datos de zonas horarias por &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2306"/>
+        <location filename="../ui/MainWindow.cpp" line="2322"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2357"/>
+        <location filename="../ui/MainWindow.cpp" line="2373"/>
         <source>N/A</source>
         <translation>S/D</translation>
     </message>
@@ -9938,9 +9938,9 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <location filename="../core/main.cpp" line="455"/>
         <location filename="../ui/ExportDialog.cpp" line="171"/>
         <location filename="../ui/ImportDialog.cpp" line="343"/>
-        <location filename="../ui/MainWindow.cpp" line="701"/>
-        <location filename="../ui/MainWindow.cpp" line="714"/>
-        <location filename="../ui/MainWindow.cpp" line="724"/>
+        <location filename="../ui/MainWindow.cpp" line="717"/>
+        <location filename="../ui/MainWindow.cpp" line="730"/>
+        <location filename="../ui/MainWindow.cpp" line="740"/>
         <location filename="../ui/NewContactWidget.cpp" line="1570"/>
         <location filename="../ui/SettingsDialog.cpp" line="779"/>
         <location filename="../ui/SettingsDialog.cpp" line="804"/>
@@ -10136,17 +10136,17 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <translation>El nombre del filtro ya existe.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="702"/>
+        <location filename="../ui/MainWindow.cpp" line="718"/>
         <source>&lt;b&gt;Rig Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Error del Equipo:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="715"/>
+        <location filename="../ui/MainWindow.cpp" line="731"/>
         <source>&lt;b&gt;Rotator Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Error del Rotor:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="725"/>
+        <location filename="../ui/MainWindow.cpp" line="741"/>
         <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Error del Manipulador:&lt;/b&gt; </translation>
     </message>
@@ -12122,22 +12122,22 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <translation>No Hay Perfil de Radio Seleccionado</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="256"/>
+        <location filename="../rig/Rig.cpp" line="259"/>
         <source>Rigctld Error</source>
         <translation>Error de Rigctld</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="277"/>
+        <location filename="../rig/Rig.cpp" line="280"/>
         <source>Initialization Error</source>
         <translation>Error al Inicializar</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="278"/>
+        <location filename="../rig/Rig.cpp" line="281"/>
         <source>Internal Error</source>
         <translation>Error Interno</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="386"/>
+        <location filename="../rig/Rig.cpp" line="389"/>
         <source>Cannot open Rig</source>
         <translation>No se puede abrir la Radio</translation>
     </message>
@@ -12304,57 +12304,62 @@ Instale Hamlib o especifique la ruta manualmente.</translation>
 <context>
     <name>RigctldManager</name>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="54"/>
+        <location filename="../rig/RigctldManager.cpp" line="55"/>
         <source>rigctld executable not found in /app/bin/. This should not happen in Flatpak build.</source>
         <translation>No se encontró el ejecutable de rigctld en /app/bin/. Esto no debería ocurrir en la versión Flatpak.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="56"/>
+        <location filename="../rig/RigctldManager.cpp" line="57"/>
         <source>rigctld executable not found. Please install Hamlib or specify the path in Advanced settings.</source>
         <translation>No se encontró el ejecutable de rigctld. Instale Hamlib o especifique la ruta en la configuración avanzada.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="74"/>
+        <location filename="../rig/RigctldManager.cpp" line="75"/>
         <source>Hamlib major version mismatch: QLog was compiled with Hamlib %1 but rigctld reports version %2.%3.%4. Rig model IDs are incompatible between major versions.</source>
         <translation>Incompatibilidad de versión principal de Hamlib: QLog se compiló con Hamlib %1, pero rigctld informa la versión %2.%3.%4. Los ID de modelo de transceptor no son compatibles entre versiones principales.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="94"/>
+        <location filename="../rig/RigctldManager.cpp" line="95"/>
         <source>Port %1 is already in use. Another rigctld or application may be running on this port.</source>
         <translation>El puerto %1 ya está en uso. Otro rigctld o aplicación puede estar ejecutándose en este puerto.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="132"/>
+        <location filename="../rig/RigctldManager.cpp" line="133"/>
         <source>rigctld started but not responding on port %1.</source>
         <translation>rigctld se inició pero no responde en el puerto %1.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="436"/>
+        <location filename="../rig/RigctldManager.cpp" line="469"/>
+        <source>rigctld stopped unexpectedly with exit code %1.</source>
+        <translation>rigctld se detuvo inesperadamente con el código de salida %1.</translation>
+    </message>
+    <message>
+        <location filename="../rig/RigctldManager.cpp" line="485"/>
         <source>Failed to start rigctld: %1 %2</source>
         <translation>No se pudo iniciar rigctld: %1 %2</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="440"/>
+        <location filename="../rig/RigctldManager.cpp" line="489"/>
         <source>rigctld crashed.</source>
         <translation>rigctld se bloqueó.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="443"/>
+        <location filename="../rig/RigctldManager.cpp" line="492"/>
         <source>rigctld timed out.</source>
         <translation>rigctld agotó el tiempo de espera.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="446"/>
+        <location filename="../rig/RigctldManager.cpp" line="495"/>
         <source>Write error with rigctld.</source>
         <translation>Error de escritura con rigctld.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="449"/>
+        <location filename="../rig/RigctldManager.cpp" line="498"/>
         <source>Read error with rigctld.</source>
         <translation>Error de lectura con rigctld.</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="452"/>
+        <location filename="../rig/RigctldManager.cpp" line="501"/>
         <source>Unknown rigctld error.</source>
         <translation>Error desconocido de rigctld.</translation>
     </message>

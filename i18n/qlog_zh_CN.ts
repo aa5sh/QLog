@@ -6178,153 +6178,153 @@ The password will be needed to restore them later.</source>
         <translation>RTS</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="168"/>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="206"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="170"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="208"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="241"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="243"/>
         <source>Cannot set PTT Type</source>
         <translation>无法设置PTT类型</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="248"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="250"/>
         <source>Cannot set PTT Share</source>
         <translation>无法设置共享PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="261"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="263"/>
         <source>Cannot set CIV Addr</source>
         <translation>无法设置CIV地址</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="269"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="271"/>
         <source>Unsupported Rig Driver</source>
         <translation>不支持的设备驱动</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="276"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="278"/>
         <source>Cannot set auto_power_on</source>
         <translation>无法设置自动开机</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="300"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="302"/>
         <source>Cannot set no_xchg to 1</source>
         <translation>无法设置no_xchg为1</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="307"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="309"/>
         <source>Rig Open Error</source>
         <translation>打开电台出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="402"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="404"/>
         <source>Set TX Frequency Error</source>
         <translation>设置TX频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="407"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="409"/>
         <source>Set Frequency Error</source>
         <translation>设置频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="445"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="447"/>
         <source>Set Split Error</source>
         <translation>设置 Split 出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="494"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="496"/>
         <source>Set Mode Error</source>
         <translation>设置模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="509"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="511"/>
         <source>Set Split Mode Error</source>
         <translation>设置 Split 模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="533"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="535"/>
         <source>Set PTT Error</source>
         <translation>设置 PTT 出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="600"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="602"/>
         <source>Cannot sent Morse</source>
         <translation>无法发送摩尔斯</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="619"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="621"/>
         <source>Cannot stop Morse</source>
         <translation>无法停止摩尔斯</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="770"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="772"/>
         <source>Get PTT Error</source>
         <translation>获取PTT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="805"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="807"/>
         <source>Get Frequency Error</source>
         <translation>获取频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="851"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="853"/>
         <source>Get Mode Error</source>
         <translation>获取模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="900"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="902"/>
         <source>Get VFO Error</source>
         <translation>获取VFO出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="938"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="940"/>
         <source>Get PWR Error</source>
         <translation>获取功率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="942"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="944"/>
         <source>Get PWR (power2mw) Error</source>
         <translation>获取功率（power2mw）出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="980"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="982"/>
         <source>Get RIT Function Error</source>
         <translation>获取RIT功能出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="986"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="988"/>
         <source>Get RIT Error</source>
         <translation>获取RIT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1037"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1039"/>
         <source>Get XIT Function Error</source>
         <translation>获取XIT功能出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1043"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1045"/>
         <source>Get XIT Error</source>
         <translation>获取XIT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1096"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1098"/>
         <source>Get Split Error</source>
         <translation>获取 Split 出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1127"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1129"/>
         <source>Get TX Frequency Error</source>
         <translation>获取 TX 频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1164"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1166"/>
         <source>Get KeySpeed Error</source>
         <translation>获取电键速度出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1216"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1218"/>
         <source>Set KeySpeed Error</source>
         <translation>设置电键速度出错</translation>
     </message>
@@ -8727,7 +8727,7 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="135"/>
-        <location filename="../ui/MainWindow.cpp" line="1886"/>
+        <location filename="../ui/MainWindow.cpp" line="1902"/>
         <source>Contest</source>
         <translation>比赛</translation>
     </message>
@@ -8748,18 +8748,18 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="357"/>
-        <location filename="../ui/MainWindow.cpp" line="1326"/>
-        <location filename="../ui/MainWindow.cpp" line="1334"/>
-        <location filename="../ui/MainWindow.cpp" line="1355"/>
+        <location filename="../ui/MainWindow.cpp" line="1342"/>
+        <location filename="../ui/MainWindow.cpp" line="1350"/>
         <location filename="../ui/MainWindow.cpp" line="1371"/>
-        <location filename="../ui/MainWindow.cpp" line="1385"/>
-        <location filename="../ui/MainWindow.cpp" line="1391"/>
+        <location filename="../ui/MainWindow.cpp" line="1387"/>
+        <location filename="../ui/MainWindow.cpp" line="1401"/>
+        <location filename="../ui/MainWindow.cpp" line="1407"/>
         <source>Pack Data &amp;&amp; Settings</source>
         <translation>打包数据 &amp;&amp; 设置</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="365"/>
-        <location filename="../ui/MainWindow.cpp" line="1458"/>
+        <location filename="../ui/MainWindow.cpp" line="1474"/>
         <source>Unpack Data &amp;&amp; Settings</source>
         <translation>解压数据 &amp;&amp; 设置</translation>
     </message>
@@ -9006,178 +9006,178 @@ Submode: %2</source>
         <translation>启动 ADI</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="477"/>
+        <location filename="../ui/MainWindow.cpp" line="493"/>
         <source>Clublog Immediately Upload Error</source>
         <translation>Clublog 立即上传出错</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="703"/>
-        <location filename="../ui/MainWindow.cpp" line="716"/>
-        <location filename="../ui/MainWindow.cpp" line="726"/>
+        <location filename="../ui/MainWindow.cpp" line="719"/>
+        <location filename="../ui/MainWindow.cpp" line="732"/>
+        <location filename="../ui/MainWindow.cpp" line="742"/>
         <source>&lt;b&gt;Error Detail:&lt;/b&gt; </source>
         <translation>&lt;b&gt;错误详情:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="750"/>
+        <location filename="../ui/MainWindow.cpp" line="766"/>
         <source>op: </source>
         <translation>操作员: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="927"/>
+        <location filename="../ui/MainWindow.cpp" line="943"/>
         <source>A New Version</source>
         <translation>新版本</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="928"/>
+        <location filename="../ui/MainWindow.cpp" line="944"/>
         <source>A new version %1 is available.</source>
         <translation>新版本 %1 可用。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="932"/>
+        <location filename="../ui/MainWindow.cpp" line="948"/>
         <source>Remind Me Later</source>
         <translation>稍后提醒我</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="933"/>
+        <location filename="../ui/MainWindow.cpp" line="949"/>
         <source>Download</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1176"/>
-        <location filename="../ui/MainWindow.cpp" line="1224"/>
+        <location filename="../ui/MainWindow.cpp" line="1192"/>
+        <location filename="../ui/MainWindow.cpp" line="1240"/>
         <source>QLog Warning</source>
         <translation>QLog 警告</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1177"/>
+        <location filename="../ui/MainWindow.cpp" line="1193"/>
         <source>LoTW is not configured properly.&lt;p&gt;Please, use &lt;b&gt;Settings&lt;/b&gt; dialog to configure it.&lt;/p&gt;</source>
         <translation>LoTW 配置不正确。&lt;p&gt;请使用 &lt;b&gt;设置&lt;/b&gt; 对话框进行配置。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1198"/>
-        <location filename="../ui/MainWindow.cpp" line="1275"/>
+        <location filename="../ui/MainWindow.cpp" line="1214"/>
+        <location filename="../ui/MainWindow.cpp" line="1291"/>
         <source>QLog Error</source>
         <translation>QLog 错误</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1199"/>
+        <location filename="../ui/MainWindow.cpp" line="1215"/>
         <source>Cannot load local DXCC entities from the logbook: </source>
         <translation>无法从日志簿中加载本地 DXCC 实体: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1213"/>
+        <location filename="../ui/MainWindow.cpp" line="1229"/>
         <source>Unknown DXCC Entity</source>
         <translation>未知的 DXCC 实体</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1225"/>
+        <location filename="../ui/MainWindow.cpp" line="1241"/>
         <source>Cannot determine a local DXCC entity from logbook contacts.</source>
         <translation>无法从日志簿联系人中确定本地 DXCC 实体。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1231"/>
+        <location filename="../ui/MainWindow.cpp" line="1247"/>
         <source>LoTW DXCC Credits</source>
         <translation>LoTW DXCC 积分</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1232"/>
+        <location filename="../ui/MainWindow.cpp" line="1248"/>
         <source>Select the local DXCC entity for which LoTW DXCC credits will be downloaded:</source>
         <translation>选择要下载 LoTW DXCC 积分的本地 DXCC 实体:</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1243"/>
+        <location filename="../ui/MainWindow.cpp" line="1259"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1247"/>
+        <location filename="../ui/MainWindow.cpp" line="1263"/>
         <source>Downloading LoTW DXCC credits</source>
         <translation>正在下载 LoTW DXCC 积分</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1255"/>
+        <location filename="../ui/MainWindow.cpp" line="1271"/>
         <source>Processing LoTW DXCC credits</source>
         <translation>正在处理 LoTW DXCC 积分</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1267"/>
+        <location filename="../ui/MainWindow.cpp" line="1283"/>
         <source>LoTW DXCC Credit Import Summary</source>
         <translation>LoTW DXCC 积分导入摘要</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1275"/>
+        <location filename="../ui/MainWindow.cpp" line="1291"/>
         <source>LoTW DXCC credit import failed: </source>
         <translation>LoTW DXCC 积分导入失败: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1327"/>
+        <location filename="../ui/MainWindow.cpp" line="1343"/>
         <source>Failed to encrypt credentials.</source>
         <translation>加密凭据失败。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1336"/>
+        <location filename="../ui/MainWindow.cpp" line="1352"/>
         <source>Database files (*.dbe);;All files (*)</source>
         <translation>数据库文件 (*.dbe);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1356"/>
+        <location filename="../ui/MainWindow.cpp" line="1372"/>
         <source>Failed to create temporary file.</source>
         <translation>创建临时文件失败。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1372"/>
+        <location filename="../ui/MainWindow.cpp" line="1388"/>
         <source>Failed to dump the database.</source>
         <translation>转储数据库失败。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1377"/>
+        <location filename="../ui/MainWindow.cpp" line="1393"/>
         <source>Compressing database...</source>
         <translation>正在压缩数据库...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1386"/>
+        <location filename="../ui/MainWindow.cpp" line="1402"/>
         <source>Database successfully dumped to
 %1</source>
         <translation>数据库成功转储到
 %1</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1392"/>
+        <location filename="../ui/MainWindow.cpp" line="1408"/>
         <source>Failed to compress the database.</source>
         <translation>压缩数据库失败。   </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1459"/>
+        <location filename="../ui/MainWindow.cpp" line="1475"/>
         <source>Failed to prepare database for import.</source>
         <translation>准备数据库导入失败。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1636"/>
+        <location filename="../ui/MainWindow.cpp" line="1652"/>
         <source>Classic</source>
         <translation>经典</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1887"/>
+        <location filename="../ui/MainWindow.cpp" line="1903"/>
         <source>Do you want to remove the Contest filter %1?</source>
         <translation>你要删除比赛过滤器 %1 吗？</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1918"/>
+        <location filename="../ui/MainWindow.cpp" line="1934"/>
         <source>Contest: </source>
         <translation>比赛: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2275"/>
+        <location filename="../ui/MainWindow.cpp" line="2291"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
         <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;基于 Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;图标由 &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt; 提供&lt;br /&gt;卫星图像由 &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt; 提供&lt;br /&gt;ZoneDetect 由 &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt; 提供&lt;br /&gt;时区数据库由 &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt; 提供</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2306"/>
+        <location filename="../ui/MainWindow.cpp" line="2322"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2357"/>
+        <location filename="../ui/MainWindow.cpp" line="2373"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
@@ -9896,9 +9896,9 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../core/main.cpp" line="455"/>
         <location filename="../ui/ExportDialog.cpp" line="171"/>
         <location filename="../ui/ImportDialog.cpp" line="343"/>
-        <location filename="../ui/MainWindow.cpp" line="701"/>
-        <location filename="../ui/MainWindow.cpp" line="714"/>
-        <location filename="../ui/MainWindow.cpp" line="724"/>
+        <location filename="../ui/MainWindow.cpp" line="717"/>
+        <location filename="../ui/MainWindow.cpp" line="730"/>
+        <location filename="../ui/MainWindow.cpp" line="740"/>
         <location filename="../ui/NewContactWidget.cpp" line="1570"/>
         <location filename="../ui/SettingsDialog.cpp" line="779"/>
         <location filename="../ui/SettingsDialog.cpp" line="804"/>
@@ -10093,17 +10093,17 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>过滤器名称已存在。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="702"/>
+        <location filename="../ui/MainWindow.cpp" line="718"/>
         <source>&lt;b&gt;Rig Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;设备出错:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="715"/>
+        <location filename="../ui/MainWindow.cpp" line="731"/>
         <source>&lt;b&gt;Rotator Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;旋转云台出错:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="725"/>
+        <location filename="../ui/MainWindow.cpp" line="741"/>
         <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;CW 键控器出错:&lt;/b&gt; </translation>
     </message>
@@ -12073,22 +12073,22 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>未选择设备配置文件</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="256"/>
+        <location filename="../rig/Rig.cpp" line="259"/>
         <source>Rigctld Error</source>
         <translation>Rigctld 错误</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="277"/>
+        <location filename="../rig/Rig.cpp" line="280"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="278"/>
+        <location filename="../rig/Rig.cpp" line="281"/>
         <source>Internal Error</source>
         <translation>内部错误</translation>
     </message>
     <message>
-        <location filename="../rig/Rig.cpp" line="386"/>
+        <location filename="../rig/Rig.cpp" line="389"/>
         <source>Cannot open Rig</source>
         <translation>无法打开设备</translation>
     </message>
@@ -12255,57 +12255,62 @@ Please install Hamlib or specify the path manually.</source>
 <context>
     <name>RigctldManager</name>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="54"/>
+        <location filename="../rig/RigctldManager.cpp" line="55"/>
         <source>rigctld executable not found in /app/bin/. This should not happen in Flatpak build.</source>
         <translation>在 /app/bin/ 中未找到 rigctld 可执行文件。这在 Flatpak 构建中不应该发生。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="56"/>
+        <location filename="../rig/RigctldManager.cpp" line="57"/>
         <source>rigctld executable not found. Please install Hamlib or specify the path in Advanced settings.</source>
         <translation>未找到 rigctld 可执行文件。请安装 Hamlib 或在高级设置中指定路径。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="74"/>
+        <location filename="../rig/RigctldManager.cpp" line="75"/>
         <source>Hamlib major version mismatch: QLog was compiled with Hamlib %1 but rigctld reports version %2.%3.%4. Rig model IDs are incompatible between major versions.</source>
         <translation>Hamlib 主版本不匹配：QLog 是使用 Hamlib %1 编译的，但 rigctld 报告的版本是 %2.%3.%4。不同主版本之间的电台型号 ID 不兼容。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="94"/>
+        <location filename="../rig/RigctldManager.cpp" line="95"/>
         <source>Port %1 is already in use. Another rigctld or application may be running on this port.</source>
         <translation>端口 %1 已被使用。另一个 rigctld 或应用程序可能正在此端口上运行。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="132"/>
+        <location filename="../rig/RigctldManager.cpp" line="133"/>
         <source>rigctld started but not responding on port %1.</source>
         <translation>rigctld 已启动但未在端口 %1 上响应。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="436"/>
+        <location filename="../rig/RigctldManager.cpp" line="469"/>
+        <source>rigctld stopped unexpectedly with exit code %1.</source>
+        <translation>rigctld 意外停止，退出代码为 %1。</translation>
+    </message>
+    <message>
+        <location filename="../rig/RigctldManager.cpp" line="485"/>
         <source>Failed to start rigctld: %1 %2</source>
         <translation>启动 rigctld 失败: %1 %2</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="440"/>
+        <location filename="../rig/RigctldManager.cpp" line="489"/>
         <source>rigctld crashed.</source>
         <translation>rigctld 崩溃了。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="443"/>
+        <location filename="../rig/RigctldManager.cpp" line="492"/>
         <source>rigctld timed out.</source>
         <translation>rigctld 超时。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="446"/>
+        <location filename="../rig/RigctldManager.cpp" line="495"/>
         <source>Write error with rigctld.</source>
         <translation>rigctld 写入错误。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="449"/>
+        <location filename="../rig/RigctldManager.cpp" line="498"/>
         <source>Read error with rigctld.</source>
         <translation>rigctld 读取错误。</translation>
     </message>
     <message>
-        <location filename="../rig/RigctldManager.cpp" line="452"/>
+        <location filename="../rig/RigctldManager.cpp" line="501"/>
         <source>Unknown rigctld error.</source>
         <translation>未知的 rigctld 错误。</translation>
     </message>
