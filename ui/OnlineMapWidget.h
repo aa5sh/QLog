@@ -28,10 +28,12 @@ public:
 
     void assignPropConditions(PropConditions *);
     void registerContactWidget(const NewContactWidget*);
+    bool isHeardMeLayerVisible() const;
 
 signals:
     void chatCallsignPressed(QString);
     void wsjtxCallsignPressed(QString);
+    void heardMeLayerVisibilityChanged(bool visible);
 
 public slots:
     void setTarget(double lat, double lon);

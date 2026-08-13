@@ -416,8 +416,17 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::rigProfileChanged, this, &MainWindow::rigConnect);
     connect(ui->newContactWidget, &NewContactWidget::callsignChanged, ui->cwconsoleWidget, &CWConsoleWidget::stopRepeateButtons);
     connect(ui->newContactWidget, &NewContactWidget::contactReset, ui->cwconsoleWidget, &CWConsoleWidget::stopRepeateButtons);
-    connect(ui->newContactWidget, &NewContactWidget::stationCallsignChanged, pskReporter, &PSKReporter::setSubscription);
-    connect(ui->newContactWidget, &NewContactWidget::stationCallsignChanged, rbnNetwork, &RBNNetwork::setCallsign);
+    const auto setHeardMeCallsign = [pskReporter, rbnNetwork](const QString &callsign)
+    {
+        pskReporter->setSubscription(callsign);
+        rbnNetwork->setCallsign(callsign);
+    };
+    connect(ui->newContactWidget, &NewContactWidget::stationCallsignChanged,
+            this, [this, setHeardMeCallsign](const QString &callsign)
+    {
+        setHeardMeCallsign(ui->onlineMapWidget->isHeardMeLayerVisible()
+                           ? callsign : QString());
+    });
     connect(ui->newContactWidget, &NewContactWidget::currentModeChanged, rbnNetwork, &RBNNetwork::setCurrentMode);
     connect(ui->newContactWidget, &NewContactWidget::currentModeChanged, ui->onlineMapWidget, &OnlineMapWidget::setHeardMeMode);
 
@@ -447,12 +456,19 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->onlineMapWidget, &OnlineMapWidget::chatCallsignPressed, ui->chatWidget, &ChatWidget::setChatCallsign);
     connect(ui->onlineMapWidget, &OnlineMapWidget::wsjtxCallsignPressed, ui->wsjtxWidget, &WsjtxWidget::callsignClicked);
+    connect(ui->onlineMapWidget, &OnlineMapWidget::heardMeLayerVisibilityChanged,
+            this, [this, setHeardMeCallsign](bool visible)
+    {
+        setHeardMeCallsign(visible ? ui->newContactWidget->getMyCallsign()
+                                   : QString());
+    });
     connect(pskReporter, &PSKReporter::subscriptionChanged, ui->onlineMapWidget, &OnlineMapWidget::clearHeardMeSpots);
     connect(pskReporter, &PSKReporter::heardMePointRequested, ui->onlineMapWidget, &OnlineMapWidget::addHeardMePoint);
     connect(rbnNetwork, &RBNNetwork::heardMeSpotReceived, ui->onlineMapWidget, &OnlineMapWidget::addHeardMeSpot);
 
-    pskReporter->setSubscription(ui->newContactWidget->getMyCallsign());
-    rbnNetwork->setCallsign(ui->newContactWidget->getMyCallsign());
+    const bool heardMeVisible = ui->onlineMapWidget->isHeardMeLayerVisible();
+    setHeardMeCallsign(heardMeVisible ? ui->newContactWidget->getMyCallsign()
+                                      : QString());
     rbnNetwork->setCurrentMode(ui->newContactWidget->getMode());
     ui->onlineMapWidget->setHeardMeMode(ui->newContactWidget->getMode());
 

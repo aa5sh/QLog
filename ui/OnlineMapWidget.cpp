@@ -57,6 +57,22 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
+    connect(mapController.data(), &MapPageController::layerVisibilityChanged,
+            this, [this](const QString &key, bool visible)
+    {
+        if ( key == QLatin1String("heardMeLayer") )
+            emit heardMeLayerVisibilityChanged(visible);
+    });
+}
+
+bool OnlineMapWidget::isHeardMeLayerVisible() const
+{
+    FCT_IDENTIFICATION;
+
+    const QString key = QStringLiteral("heardMeLayer");
+    const QStringList states = LogParam::getMapLayerStates(QStringLiteral("onlinemap"));
+    return !states.contains(key)
+           || LogParam::getMapLayerState(QStringLiteral("onlinemap"), key);
 }
 
 void OnlineMapWidget::setTarget(double lat, double lon)

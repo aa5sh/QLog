@@ -141,6 +141,7 @@ public:
 
 signals:
     void loaded();
+    void layerVisibilityChanged(QString key, bool visible);
     void chatCallsignPressed(QString callsign);
     void wsjtxCallsignPressed(QString callsign);
     void IBPPressed(QString callsign, double frequency);

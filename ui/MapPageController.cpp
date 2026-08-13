@@ -582,8 +582,10 @@ void MapPageController::handleLayerSelectionChanged(const QVariant &data, const 
 
     qCDebug(function_parameters) << data << state;
 
-    LogParam::setMapLayerState(configID, data.toString(),
-                               (state.toString().toLower() == "on") ? true : false);
+    const QString key = data.toString();
+    const bool visible = state.toString().compare(QLatin1String("on"), Qt::CaseInsensitive) == 0;
+    LogParam::setMapLayerState(configID, key, visible);
+    emit layerVisibilityChanged(key, visible);
 }
 
 void MapPageController::chatCallsignClicked(const QVariant &data)
