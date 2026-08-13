@@ -416,15 +416,33 @@ QStringList RigctldManager::buildArguments(const RigProfile &profile) const
     // Additional user-specified arguments
     if ( !profile.rigctldArgs.isEmpty() )
     {
-        // Split by whitespace, respecting quotes
-        QStringList extraArgs = profile.rigctldArgs.split(QRegularExpression("\\s+"), // clazy:exclude=use-static-qregularexpression
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-                                                          Qt::SkipEmptyParts);
+        args << QProcess::splitCommand(profile.rigctldArgs);
 #else
-                                                          QString::SkipEmptyParts);
-#endif
+        QStringList extraArgs;
+        QString currentArg;
+        bool inQuotes = false;
 
+        for ( const QChar &character : profile.rigctldArgs )
+        {
+            if ( character == QLatin1Char('"') )
+                inQuotes = !inQuotes;
+            else if ( character.isSpace() && !inQuotes )
+            {
+                if ( !currentArg.isEmpty() )
+                {
+                    extraArgs << currentArg;
+                    currentArg.clear();
+                }
+            }
+            else
+                currentArg += character;
+        }
+
+        if ( !currentArg.isEmpty() )
+            extraArgs << currentArg;
         args << extraArgs;
+#endif
     }
 
     qCDebug(runtime) << args;

@@ -253,11 +253,12 @@ void RigctldManagerTest::buildArguments_includesAdditionalArgs()
 {
     RigctldManager manager;
     RigProfile profile;
-    profile.rigctldArgs = "-v -v --debug";
+    profile.rigctldArgs = "-v -p \"C:/My PTT/COM port\" --debug";
 
     const QStringList args = manager.buildArguments(profile);
 
-    QCOMPARE(args.mid(args.size() - 3), QStringList({"-v", "-v", "--debug"}));
+    QCOMPARE(args.mid(args.size() - 4),
+             QStringList({"-v", "-p", "C:/My PTT/COM port", "--debug"}));
 }
 
 // ============================================================================
