@@ -372,6 +372,11 @@ QStringList RigctldManager::buildArguments(const RigProfile &profile) const
                 args << "-C" << QString("serial_handshake=%1").arg(flow);
         }
 
+        // PTT
+        if ( !profile.pttPortPath.isEmpty() ) args << "-p" << profile.pttPortPath;
+        if ( !profile.pttType.isEmpty() ) args << "-C" << QString("ptt_type=%1").arg(profile.pttType);
+        args << "-C" << "ptt_share=1";
+
         // CIV address for Icom
         if (profile.civAddr >= 0) args << "-C" << QString("civaddr=%1").arg(profile.civAddr);
 

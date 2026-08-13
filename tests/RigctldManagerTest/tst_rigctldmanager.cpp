@@ -25,6 +25,7 @@ private slots:
     void buildArguments_includesPort();
     void buildArguments_includesSerialSettings();
     void buildArguments_mapsSerialSettings();
+    void buildArguments_includesPttSettings();
     void buildArguments_formatsCivAddressAsDecimal();
     void buildArguments_includesAdditionalArgs();
 
@@ -174,6 +175,7 @@ void RigctldManagerTest::buildArguments_includesSerialSettings()
                                 "-C", "stop_bits=1",
                                 "-C", "serial_parity=None",
                                 "-C", "serial_handshake=None",
+                                "-C", "ptt_share=1",
                                 "-C", "dtr_state=Unset",
                                 "-C", "rts_state=Unset"}));
 }
@@ -194,6 +196,26 @@ void RigctldManagerTest::buildArguments_mapsSerialSettings()
     QVERIFY(args.contains("serial_handshake=Hardware"));
     QVERIFY(args.contains("dtr_state=ON"));
     QVERIFY(args.contains("rts_state=OFF"));
+}
+
+void RigctldManagerTest::buildArguments_includesPttSettings()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.pttType = "DTR";
+    profile.pttPortPath = "/dev/ttyUSB1";
+
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args.value(args.indexOf("-p") + 1), QString("/dev/ttyUSB1"));
+    QVERIFY(args.contains("ptt_type=DTR"));
+    QVERIFY(args.contains("ptt_share=1"));
+
+    profile.pttType = "None";
+    profile.pttPortPath.clear();
+    const QStringList noneArgs = manager.buildArguments(profile);
+    QVERIFY(noneArgs.contains("ptt_type=None"));
 }
 
 void RigctldManagerTest::buildArguments_formatsCivAddressAsDecimal()

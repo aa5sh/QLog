@@ -32,6 +32,8 @@ public:
     float stopbits;
     QString flowcontrol;
     QString parity;
+    QString pttType;
+    QString pttPortPath;
     QString dtr;
     QString rts;
     qint16 civAddr;
