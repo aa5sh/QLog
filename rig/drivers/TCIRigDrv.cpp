@@ -51,6 +51,7 @@ RigCaps TCIRigDrv::getCaps(int)
 TCIRigDrv::TCIRigDrv(const RigProfile &profile, QObject *parent)
     : GenericRigDrv(profile, parent),
       ready(false),
+      closing(false),
       receivedOnly(false),
       currFreq(0.0),
       currTxFreq(0.0),
@@ -63,6 +64,7 @@ TCIRigDrv::TCIRigDrv(const RigProfile &profile, QObject *parent)
     FCT_IDENTIFICATION;
 
     connect(&ws, &QWebSocket::connected, this, &TCIRigDrv::onConnected);
+    connect(&ws, &QWebSocket::disconnected, this, &TCIRigDrv::onDisconnected);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
     connect(&ws, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
             this, &TCIRigDrv::onSocketError);
@@ -81,6 +83,9 @@ TCIRigDrv::~TCIRigDrv()
 bool TCIRigDrv::open()
 {
     FCT_IDENTIFICATION;
+
+    closing = false;
+    ready = false;
 
     QUrl url;
     url.setScheme("ws");
@@ -314,6 +319,8 @@ void TCIRigDrv::stopTimers()
     // close the WebSocket here becuase this method is called
     // via queue signals. What caused that there is not warning
     // that Websocket is destroyed from another thread
+    closing = true;
+    ready = false;
     ws.close();
     return;
 }
@@ -355,9 +362,25 @@ void TCIRigDrv::onConnected()
     // QLog has to wait for READY message to complete connection = to emit RigReady
 }
 
+void TCIRigDrv::onDisconnected()
+{
+    FCT_IDENTIFICATION;
+
+    if ( closing )
+        return;
+
+    onSocketError(QAbstractSocket::RemoteHostClosedError);
+}
+
 void TCIRigDrv::onSocketError(QAbstractSocket::SocketError socker_error)
 {
     FCT_IDENTIFICATION;
+
+    if ( closing )
+        return;
+
+    closing = true;
+    ready = false;
 
     QString error_msg;
 

@@ -38,6 +38,7 @@ public:
 
 private slots:
     void onConnected();
+    void onDisconnected();
     void onTextMessageReceived(const QString& message);
     void onSocketError(QAbstractSocket::SocketError socker_error);
 private:
@@ -78,6 +79,7 @@ private:
 
     QWebSocket ws;
     bool ready;
+    bool closing;
     bool receivedOnly;
     QStringList modeList;
     double currFreq;
