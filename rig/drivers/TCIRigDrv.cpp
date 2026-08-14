@@ -71,6 +71,17 @@ TCIRigDrv::TCIRigDrv(const RigProfile &profile, QObject *parent)
 #else
     connect(&ws, &QWebSocket::errorOccurred, this, &TCIRigDrv::onSocketError);
 #endif
+
+    readyTimer.setSingleShot(true);
+    connect(&readyTimer, &QTimer::timeout, this, [this]()
+    {
+        qCDebug(runtime) << "Timeout waiting for READY";
+        closing = true;
+        ready = false;
+        ws.close();
+        emit errorOccurred(tr("Error Occurred"),
+                           tr("Timeout waiting for TCI READY"));
+    });
 }
 
 TCIRigDrv::~TCIRigDrv()
@@ -84,6 +95,7 @@ bool TCIRigDrv::open()
 {
     FCT_IDENTIFICATION;
 
+    readyTimer.stop();
     closing = false;
     ready = false;
 
@@ -312,7 +324,7 @@ void TCIRigDrv::stopTimers()
 {
     FCT_IDENTIFICATION;
 
-    // no timer
+    readyTimer.stop();
 
     // send STOP command????
 
@@ -360,6 +372,7 @@ void TCIRigDrv::onConnected()
             this, &TCIRigDrv::onTextMessageReceived);
 
     // QLog has to wait for READY message to complete connection = to emit RigReady
+    readyTimer.start(READY_TIMEOUT_MS);
 }
 
 void TCIRigDrv::onDisconnected()
@@ -379,6 +392,7 @@ void TCIRigDrv::onSocketError(QAbstractSocket::SocketError socker_error)
     if ( closing )
         return;
 
+    readyTimer.stop();
     closing = true;
     ready = false;
 
@@ -662,6 +676,7 @@ void TCIRigDrv::rspREADY(const QStringList &)
 {
     FCT_IDENTIFICATION;
 
+    readyTimer.stop();
     ready = true;
     emit rigIsReady();
 }

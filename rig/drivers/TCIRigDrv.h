@@ -3,6 +3,7 @@
 
 #include <QtWebSockets>
 #include <QHash>
+#include <QTimer>
 #include "GenericRigDrv.h"
 #include "rig/RigCaps.h"
 
@@ -78,6 +79,7 @@ private:
     double getRawXIT();
 
     QWebSocket ws;
+    QTimer readyTimer;
     bool ready;
     bool closing;
     bool receivedOnly;
@@ -90,6 +92,8 @@ private:
     bool RITEnabled;
     bool XITEnabled;
     bool currSplitEnabled;
+
+    const int READY_TIMEOUT_MS = 10000;
 
     const QHash<QString, TCIRigDrv::parseFce> responseParsers =
     {
