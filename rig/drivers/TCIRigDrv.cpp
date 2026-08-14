@@ -1018,7 +1018,7 @@ void TCIRigDrv::setRITFreq(double rit)
 
 double TCIRigDrv::getXITFreq()
 {
-    return currFreq + currXIT;
+    return currFreq + getRawXIT();
 }
 
 void TCIRigDrv::setXITFreq(double xit)
