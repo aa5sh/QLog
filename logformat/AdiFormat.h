@@ -31,6 +31,14 @@ public:
         }
     }
 
+    // Reads exactly one ADIF record (fields up to and including <eor>) into
+    // a flat map - the reusable primitive behind importNext(QSqlRecord&).
+    // Public because it is also the right building block for anything that
+    // needs to parse a single ADIF record without going through the full
+    // QSO-import/QSqlRecord pipeline - e.g. QSOApiKeyQuery, which flattens
+    // a logged QSO into GET query parameters via the same round trip.
+    virtual bool readContact(QVariantMap &);
+
 protected:
     virtual bool importNextDXCCCredit(DXCCCreditRecord&) override;
     virtual void importStart() override;
@@ -40,7 +48,6 @@ protected:
                             const QString &type="");
     virtual void writeSQLRecord(const QSqlRecord& record,
                                 QMap<QString, QString> *applTags);
-    virtual bool readContact(QVariantMap &);
     void mapContact2SQLRecord(QMap<QString, QVariant> &contact,
                               QSqlRecord &record);
     void contactFields2SQLRecord(QMap<QString, QVariant> &contact,
