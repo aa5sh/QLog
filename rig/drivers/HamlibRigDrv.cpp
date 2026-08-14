@@ -172,8 +172,9 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
 
     rig_set_debug(RIG_DEBUG_BUG);
 
+    errorTimer.setSingleShot(true);
     connect(&errorTimer, &QTimer::timeout,
-            this, &HamlibRigDrv::checkErrorCounter);    
+            this, &HamlibRigDrv::checkErrorCounter);
 }
 
 HamlibRigDrv::~HamlibRigDrv()
@@ -1238,7 +1239,12 @@ bool HamlibRigDrv::isRigRespOK(int errorStatus,
     if ( errorStatus == RIG_OK )
     {
         if ( emitError )
+        {
             postponedErrors.remove(errorName);
+
+            if ( postponedErrors.isEmpty() )
+                errorTimer.stop();
+        }
         return true;
     }
 
@@ -1248,7 +1254,12 @@ bool HamlibRigDrv::isRigRespOK(int errorStatus,
     {
         qCDebug(runtime) << "Emit Error detected";
 
-        if ( !RIG_IS_SOFT_ERRCODE(-errorStatus) )
+        // Before Hamlib 4.7 the macro expected a positive error code;
+        // since Hamlib 4.7 it expects the negative API return value.
+        const bool isSoftError = RIG_IS_SOFT_ERRCODE(errorStatus)
+                                 || RIG_IS_SOFT_ERRCODE(-errorStatus);
+
+        if ( !isSoftError )
         {
             // hard error, emit error now
             qCDebug(runtime) << "Hard Error";
