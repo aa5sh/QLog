@@ -734,7 +734,7 @@ bool OmnirigRigDrv::checkFreqChange(int params, bool force)
     }
 
     if ( !rigProfile.getFreqInfo ) return true;
-    if ( !force && !(params & (FREQMASK | ALLVFOsMASK) ) ) return true;
+    if ( !force && !(params & (FREQMASK | ALLVFOsMASK | SPLIT_MASK) ) ) return true;
 
     unsigned int vfo_freq = 0;
     OmnirigV1::RigParamX vfo = OmnirigV1::PM_UNKNOWN;
