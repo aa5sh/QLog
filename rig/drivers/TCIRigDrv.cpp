@@ -572,7 +572,7 @@ const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submod
     if (mode == "SSB")
     {
         QString innerSubmode = submode;
-        if ( digiVariant )
+        if ( digiVariant && !submode.isEmpty() )
         {
             const QString digMode = QLatin1String("DIG") + submode.at(0);
             if ( modeList.contains(digMode) )
