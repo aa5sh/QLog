@@ -326,12 +326,12 @@ void OmnirigV2RigDrv::setFrequency(double newFreq)
 
     rig->get_Vfo(&vfo);
 
-    if ( vfo & VFO_B_MASK )
+    if ( (vfo & VFO_B_MASK) && (writableParams & OmnirigV2::PM_FREQB) )
     {
         qCDebug(runtime) << "Setting VFO B Freq";
         rig->put_FreqB(internalFreq);
     }
-    else if ( writableParams & OmnirigV2::PM_FREQA )
+    else if ( !(vfo & VFO_B_MASK) && (writableParams & OmnirigV2::PM_FREQA) )
     {
         qCDebug(runtime) << "Setting VFO A Freq";
         rig->put_FreqA(internalFreq);
