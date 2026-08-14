@@ -349,7 +349,6 @@ void RigWidget::rigConnected()
     ui->modeComboBox->blockSignals(false);
     ui->bandComboBox->blockSignals(false);
     ui->freqLabel->setReadOnly(false);
-    ui->txFreqLabel->setReadOnly(false);
     ui->pttLabel->setVisible(RigProfilesManager::instance()->getCurProfile1().getPTTInfo);
     refreshModeCombo();
     updateFrequencyInfoLabels(lastSeenFreq);
