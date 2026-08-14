@@ -33,6 +33,7 @@ TBC - 0.52.0
 - Fixed serial parity configuration passed to rigctld
 - Hamlib Share Rig - various fixes
 - Omnirig - various fixes
+- TCI - various fixes
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
