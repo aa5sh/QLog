@@ -526,7 +526,7 @@ const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &
         return "SSB";
     }
 
-    if ( rawMode == "AM" )
+    if ( rawMode == "AM" || rawMode == "SAM" )
         return "AM";
 
     if ( rawMode == "FM" || rawMode == "NFM" || rawMode == "WFM" )
@@ -540,6 +540,15 @@ const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &
         submode = rawMode;
         return "MFSK";
     }
+
+    if ( rawMode == "BPSK" )
+        return "PSK";
+
+    if ( rawMode == "WSPR"
+         || rawMode == "JT65"
+         || rawMode == "JT9"
+         || rawMode == "RTTY" )
+        return rawMode;
 
     if ( rawMode == "DIGL" )
     {
@@ -590,12 +599,24 @@ const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submod
     }
 
     if ( mode == "AM" )
-        return mode;
-
-    if ( mode == "FT8" )
     {
-        if ( modeList.contains("FT8") )
-            return "FT8";
+        if ( modeList.contains("AM") )
+            return "AM";
+
+        if ( modeList.contains("SAM") )
+            return "SAM";
+
+        return "AM";
+    }
+
+    if ( mode == "FT8"
+         || mode == "WSPR"
+         || mode == "JT65"
+         || mode == "JT9"
+         || mode == "RTTY" )
+    {
+        if ( modeList.contains(mode) )
+            return mode;
 
         if ( modeList.contains("DIGU") )
             return "DIGU";
