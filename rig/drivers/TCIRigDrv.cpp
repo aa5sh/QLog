@@ -259,7 +259,10 @@ void TCIRigDrv::sendMorse(const QString &text)
         return;
     }
 
-    QStringList args {text};
+    QString escapedText(text);
+    escapedText.replace(':', '^').replace(',', '~').replace(';', '*');
+
+    QStringList args {escapedText};
     sendCmd("cw_macros", true, args);
 }
 
