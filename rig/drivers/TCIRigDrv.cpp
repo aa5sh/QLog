@@ -981,7 +981,7 @@ void TCIRigDrv::rspCW_MACROS_SPEED(const QStringList &cmdArgs)
     }
     else
     {
-        qCDebug(runtime) << "Received RIT is not a double" << cmdArgs.at(1);
+        qCDebug(runtime) << "Received Key Speed is not a number" << cmdArgs.at(0);
     }
 }
 
