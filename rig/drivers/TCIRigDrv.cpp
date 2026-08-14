@@ -461,6 +461,12 @@ void TCIRigDrv::onTextMessageReceived(const QString &message)
         const QStringList &cmdElemets = trimmedCommand.split(":", QString::SkipEmptyParts);
 #endif
 
+        if ( cmdElemets.isEmpty() )
+        {
+            qCWarning(runtime) << "Incorrect TCI command" << trimmedCommand;
+            continue;
+        }
+
         const QString &cmdName = cmdElemets.at(0).toLower().trimmed();
         QStringList cmdArgs;
         TCIRigDrv::parseFce parser = responseParsers.value(cmdName);
