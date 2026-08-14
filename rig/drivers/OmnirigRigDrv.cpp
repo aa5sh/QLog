@@ -225,6 +225,13 @@ bool OmnirigRigDrv::open()
         return false;
     }
 
+    if ( !connPoint || !connCookie )
+    {
+        lastErrorText = tr("Initialization Error");
+        qCWarning(runtime) << "OmniRig event subscription is not initialized";
+        return false;
+    }
+
     long ifaceVer = 0;
     long swVer    = 0;
 
