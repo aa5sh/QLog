@@ -529,11 +529,17 @@ const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &
     if ( rawMode == "AM" )
         return "AM";
 
-    if ( rawMode == "NFM" )
+    if ( rawMode == "FM" || rawMode == "NFM" || rawMode == "WFM" )
         return "FM";
 
-    if ( rawMode == "WFM" )
-        return "FM";
+    if ( rawMode == "FT8" )
+        return "FT8";
+
+    if ( rawMode == "FT4" || rawMode == "FT2" )
+    {
+        submode = rawMode;
+        return "MFSK";
+    }
 
     if ( rawMode == "DIGL" )
     {
@@ -570,7 +576,18 @@ const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submod
         return mode;
 
     if ( mode == "FM" )
+    {
+        if ( modeList.contains("NFM") )
+            return "NFM";
+
+        if ( modeList.contains("FM") )
+            return "FM";
+
+        if ( modeList.contains("WFM") )
+            return "WFM";
+
         return "NFM";
+    }
 
     if ( mode == "AM" )
         return mode;
