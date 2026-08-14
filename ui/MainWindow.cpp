@@ -374,6 +374,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::updateTable);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->logbookWidget, &LogbookWidget::setDefaultSort);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, &networknotification, &NetworkNotification::QSOInserted);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, &qsoApiKeySender, &QSOApiKeySender::QSOInserted);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->bandmapWidget, &BandmapWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->alertsWidget, &AlertWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->chatWidget, &ChatWidget::updateSpotsStatusWhenQSOAdded);
@@ -444,6 +445,15 @@ MainWindow::MainWindow(QWidget* parent) :
     });
 
     connect(clublogRT, &ClubLogUploader::uploadedQSO, ui->logbookWidget, &LogbookWidget::updateTable);
+
+    connect(&qsoApiKeySender, &QSOApiKeySender::sendFinished, this, [this](bool ok, const QString &msg)
+    {
+        if (ok)
+            return;
+
+        qCInfo(runtime) << "QSO API Send Error: " << msg;
+        QMessageBox::warning(this, tr("QSO API Send Error"), msg);
+    });
 
     if ( StationProfilesManager::instance()->profileNameList().isEmpty() )
         firstRun = true;

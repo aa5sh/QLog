@@ -239,6 +239,14 @@ public:
     static void setNetworkWsjtxForwardAddrs(const QString &addrs);
     static bool getNetworkWsjtxListenerJoinMulticast();
     static void setNetworkWsjtxListenerJoinMulticast(bool state);
+
+    /************************
+     * QSO API key sender
+     ************************/
+    static bool getNetworkQSOApiEnabled();
+    static void setNetworkQSOApiEnabled(bool enabled);
+    static QString getNetworkQSOApiURL();
+    static void setNetworkQSOApiURL(const QString &url);
     static QString getNetworkWsjtxListenerMulticastAddr();
     static void setNetworkWsjtxListenerMulticastAddr(const QString &addr);
     static int getNetworkWsjtxListenerMulticastTTL();

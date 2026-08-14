@@ -4772,6 +4772,63 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_qsoApi">
+         <property name="title">
+          <string>Send QSO via API key</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_qsoApi">
+          <item row="0" column="0">
+           <widget class="QLabel" name="qsoApiEnabledLabel">
+            <property name="text">
+             <string>Enabled</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="qsoApiEnabledCheckbox">
+            <property name="toolTip">
+             <string>&lt;p&gt;When enabled, every logged QSO is sent to the URL below.&lt;/p&gt;First a POST request carries the API key (never in the URL/logs), then a GET request carries the QSO fields.</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="qsoApiUrlLabel">
+            <property name="text">
+             <string>URL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="qsoApiUrlEdit">
+            <property name="toolTip">
+             <string>Endpoint URL of the third-party service. Use an https:// URL so that both the API-key POST and the QSO GET are encrypted in transit.</string>
+            </property>
+            <property name="placeholderText">
+             <string>ex. https://example.com/upload_qso.php</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="qsoApiKeyLabel">
+            <property name="text">
+             <string>API key</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="qsoApiKeyEdit">
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

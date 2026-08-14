@@ -96,6 +96,9 @@ SOURCES += \
         core/PlatformParameterManager.cpp \
         core/PotaQE.cpp \
         core/PropConditions.cpp \
+        core/QSOApiKeyQuery.cpp \
+        core/QSOApiKeySender.cpp \
+        core/QSOApiKeySenderCredentials.cpp \
         core/QSLPrintLabelRenderer.cpp \
         core/QSLStorage.cpp \
         core/QSOFilterManager.cpp \
@@ -283,6 +286,8 @@ HEADERS += \
         core/PropConditions.h \
         core/QSLPrintLabelRenderer.h \
         core/QSLStorage.h \
+        core/QSOApiKeyQuery.h \
+        core/QSOApiKeySender.h \
         core/QSOFilterManager.h \
         core/QuadKeyCache.h \
         core/WsjtxUDPReceiver.h \

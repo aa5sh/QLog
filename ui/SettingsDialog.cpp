@@ -35,6 +35,7 @@
 #include "data/Gridsquare.h"
 #include "core/WsjtxUDPReceiver.h"
 #include "core/NetworkNotification.h"
+#include "core/QSOApiKeySender.h"
 #include "rig/Rig.h"
 #include "rig/RigCaps.h"
 #include "rotator/Rotator.h"
@@ -2762,6 +2763,10 @@ void SettingsDialog::readSettings()
     ui->notifSpotAlertEdit->setText(NetworkNotification::getNotifSpotAlertAddrs());
     ui->notifRigEdit->setText(NetworkNotification::getNotifRigStateAddrs());
 
+    ui->qsoApiEnabledCheckbox->setChecked(QSOApiKeySenderBase::getEnabled());
+    ui->qsoApiUrlEdit->setText(QSOApiKeySenderBase::getURL());
+    ui->qsoApiKeyEdit->setText(QSOApiKeySenderBase::getAPIKey());
+
     /*******/
     /* GUI */
     /*******/
@@ -2898,6 +2903,10 @@ void SettingsDialog::writeSettings()
     NetworkNotification::saveNotifWSJTXCQSpotAddrs(ui->notifWSJTXCQSpotsEdit->text());
     NetworkNotification::saveNotifSpotAlertAddrs(ui->notifSpotAlertEdit->text());
     NetworkNotification::saveNotifRigStateAddrs(ui->notifRigEdit->text());
+
+    QSOApiKeySenderBase::setEnabled(ui->qsoApiEnabledCheckbox->isChecked());
+    QSOApiKeySenderBase::setURL(ui->qsoApiUrlEdit->text());
+    QSOApiKeySenderBase::saveAPIKey(ui->qsoApiKeyEdit->text());
 
     /*******/
     /* GUI */

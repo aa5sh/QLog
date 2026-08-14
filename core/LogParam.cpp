@@ -737,6 +737,26 @@ void LogParam::setNetworkNotifRigStateAddrs(int port)
     setParam("network/listener/wsjtx/port", port);
 }
 
+bool LogParam::getNetworkQSOApiEnabled()
+{
+    return getParam("network/qsoapi/enabled", false).toBool();
+}
+
+void LogParam::setNetworkQSOApiEnabled(bool enabled)
+{
+    setParam("network/qsoapi/enabled", enabled);
+}
+
+QString LogParam::getNetworkQSOApiURL()
+{
+    return getParam("network/qsoapi/url").toString();
+}
+
+void LogParam::setNetworkQSOApiURL(const QString &url)
+{
+    setParam("network/qsoapi/url", url);
+}
+
 QString LogParam::getNetworkWsjtxForwardAddrs()
 {
     return getParam("network/forwarder/wsjtx/addrs").toString();
