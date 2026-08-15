@@ -365,9 +365,10 @@ void FlrigRigDrv::rspGET_MODE(const QVariant &value)
 
         QString submode;
         const QString &mode = getModeNormalizedText(rawMode, submode);
+        const qint32 bandwidth = (currBW >= 0) ? currBW : 0;
 
-        qCDebug(runtime) << "emitting MODE changed" << rawMode << mode << submode;
-        emit modeChanged(rawMode, mode, submode, 0);
+        qCDebug(runtime) << "emitting MODE changed" << rawMode << mode << submode << bandwidth;
+        emit modeChanged(rawMode, mode, submode, bandwidth);
     }
 
     QTimer::singleShot(rigProfile.pollInterval, this, &FlrigRigDrv::reqGET_MODE);
@@ -399,8 +400,14 @@ void FlrigRigDrv::rspGET_BW(const QVariant &value)
     else
     {
         bool ok = false;
-        int rigBW = values.at(0).toInt(&ok);
-        if ( !ok ) qCDebug(runtime) << "Received BW is not a number";
+        int rigBW = BANDWIDTH_UNKNOWN;
+
+        // A pair may be low/high or width/center, so its width is ambiguous.
+        if ( values.value(1).toString().isEmpty() )
+            rigBW = values.at(0).toInt(&ok);
+
+        if ( !ok )
+            qCDebug(runtime) << "Received BW cannot be represented as a single number";
 
         qCDebug(runtime) << "Rig BW: "<< rigBW;
         qCDebug(runtime) << "Object BW: "<< currBW;
