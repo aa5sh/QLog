@@ -197,8 +197,6 @@ void PSTRotDrv::readPendingDatagrams()
 
     FCT_IDENTIFICATION;
 
-    timeoutTimer.stop();
-
     while ( receiveSocket.hasPendingDatagrams() )
     {
         QNetworkDatagram datagram = receiveSocket.receiveDatagram();
@@ -221,10 +219,17 @@ void PSTRotDrv::readPendingDatagrams()
         double newAzimuth = azimuth;
         double newElevation = elevation;
 
-        if ( data.startsWith("EL") )
+        if ( data.startsWith("EL:") )
             newElevation = data.mid(3).toDouble();
-        else if ( data.startsWith("AZ") )
+        else if ( data.startsWith("AZ:") )
             newAzimuth = fromRotatorAzimuth(data.mid(3).toDouble());
+        else
+        {
+            qCWarning(runtime) << "Unexpected packet - skipping";
+            continue;
+        }
+
+        timeoutTimer.stop();
 
         qCDebug(runtime) << "PSTRotator Positioning"
                          << newAzimuth
