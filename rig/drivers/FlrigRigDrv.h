@@ -95,6 +95,7 @@ private:
     qlonglong currPWR;
     char currPTT;
     bool rigReady;
+    bool stopped;
     QUrl hostUrl;
     QList<QTimer*> runningTimers;
     bool sendTextFlag;

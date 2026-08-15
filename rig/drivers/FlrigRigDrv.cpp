@@ -38,6 +38,7 @@ FlrigRigDrv::FlrigRigDrv(const RigProfile &profile,
     : GenericRigDrv(profile, parent),
       networkManager(new QNetworkAccessManager(this)),
       rigReady(false),
+      stopped(false),
       hostUrl(QString("http://%1:%2/").arg(profile.hostname).arg(profile.netport))
 {
     FCT_IDENTIFICATION;
@@ -223,6 +224,8 @@ void FlrigRigDrv::sendState()
 void FlrigRigDrv::stopTimers()
 {
     FCT_IDENTIFICATION;
+
+    stopped = true;
 
     for ( QTimer* timer : static_cast<const QList<QTimer*>>(runningTimers) )
         timer->stop();
@@ -638,6 +641,8 @@ void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant>
 
     qCDebug(function_parameters) << method << params << emitError;
 
+    if ( stopped ) return;
+
     QByteArray data;
     QXmlStreamWriter writer(&data);
     writer.writeStartDocument();
@@ -697,11 +702,13 @@ void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant>
             if (emitError)
                 handleError(tr("Timeout"), tr("FLRig response timeout"));
         }
+        runningTimers.removeOne(timeoutTimer);
         timeoutTimer->deleteLater();
     });
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, method, timeoutTimer]()
     {
+        runningTimers.removeOne(timeoutTimer);
         timeoutTimer->stop();
         timeoutTimer->deleteLater();
         handleXmlRpcResponse(reply, method);
