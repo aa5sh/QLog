@@ -57,7 +57,7 @@ private:
     };
 
     QHash<QString, RigMode> raw2ADIFModeMapping;
-    QHash<QString, RigMode> rigAvailableModes;
+    QStringList rigAvailableModes;
     typedef void (FlrigRigDrv::*responseHandler)(const QVariant&);
 
     void resetCurrStates();

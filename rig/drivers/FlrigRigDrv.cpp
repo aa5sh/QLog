@@ -74,7 +74,7 @@ QStringList FlrigRigDrv::getAvailableModes()
 {
     FCT_IDENTIFICATION;
 
-    return rigAvailableModes.keys();
+    return rigAvailableModes;
 }
 
 void FlrigRigDrv::setFrequency(double newFreq)
@@ -286,9 +286,9 @@ void FlrigRigDrv::rspGET_MODES(const QVariant &value)
 
     for ( const QString &mode : receivedModes)
         if ( raw2ADIFModeMapping.contains(mode) )
-            rigAvailableModes[mode] = raw2ADIFModeMapping.value(mode);
+            rigAvailableModes << mode;
 
-    qCDebug(runtime) << "Rig Modes" << rigAvailableModes.keys();
+    qCDebug(runtime) << "Rig Modes" << rigAvailableModes;
 
     rigReady = true;
     emit rigIsReady();
@@ -1007,12 +1007,15 @@ const QString FlrigRigDrv::mode2RawMode(const QString &mode, const QString &subm
     qCDebug(function_parameters) << mode << submode << digiVariant;
 
     // find a suitable mode from the connected Rig modes
-    for ( auto it = rigAvailableModes.cbegin(); it != rigAvailableModes.cend(); it++ )
+    for ( const QString &rawMode : rigAvailableModes )
     {
-        qCDebug(runtime) << "Key:" << it.key()
-                         << "Values:" << it->mode << it->submode << it->digiMode;
-        if ( it->mode == mode && it->submode == submode && it->digiMode == digiVariant )
-            return it.key();
+        const RigMode &modeInfo = raw2ADIFModeMapping.value(rawMode);
+        qCDebug(runtime) << "Key:" << rawMode
+                         << "Values:" << modeInfo.mode << modeInfo.submode << modeInfo.digiMode;
+        if ( modeInfo.mode == mode
+             && modeInfo.submode == submode
+             && modeInfo.digiMode == digiVariant )
+            return rawMode;
     }
 
     return QString();
