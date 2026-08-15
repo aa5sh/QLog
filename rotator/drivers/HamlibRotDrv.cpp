@@ -41,6 +41,9 @@ RotCaps HamlibRotDrv::getCaps(int model)
     const struct rot_caps *caps = rot_get_caps(model);
     RotCaps ret;
 
+    if ( !caps )
+        return ret;
+
     ret.isNetworkOnly = (model == RIG_MODEL_NETRIGCTL);
 
     ret.serialDataBits = caps->serial_data_bits;
