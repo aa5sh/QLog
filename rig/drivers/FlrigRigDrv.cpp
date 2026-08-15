@@ -157,7 +157,7 @@ void FlrigRigDrv::setPTT(bool ptt)
 
     if ( !rigProfile.getPTTInfo || !rigReady ) return;
 
-    sendXmlRpcCommand("rig.set_ptt", { ptt });
+    sendXmlRpcCommand("rig.set_ptt", { ptt ? 1 : 0 });
 }
 
 void FlrigRigDrv::setKeySpeed(qint16 wpm)
