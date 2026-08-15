@@ -1,6 +1,7 @@
 #include "FlrigRigDrv.h"
 #include "core/debug.h"
 #include "rig/macros.h"
+#include <limits>
 
 MODULE_IDENTIFICATION("qlog.rig.driver.flrigrigdrv");
 
@@ -657,7 +658,11 @@ void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant>
             switch ( param.type() )
             {
                 case QVariant::Double:
-                  writer.writeTextElement("double", QString::number(param.toDouble())); break;
+                  // QString::number() defaults to 6 significant digits, which can round
+                  // radio frequencies. max_digits10 preserves the value during conversion.
+                  writer.writeTextElement("double",
+                                          QString::number(param.toDouble(), 'g',
+                                                          std::numeric_limits<double>::max_digits10)); break;
                 case QVariant::Int:
                   writer.writeTextElement("i4", QString::number(param.toInt())); break;
                 default:
