@@ -35,7 +35,8 @@ RotCaps PSTRotDrv::getCaps(int)
 
 PSTRotDrv::PSTRotDrv(const RotProfile &profile, QObject *parent)
     : GenericRotDrv{profile, parent},
-      forceSendState(false)
+      forceSendState(false),
+      consecutiveTimeouts(0)
 {
     FCT_IDENTIFICATION;
 }
@@ -104,6 +105,10 @@ bool PSTRotDrv::open()
     {
         timeoutTimer.stop();
         qCWarning(runtime) << "Operation Timeout";
+
+        if ( ++consecutiveTimeouts < MAX_CONSECUTIVE_TIMEOUTS )
+            return;
+
         emit errorOccurred(tr("Error Occurred"),
                           tr("Operation Timeout"));
     });
@@ -236,6 +241,7 @@ void PSTRotDrv::readPendingDatagrams()
         }
 
         timeoutTimer.stop();
+        consecutiveTimeouts = 0;
 
         qCDebug(runtime) << "PSTRotator Positioning"
                          << newAzimuth

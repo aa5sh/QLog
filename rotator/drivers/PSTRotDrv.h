@@ -33,12 +33,15 @@ private:
     void readPendingDatagrams();
 
     bool forceSendState;
+    int consecutiveTimeouts;
 
     QTimer refreshTimer;
     QTimer timeoutTimer;
     QUdpSocket receiveSocket;
     QMutex drvLock;
     QHostAddress rotatorAddress;
+
+    static constexpr int MAX_CONSECUTIVE_TIMEOUTS = 3;
 };
 
 #endif // QLOG_ROTATOR_DRIVERS_PSTROTDRV_H
