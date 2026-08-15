@@ -58,7 +58,7 @@ bool PSTRotDrv::open()
 
     if ( !rc )
     {
-        lastErrorText = tr("Cannot bind a port") + " " + rotProfile.netport;
+        lastErrorText = tr("Cannot bind port %1").arg(rotProfile.netport + 1);
         qCDebug(runtime) << "Rot is not initialized - cannot bind port address" << rotProfile.netport;
         return false;
     }
