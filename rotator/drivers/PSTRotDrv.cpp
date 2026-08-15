@@ -201,11 +201,17 @@ void PSTRotDrv::readPendingDatagrams()
     {
         QNetworkDatagram datagram = receiveSocket.receiveDatagram();
         QString data(datagram.data());
+        const QHostAddress senderAddress = datagram.senderAddress();
 
-        qCDebug(runtime) << "Received from" << datagram.senderAddress();
+        qCDebug(runtime) << "Received from" << senderAddress;
         qCDebug(runtime) << data;
 
-        // TODO: Check if sender has the IP Address from ROT Profile?
+        if ( !senderAddress.isEqual(rotatorAddress) )
+        {
+            qCWarning(runtime) << "Unexpected sender" << senderAddress
+                               << "- expected" << rotatorAddress;
+            continue;
+        }
 
         // TODO: we assume that the entire response fits into one packet,
         // so there is no need to implement sequential loading of fragmented packets.
