@@ -87,6 +87,7 @@ HamlibRotDrv::HamlibRotDrv(const RotProfile &profile,
 
     rig_set_debug(RIG_DEBUG_BUG);
 
+    errorTimer.setSingleShot(true);
     connect(&errorTimer, &QTimer::timeout,
             this, &HamlibRotDrv::checkErrorCounter);
 
@@ -356,7 +357,12 @@ bool HamlibRotDrv::isRotRespOK(int errorStatus, const QString errorName, bool em
     if ( errorStatus == RIG_OK ) // there are no special codes for ROT, use RIG codes
     {
         if ( emitError )
+        {
             postponedErrors.remove(errorName);
+
+            if ( postponedErrors.isEmpty() )
+                errorTimer.stop();
+        }
         return true;
     }
 
