@@ -3,6 +3,7 @@
 
 #include "GenericRigDrv.h"
 #include "rig/RigCaps.h"
+#include <QQueue>
 
 class FlrigRigDrv : public GenericRigDrv
 {
@@ -49,6 +50,19 @@ private slots:
     void reqGET_TX_FREQ();
 
 private:
+    enum XmlRpcCommandType
+    {
+        ControlCommand,
+        PollCommand
+    };
+
+    struct XmlRpcCommand
+    {
+        QString method;
+        QList<QVariant> params;
+        bool emitError;
+    };
+
     struct RigMode
     {
         QString mode;
@@ -63,7 +77,9 @@ private:
     void resetCurrStates();
     void handleError(const QString &category, const QString &errorMsg);
     void sendXmlRpcCommand(const QString &method, const QList<QVariant> &params = {},
+                           XmlRpcCommandType type = ControlCommand,
                            bool emitError = true);
+    void sendNextXmlRpcCommand();
     QVariantList parseArray(QXmlStreamReader &reader);
     QVariant parseSingleValue(QXmlStreamReader &reader);
     QVariantMap parseStruct(QXmlStreamReader &reader);
@@ -96,7 +112,10 @@ private:
     char currPTT;
     bool rigReady;
     bool stopped;
+    bool commandRunning;
     QUrl hostUrl;
+    QQueue<XmlRpcCommand> controlQueue;
+    QQueue<XmlRpcCommand> pollQueue;
     QList<QTimer*> runningTimers;
     bool sendTextFlag;
 

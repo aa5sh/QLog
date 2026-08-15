@@ -39,6 +39,7 @@ FlrigRigDrv::FlrigRigDrv(const RigProfile &profile,
       networkManager(new QNetworkAccessManager(this)),
       rigReady(false),
       stopped(false),
+      commandRunning(false),
       hostUrl(QString("http://%1:%2/").arg(profile.hostname).arg(profile.netport))
 {
     FCT_IDENTIFICATION;
@@ -226,6 +227,8 @@ void FlrigRigDrv::stopTimers()
     FCT_IDENTIFICATION;
 
     stopped = true;
+    controlQueue.clear();
+    pollQueue.clear();
 
     for ( QTimer* timer : static_cast<const QList<QTimer*>>(runningTimers) )
         timer->stop();
@@ -302,7 +305,7 @@ void FlrigRigDrv::reqGET_VFO()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getFreqInfo ) sendXmlRpcCommand("rig.get_vfo");
+    if ( rigProfile.getFreqInfo ) sendXmlRpcCommand("rig.get_vfo", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_VFO(const QVariant &value)
@@ -338,7 +341,7 @@ void FlrigRigDrv::reqGET_MODE()
 {
     FCT_IDENTIFICATION;
 
-     if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_mode");
+     if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_mode", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_MODE(const QVariant &value)
@@ -378,7 +381,7 @@ void FlrigRigDrv::reqGET_BW()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_bw");
+    if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_bw", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_BW(const QVariant &value)
@@ -429,7 +432,7 @@ void FlrigRigDrv::reqGET_POWER()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getPWRInfo )  sendXmlRpcCommand("rig.get_power");
+    if ( rigProfile.getPWRInfo )  sendXmlRpcCommand("rig.get_power", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_POWER(const QVariant &value)
@@ -464,7 +467,7 @@ void FlrigRigDrv::reqGET_AB()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getVFOInfo )  sendXmlRpcCommand("rig.get_AB");
+    if ( rigProfile.getVFOInfo )  sendXmlRpcCommand("rig.get_AB", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_AB(const QVariant &value)
@@ -499,7 +502,7 @@ void FlrigRigDrv::reqGET_PTT()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getPTTInfo )  sendXmlRpcCommand("rig.get_ptt");
+    if ( rigProfile.getPTTInfo )  sendXmlRpcCommand("rig.get_ptt", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_PTT(const QVariant &value)
@@ -528,7 +531,7 @@ void FlrigRigDrv::reqCWIO_GET_WPM()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getKeySpeed )  sendXmlRpcCommand("rig.cwio_get_wpm");
+    if ( rigProfile.getKeySpeed )  sendXmlRpcCommand("rig.cwio_get_wpm", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspCWIO_GET_WPM(const QVariant &value)
@@ -554,7 +557,7 @@ void FlrigRigDrv::reqGET_SPLIT()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getSplitInfo ) sendXmlRpcCommand("rig.get_split", {}, false);
+    if ( rigProfile.getSplitInfo ) sendXmlRpcCommand("rig.get_split", {}, PollCommand, false);
 }
 
 void FlrigRigDrv::rspGET_SPLIT(const QVariant &value)
@@ -592,7 +595,7 @@ void FlrigRigDrv::reqGET_TX_FREQ()
 {
     FCT_IDENTIFICATION;
 
-    sendXmlRpcCommand("rig.get_vfoB", {}, false);
+    sendXmlRpcCommand("rig.get_vfoB", {}, PollCommand, false);
 }
 
 void FlrigRigDrv::rspGET_TX_FREQ(const QVariant &value)
@@ -642,13 +645,41 @@ void FlrigRigDrv::handleError(const QString &category, const QString &errorMsg)
     emit errorOccurred(category, lastErrorText);
 }
 
-void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant> &params, bool emitError)
+void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant> &params,
+                                    XmlRpcCommandType type, bool emitError)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << method << params << emitError;
+    qCDebug(function_parameters) << method << params << type << emitError;
 
     if ( stopped ) return;
+
+    const XmlRpcCommand command = {method, params, emitError};
+
+    if ( type == PollCommand )
+        pollQueue.enqueue(command);
+    else
+        controlQueue.enqueue(command);
+
+    sendNextXmlRpcCommand();
+}
+
+void FlrigRigDrv::sendNextXmlRpcCommand()
+{
+    FCT_IDENTIFICATION;
+
+    if ( stopped || commandRunning || !lastErrorText.isEmpty() ) return;
+    if ( controlQueue.isEmpty() && pollQueue.isEmpty() ) return;
+
+    const XmlRpcCommand command = !controlQueue.isEmpty() ? controlQueue.dequeue()
+                                                          : pollQueue.dequeue();
+    commandRunning = true;
+
+    const QString &method = command.method;
+    const QList<QVariant> &params = command.params;
+    const bool emitError = command.emitError;
+
+    qCDebug(runtime) << "Sending XML-RPC command" << method << params;
 
     QByteArray data;
     QXmlStreamWriter writer(&data);
@@ -720,6 +751,8 @@ void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant>
         timeoutTimer->deleteLater();
         handleXmlRpcResponse(reply, method);
         reply->deleteLater();
+        commandRunning = false;
+        sendNextXmlRpcCommand();
     });
 }
 
