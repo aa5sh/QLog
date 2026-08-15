@@ -366,7 +366,12 @@ bool HamlibRotDrv::isRotRespOK(int errorStatus, const QString errorName, bool em
     {
         qCDebug(runtime) << "Emit Error detected";
 
-        if ( !RIG_IS_SOFT_ERRCODE(-errorStatus) )
+        // Before Hamlib 4.7 the macro expected a positive error code;
+        // since Hamlib 4.7 it expects the negative API return value.
+        const bool isSoftError = RIG_IS_SOFT_ERRCODE(errorStatus)
+                                 || RIG_IS_SOFT_ERRCODE(-errorStatus);
+
+        if ( !isSoftError )
         {
             // hard error, emit error now
             qCDebug(runtime) << "Hard Error";
