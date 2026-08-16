@@ -529,9 +529,8 @@ const QString TCIRigDrv::getModeNormalizedText(const QString &inRawMode, QString
 
     qCDebug(function_parameters) << inRawMode;
 
+    const QString rawMode = inRawMode.toUpper();
     submode = QString();
-
-    QString rawMode = inRawMode.toUpper();
 
     if ( rawMode.contains("CW") )
         return "CW";
