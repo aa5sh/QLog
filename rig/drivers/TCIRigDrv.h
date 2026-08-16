@@ -49,7 +49,7 @@ private:
     void sendCmd(const QString &cmd,
                  bool addRigID,
                  const QStringList &args = QStringList());
-    const QString getModeNormalizedText(const QString& rawMode, QString &submode);
+    const QString getModeNormalizedText(const QString& inRawMode, QString &submode);
     const QString mode2RawMode(const QString &mode, const QString &submode, bool digiVariant);
 
     // commands functions

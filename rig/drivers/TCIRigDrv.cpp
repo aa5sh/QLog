@@ -523,13 +523,15 @@ void TCIRigDrv::sendCmd(const QString &cmd,
     ws.sendTextMessage(cmdText);
 }
 
-const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &submode)
+const QString TCIRigDrv::getModeNormalizedText(const QString &inRawMode, QString &submode)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << rawMode;
+    qCDebug(function_parameters) << inRawMode;
 
     submode = QString();
+
+    QString rawMode = inRawMode.toUpper();
 
     if ( rawMode.contains("CW") )
         return "CW";
