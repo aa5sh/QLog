@@ -31,6 +31,7 @@ TBC - 0.52.0
 - Fixed QSL confirmation status is not displayed correctly in QSO Detail and tooltip (issue #1125)
 - Fixed DXCC flag assignments and documented neutral handling of territorial disputes (issue #1129)
 - Fixed serial parity configuration passed to rigctld
+- Fixed Added more lighthouse suffixes LH, LS, LT
 - Hamlib Share Rig - various fixes
 - Omnirig - various fixes
 - TCI - various fixes
