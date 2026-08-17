@@ -6123,18 +6123,18 @@ The password will be needed to restore them later.</source>
 <context>
     <name>FlrigRigDrv</name>
     <message>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="693"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="741"/>
         <source>Timeout</source>
         <translation>超时</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="693"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="741"/>
         <source>FLRig response timeout</source>
         <translation>FLRig响应超时</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="958"/>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="971"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="1010"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="1023"/>
         <source>Network Error</source>
         <translation>网络错误</translation>
     </message>
@@ -6179,152 +6179,152 @@ The password will be needed to restore them later.</source>
     </message>
     <message>
         <location filename="../rig/drivers/HamlibRigDrv.cpp" line="170"/>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="208"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="209"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="243"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="244"/>
         <source>Cannot set PTT Type</source>
         <translation>无法设置PTT类型</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="250"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="251"/>
         <source>Cannot set PTT Share</source>
         <translation>无法设置共享PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="263"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="264"/>
         <source>Cannot set CIV Addr</source>
         <translation>无法设置CIV地址</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="271"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="272"/>
         <source>Unsupported Rig Driver</source>
         <translation>不支持的设备驱动</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="278"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="279"/>
         <source>Cannot set auto_power_on</source>
         <translation>无法设置自动开机</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="302"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="303"/>
         <source>Cannot set no_xchg to 1</source>
         <translation>无法设置no_xchg为1</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="309"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="310"/>
         <source>Rig Open Error</source>
         <translation>打开电台出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="404"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="405"/>
         <source>Set TX Frequency Error</source>
         <translation>设置TX频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="409"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="410"/>
         <source>Set Frequency Error</source>
         <translation>设置频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="447"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="448"/>
         <source>Set Split Error</source>
         <translation>设置 Split 出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="496"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="497"/>
         <source>Set Mode Error</source>
         <translation>设置模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="511"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="512"/>
         <source>Set Split Mode Error</source>
         <translation>设置 Split 模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="535"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="536"/>
         <source>Set PTT Error</source>
         <translation>设置 PTT 出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="602"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="603"/>
         <source>Cannot sent Morse</source>
         <translation>无法发送摩尔斯</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="621"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="622"/>
         <source>Cannot stop Morse</source>
         <translation>无法停止摩尔斯</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="772"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="773"/>
         <source>Get PTT Error</source>
         <translation>获取PTT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="807"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="808"/>
         <source>Get Frequency Error</source>
         <translation>获取频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="853"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="854"/>
         <source>Get Mode Error</source>
         <translation>获取模式出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="902"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="903"/>
         <source>Get VFO Error</source>
         <translation>获取VFO出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="940"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="941"/>
         <source>Get PWR Error</source>
         <translation>获取功率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="944"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="945"/>
         <source>Get PWR (power2mw) Error</source>
         <translation>获取功率（power2mw）出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="982"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="983"/>
         <source>Get RIT Function Error</source>
         <translation>获取RIT功能出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="988"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="989"/>
         <source>Get RIT Error</source>
         <translation>获取RIT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1039"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1040"/>
         <source>Get XIT Function Error</source>
         <translation>获取XIT功能出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1045"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1046"/>
         <source>Get XIT Error</source>
         <translation>获取XIT出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1098"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1099"/>
         <source>Get Split Error</source>
         <translation>获取 Split 出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1129"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1130"/>
         <source>Get TX Frequency Error</source>
         <translation>获取 TX 频率出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1166"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1167"/>
         <source>Get KeySpeed Error</source>
         <translation>获取电键速度出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1218"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1219"/>
         <source>Set KeySpeed Error</source>
         <translation>设置电键速度出错</translation>
     </message>
@@ -6332,28 +6332,28 @@ The password will be needed to restore them later.</source>
 <context>
     <name>HamlibRotDrv</name>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="82"/>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="121"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="85"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="125"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="146"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="150"/>
         <source>Unsupported Rotator Driver</source>
         <translation>不支持的云台驱动</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="165"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="169"/>
         <source>Rot Open Error</source>
         <translation>打开云台出错</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="250"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="254"/>
         <source>Set Possition Error</source>
         <translation>设置方位出错</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="324"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="328"/>
         <source>Get Possition Error</source>
         <translation>获取方位出错</translation>
     </message>
@@ -8727,7 +8727,7 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="135"/>
-        <location filename="../ui/MainWindow.cpp" line="1902"/>
+        <location filename="../ui/MainWindow.cpp" line="1964"/>
         <source>Contest</source>
         <translation>比赛</translation>
     </message>
@@ -9157,27 +9157,42 @@ Submode: %2</source>
         <translation>经典</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1903"/>
+        <location filename="../ui/MainWindow.cpp" line="1889"/>
+        <source>Accept any received exchange. %1 is updated only when the received exchange is valid for this field.</source>
+        <translation>接受任何接收到的交换信息。仅当接收到的交换信息对此字段有效时，才会更新 %1。</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.cpp" line="1911"/>
+        <source>Standard Linking</source>
+        <translation>标准链接</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.cpp" line="1927"/>
+        <source>Flexible Linking</source>
+        <translation>灵活链接</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.cpp" line="1965"/>
         <source>Do you want to remove the Contest filter %1?</source>
         <translation>你要删除比赛过滤器 %1 吗？</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1934"/>
+        <location filename="../ui/MainWindow.cpp" line="1996"/>
         <source>Contest: </source>
         <translation>比赛: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2291"/>
+        <location filename="../ui/MainWindow.cpp" line="2353"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
         <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;基于 Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;图标由 &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt; 提供&lt;br /&gt;卫星图像由 &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt; 提供&lt;br /&gt;ZoneDetect 由 &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt; 提供&lt;br /&gt;时区数据库由 &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt; 提供</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2322"/>
+        <location filename="../ui/MainWindow.cpp" line="2384"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2373"/>
+        <location filename="../ui/MainWindow.cpp" line="2435"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
@@ -9429,12 +9444,12 @@ Submode: %2</source>
         <translation>天线</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4497"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4578"/>
         <source>Blank</source>
         <translation>空白</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4498"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4579"/>
         <source> W</source>
         <translation> W</translation>
     </message>
@@ -9449,207 +9464,207 @@ Submode: %2</source>
         <translation>成员:</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="105"/>
-        <location filename="../ui/NewContactWidget.cpp" line="118"/>
-        <location filename="../ui/NewContactWidget.cpp" line="131"/>
-        <source>No</source>
-        <translation>否</translation>
-    </message>
-    <message>
         <location filename="../ui/NewContactWidget.cpp" line="106"/>
         <location filename="../ui/NewContactWidget.cpp" line="119"/>
         <location filename="../ui/NewContactWidget.cpp" line="132"/>
-        <source>Yes</source>
-        <translation>是</translation>
+        <source>No</source>
+        <translation>否</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="107"/>
         <location filename="../ui/NewContactWidget.cpp" line="120"/>
         <location filename="../ui/NewContactWidget.cpp" line="133"/>
-        <source>Requested</source>
-        <translation>已请求</translation>
+        <source>Yes</source>
+        <translation>是</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="108"/>
         <location filename="../ui/NewContactWidget.cpp" line="121"/>
         <location filename="../ui/NewContactWidget.cpp" line="134"/>
-        <source>Queued</source>
-        <translation>排队中</translation>
+        <source>Requested</source>
+        <translation>已请求</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="109"/>
         <location filename="../ui/NewContactWidget.cpp" line="122"/>
         <location filename="../ui/NewContactWidget.cpp" line="135"/>
+        <source>Queued</source>
+        <translation>排队中</translation>
+    </message>
+    <message>
+        <location filename="../ui/NewContactWidget.cpp" line="110"/>
+        <location filename="../ui/NewContactWidget.cpp" line="123"/>
+        <location filename="../ui/NewContactWidget.cpp" line="136"/>
         <source>Ignored</source>
         <translation>已忽视</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="145"/>
+        <location filename="../ui/NewContactWidget.cpp" line="146"/>
         <source>Bureau</source>
         <translation>卡片局</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="146"/>
+        <location filename="../ui/NewContactWidget.cpp" line="147"/>
         <source>Direct</source>
         <translation>直邮</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="147"/>
+        <location filename="../ui/NewContactWidget.cpp" line="148"/>
         <source>Electronic</source>
         <translation>电子卡片</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="237"/>
+        <location filename="../ui/NewContactWidget.cpp" line="238"/>
         <source>QLog Error</source>
         <translation>QLog错误</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="237"/>
+        <location filename="../ui/NewContactWidget.cpp" line="238"/>
         <source>Callbook login failed</source>
         <translation>电台黄页登陆失败</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="823"/>
+        <location filename="../ui/NewContactWidget.cpp" line="829"/>
         <source>Member</source>
         <translation>成员</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="896"/>
+        <location filename="../ui/NewContactWidget.cpp" line="902"/>
         <source>QLog Information</source>
         <translation>QLog 信息</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2344"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2357"/>
         <source>The external QSO was saved without current station data because Manual QSO Entry is active.</source>
         <translation>由于已启用手动 QSO 录入，外部 QSO 已保存，但未包含当前台站数据。</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2350"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2363"/>
         <source>The external QSO was saved without current station data because no active Station Profile is available.</source>
         <translation>由于没有可用的活动台站配置，外部 QSO 已保存，但未包含当前台站数据。</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2357"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2370"/>
         <source>not provided</source>
         <translation>未提供</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2361"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2374"/>
         <source>The external QSO was saved without current station data: received station %1 / %2 does not match active Station Profile &quot;%3&quot; (%4 / %5).</source>
         <translation>外部 QSO 已保存，但未包含当前台站数据：接收到的台站 %1 / %2 与活动台站配置“%3”(%4 / %5) 不匹配。</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2531"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2544"/>
         <source>LP</source>
         <translation>长路径</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2583"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2596"/>
         <source>New Entity!</source>
         <translation>新实体！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2586"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2599"/>
         <source>New Band!</source>
         <translation>新波段！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2589"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2602"/>
         <source>New Mode!</source>
         <translation>新模式！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2592"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2605"/>
         <source>New Band &amp; Mode!</source>
         <translation>新波段与模式！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2595"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2608"/>
         <source>New Slot!</source>
         <translation>新组合！</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2598"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2611"/>
         <source>Worked</source>
         <translation>已通联</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2601"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2614"/>
         <source>Confirmed</source>
         <translation>已确认</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3508"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3521"/>
         <source>GE</source>
         <translation>GE</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3518"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3531"/>
         <source>GM</source>
         <translation>GM</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3524"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3537"/>
         <source>GA</source>
         <translation>GA</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3843"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3856"/>
         <source> m</source>
         <translation> m</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4226"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4307"/>
         <source>Callbook search is active</source>
         <translation>电台黄页搜索可用</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4304"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4385"/>
         <source>Contest ID must be filled in to activate</source>
         <translation>必须填写 竞赛标识 才能激活</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4485"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4566"/>
         <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW)) </source>
         <translation>这里要填的不是比赛名称，而是分配的竞赛标识&lt;br&gt;（例如CQ-WW-CW 代表CQ WW DX比赛(CW)） </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4500"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4581"/>
         <source>Description of the contacted station&apos;s equipment</source>
         <translation>已通联台站的设备描述</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4221"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4302"/>
         <source>Callbook search is inactive</source>
         <translation>电台黄页搜索不可用</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="76"/>
+        <location filename="../ui/NewContactWidget.cpp" line="77"/>
         <source>Expand/Collapse</source>
         <translation>展开/折叠</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4426"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4507"/>
         <source>two or four adjacent Maidenhead grid locators, each four characters long, (ex. EN98,FM08,EM97,FM07)</source>
         <translation>两个或四个相邻的梅登黑德网格定位器，每个四个字符长，(例如 EN98, FM08, EM97, FM07)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4429"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4510"/>
         <source>the contacted station&apos;s DARC DOK (District Location Code) (ex. A01)</source>
         <translation>联络电台的DARC DOK (地区位置代码) (例如 A01)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4449"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4530"/>
         <source>World Wide Flora &amp; Fauna</source>
         <translation>世界动植物 (可选参数)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4453"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4534"/>
         <source>Special Activity Group</source>
         <translation>特别活动或兴趣团体名称</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4457"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4538"/>
         <source>Special Activity Group Information</source>
         <translation>特别活动或兴趣团体信息</translation>
     </message>
@@ -9667,19 +9682,20 @@ Submode: %2</source>
         <translation>设备 2</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="129"/>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="221"/>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="261"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="131"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="223"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="230"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="270"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1036"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1079"/>
         <source>Rig status changed</source>
         <translation>设备状态已更改</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1037"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1080"/>
         <source>Rig is not connected</source>
         <translation>设备未连接</translation>
     </message>
@@ -9707,19 +9723,20 @@ Submode: %2</source>
         <translation>设备 4</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="132"/>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="224"/>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="266"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="134"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="226"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="233"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="275"/>
         <source>Initialization Error</source>
         <translation>初始化出错</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="936"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="978"/>
         <source>Rig status changed</source>
         <translation>设备状态已更改</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="937"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="979"/>
         <source>Rig is not connected</source>
         <translation>设备未连接</translation>
     </message>
@@ -9732,27 +9749,27 @@ Submode: %2</source>
         <translation>云台 1</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="60"/>
-        <source>Cannot bind a port</source>
-        <translation>无法绑定端口</translation>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="61"/>
+        <source>Cannot bind port %1</source>
+        <translation>无法绑定端口 %1</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="70"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="71"/>
         <source>Cannot get IP Address for</source>
         <translation>无法获取 IP 地址给</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="89"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="90"/>
         <source>No IPv4 Address for</source>
         <translation>无法获取 IPv4 地址给</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="107"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="112"/>
         <source>Error Occurred</source>
         <translation>发生错误</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="108"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="113"/>
         <source>Operation Timeout</source>
         <translation>操作超时</translation>
     </message>
@@ -9899,7 +9916,7 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/MainWindow.cpp" line="717"/>
         <location filename="../ui/MainWindow.cpp" line="730"/>
         <location filename="../ui/MainWindow.cpp" line="740"/>
-        <location filename="../ui/NewContactWidget.cpp" line="1570"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1577"/>
         <location filename="../ui/SettingsDialog.cpp" line="779"/>
         <location filename="../ui/SettingsDialog.cpp" line="804"/>
         <location filename="../ui/SettingsDialog.cpp" line="813"/>
@@ -9955,7 +9972,7 @@ You can leave fields empty and configure them later in Settings.</source>
         <location filename="../ui/AlertRuleDetail.cpp" line="329"/>
         <location filename="../ui/ExportDialog.cpp" line="180"/>
         <location filename="../ui/KSTChatWidget.cpp" line="311"/>
-        <location filename="../ui/NewContactWidget.cpp" line="1840"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1847"/>
         <location filename="../ui/QSOFilterDetail.cpp" line="531"/>
         <location filename="../ui/SettingsDialog.cpp" line="932"/>
         <location filename="../ui/SettingsDialog.cpp" line="941"/>
@@ -10108,12 +10125,12 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>&lt;b&gt;CW 键控器出错:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="1571"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1578"/>
         <source>The fields &lt;b&gt;%0&lt;/b&gt; will not be saved because the &lt;b&gt;%1&lt;/b&gt; is not filled.</source>
         <translation>不会保存字段&lt;b&gt;%0&lt;/b&gt;，因为&lt;b&gt;%1&lt;/b&gt;未填充。</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="1841"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1848"/>
         <source>Your callsign is empty. Please, set your Station Profile</source>
         <translation>你的呼号为空。请先设置台站配置文件</translation>
     </message>
@@ -10227,42 +10244,42 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>英里</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="366"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="406"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="553"/>
         <location filename="../ui/DxWidget.cpp" line="1202"/>
         <source>Connection Refused</source>
         <translation>连接被拒绝</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="370"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="410"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="556"/>
         <location filename="../ui/DxWidget.cpp" line="1205"/>
         <source>Host closed the connection</source>
         <translation>主机关闭连接</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="375"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="415"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="561"/>
         <location filename="../ui/DxWidget.cpp" line="1210"/>
         <source>Host not found</source>
         <translation>找不到主机</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="378"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="418"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="564"/>
         <location filename="../ui/DxWidget.cpp" line="1213"/>
         <source>Timeout</source>
         <translation>超时</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="382"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="422"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="569"/>
         <location filename="../ui/DxWidget.cpp" line="1217"/>
         <source>Network Error</source>
         <translation>网络错误</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="385"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="425"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="573"/>
         <location filename="../ui/DxWidget.cpp" line="1220"/>
         <source>Internal Error</source>
@@ -12137,32 +12154,32 @@ You can leave fields empty and configure them later in Settings.</source>
         <translation>功率: %1W</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="529"/>
+        <location filename="../ui/RigWidget.cpp" line="528"/>
         <source>OUT</source>
         <translation>OUT</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="530"/>
+        <location filename="../ui/RigWidget.cpp" line="529"/>
         <source>Outside Bandmap Guide range</source>
         <translation>超出频段图指南范围</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="557"/>
+        <location filename="../ui/RigWidget.cpp" line="556"/>
         <source>SOS</source>
         <translation>SOS</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="558"/>
+        <location filename="../ui/RigWidget.cpp" line="557"/>
         <source>Emergency frequency: %1 MHz</source>
         <translation>紧急频率: %1 MHz</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="577"/>
+        <location filename="../ui/RigWidget.cpp" line="576"/>
         <source>IBP</source>
         <translation>IBP</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="578"/>
+        <location filename="../ui/RigWidget.cpp" line="577"/>
         <source>International Beacon Project: %1 MHz</source>
         <translation>国际信标项目: %1 MHz</translation>
     </message>
@@ -14684,17 +14701,23 @@ Please install TQSL or specify the path manually.</source>
         <translation>设备 3</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="388"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="82"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="428"/>
         <source>Error Occurred</source>
         <translation>发生错误</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="618"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="83"/>
+        <source>Timeout waiting for TCI READY</source>
+        <translation>等待 TCI READY 超时</translation>
+    </message>
+    <message>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="704"/>
         <source>Rig status changed</source>
         <translation>设备状态已更改</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="619"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="705"/>
         <source>Rig is not connected</source>
         <translation>设备未连接</translation>
     </message>

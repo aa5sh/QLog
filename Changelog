@@ -12,6 +12,7 @@ TBC - 0.52.0
 - [NEW] - Settings - Added an option to hide DXCC entity flags (issue #1129)
 - [NEW] - Statistics - Added QSO histogram by operator callsign (PR #1127 @mc-doge666)
 - [NEW] - Added direct labeling of QSL Sent QSO context menu (PR #1123 @mc-doge666)
+- [NEW] - Contest - Added Flexible Exchange Linking
 - [CHANGED] - Online Map - Improve dark mode night-side visibility
 - [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)
 - [CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)

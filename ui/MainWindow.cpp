@@ -1796,8 +1796,13 @@ void MainWindow::saveContestMenuLinkExchangeType(QAction *action)
 {
     FCT_IDENTIFICATION;
 
+    const int linkType = action->data().toInt();
+    const bool flexible = action->property("flexibleExchange").toBool();
+
     LogParam::setContestLinkExchange(action->data());
-    ui->newContactWidget->changeSRXStringLink(action->data().toInt());
+    LogParam::setContestLinkExchangeFlexibleType(( flexible ) ? linkType
+                                                              : LogbookModel::COLUMN_INVALID);
+    ui->newContactWidget->changeSRXStringLink(linkType, flexible);
 }
 
 void MainWindow::restoreContestMenuDupeType()
@@ -1831,49 +1836,106 @@ void MainWindow::restoreContestMenuLinkExchange()
 {
     FCT_IDENTIFICATION;
 
+    const QList<LogbookModel::ColumnID> linkColumns =
+    {
+        LogbookModel::COLUMN_AGE,
+        LogbookModel::COLUMN_CQZ,
+        LogbookModel::COLUMN_ITUZ,
+        LogbookModel::COLUMN_GRID,
+        LogbookModel::COLUMN_NAME_INTL,
+        LogbookModel::COLUMN_QTH_INTL,
+        LogbookModel::COLUMN_RX_PWR,
+        LogbookModel::COLUMN_STATE
+    };
+
+    const QList<LogbookModel::ColumnID> flexibleColumns =
+    {
+        LogbookModel::COLUMN_CQZ,
+        LogbookModel::COLUMN_ITUZ
+    };
+
+
     linkExchangeGroup = new QActionGroup(ui->menuLinkExchange);
 
     int linkExchangeType = LogParam::getContestLinkExchange();
+    const int flexibleExchangeType = LogParam::getContestLinkExchangeFlexibleType();
+
+    if ( linkExchangeType != LogbookModel::COLUMN_INVALID
+         && !linkColumns.contains(static_cast<LogbookModel::ColumnID>(linkExchangeType)) )
+        linkExchangeType = LogbookModel::COLUMN_INVALID;
+
+    const bool linkExchangeFlexible =
+            linkExchangeType == flexibleExchangeType
+            && flexibleColumns.contains(static_cast<LogbookModel::ColumnID>(linkExchangeType));
+
+    ui->menuLinkExchange->setToolTipsVisible(true);
 
     ui->actionLinkExchangeNone->setData(LogbookModel::COLUMN_INVALID);
+    ui->actionLinkExchangeNone->setProperty("flexibleExchange", false);
+
     linkExchangeGroup->addAction(ui->actionLinkExchangeNone);
     ui->actionLinkExchangeNone->setChecked(linkExchangeType == LogbookModel::COLUMN_INVALID);
 
-    QList<QAction*> actions;
-
-    auto addActionToMenu = [&] (const LogbookModel::ColumnID columnID)
+    auto createLinkAction = [&] (LogbookModel::ColumnID columnID, bool flexible)
     {
-        QAction *newAction = new QAction(ui->menuLinkExchange);
+        const QString fieldName = LogbookModel::getFieldNameTranslation(columnID);
+        QAction *newAction = new QAction(fieldName, ui->menuLinkExchange);
         newAction->setCheckable(true);
-        newAction->setText(LogbookModel::getFieldNameTranslation(columnID));
         newAction->setData(columnID);
-        actions.append(newAction);
+        newAction->setProperty("flexibleExchange", flexible);
+
+        if ( flexible )
+        {
+            const QString help = tr("Accept any received exchange. %1 is updated only when the received exchange is valid for this field.").arg(fieldName);
+            newAction->setToolTip(help);
+        }
+
+        linkExchangeGroup->addAction(newAction);
+        return newAction;
     };
 
-    addActionToMenu(LogbookModel::COLUMN_AGE);
-    addActionToMenu(LogbookModel::COLUMN_CQZ);
-    addActionToMenu(LogbookModel::COLUMN_ITUZ);
-    addActionToMenu(LogbookModel::COLUMN_GRID);
-    addActionToMenu(LogbookModel::COLUMN_NAME_INTL);
-    addActionToMenu(LogbookModel::COLUMN_QTH_INTL);
-    addActionToMenu(LogbookModel::COLUMN_RX_PWR);
-    addActionToMenu(LogbookModel::COLUMN_STATE);
-
-    std::sort(actions.begin(), actions.end(), [](const QAction *a, const QAction *b)
+    auto sortActions = [] (QList<QAction*> &actions)
     {
-        return a->text().localeAwareCompare(b->text()) < 0;
-    });
+        std::sort(actions.begin(), actions.end(), [](const QAction *a, const QAction *b)
+        {
+            return a->text().localeAwareCompare(b->text()) < 0;
+        });
+    };
 
-    for (QAction *action : actions)
+    QList<QAction*> standardActions;
+    for ( LogbookModel::ColumnID columnID : linkColumns )
+          standardActions.append(createLinkAction(columnID, false));
+
+    sortActions(standardActions);
+
+    ui->menuLinkExchange->addSection(tr("Standard Linking"));
+
+    for ( QAction *action : static_cast<const QList<QAction *>>(standardActions) )
     {
         ui->menuLinkExchange->addAction(action);
-        linkExchangeGroup->addAction(action);
 
-        if ( action->data().toInt() == linkExchangeType )
+        if ( !linkExchangeFlexible && action->data().toInt() == linkExchangeType )
             action->setChecked(true);
     }
 
-    ui->newContactWidget->changeSRXStringLink(linkExchangeType);
+    QList<QAction*> flexibleActions;
+    for ( LogbookModel::ColumnID columnID : flexibleColumns )
+        flexibleActions.append(createLinkAction(columnID, true));
+
+    sortActions(flexibleActions);
+
+    ui->menuLinkExchange->addSection(tr("Flexible Linking"));
+
+    for ( QAction *action : static_cast<const QList<QAction *>>(flexibleActions) )
+    {
+        ui->menuLinkExchange->addAction(action);
+
+        if ( linkExchangeFlexible && action->data().toInt() == linkExchangeType )
+            action->setChecked(true);
+    }
+
+    ui->newContactWidget->changeSRXStringLink(linkExchangeType, linkExchangeFlexible);
+
 }
 
 void MainWindow::startContest(const QString contestID, const QDateTime dateTime)

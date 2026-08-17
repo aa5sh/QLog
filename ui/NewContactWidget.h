@@ -277,7 +277,7 @@ public slots:
     void stopContest();
     void refreshCallsignsColors();
 
-    void changeSRXStringLink(int);
+    void changeSRXStringLink(int linkType, bool flexible = false);
 
 private slots:
     void handleCallsignFromUser();
@@ -316,6 +316,7 @@ private slots:
     void setContestFieldsState();
     void queryPota();
     void handleDateTimeChangeFromUser();
+    void syncSRXStringLink();
 
 private:
     void useFieldsFromPrevQSO(const QString &callsign,
@@ -425,6 +426,9 @@ private:
     ModeSelectionController *modeController;
     QStringList memberListHtmlItems;
     QSet<QString> warnedExternalStationContexts;
+    NewContactEditLine *srxStringLinkSourceWidget = nullptr;
+    bool srxStringLinkFlexible = false;
+    bool srxStringEditedByUser = false;
 };
 
 #endif // QLOG_UI_NEWCONTACTWIDGET_H

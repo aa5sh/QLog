@@ -11,6 +11,7 @@
 #include <QStackedWidget>
 #include <QRandomGenerator>
 #include <QTextDocument>
+#include <QSignalBlocker>
 
 #include "rig/Rig.h"
 #include "rig/macros.h"
@@ -462,6 +463,11 @@ void NewContactWidget::handleCallsignFromUser()
 
     if ( newCallsign == callsign )
         return;
+
+    // A callsign change starts a new automatic exchange context. This also
+    // prevents a manually entered alternative exchange from being carried to
+    // another station when DXCC/callbook data updates the linked field.
+    srxStringEditedByUser = false;
 
     callsign = newCallsign;
 
@@ -1194,6 +1200,7 @@ void NewContactWidget::resetContact()
 {
     FCT_IDENTIFICATION;
 
+    srxStringEditedByUser = false;
     ui->callsignEdit->clear();
     uiDynamic->commentEdit->clear();
     ui->noteEdit->clear();
@@ -1844,6 +1851,12 @@ void NewContactWidget::saveContact()
 
     if ( callsign.isEmpty() )
         return;
+
+    // Enter/F10 can reach saveContact() before QLineEdit::editingFinished.
+    // In flexible mode SRX_STRING is the authoritative received exchange, so make
+    // sure a valid typed value is reflected in the linked ADIF field first.
+    syncSRXStringLink();
+
 
     // if operator wants to save a QSO and QSO's Timer is not running,
     // then it is needed to update the QSO start time before saving
@@ -4036,20 +4049,15 @@ void NewContactWidget::refreshCallsignsColors()
     updateDxccStatus();
 }
 
-void NewContactWidget::changeSRXStringLink(int linkType)
+void NewContactWidget::changeSRXStringLink(int linkType, bool flexible)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << linkType;
+    qCDebug(function_parameters) << linkType << flexible;
 
     static QMetaObject::Connection linkWidget2SRX;
     static QMetaObject::Connection linkSRX2Widget;
-
-    if ( linkWidget2SRX )
-        disconnect(linkWidget2SRX);
-
-    if ( linkSRX2Widget)
-        disconnect(linkSRX2Widget);
+    static QMetaObject::Connection linkSRXEdited;
 
     LogbookModel::ColumnID type = static_cast<LogbookModel::ColumnID>(linkType);
 
@@ -4057,7 +4065,7 @@ void NewContactWidget::changeSRXStringLink(int linkType)
     NewContactEditLine *sourceWidget = nullptr;
     QString style;
 
-    switch (type)
+    switch ( type )
     {
     case LogbookModel::COLUMN_AGE:
         newValidator = uiDynamic->ageEdit->validator();
@@ -4094,28 +4102,101 @@ void NewContactWidget::changeSRXStringLink(int linkType)
         sourceWidget = nullptr;
     }
 
-    uiDynamic->srxStringEdit->setValidator(newValidator);
-    uiDynamic->srxStringEdit->setStyleSheet(style);
+    const bool effectiveFlexible = flexible
+            && ( type == LogbookModel::COLUMN_CQZ
+                 || type == LogbookModel::COLUMN_ITUZ );
+
+    // Activating the already selected menu action must not replace a manually
+    // entered flexible exchange with the current value of the linked field.
+    if ( sourceWidget
+         && sourceWidget == srxStringLinkSourceWidget
+         && effectiveFlexible == srxStringLinkFlexible )
+        return;
+
+    if ( linkWidget2SRX )
+        disconnect(linkWidget2SRX);
+
+    if ( linkSRX2Widget )
+        disconnect(linkSRX2Widget);
+
+    if ( linkSRXEdited )
+        disconnect(linkSRXEdited);
+
+    srxStringLinkSourceWidget = sourceWidget;
+    srxStringLinkFlexible = effectiveFlexible;
+    srxStringEditedByUser = false;
+
+    // Strict mode keeps the existing 1:1 validation. Flexible mode must accept an
+    // alternative exchange (for example an HQ abbreviation instead of ITU zone)
+    // and validates only before propagating the value to the linked field.
+    uiDynamic->srxStringEdit->setValidator(srxStringLinkFlexible ? nullptr : newValidator);
+
+    // GRID's uppercase presentation belongs to a strict GRID link. An alternative
+    // flexible exchange must not be silently uppercased when the QSO is stored.
+    uiDynamic->srxStringEdit->setStyleSheet(srxStringLinkFlexible ? QString() : style);
     uiDynamic->srxStringEdit->setText((sourceWidget) ? sourceWidget->text() : QString());
 
-    if ( sourceWidget )
+    if ( !sourceWidget )
+        return;
+
+    linkWidget2SRX = connect(sourceWidget, &QLineEdit::textChanged,
+                             this, [this](const QString &text)
     {
-        linkWidget2SRX = connect(sourceWidget, &QLineEdit::textChanged,
-                                 this, [this](const QString &text)
+        // Once the operator has entered the received exchange, a later automatic
+        // DXCC/callbook update of the linked field must not destroy that value.
+        if ( srxStringLinkFlexible && srxStringEditedByUser )
+            return;
+        QSignalBlocker blocker(uiDynamic->srxStringEdit);
+        uiDynamic->srxStringEdit->setText(text);
+    });
+
+    if ( srxStringLinkFlexible )
+    {
+        linkSRXEdited = connect(uiDynamic->srxStringEdit, &QLineEdit::textEdited,
+                                this, [this](const QString &)
         {
-            uiDynamic->srxStringEdit->blockSignals(true);
-            uiDynamic->srxStringEdit->setText(text);
-            uiDynamic->srxStringEdit->blockSignals(false);
+            srxStringEditedByUser = true;
         });
 
+        // Do not synchronize on every key press. A prefix of an alternative
+        // exchange can itself be a valid numeric zone/power/etc. Synchronize only
+        // after editing is finished (and once more from saveContact()).
+        linkSRX2Widget = connect(uiDynamic->srxStringEdit, &QLineEdit::editingFinished,
+                                 this, &NewContactWidget::syncSRXStringLink);
+    }
+    else
+    {
         linkSRX2Widget = connect(uiDynamic->srxStringEdit, &QLineEdit::textChanged,
                                  this, [sourceWidget](const QString &text)
         {
-            sourceWidget->blockSignals(true);
+            QSignalBlocker blocker(sourceWidget);
             sourceWidget->setText(text);
-            sourceWidget->blockSignals(false);
         });
     }
+}
+
+void NewContactWidget::syncSRXStringLink()
+{
+    FCT_IDENTIFICATION;
+
+    if ( !srxStringLinkFlexible || !srxStringLinkSourceWidget )
+        return;
+
+    const QIntValidator *validator =
+            qobject_cast<const QIntValidator *>(srxStringLinkSourceWidget->validator());
+    QString value = uiDynamic->srxStringEdit->text();
+    int pos = value.length();
+
+    if ( !validator || validator->validate(value, pos) != QValidator::Acceptable )
+        return;
+
+    bool ok = false;
+    const int numericValue = validator->locale().toInt(value, &ok);
+    if ( !ok )
+        return;
+
+    QSignalBlocker blocker(srxStringLinkSourceWidget);
+    srxStringLinkSourceWidget->setText(QString::number(numericValue));
 }
 
 void NewContactWidget::checkDupe()

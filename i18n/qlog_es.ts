@@ -6143,18 +6143,18 @@ Esta contraseña será necesaria más adelante para restaurarlas.</translation>
 <context>
     <name>FlrigRigDrv</name>
     <message>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="693"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="741"/>
         <source>Timeout</source>
         <translation>Se agotó el tiempo de espera</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="693"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="741"/>
         <source>FLRig response timeout</source>
         <translation>Tiempo de espera agotado para la respuesta de FLRig</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="958"/>
-        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="971"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="1010"/>
+        <location filename="../rig/drivers/FlrigRigDrv.cpp" line="1023"/>
         <source>Network Error</source>
         <translation>Error de red</translation>
     </message>
@@ -6203,164 +6203,164 @@ Esta contraseña será necesaria más adelante para restaurarlas.</translation>
     </message>
     <message>
         <location filename="../rig/drivers/HamlibRigDrv.cpp" line="170"/>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="208"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="209"/>
         <source>Initialization Error</source>
         <translation>Error al Inicializar</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="243"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="244"/>
         <source>Cannot set PTT Type</source>
         <translatorcomment>No se puede configurar el tipo de PTT</translatorcomment>
         <translation>No se puede configurar el tipo de PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="250"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="251"/>
         <source>Cannot set PTT Share</source>
         <translatorcomment>No se puede configurar la acción del PTT</translatorcomment>
         <translation>No se puede configurar la acción del PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="263"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="264"/>
         <source>Cannot set CIV Addr</source>
         <translation>No se puede establecer la dirección CI-V</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="271"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="272"/>
         <source>Unsupported Rig Driver</source>
         <translation>Controlador de Radio No Soportado</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="278"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="279"/>
         <source>Cannot set auto_power_on</source>
         <translation>No se puede establecer auto_power_on</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="302"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="303"/>
         <source>Cannot set no_xchg to 1</source>
         <translation>No se puede establecer no_xchg en 1</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="309"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="310"/>
         <source>Rig Open Error</source>
         <translation>Conexión fallida</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="404"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="405"/>
         <source>Set TX Frequency Error</source>
         <translation>Error al establecer la frecuencia TX</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="409"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="410"/>
         <source>Set Frequency Error</source>
         <translation>Error al Establecer Frecuencia</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="447"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="448"/>
         <source>Set Split Error</source>
         <translation>Error al establecer split</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="496"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="497"/>
         <source>Set Mode Error</source>
         <translation>Error al establecer el modo</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="511"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="512"/>
         <source>Set Split Mode Error</source>
         <translation>Error al establecer el modo split</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="535"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="536"/>
         <source>Set PTT Error</source>
         <translation>Error al Establecer PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="602"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="603"/>
         <source>Cannot sent Morse</source>
         <translatorcomment>This cannot be displayed</translatorcomment>
         <translation>No se puede enviar Morse</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="621"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="622"/>
         <source>Cannot stop Morse</source>
         <translatorcomment>This cannot be displayed</translatorcomment>
         <translation>No se puede detener Morse</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="772"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="773"/>
         <source>Get PTT Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener PTT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="807"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="808"/>
         <source>Get Frequency Error</source>
         <translation>Error al Obtener Frecuencia</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="853"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="854"/>
         <source>Get Mode Error</source>
         <translation>Error al Obtener Modo</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="902"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="903"/>
         <source>Get VFO Error</source>
         <translation>Error al obtener el VFO</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="940"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="941"/>
         <source>Get PWR Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener PWR</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="944"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="945"/>
         <source>Get PWR (power2mw) Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener PWR (power2mw)</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="982"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="983"/>
         <source>Get RIT Function Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtenerfunción de RIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="988"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="989"/>
         <source>Get RIT Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener RIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1039"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1040"/>
         <source>Get XIT Function Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener función XIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1045"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1046"/>
         <source>Get XIT Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener XIT</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1098"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1099"/>
         <source>Get Split Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1129"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1130"/>
         <source>Get TX Frequency Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1166"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1167"/>
         <source>Get KeySpeed Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Error al obtener KeySpeed</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1218"/>
+        <location filename="../rig/drivers/HamlibRigDrv.cpp" line="1219"/>
         <source>Set KeySpeed Error</source>
         <translatorcomment>No se puede visualizar</translatorcomment>
         <translation>Configurar error de KeySpeed</translation>
@@ -6369,28 +6369,28 @@ Esta contraseña será necesaria más adelante para restaurarlas.</translation>
 <context>
     <name>HamlibRotDrv</name>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="82"/>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="121"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="85"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="125"/>
         <source>Initialization Error</source>
         <translation>Error al Inicializar</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="146"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="150"/>
         <source>Unsupported Rotator Driver</source>
         <translation>Controlador de Rotor No Soportado</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="165"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="169"/>
         <source>Rot Open Error</source>
         <translation>Conexión fallida</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="250"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="254"/>
         <source>Set Possition Error</source>
         <translation>Error al Establecer Posición</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="324"/>
+        <location filename="../rotator/drivers/HamlibRotDrv.cpp" line="328"/>
         <source>Get Possition Error</source>
         <translation>Error al Obtener Posición</translation>
     </message>
@@ -8768,7 +8768,7 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="135"/>
-        <location filename="../ui/MainWindow.cpp" line="1902"/>
+        <location filename="../ui/MainWindow.cpp" line="1964"/>
         <source>Contest</source>
         <translation>Concurso</translation>
     </message>
@@ -9198,27 +9198,42 @@ Submode: %2</source>
         <translation>Clásico</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1903"/>
+        <location filename="../ui/MainWindow.cpp" line="1889"/>
+        <source>Accept any received exchange. %1 is updated only when the received exchange is valid for this field.</source>
+        <translation>Aceptar cualquier exchange recibido. %1 solo se actualiza si el exchange recibido es válido para este campo.</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.cpp" line="1911"/>
+        <source>Standard Linking</source>
+        <translation>Vinculación estándar</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.cpp" line="1927"/>
+        <source>Flexible Linking</source>
+        <translation>Vinculación flexible</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.cpp" line="1965"/>
         <source>Do you want to remove the Contest filter %1?</source>
         <translation>¿Desea eliminar el filtro Concurso %1?</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1934"/>
+        <location filename="../ui/MainWindow.cpp" line="1996"/>
         <source>Contest: </source>
         <translation>Concurso: </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2291"/>
+        <location filename="../ui/MainWindow.cpp" line="2353"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
         <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Basado en Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Iconos por &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Imágenes satelitales por &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;Detección de zonas por &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;Base de datos de zonas horarias por &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2322"/>
+        <location filename="../ui/MainWindow.cpp" line="2384"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2373"/>
+        <location filename="../ui/MainWindow.cpp" line="2435"/>
         <source>N/A</source>
         <translation>S/D</translation>
     </message>
@@ -9471,12 +9486,12 @@ Submode: %2</source>
         <translation>Antena</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4497"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4578"/>
         <source>Blank</source>
         <translation>Vacío</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4498"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4579"/>
         <source> W</source>
         <translation> W</translation>
     </message>
@@ -9491,207 +9506,207 @@ Submode: %2</source>
         <translation>Miembro:</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="76"/>
+        <location filename="../ui/NewContactWidget.cpp" line="77"/>
         <source>Expand/Collapse</source>
         <translation>Expandir/Contraer</translation>
-    </message>
-    <message>
-        <location filename="../ui/NewContactWidget.cpp" line="105"/>
-        <location filename="../ui/NewContactWidget.cpp" line="118"/>
-        <location filename="../ui/NewContactWidget.cpp" line="131"/>
-        <source>No</source>
-        <translation>No</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="106"/>
         <location filename="../ui/NewContactWidget.cpp" line="119"/>
         <location filename="../ui/NewContactWidget.cpp" line="132"/>
-        <source>Yes</source>
-        <translation>Sí</translation>
+        <source>No</source>
+        <translation>No</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="107"/>
         <location filename="../ui/NewContactWidget.cpp" line="120"/>
         <location filename="../ui/NewContactWidget.cpp" line="133"/>
-        <source>Requested</source>
-        <translation>Solicitado</translation>
+        <source>Yes</source>
+        <translation>Sí</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="108"/>
         <location filename="../ui/NewContactWidget.cpp" line="121"/>
         <location filename="../ui/NewContactWidget.cpp" line="134"/>
-        <source>Queued</source>
-        <translation>En Cola</translation>
+        <source>Requested</source>
+        <translation>Solicitado</translation>
     </message>
     <message>
         <location filename="../ui/NewContactWidget.cpp" line="109"/>
         <location filename="../ui/NewContactWidget.cpp" line="122"/>
         <location filename="../ui/NewContactWidget.cpp" line="135"/>
+        <source>Queued</source>
+        <translation>En Cola</translation>
+    </message>
+    <message>
+        <location filename="../ui/NewContactWidget.cpp" line="110"/>
+        <location filename="../ui/NewContactWidget.cpp" line="123"/>
+        <location filename="../ui/NewContactWidget.cpp" line="136"/>
         <source>Ignored</source>
         <translation>Ignorado</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="145"/>
+        <location filename="../ui/NewContactWidget.cpp" line="146"/>
         <source>Bureau</source>
         <translation>Bureau</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="146"/>
+        <location filename="../ui/NewContactWidget.cpp" line="147"/>
         <source>Direct</source>
         <translation>Directa</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="147"/>
+        <location filename="../ui/NewContactWidget.cpp" line="148"/>
         <source>Electronic</source>
         <translation>Electrónica</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="237"/>
+        <location filename="../ui/NewContactWidget.cpp" line="238"/>
         <source>QLog Error</source>
         <translation>Error de QLog</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="237"/>
+        <location filename="../ui/NewContactWidget.cpp" line="238"/>
         <source>Callbook login failed</source>
         <translation>Error al iniciar sesión en el Callbook</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="823"/>
+        <location filename="../ui/NewContactWidget.cpp" line="829"/>
         <source>Member</source>
         <translation>Miembro</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="896"/>
+        <location filename="../ui/NewContactWidget.cpp" line="902"/>
         <source>QLog Information</source>
         <translation>Información de QLog</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2344"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2357"/>
         <source>The external QSO was saved without current station data because Manual QSO Entry is active.</source>
         <translation>El QSO externo se guardó sin los datos actuales de la estación porque la entrada manual de QSO está activa.</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2350"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2363"/>
         <source>The external QSO was saved without current station data because no active Station Profile is available.</source>
         <translation>El QSO externo se guardó sin los datos actuales de la estación porque no hay ningún perfil de estación activo disponible.</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2357"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2370"/>
         <source>not provided</source>
         <translation>no especificado</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2361"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2374"/>
         <source>The external QSO was saved without current station data: received station %1 / %2 does not match active Station Profile &quot;%3&quot; (%4 / %5).</source>
         <translation>El QSO externo se guardó sin los datos actuales de la estación: la estación recibida %1 / %2 no coincide con el perfil de estación activo &quot;%3&quot; (%4 / %5).</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2531"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2544"/>
         <source>LP</source>
         <translation>LP</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2583"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2596"/>
         <source>New Entity!</source>
         <translation>Nueva Entidad!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2586"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2599"/>
         <source>New Band!</source>
         <translation>Nueva Banda!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2589"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2602"/>
         <source>New Mode!</source>
         <translation>Nuevo Modo!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2592"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2605"/>
         <source>New Band &amp; Mode!</source>
         <translation>Nueva Banda y Modo!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2595"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2608"/>
         <source>New Slot!</source>
         <translation>Nuevo Slot!</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2598"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2611"/>
         <source>Worked</source>
         <translation>Trabajado</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="2601"/>
+        <location filename="../ui/NewContactWidget.cpp" line="2614"/>
         <source>Confirmed</source>
         <translation>Confirmado</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3508"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3521"/>
         <source>GE</source>
         <translation>GE</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3518"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3531"/>
         <source>GM</source>
         <translation>GM</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3524"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3537"/>
         <source>GA</source>
         <translation>GA</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="3843"/>
+        <location filename="../ui/NewContactWidget.cpp" line="3856"/>
         <source> m</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4221"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4302"/>
         <source>Callbook search is inactive</source>
         <translation>Búsqueda en Callbook desactivada</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4226"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4307"/>
         <source>Callbook search is active</source>
         <translation>Búsqueda en Callbook activada</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4304"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4385"/>
         <source>Contest ID must be filled in to activate</source>
         <translation>Debe rellenarse el ID del concurso para activarlo</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4426"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4507"/>
         <source>two or four adjacent Maidenhead grid locators, each four characters long, (ex. EN98,FM08,EM97,FM07)</source>
         <translation>dos o cuatro locators adyacentes, cada uno de cuatro caracteres (ej. EN98,FM08,EM97,FM07)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4429"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4510"/>
         <source>the contacted station&apos;s DARC DOK (District Location Code) (ex. A01)</source>
         <translation>el DARC DOK (código de ubicación de distrito) de la estación contactada (ej. A01)</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4449"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4530"/>
         <source>World Wide Flora &amp; Fauna</source>
         <translation>World Wide Flora &amp; Fauna</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4453"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4534"/>
         <source>Special Activity Group</source>
         <translation>Grupo de Actividades Especiales</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4457"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4538"/>
         <source>Special Activity Group Information</source>
         <translation>Información Grupo de Actividades Especiales</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4485"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4566"/>
         <source>It is not the name of the contest but it is an assigned&lt;br&gt;Contest ID (ex. CQ-WW-CW for CQ WW DX Contest (CW)) </source>
         <translation>No es el nombre del concurso, sino un ID de concurso asignado (ej. CQ-WW-CW para CQ WW DX Contest (CW)) </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="4500"/>
+        <location filename="../ui/NewContactWidget.cpp" line="4581"/>
         <source>Description of the contacted station&apos;s equipment</source>
         <translation>Descripción del equipo de la estación contactada</translation>
     </message>
@@ -9709,19 +9724,20 @@ Submode: %2</source>
         <translation>Equipo 2</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="129"/>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="221"/>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="261"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="131"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="223"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="230"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="270"/>
         <source>Initialization Error</source>
         <translation>Error al Inicializar</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1036"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1079"/>
         <source>Rig status changed</source>
         <translation>El estado del equipo ha cambiado</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1037"/>
+        <location filename="../rig/drivers/OmnirigRigDrv.cpp" line="1080"/>
         <source>Rig is not connected</source>
         <translation>El equipo no está conectado</translation>
     </message>
@@ -9749,19 +9765,20 @@ Submode: %2</source>
         <translation>Equipo 4</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="132"/>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="224"/>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="266"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="134"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="226"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="233"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="275"/>
         <source>Initialization Error</source>
         <translation>Error al Inicializar</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="936"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="978"/>
         <source>Rig status changed</source>
         <translation>El estado del equipo ha cambiado</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="937"/>
+        <location filename="../rig/drivers/Omnirigv2RigDrv.cpp" line="979"/>
         <source>Rig is not connected</source>
         <translation>El equipo no está conectado</translation>
     </message>
@@ -9774,27 +9791,27 @@ Submode: %2</source>
         <translation>Rot 1</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="60"/>
-        <source>Cannot bind a port</source>
-        <translation>No se puede vincular un puerto</translation>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="61"/>
+        <source>Cannot bind port %1</source>
+        <translation>No se puede vincular el puerto %1</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="70"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="71"/>
         <source>Cannot get IP Address for</source>
         <translation>No se puede obtener la dirección IP para</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="89"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="90"/>
         <source>No IPv4 Address for</source>
         <translation>Sin dirección IPv4 para</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="107"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="112"/>
         <source>Error Occurred</source>
         <translation>Se produjo un error</translation>
     </message>
     <message>
-        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="108"/>
+        <location filename="../rotator/drivers/PSTRotDrv.cpp" line="113"/>
         <source>Operation Timeout</source>
         <translation>Se ha agotado el tiempo de espera de la operación</translation>
     </message>
@@ -9941,7 +9958,7 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <location filename="../ui/MainWindow.cpp" line="717"/>
         <location filename="../ui/MainWindow.cpp" line="730"/>
         <location filename="../ui/MainWindow.cpp" line="740"/>
-        <location filename="../ui/NewContactWidget.cpp" line="1570"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1577"/>
         <location filename="../ui/SettingsDialog.cpp" line="779"/>
         <location filename="../ui/SettingsDialog.cpp" line="804"/>
         <location filename="../ui/SettingsDialog.cpp" line="813"/>
@@ -9997,7 +10014,7 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <location filename="../ui/AlertRuleDetail.cpp" line="329"/>
         <location filename="../ui/ExportDialog.cpp" line="180"/>
         <location filename="../ui/KSTChatWidget.cpp" line="311"/>
-        <location filename="../ui/NewContactWidget.cpp" line="1840"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1847"/>
         <location filename="../ui/QSOFilterDetail.cpp" line="531"/>
         <location filename="../ui/SettingsDialog.cpp" line="932"/>
         <location filename="../ui/SettingsDialog.cpp" line="941"/>
@@ -10151,12 +10168,12 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <translation>&lt;b&gt;Error del Manipulador:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="1571"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1578"/>
         <source>The fields &lt;b&gt;%0&lt;/b&gt; will not be saved because the &lt;b&gt;%1&lt;/b&gt; is not filled.</source>
         <translation>Los campos &lt;b&gt;%0&lt;/b&gt; no se guardarán porque &lt;b&gt;%1&lt;/b&gt; no está completado.</translation>
     </message>
     <message>
-        <location filename="../ui/NewContactWidget.cpp" line="1841"/>
+        <location filename="../ui/NewContactWidget.cpp" line="1848"/>
         <source>Your callsign is empty. Please, set your Station Profile</source>
         <translation>Tu indicativo está vacío. Por favor, configure su Perfil de Estación</translation>
     </message>
@@ -10271,42 +10288,42 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <translation>millas</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="366"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="406"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="553"/>
         <location filename="../ui/DxWidget.cpp" line="1202"/>
         <source>Connection Refused</source>
         <translation>Conexión Denegada</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="370"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="410"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="556"/>
         <location filename="../ui/DxWidget.cpp" line="1205"/>
         <source>Host closed the connection</source>
         <translation>El host cerró la conexión</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="375"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="415"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="561"/>
         <location filename="../ui/DxWidget.cpp" line="1210"/>
         <source>Host not found</source>
         <translation>Host no encontrado</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="378"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="418"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="564"/>
         <location filename="../ui/DxWidget.cpp" line="1213"/>
         <source>Timeout</source>
         <translation>Se agotó el tiempo de espera</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="382"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="422"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="569"/>
         <location filename="../ui/DxWidget.cpp" line="1217"/>
         <source>Network Error</source>
         <translation>Error de red</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="385"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="425"/>
         <location filename="../service/kstchat/KSTChat.cpp" line="573"/>
         <location filename="../ui/DxWidget.cpp" line="1220"/>
         <source>Internal Error</source>
@@ -12186,32 +12203,32 @@ Puede dejar los campos vacíos y configurarlos más tarde en Configuración.</tr
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="529"/>
+        <location filename="../ui/RigWidget.cpp" line="528"/>
         <source>OUT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="530"/>
+        <location filename="../ui/RigWidget.cpp" line="529"/>
         <source>Outside Bandmap Guide range</source>
         <translation>Fuera del rango de la guía de Bandmap</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="557"/>
+        <location filename="../ui/RigWidget.cpp" line="556"/>
         <source>SOS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="558"/>
+        <location filename="../ui/RigWidget.cpp" line="557"/>
         <source>Emergency frequency: %1 MHz</source>
         <translation>Frecuencia de emergencia: %1 MHz</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="577"/>
+        <location filename="../ui/RigWidget.cpp" line="576"/>
         <source>IBP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="578"/>
+        <location filename="../ui/RigWidget.cpp" line="577"/>
         <source>International Beacon Project: %1 MHz</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14736,17 +14753,23 @@ Instale TQSL o especifique la ruta manualmente.</translation>
         <translation>Radio 3</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="388"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="82"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="428"/>
         <source>Error Occurred</source>
         <translation>Se produjo un error</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="618"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="83"/>
+        <source>Timeout waiting for TCI READY</source>
+        <translation>Se agotó el tiempo de espera de TCI READY</translation>
+    </message>
+    <message>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="704"/>
         <source>Rig status changed</source>
         <translation>El estado de la radio ha cambiado</translation>
     </message>
     <message>
-        <location filename="../rig/drivers/TCIRigDrv.cpp" line="619"/>
+        <location filename="../rig/drivers/TCIRigDrv.cpp" line="705"/>
         <source>Rig is not connected</source>
         <translation>Radio no conectada</translation>
     </message>

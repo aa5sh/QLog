@@ -88,6 +88,16 @@ int LogParam::getContestLinkExchange()
     return getParam("contest/linkexchangetype", LogbookModel::COLUMN_INVALID).toInt();
 }
 
+bool LogParam::setContestLinkExchangeFlexibleType(int columnID)
+{
+    return setParam("contest/linkexchangeflexibletype", columnID);
+}
+
+int LogParam::getContestLinkExchangeFlexibleType()
+{
+    return getParam("contest/linkexchangeflexibletype", LogbookModel::COLUMN_INVALID).toInt();
+}
+
 bool LogParam::setContestFilter(const QString &filterName)
 {
     return setParam("contest/filter", filterName);

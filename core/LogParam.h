@@ -45,6 +45,8 @@ public:
     static int getContestDupeType();
     static bool setContestLinkExchange(const QVariant &data);
     static int getContestLinkExchange();
+    static bool setContestLinkExchangeFlexibleType(int columnID);
+    static int getContestLinkExchangeFlexibleType();
     static bool setContestFilter(const QString &filterName);
     static QString getContestFilter();
     static bool setContestID(const QString &contestID);
