@@ -7,6 +7,7 @@
 
 class QColor;
 class QLabel;
+class QAction;
 
 namespace Ui {
 class RigWidget;
@@ -19,6 +20,7 @@ class RigWidget : public QWidget
 public:
     explicit RigWidget(QWidget *parent = nullptr);
     ~RigWidget();
+    void setConnectAction(QAction *action);
 
 signals:
     void rigProfileChanged();

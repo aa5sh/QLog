@@ -83,14 +83,6 @@
     <addaction name="actionQSLGallery"/>
     <addaction name="actionPrintQslLabels"/>
    </widget>
-   <widget class="QMenu" name="menuEquipment">
-    <property name="title">
-     <string>&amp;Equipment</string>
-    </property>
-    <addaction name="actionConnectRig"/>
-    <addaction name="actionConnectCWKeyer"/>
-    <addaction name="actionConnectRotator"/>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>&amp;Help</string>
@@ -171,7 +163,6 @@
    <addaction name="menuLogbook"/>
    <addaction name="menuContest"/>
    <addaction name="menuServices"/>
-   <addaction name="menuEquipment"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -414,6 +405,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../res/icons/icons.qrc">
+     <normaloff>:/icons/power.svg</normaloff>:/icons/power.svg</iconset>
+   </property>
    <property name="text">
     <string>Connect R&amp;ig</string>
    </property>
@@ -536,6 +531,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../res/icons/icons.qrc">
+     <normaloff>:/icons/power.svg</normaloff>:/icons/power.svg</iconset>
+   </property>
    <property name="text">
     <string>Connect R&amp;otator</string>
    </property>
@@ -641,6 +640,10 @@
   <action name="actionConnectCWKeyer">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../res/icons/icons.qrc">
+     <normaloff>:/icons/power.svg</normaloff>:/icons/power.svg</iconset>
    </property>
    <property name="text">
     <string>Connect &amp;CW Keyer</string>

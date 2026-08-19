@@ -67,6 +67,11 @@ CWConsoleWidget::~CWConsoleWidget()
     delete ui;
 }
 
+void CWConsoleWidget::setConnectAction(QAction *action)
+{
+    ui->connectButton->setDefaultAction(action);
+}
+
 void CWConsoleWidget::registerContactWidget(const NewContactWidget * contactWidget)
 {
     FCT_IDENTIFICATION;
@@ -305,7 +310,8 @@ void CWConsoleWidget::clearConsoles()
 void CWConsoleWidget::cwKeyConnected(QString profile)
 {
     FCT_IDENTIFICATION;
-    ui->cwKeyProfileCombo->setStyleSheet("QComboBox {color: green}");
+
+    ui->connectButton->setStyleSheet("QToolButton {background-color: green}");
 
     if ( profile != ui->cwKeyProfileCombo->currentText() )
     {
@@ -323,7 +329,8 @@ void CWConsoleWidget::cwKeyConnected(QString profile)
 void CWConsoleWidget::cwKeyDisconnected()
 {
     FCT_IDENTIFICATION;
-    ui->cwKeyProfileCombo->setStyleSheet("QComboBox {color: red}");
+
+    ui->connectButton->setStyleSheet(QString());
 
     allowMorseSending(false);
 

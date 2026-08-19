@@ -35,7 +35,6 @@ RotatorWidget::RotatorWidget(QWidget *parent) :
 
     QStringListModel* rotModel = new QStringListModel(this);
     ui->rotProfileCombo->setModel(rotModel);
-    ui->rotProfileCombo->setStyleSheet("QComboBox {color: red}");
     refreshRotProfileCombo();
 
     QStringListModel* userButtonModel = new QStringListModel(this);
@@ -555,7 +554,7 @@ void RotatorWidget::rotConnected()
 {
     FCT_IDENTIFICATION;
 
-    ui->rotProfileCombo->setStyleSheet("QComboBox {color: green}");
+    ui->connectButton->setStyleSheet("QToolButton {background-color: green}");
     ui->gotoDoubleSpinBox->setEnabled(true);
     ui->gotoButton->setEnabled(true);
     ui->qsoBearingButton->setEnabled(true);
@@ -571,7 +570,7 @@ void RotatorWidget::rotDisconnected()
 {
     FCT_IDENTIFICATION;
 
-    ui->rotProfileCombo->setStyleSheet("QComboBox {color: red}");
+    ui->connectButton->setStyleSheet(QString());
     ui->gotoDoubleSpinBox->setEnabled(false);
     ui->gotoButton->setEnabled(false);
     ui->qsoBearingButton->setEnabled(false);
@@ -590,6 +589,11 @@ void RotatorWidget::rotDisconnected()
 RotatorWidget::~RotatorWidget()
 {
     delete ui;
+}
+
+void RotatorWidget::setConnectAction(QAction *action)
+{
+    ui->connectButton->setDefaultAction(action);
 }
 
 void RotatorWidget::registerContactWidget(const NewContactWidget *contactWidget)

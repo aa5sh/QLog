@@ -49,7 +49,6 @@ RigWidget::RigWidget(QWidget *parent) :
 
     QStringListModel* rigModel = new QStringListModel(this);
     ui->rigProfilCombo->setModel(rigModel);
-    ui->rigProfilCombo->setStyleSheet("QComboBox {color: red}");
 
     QSqlTableModel* bandComboModel = new QSqlTableModel(this);
     bandComboModel->setTable("bands");
@@ -78,6 +77,11 @@ RigWidget::~RigWidget()
 
     hrdlog->deleteLater();
     delete ui;
+}
+
+void RigWidget::setConnectAction(QAction *action)
+{
+    ui->connectButton->setDefaultAction(action);
 }
 
 void RigWidget::updateFrequency(VFOID vfoid, double vfoFreq, double ritFreq, double xitFreq)
@@ -340,7 +344,7 @@ void RigWidget::rigConnected()
 {
     FCT_IDENTIFICATION;
 
-    ui->rigProfilCombo->setStyleSheet("QComboBox {color: green}");
+    ui->connectButton->setStyleSheet("QToolButton {background-color: green}");
     rigOnline = true;
     ui->bandComboBox->blockSignals(true);
     ui->modeComboBox->blockSignals(true);
@@ -362,7 +366,7 @@ void RigWidget::rigDisconnected()
     ui->modeComboBox->blockSignals(true);
 
     saveLastSeenFreq();
-    ui->rigProfilCombo->setStyleSheet("QComboBox {color: red}");
+    ui->connectButton->setStyleSheet(QString());
     rigOnline = false;
     resetRigInfo();
 

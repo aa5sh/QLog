@@ -12,6 +12,7 @@ class RotatorWidget;
 
 class QGraphicsScene;
 class QGraphicsPathItem;
+class QAction;
 
 class RotatorWidget : public QWidget
 {
@@ -21,6 +22,7 @@ public:
     explicit RotatorWidget(QWidget *parent = nullptr);
     ~RotatorWidget();
     void registerContactWidget(const NewContactWidget*);
+    void setConnectAction(QAction *action);
 
 signals:
     void rotProfileChanged();

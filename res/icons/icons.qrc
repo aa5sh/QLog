@@ -36,5 +36,6 @@
         <file>clear-button.svg</file>
         <file>color-palette-light.svg</file>
         <file>color-palette-dark.svg</file>
+        <file>power.svg</file>
     </qresource>
 </RCC>

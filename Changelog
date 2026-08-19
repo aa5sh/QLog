@@ -20,6 +20,7 @@ TBC - 0.52.0
 - [CHANGED] - LoTW - Do not overwrite paper QSL received-via field
 - [CHANGED] - LoTW - Resolve ambiguous QSL matches by exact time
 - [CHANGED] - Activity Editor - Rotator Override takes priority over the antenna's Assigned Rotator
+- [CHANGED] - Main Menu - Removed Equipment - Added Power On-Off buttons to corresponding widgets
 - Fixed WAAC not connected to the Log (issue #1097)
 - Fixed Rig Widget displays an incorrect Bandmap Guide Label (issue #1108)
 - Fixed Cannot directly edit notes or multiline fields (issue #1111)
