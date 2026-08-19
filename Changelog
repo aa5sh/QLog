@@ -32,6 +32,7 @@ TBC - 0.52.0
 - Fixed Rotator Widget - Use circular distance for azimuth deadband
 - Fixed QSL confirmation status is not displayed correctly in QSO Detail and tooltip (issue #1125)
 - Fixed DXCC flag assignments and documented neutral handling of territorial disputes (issue #1129)
+- Fixed EQSL abort crash (issue #1138 PR #1139 @aa5sh)
 - Fixed serial parity configuration passed to rigctld
 - Fixed Added more lighthouse suffixes LH, LS, LT
 - Hamlib Share Rig - various fixes
