@@ -384,7 +384,7 @@ void EQSLQSLDownloader::abortDownload()
     if ( currentReply )
     {
         currentReply->abort();
-        currentReply->deleteLater();
+        currentReply = nullptr;
     }
 }
 
