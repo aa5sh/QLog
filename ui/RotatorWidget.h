@@ -32,6 +32,7 @@ public slots:
     void setBearing(double);
     void positionChanged(double, double);
     void redrawMap();
+    void updateMapViewport();
     void rotProfileComboChanged(QString);
     void rotUserButtonProfileComboChanged(QString);
     void reloadSettings();
@@ -69,6 +70,7 @@ private:
     QGraphicsPathItem* requestedAzimuthNeedle;
     QGraphicsPathItem* QSOAzimuthNeedle;
     QGraphicsScene* compassScene;
+    QString mapLocator;
     Ui::RotatorWidget *ui;
     double antennaAzimuth;
     double requestedAzimuth;

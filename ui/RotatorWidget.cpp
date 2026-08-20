@@ -398,6 +398,13 @@ void RotatorWidget::redrawMap()
     if ( !ui )
         return;
 
+    const QString locator = StationProfilesManager::instance()->getCurProfile1().locator;
+
+    if ( compassScene && mapLocator == locator )
+        return;
+
+    mapLocator = locator;
+
     if ( compassScene )
         compassScene->deleteLater();
 
@@ -409,15 +416,16 @@ void RotatorWidget::redrawMap()
     ui->compassView->setScene(compassScene);
     ui->compassView->setStyleSheet("background-color: transparent;");
 
-    QImage source(":/res/map/nasabluemarble.jpg");
-    QImage map(MAP_RESOLUTION, MAP_RESOLUTION, QImage::Format_ARGB32);
-    const Gridsquare myGrid(StationProfilesManager::instance()->getCurProfile1().locator);
+    const Gridsquare myGrid(locator);
 
     double lat = myGrid.getLatitude();
     double lon = myGrid.getLongitude();
 
     if ( qIsNaN(lat) || qIsNaN(lon) )
         return;
+
+    QImage source(":/res/map/nasabluemarble.jpg");
+    QImage map(MAP_RESOLUTION, MAP_RESOLUTION, QImage::Format_ARGB32);
 
     // transform image to azimuthal map
     const int mapWidth = map.width();
@@ -523,6 +531,13 @@ void RotatorWidget::redrawMap()
                                              Qt::SolidPattern));
 
     setQSOBearing(qQNaN(), qQNaN()); // only call the function; input parameters are ignored
+}
+
+void RotatorWidget::updateMapViewport()
+{
+    FCT_IDENTIFICATION;
+
+    ui->compassView->viewport()->update();
 }
 
 void RotatorWidget::rotProfileComboChanged(QString profileName)
