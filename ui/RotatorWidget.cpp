@@ -152,21 +152,24 @@ void RotatorWidget::positionChanged(double in_azimuth, double in_elevation)
 
     qCDebug(function_parameters) << in_azimuth <<in_elevation;
 
+    if ( !qIsFinite(in_azimuth) )
+    {
+        qWarning() << "Invalid value in RotatorWidget::positionChanged:" << in_azimuth;
+        return;
+    }
+
     antennaAzimuth = (in_azimuth < 0.0 ) ? 360.0 + in_azimuth : in_azimuth;
     if ( antennaNeedle) antennaNeedle->setRotation(antennaAzimuth);
     ui->gotoDoubleSpinBox->blockSignals(true);
     ui->gotoDoubleSpinBox->setValue(antennaAzimuth);
     ui->gotoDoubleSpinBox->blockSignals(false);
 
-    if ( qIsNaN(requestedAzimuth) || !qIsFinite(requestedAzimuth) )
+    if ( qIsNaN(requestedAzimuth) )
+        return;
+
+    if ( !qIsFinite(requestedAzimuth) )
     {
         qWarning() << "Invalid value in RotatorWidget::positionChanged:" << requestedAzimuth;
-        return;
-    }
-
-    if (qIsNaN(in_azimuth) || !qIsFinite(in_azimuth))
-    {
-        qWarning() << "Invalid value in RotatorWidget::positionChanged:" << in_azimuth;
         return;
     }
 
