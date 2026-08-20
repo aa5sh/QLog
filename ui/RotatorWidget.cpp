@@ -160,10 +160,11 @@ void RotatorWidget::setBearing(double in_azimuth)
 
     qCDebug(function_parameters) << in_azimuth;
 
-    if ( qIsNaN(in_azimuth) || !ui->gotoDoubleSpinBox->isEnabled() )
+    if ( !qIsFinite(in_azimuth) || !ui->gotoDoubleSpinBox->isEnabled() )
         return;
 
     setRequestedAz(in_azimuth);
+    emit bearingRequested(in_azimuth);
     Rotator::instance()->setPosition(in_azimuth, 0);
 }
 

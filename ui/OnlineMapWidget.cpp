@@ -56,6 +56,7 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
+    connect(mapController.data(), &MapPageController::antennaAzimuthRequested, this, &OnlineMapWidget::antennaAzimuthRequested);
     connect(mapController.data(), &MapPageController::layerVisibilityChanged,
             this, [this](const QString &key, bool visible)
     {
@@ -100,6 +101,13 @@ void OnlineMapWidget::setTarget(double lat, double lon)
     {
         mapController->clearPath();
     }
+}
+
+void OnlineMapWidget::setAntennaTarget(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    mapController->setAntennaTarget(azimuth);
 }
 
 void OnlineMapWidget::changeTheme(int theme, bool isDark)

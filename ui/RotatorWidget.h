@@ -27,6 +27,7 @@ public:
 signals:
     void rotProfileChanged();
     void rotUserButtonChanged();
+    void bearingRequested(double azimuth);
 
 public slots:
     void setBearing(double);

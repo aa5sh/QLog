@@ -301,6 +301,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rotator::instance(), &Rotator::positionChanged, ui->rotatorWidget, &RotatorWidget::positionChanged);
     connect(Rotator::instance(), &Rotator::rotConnected, ui->rotatorWidget, &RotatorWidget::rotConnected);
     connect(Rotator::instance(), &Rotator::rotDisconnected, ui->rotatorWidget, &RotatorWidget::rotDisconnected);
+    connect(ui->rotatorWidget, &RotatorWidget::bearingRequested, ui->onlineMapWidget, &OnlineMapWidget::setAntennaTarget);
 
     connect(CWKeyer::instance(), &CWKeyer::cwKeyerError, this, &MainWindow::cwKeyerErrorHandler);
     connect(CWKeyer::instance(), &CWKeyer::cwKeyWPMChanged, ui->cwconsoleWidget, &CWConsoleWidget::setWPM);
@@ -458,6 +459,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->onlineMapWidget, &OnlineMapWidget::chatCallsignPressed, ui->chatWidget, &ChatWidget::setChatCallsign);
     connect(ui->onlineMapWidget, &OnlineMapWidget::wsjtxCallsignPressed, ui->wsjtxWidget, &WsjtxWidget::callsignClicked);
+    connect(ui->onlineMapWidget, &OnlineMapWidget::antennaAzimuthRequested, ui->rotatorWidget, &RotatorWidget::setBearing);
     connect(ui->onlineMapWidget, &OnlineMapWidget::heardMeLayerVisibilityChanged,
             this, [this, setHeardMeCallsign](bool visible)
     {

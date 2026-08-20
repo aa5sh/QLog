@@ -32,6 +32,7 @@ signals:
     void chatCallsignPressed(QString);
     void wsjtxCallsignPressed(QString);
     void heardMeLayerVisibilityChanged(bool visible);
+    void antennaAzimuthRequested(double azimuth);
 
 public slots:
     void setTarget(double lat, double lon);
@@ -39,6 +40,7 @@ public slots:
     void auroraDataUpdate();
     void mufDataUpdate();
     void setIBPBand(VFOID, double, double, double);
+    void setAntennaTarget(double azimuth);
     void antPositionChanged(double in_azimuth, double in_elevation);
     void rotConnected();
     void rotDisconnected();

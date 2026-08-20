@@ -7,6 +7,7 @@ TBC - 0.52.0
 - [NEW] - LoTW/eQSL - Report reasons for unmatched QSOs
 - [NEW] - Online Map - Added HeardMe Spot from PSKReporter and RBN (PR #1115 #1107 @aa5sh @foldynl)
 - [NEW] - Online Map - WSJTX-CQ Added the second ring if SNR > -15dB
+- [NEW] - Online Map - Added interactive antenna control; Target Antenna context menu
 - [NEW] - Settings - Antenna profile can be selected automatically by TX band (issue #392 #781)
 - [NEW] - Settings - Antenna profile can have an Assigned Rotator
 - [NEW] - Settings - Added an option to hide DXCC entity flags (issue #1129)
