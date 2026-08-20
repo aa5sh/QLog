@@ -175,9 +175,12 @@ void RotatorWidget::positionChanged(double in_azimuth, double in_elevation)
 
     const double azimuthDifference = qAbs(std::remainder(requestedAzimuth - in_azimuth, 360.0));
 
-    if ( azimuthDifference <= AZIMUTH_DEAD_BAND
-         && requestedAzimuthNeedle )
-        requestedAzimuthNeedle->hide();
+    if ( azimuthDifference <= AZIMUTH_DEAD_BAND )
+    {
+        requestedAzimuth = qQNaN();
+        if ( requestedAzimuthNeedle )
+            requestedAzimuthNeedle->hide();
+    }
 }
 
 void RotatorWidget::setQSOBearing(double , double )
