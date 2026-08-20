@@ -224,6 +224,7 @@ jobs:
           "PTHREADLIBPATH=%VCPKG_LIB%" ^
           "ZLIBINCLUDEPATH=%VCPKG_INC%" ^
           "ZLIBLIBPATH=%VCPKG_LIB%" ^
+          "ZLIBLIB=z" ^
           "OPENSSLINCLUDEPATH=%VCPKG_INC%" ^
           "OPENSSLLIBPATH=%VCPKG_LIB%"
         nmake
