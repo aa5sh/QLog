@@ -90,6 +90,7 @@ jobs:
     - name: Install vcpkg dependencies
       shell: cmd
       run: |
+        if exist C:\vcpkg (rmdir /s /q C:\vcpkg)
         git clone --depth 1 https://github.com/microsoft/vcpkg.git C:\vcpkg
         cd /d C:\vcpkg
         call bootstrap-vcpkg.bat
