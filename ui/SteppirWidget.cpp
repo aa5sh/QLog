@@ -43,6 +43,11 @@ SteppirWidget::~SteppirWidget()
     delete ui;
 }
 
+void SteppirWidget::setConnectAction(QAction *action)
+{
+    ui->connectButton->setDefaultAction(action);
+}
+
 void SteppirWidget::finalizeBeforeAppExit()
 {
 }
@@ -78,6 +83,9 @@ void SteppirWidget::disconnected()
 void SteppirWidget::updateState()
 {
     SteppirController *controller = SteppirController::instance();
+    ui->connectButton->setStyleSheet(controller->isConnected()
+                                    ? QStringLiteral("QToolButton {background-color: green}")
+                                    : QString());
     ui->connectedValueLabel->setText(controller->isConnected() ? tr("Connected") : tr("Disconnected"));
     ui->connectedValueLabel->setStyleSheet(controller->isConnected() ? QStringLiteral("color: green") : QStringLiteral("color: red"));
     ui->tuningValueLabel->setText(controller->tuning() ? tr("Tuning") : tr("Idle"));

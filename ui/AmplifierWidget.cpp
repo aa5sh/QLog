@@ -67,6 +67,11 @@ AmplifierWidget::~AmplifierWidget()
     delete ui;
 }
 
+void AmplifierWidget::setConnectAction(QAction *action)
+{
+    ui->connectButton->setDefaultAction(action);
+}
+
 void AmplifierWidget::reloadSettings()
 {
     refreshProfiles();
@@ -92,6 +97,7 @@ void AmplifierWidget::setProfile(const QString &profileName)
 
 void AmplifierWidget::amplifierConnected()
 {
+    ui->connectButton->setStyleSheet(QStringLiteral("QToolButton {background-color: green}"));
     ui->connectedIndicator->setStyleSheet(ledStyle("#00c853"));
     ui->connectedIndicator->setToolTip(tr("Connected"));
     updateControlsEnabled(true);
@@ -99,6 +105,7 @@ void AmplifierWidget::amplifierConnected()
 
 void AmplifierWidget::amplifierDisconnected()
 {
+    ui->connectButton->setStyleSheet(QString());
     ui->connectedIndicator->setStyleSheet(ledStyle("#d50000"));
     ui->connectedIndicator->setToolTip(tr("Disconnected"));
     updateControlsEnabled(false);
@@ -107,6 +114,9 @@ void AmplifierWidget::amplifierDisconnected()
 
 void AmplifierWidget::statusChanged(const AmplifierStatus &status)
 {
+    ui->connectButton->setStyleSheet(AmplifierController::instance()->isConnected()
+                                     ? QStringLiteral("QToolButton {background-color: green}")
+                                     : QString());
     ui->connectedIndicator->setStyleSheet(AmplifierController::instance()->isConnected()
                                           ? ledStyle("#00c853")
                                           : ledStyle("#d50000"));

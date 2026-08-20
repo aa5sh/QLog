@@ -9,6 +9,8 @@ namespace Ui {
 class AmplifierWidget;
 }
 
+class QAction;
+
 class AmplifierWidget : public QWidget
 {
     Q_OBJECT
@@ -16,6 +18,7 @@ class AmplifierWidget : public QWidget
 public:
     explicit AmplifierWidget(QWidget *parent = nullptr);
     ~AmplifierWidget();
+    void setConnectAction(QAction *action);
 
 signals:
     void profileChanged();

@@ -11,6 +11,7 @@ class SteppirWidget;
 }
 
 class QRadioButton;
+class QAction;
 
 class SteppirWidget : public QWidget, public ShutdownAwareWidget
 {
@@ -20,6 +21,7 @@ public:
     explicit SteppirWidget(QWidget *parent = nullptr);
     ~SteppirWidget() override;
     void finalizeBeforeAppExit() override;
+    void setConnectAction(QAction *action);
 
 public slots:
     void reloadSettings();

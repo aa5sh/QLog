@@ -98,9 +98,9 @@ MainWindow::MainWindow(QWidget* parent) :
     addDockWidget(Qt::RightDockWidgetArea, steppirDockWidget);
     steppirDockWidget->hide();
 
-    actionConnectSteppir = new QAction(tr("Connect SteppIR"), this);
+    actionConnectSteppir = new QAction(QIcon(":/icons/power.svg"), tr("Connect SteppIR"), this);
     actionConnectSteppir->setCheckable(true);
-    ui->menuEquipment->addAction(actionConnectSteppir);
+    steppirWidget->setConnectAction(actionConnectSteppir);
 
     actionSteppirWindow = steppirDockWidget->toggleViewAction();
     actionSteppirWindow->setText(tr("SteppIR"));
@@ -164,9 +164,9 @@ MainWindow::MainWindow(QWidget* parent) :
     addDockWidget(Qt::RightDockWidgetArea, amplifierDockWidget);
     amplifierDockWidget->hide();
 
-    actionConnectAmplifier = new QAction(tr("Connect &Amplifier"), this);
+    actionConnectAmplifier = new QAction(QIcon(":/icons/power.svg"), tr("Connect &Amplifier"), this);
     actionConnectAmplifier->setCheckable(true);
-    ui->menuEquipment->addAction(actionConnectAmplifier);
+    amplifierWidget->setConnectAction(actionConnectAmplifier);
 
     actionAmplifierWindow = amplifierDockWidget->toggleViewAction();
     actionAmplifierWindow->setText(tr("Amplifier"));
