@@ -12,6 +12,7 @@ class RotatorWidget;
 
 class QGraphicsScene;
 class QGraphicsPathItem;
+class QAction;
 
 class RotatorWidget : public QWidget
 {
@@ -21,6 +22,7 @@ public:
     explicit RotatorWidget(QWidget *parent = nullptr);
     ~RotatorWidget();
     void registerContactWidget(const NewContactWidget*);
+    void setConnectAction(QAction *action);
 
 signals:
     void rotProfileChanged();
@@ -76,7 +78,7 @@ private:
 
     const int MAP_RESOLUTION = 1000;
     const float GLOBE_RADIUS = 100.0;
-    const int AZIMUTH_DEAD_BAND = 2;
+    const double AZIMUTH_DEAD_BAND = 2.0;
 };
 
 #endif // QLOG_UI_ROTATORWIDGET_H

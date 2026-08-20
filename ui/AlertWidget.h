@@ -20,11 +20,13 @@ public:
     ~AlertWidget();
 
    int alertCount() const;
+   bool containsAlert(const SpotAlert &alert);
    virtual void finalizeBeforeAppExit() override;
 
 public slots:
     void addAlert(const SpotAlert &alert);
     void clearAllAlerts();
+    void clearSelectedAlerts();
     void entryDoubleClicked(QModelIndex index);
     void alertAgingChanged(int);
     void showEditRules();

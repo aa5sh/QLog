@@ -5,6 +5,7 @@
 #include "core/debug.h"
 #include "data/ProfileManager.h"
 #include "rig/Rig.h"
+#include "rig/macros.h"
 #include "SerialPort.h"
 
 MODULE_IDENTIFICATION("qlog.data.rigprofile");
@@ -251,14 +252,14 @@ bool RigProfile::operator==(const RigProfile &profile)
             && profile.flowcontrol == this->flowcontrol
             && profile.parity == this->parity
             && profile.pollInterval == this->pollInterval
-            && profile.txFreqStart == this->txFreqStart
-            && profile.txFreqEnd == this->txFreqEnd
+            && MHz2Hz(profile.txFreqStart) == MHz2Hz(this->txFreqStart)
+            && MHz2Hz(profile.txFreqEnd) == MHz2Hz(this->txFreqEnd)
             && profile.getFreqInfo == this->getFreqInfo
             && profile.getModeInfo == this->getModeInfo
             && profile.getVFOInfo == this->getVFOInfo
             && profile.getPWRInfo == this->getPWRInfo
-            && profile.ritOffset == this->ritOffset
-            && profile.xitOffset == this->xitOffset
+            && MHz2Hz(profile.ritOffset) == MHz2Hz(this->ritOffset)
+            && MHz2Hz(profile.xitOffset) == MHz2Hz(this->xitOffset)
             && profile.getRITInfo == this->getRITInfo
             && profile.getXITInfo == this->getXITInfo
             && profile.defaultPWR == this->defaultPWR

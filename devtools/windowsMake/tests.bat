@@ -45,7 +45,7 @@ set "VCPKG_ZLIB_PKG=zlib_x64-windows"
 rem -- Hamlib Settings
 set "HAMLIBVERSION_MAJOR=4"
 set "HAMLIBVERSION_MINOR=7"
-set "HAMLIBVERSION_PATCH=1"
+set "HAMLIBVERSION_PATCH=2"
 
 rem -- OpenSSL (needed at runtime for some configurations)
 set "OPENSSLROOT=%DEVROOT%\openssl-3.0\x64"

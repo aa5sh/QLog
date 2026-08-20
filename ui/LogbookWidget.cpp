@@ -28,6 +28,7 @@
 #include "data/Data.h"
 #include "ui/ExportDialog.h"
 #include "ui/component/ModeSubmodeDelegate.h"
+#include "ui/component/MultilineTextDelegate.h"
 #include "service/eqsl/Eqsl.h"
 #include "ui/PaperQSLDialog.h"
 #include "ui/QSODetailDialog.h"
@@ -43,6 +44,7 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::LogbookWidget),
     blockClublogSignals(false),
+    qslLookupEnabledForBatch(false),
     lookupDialog(nullptr)
 {
     FCT_IDENTIFICATION;
@@ -112,6 +114,9 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     connect(&callbookManager, &CallbookManager::callsignNotFound,
             this, &LogbookWidget::callsignNotFound);
 
+    connect(&qslManager, &QSLManager::queryFinished,
+            this, &LogbookWidget::qslManagerQueryFinished);
+
     connect(&callbookManager, &CallbookManager::loginFailed,
             this, &LogbookWidget::callbookLoginFailed);
 
@@ -144,11 +149,13 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->addAction(ui->actionDisplayedColumns);
     ui->contactTable->addAction(separator2);
     ui->contactTable->addAction(ui->actionQSLRcvd);
+    ui->contactTable->addAction(ui->actionQSLSent);
     ui->contactTable->addAction(ui->actionQSLRequested);
     ui->contactTable->addAction(separator3);
     ui->contactTable->addAction(ui->actionDeleteContact);
 
     connect(ui->actionQSLRcvd, &QAction::triggered, this, &LogbookWidget::markQslReceived);
+    connect(ui->actionQSLSent, &QAction::triggered, this, &LogbookWidget::markQslSent);
     connect(ui->actionQSLRequested, &QAction::triggered, this, &LogbookWidget::markQslRequested);
 
     ui->contactTable->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -217,8 +224,20 @@ LogbookWidget::LogbookWidget(QWidget *parent) :
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_MY_MORSE_KEY_TYPE, new ComboFormatDelegate(Data::instance()->morseKeyTypeEnum, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NR_BURSTS, new UnitFormatDelegate("", 0, 1, ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NR_PINGS, new UnitFormatDelegate("", 0, 1, ui->contactTable));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES_INTL, new TextBoxDelegate(this));
-    ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_NOTES, new TextBoxDelegate(this));
+    const QList<int> multilineColumns = {
+        LogbookModel::COLUMN_ADDRESS,
+        LogbookModel::COLUMN_ADDRESS_INTL,
+        LogbookModel::COLUMN_NOTES,
+        LogbookModel::COLUMN_NOTES_INTL,
+        LogbookModel::COLUMN_QSLMSG,
+        LogbookModel::COLUMN_QSLMSG_INTL,
+        LogbookModel::COLUMN_QSLMSG_RCVD,
+        LogbookModel::COLUMN_RIG,
+        LogbookModel::COLUMN_RIG_INTL
+    };
+    for ( int column : multilineColumns )
+        ui->contactTable->setItemDelegateForColumn(column,
+                                                   new MultilineTextDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_PROP_MODE, new ComboFormatDelegate(Data::instance()->propagationModesIDList(), ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_DATE, new DateFormatDelegate(ui->contactTable));
     ui->contactTable->setItemDelegateForColumn(LogbookModel::COLUMN_QRZCOM_QSO_UPLOAD_STATUS, new ComboFormatDelegate(Data::instance()->uploadStatusEnum, ui->contactTable));
@@ -387,9 +406,11 @@ void LogbookWidget::actionCallbookLookup()
     {
         qCDebug(runtime)<< "Operation canceled";
         callbookManager.abortQuery();
+        qslManager.abortQuery();
         finishQSOLookupBatch();
     });
 
+    qslLookupEnabledForBatch = qslManager.isActive();
     lookupDialog->setValue(0);
     lookupDialog->setWindowModality(Qt::WindowModal);
     lookupDialog->show();
@@ -408,7 +429,23 @@ void LogbookWidget::queryNextQSOLookupBatch()
     }
 
     currLookupIndex = callbookLookupBatch.takeFirst();
-    callbookManager.queryCallsign(model->data(model->index(currLookupIndex.row(), LogbookModel::COLUMN_CALL), Qt::DisplayRole).toString());
+    pendingCallbookData = CallbookResponseData();
+
+    callbookManager.queryCallsign(model->data(model->index(currLookupIndex.row(),
+                                                           LogbookModel::COLUMN_CALL),
+                                              Qt::DisplayRole).toString());
+}
+
+void LogbookWidget::completeCurrentQSOLookup()
+{
+    FCT_IDENTIFICATION;
+
+    currLookupIndex = QModelIndex();
+
+    if ( lookupDialog )
+        lookupDialog->setValue(lookupDialog->value() + 1);
+
+    queryNextQSOLookupBatch();
 }
 
 void LogbookWidget::finishQSOLookupBatch()
@@ -417,6 +454,8 @@ void LogbookWidget::finishQSOLookupBatch()
 
     callbookLookupBatch.clear();
     currLookupIndex = QModelIndex();
+    pendingCallbookData = CallbookResponseData();
+    qslLookupEnabledForBatch = false;
     if ( lookupDialog )
     {
         lookupDialog->done(QDialog::Accepted);
@@ -439,7 +478,7 @@ void LogbookWidget::updateQSORecordFromCallbook(const CallbookResponseData& data
         return model->setData(model->index(currLookupIndex.row(), id), value, Qt::EditRole);
     };
 
-    if ( getCurrIndexColumnValue(LogbookModel::COLUMN_CALL) != data.call)
+    if ( !currentLookupMatches(data.call) )
     {
         qWarning() << "Callsigns don't match - skipping. QSO " << model->data(model->index(currLookupIndex.row(), LogbookModel::COLUMN_CALL), Qt::DisplayRole).toString()
                    << "data " << data.call;
@@ -508,12 +547,26 @@ void LogbookWidget::callsignFound(const CallbookResponseData &data)
 {
     FCT_IDENTIFICATION;
 
-    updateQSORecordFromCallbook(data);
-    currLookupIndex = QModelIndex();
-    if ( lookupDialog )
-        lookupDialog->setValue(lookupDialog->value() + 1);
+    if ( !currentLookupMatches(data.call) )
+    {
+        completeCurrentQSOLookup();
+        return;
+    }
 
-    queryNextQSOLookupBatch();
+    pendingCallbookData = data;
+
+    const QString qslVia = model->data(model->index(currLookupIndex.row(),
+                                                    LogbookModel::COLUMN_QSL_VIA),
+                                       Qt::EditRole).toString();
+
+    if ( qslVia.isEmpty() && qslLookupEnabledForBatch )
+    {
+        qslManager.queryCallsign(data.call, data.qsl_via);
+        return;
+    }
+
+    updateQSORecordFromCallbook(data);
+    completeCurrentQSOLookup();
 }
 
 void LogbookWidget::callsignNotFound(const QString &call)
@@ -521,10 +574,72 @@ void LogbookWidget::callsignNotFound(const QString &call)
     FCT_IDENTIFICATION;
 
     qCDebug(runtime) << call << "not found";
-    if ( lookupDialog )
-        lookupDialog->setValue(lookupDialog->value() + 1);
 
-    queryNextQSOLookupBatch();
+    if ( !currentLookupMatches(call) )
+    {
+        completeCurrentQSOLookup();
+        return;
+    }
+
+    pendingCallbookData = CallbookResponseData();
+
+    const QString qslVia = model->data(model->index(currLookupIndex.row(),
+                                                    LogbookModel::COLUMN_QSL_VIA),
+                                       Qt::EditRole).toString();
+
+    if ( qslVia.isEmpty() && qslLookupEnabledForBatch )
+    {
+        qslManager.queryCallsign(call);
+        return;
+    }
+
+    completeCurrentQSOLookup();
+}
+
+void LogbookWidget::qslManagerQueryFinished(QSLQueryResult result)
+{
+    FCT_IDENTIFICATION;
+
+    if ( result.status == QSLQueryResult::Status::Error
+         || result.status == QSLQueryResult::Status::Timeout )
+    {
+        qslLookupEnabledForBatch = false;
+    }
+
+    if ( currentLookupMatches(result.callsign) )
+    {
+        const QString currentQslVia = model->data(model->index(currLookupIndex.row(),
+                                                               LogbookModel::COLUMN_QSL_VIA),
+                                                  Qt::EditRole).toString();
+
+        if ( currentQslVia.isEmpty() )
+        {
+            pendingCallbookData.qsl_via = result.qslVia;
+
+            if ( pendingCallbookData.call.isEmpty()
+                 && !pendingCallbookData.qsl_via.isEmpty() )
+            {
+                pendingCallbookData.call = result.callsign;
+            }
+        }
+
+        if ( !pendingCallbookData.call.isEmpty() )
+            updateQSORecordFromCallbook(pendingCallbookData);
+    }
+
+    completeCurrentQSOLookup();
+}
+
+bool LogbookWidget::currentLookupMatches(const QString &callsign) const
+{
+    if ( !currLookupIndex.isValid() )
+        return false;
+
+    const QString currentCallsign = model->data(model->index(currLookupIndex.row(),
+                                                             LogbookModel::COLUMN_CALL),
+                                                Qt::EditRole).toString();
+
+    return currentCallsign.compare(callsign, Qt::CaseInsensitive) == 0;
 }
 
 void LogbookWidget::callbookLoginFailed(const QString&callbookString)
@@ -1136,6 +1251,17 @@ void LogbookWidget::markQslReceived()
     });
 }
 
+void LogbookWidget::markQslSent()
+{
+    FCT_IDENTIFICATION;
+
+    updateSelectedRows([this](int row)
+    {
+        model->setData(model->index(row, LogbookModel::COLUMN_QSL_SENT), "Y", Qt::EditRole);
+        model->setData(model->index(row, LogbookModel::COLUMN_QSL_SENT_DATE), QDate::currentDate(), Qt::EditRole);
+    });
+}
+
 void LogbookWidget::markQslRequested()
 {
     FCT_IDENTIFICATION;
@@ -1245,6 +1371,7 @@ void LogbookWidget::reloadSetting()
     /* Refresh dynamic Club selection combobox */
     refreshClubFilter();
     callbookManager.initCallbooks();
+    qslManager.initSource();
     updateTable();
 }
 
@@ -1506,6 +1633,7 @@ LogbookWidget::~LogbookWidget()
     if ( lookupDialog )
     {
         callbookManager.abortQuery();
+        qslManager.abortQuery();
         finishQSOLookupBatch();
     }
     delete ui;

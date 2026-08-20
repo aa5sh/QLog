@@ -88,6 +88,7 @@ signals:
     void exportProgress(float value);
     void finished(int count);
     void QSLMergeFinished(QSLMergeStat stats);
+    void QSLMergeFailed(QString error);
 
 protected:
     struct DXCCCreditRecord
@@ -105,6 +106,8 @@ protected:
 
     QTextStream& stream;
     QMap<QString, QString>* defaults;
+    void addImportWarning(const QString &message) { importWarnings.append(message); }
+    void clearImportWarnings() { importWarnings.clear(); }
     virtual bool importNextDXCCCredit(DXCCCreditRecord&) { return false; }
 
 private:
@@ -171,6 +174,7 @@ private:
     bool filterStationProfileSet = false;
     QStringList whereClause;
     QStringList exportedFields;
+    QStringList importWarnings;
     QString userFilter;
     bool filterPOTAOnly = false;
     bool fillMissingDxcc = false;

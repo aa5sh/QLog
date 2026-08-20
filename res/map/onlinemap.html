@@ -536,9 +536,9 @@
     function setTerminatorTheme(isDark) {
       const styles = isDark
         ? {
-            civil: { fillColor: '#c8c8c8', fillOpacity: 0.13, stroke: true, color: '#d6d6d6', opacity: 0.26, weight: 1 },
-            nautical: { fillColor: '#aeaeae', fillOpacity: 0.16, stroke: true, color: '#c2c2c2', opacity: 0.24, weight: 1 },
-            astronomical: { fillColor: '#949494', fillOpacity: 0.19, stroke: true, color: '#adadad', opacity: 0.22, weight: 1 }
+            civil: { fillColor: '#24384d', fillOpacity: 0.20, stroke: true, color: '#93a9bd', opacity: 0.42, weight: 1 },
+            nautical: { fillColor: '#182a3d', fillOpacity: 0.22, stroke: true, color: '#647b91', opacity: 0.34, weight: 1 },
+            astronomical: { fillColor: '#0d1b2a', fillOpacity: 0.25, stroke: true, color: '#44596f', opacity: 0.30, weight: 1 }
           }
         : {
             civil: { fillColor: '#767676', fillOpacity: 0.14, stroke: true, color: '#5f5f5f', opacity: 0.18, weight: 1 },
@@ -833,7 +833,7 @@
 
     var ibpBands = [];
     var ibpBeacons = [];
-    var ibpCurrentBand = "";
+    var currentMapBand = "";
     var IBPLayer = L.layerGroup().addTo(map);
     var prevStationIndex = -1;
 
@@ -844,18 +844,19 @@
        updateBeacon();
     }
 
-    function setIbpCurrentBand(bandName) {
-       ibpCurrentBand = bandName || "";
+    function setCurrentBand(bandName) {
+       currentMapBand = bandName || "";
        prevStationIndex = -1;
        updateBeacon();
+       refreshHeardMeLayer();
     }
 
     function IBPCallsignPressed(e) {
-       const currentBand = ibpBands.find(object => {return object.name === ibpCurrentBand;});
-       if (!currentBand)
+       const band = ibpBands.find(object => {return object.name === currentMapBand;});
+       if (!band)
          return;
 
-       sendToQt('IBPCallsignClicked', this.callsign, currentBand.frequency);
+       sendToQt('IBPCallsignClicked', this.callsign, band.frequency);
      }
 
     // render IBP Beacon Point
@@ -886,7 +887,7 @@
     // Update IBP Beacon Points
     function updateBeacon() {
 
-       const currentBandIndex = ibpBands.findIndex(object => {return object.name === ibpCurrentBand;});
+       const currentBandIndex = ibpBands.findIndex(object => {return object.name === currentMapBand;});
 
        if ( currentBandIndex == -1 || ibpBeacons.length == 0 ) {
            IBPLayer.clearLayers();
@@ -944,16 +945,167 @@
 
     var wsjtxStationsLayer = L.layerGroup();
 
+    const heardMeFadedOpacity = 0.5;
+    const heardMeSpots = new Map();
+    var currentHeardMeDisplayGroup = "PSK";
+    var heardMeLayer = L.layerGroup();
+
+    function setHeardMeMode(mode) {
+        const normalizedMode = String(mode || '').trim().toUpperCase();
+        currentHeardMeDisplayGroup = normalizedMode === 'CW' || normalizedMode === 'RTTY'
+                                    ? normalizedMode : 'PSK';
+        refreshHeardMeLayer();
+    }
+
+    function isHeardMeSpotVisible(spot) {
+        return spot.band === currentMapBand
+            && spot.displayGroup === currentHeardMeDisplayGroup;
+    }
+
+    function heardMeLabel(spot) {
+        const label = document.createElement('span');
+        const callsign = document.createElement('strong');
+        callsign.textContent = spot.callsign;
+        label.appendChild(callsign);
+        label.appendChild(document.createTextNode(` · ${spot.report} dB`));
+        return label;
+    }
+
+    function refreshHeardMeLayer() {
+        heardMeLayer.clearLayers();
+
+        heardMeSpots.forEach(function(spot) {
+            if (!isHeardMeSpotVisible(spot))
+                return;
+
+            const ageOpacity = spot.faded ? heardMeFadedOpacity : 1.0;
+
+            if (spot.halo) {
+                const haloOutline = L.circleMarker([spot.lat, spot.lng], {
+                    radius: 9,
+                    color: '#000000',
+                    weight: 6,
+                    opacity: 0.65 * ageOpacity,
+                    fill: false,
+                    interactive: false
+                });
+                const halo = L.circleMarker([spot.lat, spot.lng], {
+                    radius: 9,
+                    color: spot.color,
+                    weight: 4,
+                    opacity: spot.opacity * ageOpacity,
+                    fill: false,
+                    interactive: false
+                });
+                heardMeLayer.addLayer(haloOutline);
+                heardMeLayer.addLayer(halo);
+            }
+
+            const marker = L.circleMarker([spot.lat, spot.lng], {
+                radius: 6,
+                color: '#000000',
+                weight: 1,
+                stroke: !spot.halo,
+                fillColor: spot.color,
+                opacity: ageOpacity,
+                fillOpacity: spot.opacity * ageOpacity
+            });
+            marker.bindPopup(heardMeLabel(spot));
+            heardMeLayer.addLayer(marker);
+
+            const center = L.circleMarker([spot.lat, spot.lng], {
+                radius: 2,
+                stroke: false,
+                fillColor: '#000000',
+                fillOpacity: ageOpacity,
+                interactive: false
+            });
+            heardMeLayer.addLayer(center);
+        });
+    }
+
+    function clearHeardMeSpotTimers(spot) {
+        clearTimeout(spot.fadeTimeoutId);
+        clearTimeout(spot.removeTimeoutId);
+    }
+
+    function clearHeardMeSpots() {
+        heardMeSpots.forEach(function(spot) {
+            clearHeardMeSpotTimers(spot);
+        });
+        heardMeSpots.clear();
+        heardMeLayer.clearLayers();
+    }
+
+    function addHeardMePoint(point, report, band, displayGroup, color, opacity, halo) {
+        const mapPoint = normalizePoint(point);
+        const callsign = String(mapPoint.label || '').trim().toUpperCase();
+        const spotBand = String(band || '');
+        const spotDisplayGroup = String(displayGroup || '').trim().toUpperCase();
+
+        if (!callsign || !spotBand || !spotDisplayGroup)
+            return;
+
+        const key = `${spotBand}\n${spotDisplayGroup}\n${callsign}`;
+        const previousSpot = heardMeSpots.get(key);
+        if (previousSpot)
+            clearHeardMeSpotTimers(previousSpot);
+
+        const pskReporterSpot = spotDisplayGroup === 'PSK';
+        const fadeAfterMs = (pskReporterSpot ? 30 : 5) * 60 * 1000;
+        const removeAfterMs = (pskReporterSpot ? 45 : 10) * 60 * 1000;
+
+        const spot = {
+            callsign: callsign,
+            report: report,
+            band: spotBand,
+            displayGroup: spotDisplayGroup,
+            color: color,
+            opacity: opacity,
+            halo: halo,
+            lat: mapPoint.lat,
+            lng: mapPoint.lng,
+            faded: false,
+            fadeTimeoutId: null,
+            removeTimeoutId: null
+        };
+
+        spot.fadeTimeoutId = setTimeout(function() {
+            if (heardMeSpots.get(key) !== spot)
+                return;
+
+            spot.faded = true;
+            if (isHeardMeSpotVisible(spot))
+                refreshHeardMeLayer();
+        }, fadeAfterMs);
+
+        spot.removeTimeoutId = setTimeout(function() {
+            if (heardMeSpots.get(key) !== spot)
+                return;
+
+            heardMeSpots.delete(key);
+            if (isHeardMeSpotVisible(spot))
+                refreshHeardMeLayer();
+        }, removeAfterMs);
+
+        heardMeSpots.set(key, spot);
+        if (isHeardMeSpotVisible(spot))
+            refreshHeardMeLayer();
+    }
+
     // this function show WSJTX spots
-    function addWSJTXSpot(point, color, textColor) {
+    function addWSJTXSpot(point, color, textColor, halo) {
         const spot = normalizePoint(point);
         const fadeSchedule = [
             { timeout: 30000, className: 'fade-out75' },
             { timeout: 45000, className: 'fade-out50' },
         ];
+        const haloStyle = halo
+            ? `box-shadow:0 0 0 1px #000000,0 0 0 5px ${color},0 0 0 6px rgba(0,0,0,0.65);`
+            : '';
 
         const tooltipHTML = content =>
-            `<div style="background-color: ${color};color: ${textColor};border-radius:20px;padding:5px;font-weight:bold;">${content}</div>`;
+            `<div style="background-color:${color};color:${textColor};border-radius:20px;padding:5px;font-weight:bold;${haloStyle}">${content}</div>`;
 
         function createSpotMarker(latitude, longitude) {
             const marker = new L.marker([latitude, longitude], { opacity: 0.001 });
@@ -975,6 +1127,15 @@
             return marker;
         }
 
+        function fadeSpotMarker(marker, className) {
+            const tooltip = marker.getTooltip();
+            tooltip.options.className = `wsjtx-tooltip ${className}`;
+
+            const element = tooltip.getElement();
+            if (element)
+                element.classList.add(className);
+        }
+
         // the main marker
         const marker = createSpotMarker(spot.lat, spot.lng);
 
@@ -987,14 +1148,14 @@
 
         fadeSchedule.forEach(item => {
             setTimeout(() => {
-                marker.getTooltip().getElement().classList.add(item.className);
-                markerMirror.getTooltip().getElement().classList.add(item.className);
+                fadeSpotMarker(marker, item.className);
+                fadeSpotMarker(markerMirror, item.className);
             }, item.timeout);
         });
 
         setTimeout(() => {
-            map.removeLayer(marker);
-            map.removeLayer(markerMirror);
+            wsjtxStationsLayer.removeLayer(marker);
+            wsjtxStationsLayer.removeLayer(markerMirror);
         }, 60000);
     }
 

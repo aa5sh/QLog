@@ -30,6 +30,9 @@ signals:
     void errorOccurred(QString, QString);
 
 protected:
+    double toRotatorAzimuth(double azimuth) const;
+    double fromRotatorAzimuth(double azimuth) const;
+
     RotProfile rotProfile;
     QString lastErrorText;
     bool opened;

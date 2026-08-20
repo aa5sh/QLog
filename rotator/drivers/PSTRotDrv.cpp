@@ -35,7 +35,8 @@ RotCaps PSTRotDrv::getCaps(int)
 
 PSTRotDrv::PSTRotDrv(const RotProfile &profile, QObject *parent)
     : GenericRotDrv{profile, parent},
-      forceSendState(false)
+      forceSendState(false),
+      consecutiveTimeouts(0)
 {
     FCT_IDENTIFICATION;
 }
@@ -57,7 +58,7 @@ bool PSTRotDrv::open()
 
     if ( !rc )
     {
-        lastErrorText = tr("Cannot bind a port") + " " + rotProfile.netport;
+        lastErrorText = tr("Cannot bind port %1").arg(rotProfile.netport + 1);
         qCDebug(runtime) << "Rot is not initialized - cannot bind port address" << rotProfile.netport;
         return false;
     }
@@ -104,6 +105,10 @@ bool PSTRotDrv::open()
     {
         timeoutTimer.stop();
         qCWarning(runtime) << "Operation Timeout";
+
+        if ( ++consecutiveTimeouts < MAX_CONSECUTIVE_TIMEOUTS )
+            return;
+
         emit errorOccurred(tr("Error Occurred"),
                           tr("Operation Timeout"));
     });
@@ -135,11 +140,13 @@ void PSTRotDrv::setPosition(double in_azimuth, double in_elevation)
    if ( !opened )
        return;
 
+   const double rotatorAzimuth = toRotatorAzimuth(in_azimuth);
+
    QString positionCommand = QString("<PST>"
                                      "<TRACK>0</TRACK>"
                                      "<AZIMUTH>%1</AZIMUTH>"
                                      "<ELEVATION>%2</ELEVATION>"
-                                     "</PST>").arg(in_azimuth, 0, 'f', 1)
+                                     "</PST>").arg(rotatorAzimuth, 0, 'f', 1)
                                               .arg(in_elevation, 0, 'f', 1);
 
    sendCommand(positionCommand);
@@ -195,17 +202,21 @@ void PSTRotDrv::readPendingDatagrams()
 
     FCT_IDENTIFICATION;
 
-    timeoutTimer.stop();
-
     while ( receiveSocket.hasPendingDatagrams() )
     {
         QNetworkDatagram datagram = receiveSocket.receiveDatagram();
         QString data(datagram.data());
+        const QHostAddress senderAddress = datagram.senderAddress();
 
-        qCDebug(runtime) << "Received from" << datagram.senderAddress();
+        qCDebug(runtime) << "Received from" << senderAddress;
         qCDebug(runtime) << data;
 
-        // TODO: Check if sender has the IP Address from ROT Profile?
+        if ( !senderAddress.isEqual(rotatorAddress) )
+        {
+            qCWarning(runtime) << "Unexpected sender" << senderAddress
+                               << "- expected" << rotatorAddress;
+            continue;
+        }
 
         // TODO: we assume that the entire response fits into one packet,
         // so there is no need to implement sequential loading of fragmented packets.
@@ -219,10 +230,18 @@ void PSTRotDrv::readPendingDatagrams()
         double newAzimuth = azimuth;
         double newElevation = elevation;
 
-        if ( data.startsWith("EL") )
+        if ( data.startsWith("EL:") )
             newElevation = data.mid(3).toDouble();
-        else if ( data.startsWith("AZ") )
-            newAzimuth = data.mid(3).toDouble();
+        else if ( data.startsWith("AZ:") )
+            newAzimuth = fromRotatorAzimuth(data.mid(3).toDouble());
+        else
+        {
+            qCWarning(runtime) << "Unexpected packet - skipping";
+            continue;
+        }
+
+        timeoutTimer.stop();
+        consecutiveTimeouts = 0;
 
         qCDebug(runtime) << "PSTRotator Positioning"
                          << newAzimuth

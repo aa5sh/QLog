@@ -88,6 +88,16 @@ int LogParam::getContestLinkExchange()
     return getParam("contest/linkexchangetype", LogbookModel::COLUMN_INVALID).toInt();
 }
 
+bool LogParam::setContestLinkExchangeFlexibleType(int columnID)
+{
+    return setParam("contest/linkexchangeflexibletype", columnID);
+}
+
+int LogParam::getContestLinkExchangeFlexibleType()
+{
+    return getParam("contest/linkexchangeflexibletype", LogbookModel::COLUMN_INVALID).toInt();
+}
+
 bool LogParam::setContestFilter(const QString &filterName)
 {
     return setParam("contest/filter", filterName);
@@ -502,6 +512,51 @@ void LogParam::setDownloadQSLServiceLastQSOQSL(const QString &name, bool state)
     setParam("downloadqsl/" + name + "/qsoqsl", state);
 }
 
+static QString downloadQSLLoTWLastDateKey(const QString &call, bool qslSince)
+{
+    const QByteArray normalizedCall = call.trimmed().toUpper().toUtf8();
+
+    return QStringLiteral("downloadqsl/lotw/lastdate/%1/%2")
+            .arg(qslSince ? QStringLiteral("qsl") : QStringLiteral("qso"),
+                 QString::fromLatin1(normalizedCall.toHex()));
+}
+
+QDate LogParam::getDownloadQSLLoTWLastDate(const QString &call, bool qslSince)
+{
+    if ( call.trimmed().isEmpty() )
+        return QDate(1900, 1, 1);
+
+    const QString key = downloadQSLLoTWLastDateKey(call, qslSince);
+    const QVariant value = getParam(key);
+    if ( value.isValid() )
+        return value.toDate();
+
+    const QString legacyCall = getDownloadQSLLoTWLastCall().trimmed().toUpper();
+    if ( !legacyCall.isEmpty()
+         && legacyCall == call.trimmed().toUpper()
+         && qslSince == getDownloadQSLServiceLastQSOQSL("lotw") )
+    {
+        const QDate legacyDate = getDownloadQSLServiceLastDate("lotw");
+        setParam(key, legacyDate);
+        return legacyDate;
+    }
+
+    return QDate(1900, 1, 1);
+}
+
+void LogParam::setDownloadQSLLoTWLastDate(const QString &call, bool qslSince, const QDate &date)
+{
+    if ( call.trimmed().isEmpty() )
+        return;
+
+    setParam(downloadQSLLoTWLastDateKey(call, qslSince), date);
+}
+
+bool LogParam::hasDownloadQSLLoTWLastCall()
+{
+    return getParam("downloadqsl/lotw/lastmycallsign").isValid();
+}
+
 QString LogParam::getDownloadQSLLoTWLastCall()
 {
     return getParam("downloadqsl/lotw/lastmycallsign").toString();
@@ -510,6 +565,73 @@ QString LogParam::getDownloadQSLLoTWLastCall()
 void LogParam::setDownloadQSLLoTWLastCall(const QString &call)
 {
     setParam("downloadqsl/lotw/lastmycallsign", call);
+}
+
+static QString downloadQSLeQSLLastDateKey(const QString &username,
+                                          const QString &profile,
+                                          bool qslSince)
+{
+    const QByteArray normalizedUsername = username.trimmed().toUpper().toUtf8();
+    const QByteArray normalizedProfile = profile.trimmed().toUtf8();
+    const QString profileScope = normalizedProfile.isEmpty()
+            ? QStringLiteral("all")
+            : QString::fromLatin1(normalizedProfile.toHex());
+
+    return QStringLiteral("downloadqsl/eqsl/lastdate/%1/%2/%3")
+            .arg(qslSince ? QStringLiteral("qsl") : QStringLiteral("qso"),
+                 QString::fromLatin1(normalizedUsername.toHex()),
+                 profileScope);
+}
+
+QDate LogParam::getDownloadQSLeQSLLastDate(const QString &username,
+                                           const QString &profile,
+                                           bool qslSince)
+{
+    if ( username.trimmed().isEmpty() )
+        return QDate(1900, 1, 1);
+
+    const QString key = downloadQSLeQSLLastDateKey(username, profile, qslSince);
+    const QVariant value = getParam(key);
+    if ( value.isValid() )
+        return value.toDate();
+
+    const QVariant legacyDate = getParam("downloadqsl/eqsl/lastdate");
+    if ( !legacyDate.isValid() )
+        return QDate(1900, 1, 1);
+
+    // Older versions stored only one eQSL date. Bind it once to the current
+    // account and the last selected profile/query type so another scope cannot
+    // inherit it later.
+    const QString migrationKey = QStringLiteral("downloadqsl/eqsl/lastdate/legacyscope");
+    QVariant legacyScope = getParam(migrationKey);
+
+    if ( !legacyScope.isValid()
+         && profile.trimmed() == getDownloadQSLeQSLLastProfile().trimmed()
+         && qslSince == getDownloadQSLServiceLastQSOQSL("eqsl") )
+    {
+        if ( setParam(migrationKey, key) )
+        {
+            setParam(key, legacyDate);
+            return legacyDate.toDate();
+        }
+        return QDate(1900, 1, 1);
+    }
+
+    if ( legacyScope.toString() == key )
+        return legacyDate.toDate();
+
+    return QDate(1900, 1, 1);
+}
+
+void LogParam::setDownloadQSLeQSLLastDate(const QString &username,
+                                          const QString &profile,
+                                          bool qslSince,
+                                          const QDate &date)
+{
+    if ( username.trimmed().isEmpty() )
+        return;
+
+    setParam(downloadQSLeQSLLastDateKey(username, profile, qslSince), date);
 }
 
 QString LogParam::getDownloadQSLeQSLLastProfile()
@@ -777,6 +899,16 @@ void LogParam::setSecondaryCallbook(const QString &callbookName)
     setParam("callbook/secondary", callbookName);
 }
 
+QString LogParam::getQSLManagerSource(const QString &defaultValue)
+{
+    return getParam("qslmanager/source", defaultValue).toString();
+}
+
+void LogParam::setQSLManagerSource(const QString &sourceId)
+{
+    setParam("qslmanager/source", sourceId);
+}
+
 QString LogParam::getCallbookWebLookupURL(const QString &defaultURL)
 {
     return getParam("callbook/weblookupurl", defaultURL).toString();
@@ -835,6 +967,16 @@ QString LogParam::getNetworkNotifRigStateAddrs()
 void LogParam::setNetworkNotifRigStateAddrs(const QString &addrs)
 {
     setParam("network/notif/rig/state/addrs", addrs);
+}
+
+int LogParam::getNetworkFldigiUDPListenerPort(int defaultPort)
+{
+    return getParam("network/listener/fldigi/udp/port", defaultPort).toInt();
+}
+
+void LogParam::setNetworkFldigiUDPListenerPort(int port)
+{
+    setParam("network/listener/fldigi/udp/port", port);
 }
 
 int LogParam::getNetworkWsjtxListenerPort(int defaultPort)
@@ -1477,6 +1619,16 @@ void LogParam::setMainWindowDarkMode(int state)
     setParam("mainwindow/darkmode", state);
 }
 
+bool LogParam::getShowDxccFlags()
+{
+    return getParam("gui/show_dxcc_flags", true).toBool();
+}
+
+void LogParam::setShowDxccFlags(bool state)
+{
+    setParam("gui/show_dxcc_flags", state);
+}
+
 QVariantMap LogParam::getQsoStatusColors()
 {
     const QByteArray json = getParam("gui/qso_status_colors", QByteArray()).toByteArray();
@@ -1647,6 +1799,28 @@ int LogParam::getQslLabelPageSize()
 void LogParam::setQslLabelPageSize(int pageSize)
 {
     setParam("qsllabel/page_size", pageSize);
+}
+
+double LogParam::getQslLabelCustomPageWidth()
+{
+    const double defaultWidth = QPageSize(QPageSize::A4).size(QPageSize::Millimeter).width();
+    return getParam("qsllabel/custom_page_width_mm", defaultWidth).toDouble();
+}
+
+void LogParam::setQslLabelCustomPageWidth(double width)
+{
+    setParam("qsllabel/custom_page_width_mm", width);
+}
+
+double LogParam::getQslLabelCustomPageHeight()
+{
+    const double defaultHeight = QPageSize(QPageSize::A4).size(QPageSize::Millimeter).height();
+    return getParam("qsllabel/custom_page_height_mm", defaultHeight).toDouble();
+}
+
+void LogParam::setQslLabelCustomPageHeight(double height)
+{
+    setParam("qsllabel/custom_page_height_mm", height);
 }
 
 QString LogParam::getQslLabelImageExportPath(const QString &defaultPath)

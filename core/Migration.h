@@ -14,7 +14,7 @@ public:
     bool run(bool force = false);
     static bool backupAllQSOsToADX(bool force = false);
 
-    static constexpr int latestVersion = 39;
+    static constexpr int latestVersion = 40;
 
     // Fork-private schema track for MyFeatures-only changes. Kept separate
     // from latestVersion/migration_0NN.sql so upstream syncs never collide

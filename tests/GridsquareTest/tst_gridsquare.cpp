@@ -420,7 +420,16 @@ void GridsquareTest::distanceToCoordinates_data()
 
     const Case cases[] = {
         {"invalid_grid", false, "18123", 0.0, 0.0, 12.0, 17.9, false, 0},
+        {"invalid_target_nan", true, "", 18.0, 17.9, qQNaN(), 17.9, false, 0},
+        {"north_pole", true, "", 18.0, 17.9, 90.0, 17.9, true, 8006},
+        {"south_pole", true, "", 18.0, 17.9, -90.0, 17.9, true, 12010},
+        {"antimeridian_east", true, "", 18.0, 17.9, 12.0, 180.0, true, 16145},
+        {"antimeridian_west", true, "", 18.0, 17.9, 12.0, -180.0, true, 16145},
+        {"invalid_target_latitude", true, "", 18.0, 17.9, 90.0000001, 17.9, false, 0},
+        {"invalid_target_longitude", true, "", 18.0, 17.9, 12.0, 180.0000001, false, 0},
         {"from_latlon", true, "", 18.0, 17.9, 12.0, 17.9, true, 667},
+        {"antipodal_rounding", true, "", -89.52083333333333, -179.95833333333334,
+         89.52083333333333, 0.04166666666665719, true, 20016},
         {"grid_aa11", false, "AA11", 0.0, 0.0, 12.0, 17.9, true, 11504},
         {"grid_aa11cd", false, "AA11CD", 0.0, 0.0, 12.0, 17.9, true, 11465},
         {"grid_aa11cd22", false, "AA11CD22", 0.0, 0.0, 12.0, 17.9, true, 11464},
@@ -461,6 +470,7 @@ void GridsquareTest::distanceToCoordinates()
 
     if (expectedResult)
     {
+        QVERIFY(qIsFinite(distance));
         QCOMPARE(qRound(distance), expectedRoundedDistance);
     }
     else
@@ -549,6 +559,14 @@ void GridsquareTest::bearingToCoordinates_data()
 
     const Case cases[] = {
         {"invalid_grid", false, "18123", 0.0, 0.0, 12.0, 17.9, false, 0},
+        {"invalid_target_latitude_nan", true, "", 18.0, 17.9, qQNaN(), 17.9, false, 0},
+        {"invalid_target_longitude_inf", true, "", 18.0, 17.9, 12.0, qInf(), false, 0},
+        {"north_pole", true, "", 18.0, 17.9, 90.0, 17.9, true, 0},
+        {"south_pole", true, "", 18.0, 17.9, -90.0, 17.9, true, 180},
+        {"antimeridian_east", true, "", 18.0, 17.9, 12.0, 180.0, true, 32},
+        {"antimeridian_west", true, "", 18.0, 17.9, 12.0, -180.0, true, 32},
+        {"invalid_target_latitude", true, "", 18.0, 17.9, 90.0000001, 17.9, false, 0},
+        {"invalid_target_longitude", true, "", 18.0, 17.9, 12.0, 180.0000001, false, 0},
         {"from_latlon", true, "", 18.0, 17.9, 12.0, 17.9, true, 180},
         {"grid_aa11", false, "AA11", 0.0, 0.0, 12.0, 17.9, true, 195},
         {"grid_aa11cd", false, "AA11CD", 0.0, 0.0, 12.0, 17.9, true, 196},
@@ -590,6 +608,7 @@ void GridsquareTest::bearingToCoordinates()
 
     if (expectedResult)
     {
+        QVERIFY(qIsFinite(bearing));
         QCOMPARE(qRound(bearing), expectedRoundedBearing);
     }
     else

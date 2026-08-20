@@ -3,6 +3,7 @@
 
 #include "BandPlan.h"
 #include "core/debug.h"
+#include "rig/macros.h"
 
 MODULE_IDENTIFICATION("qlog.data.bandplan");
 
@@ -179,14 +180,15 @@ BandPlan::BandPlanMode BandPlan::freq2BandMode(const double freq)
 
     int left = 0;
     int right = bandModeTableSize - 1;
+    const qint64 frequencyHz = MHz2Hz(freq);
 
     while ( left <= right )
     {
         int mid = (left + right) / 2;
         const BandModeRange &range = r1BandModeTable[mid];
 
-        if (freq < range.start) right = mid - 1;
-        else if (freq >= range.end) left = mid + 1;
+        if ( frequencyHz < MHz2Hz(range.start) ) right = mid - 1;
+        else if ( frequencyHz >= MHz2Hz(range.end) ) left = mid + 1;
         else return range.mode;
     }
     // fallback
@@ -271,13 +273,15 @@ const Band BandPlan::freq2Band(double freq)
 
     if ( ! query.prepare("SELECT name, start_freq, end_freq, sat_designator "
                          "FROM bands "
-                         "WHERE :freq BETWEEN start_freq AND end_freq") )
+                         "WHERE :freq_hz BETWEEN "
+                         "CAST(ROUND(start_freq * 1000000.0) AS INTEGER) AND "
+                         "CAST(ROUND(end_freq * 1000000.0) AS INTEGER)") )
     {
         qWarning() << "Cannot prepare Select statement";
         return Band();
     }
 
-    query.bindValue(0, freq);
+    query.bindValue(0, MHz2Hz(freq));
 
     if ( ! query.exec() )
     {

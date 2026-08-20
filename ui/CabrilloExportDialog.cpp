@@ -16,6 +16,7 @@
 #include "data/BandPlan.h"
 #include "data/StationProfile.h"
 #include "logformat/CabrilloFormat.h"
+#include "rig/macros.h"
 #include "ui/CabrilloTemplateDialog.h"
 
 MODULE_IDENTIFICATION("qlog.ui.cabrilloexportdialog");
@@ -391,7 +392,8 @@ QString CabrilloExportDialog::buildWhereClause() const
     }
 
     if ( bandFilterActive )
-        conditions << "freq BETWEEN :band_start_freq AND :band_end_freq";
+        conditions << "CAST(ROUND(freq * 1000000.0) AS INTEGER) "
+                      "BETWEEN :band_start_freq_hz AND :band_end_freq_hz";
 
     const QString selectedMode = ui->catModeCombo->currentData().toString();
     if ( selectedMode != CabrilloFormat::MODE_MIXED )
@@ -419,8 +421,8 @@ void CabrilloExportDialog::bindWhereClause(QSqlQuery &query) const
 
     if ( bandFilterActive )
     {
-        query.bindValue(":band_start_freq", bandStartFreq);
-        query.bindValue(":band_end_freq", bandEndFreq);
+        query.bindValue(":band_start_freq_hz", MHz2Hz(bandStartFreq));
+        query.bindValue(":band_end_freq_hz", MHz2Hz(bandEndFreq));
     }
 
     const QString selectedMode = ui->catModeCombo->currentData().toString();

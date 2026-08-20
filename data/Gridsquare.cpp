@@ -236,7 +236,11 @@ bool Gridsquare::distanceTo(double lat, double lon, double &distance) const
 {
     FCT_IDENTIFICATION;
 
-    if ( !isValid() )
+    if ( !isValid()
+         || !qIsFinite(lat)
+         || !qIsFinite(lon)
+         || qAbs(lat) > 90.0
+         || qAbs(lon) > 180.0 )
     {
         distance = 0.0;
         return false;
@@ -253,8 +257,9 @@ bool Gridsquare::distanceTo(double lat, double lon, double &distance) const
     const double sinDLon = sin(dLon / 2.0);
     const double a = sinDLat * sinDLat +
                      sinDLon * sinDLon * cos(lat1) * cos(lat2);
+    const double boundedA = qBound(0.0, a, 1.0);
 
-    const double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
+    const double c = 2.0 * atan2(sqrt(boundedA), sqrt(1.0 - boundedA));
 
     // Based on IARU Rules
     // The centre of the Large Locator Square (e.g. IO84MM to IO91MM) is used for distance calculations.
@@ -285,7 +290,11 @@ bool Gridsquare::bearingTo(double lat, double lon, double &bearing) const
 {
     FCT_IDENTIFICATION;
 
-    if ( !isValid() )
+    if ( !isValid()
+         || !qIsFinite(lat)
+         || !qIsFinite(lon)
+         || qAbs(lat) > 90.0
+         || qAbs(lon) > 180.0 )
     {
         bearing = 0.0;
         return false;

@@ -17,5 +17,6 @@ SUBDIRS += CallsignTest \
            MigrationTest \
            PasswordCipherTest \
            QuadKeyCacheTest \
+           QTableQSOViewTest \
            RigctldManagerTest \
            StationProfileTest

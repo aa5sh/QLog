@@ -2,6 +2,7 @@
 #include <QGraphicsEllipseItem>
 #include <QMenu>
 #include <QMouseEvent>
+#include <cmath>
 #include "rotator/Rotator.h"
 #include "rotator/Rotator.h"
 #include "RotatorWidget.h"
@@ -34,7 +35,6 @@ RotatorWidget::RotatorWidget(QWidget *parent) :
 
     QStringListModel* rotModel = new QStringListModel(this);
     ui->rotProfileCombo->setModel(rotModel);
-    ui->rotProfileCombo->setStyleSheet("QComboBox {color: red}");
     refreshRotProfileCombo();
 
     QStringListModel* userButtonModel = new QStringListModel(this);
@@ -176,7 +176,9 @@ void RotatorWidget::positionChanged(double in_azimuth, double in_elevation)
         return;
     }
 
-    if ( qAbs(qRound(requestedAzimuth) - qRound(in_azimuth)) <= AZIMUTH_DEAD_BAND
+    const double azimuthDifference = qAbs(std::remainder(requestedAzimuth - in_azimuth, 360.0));
+
+    if ( azimuthDifference <= AZIMUTH_DEAD_BAND
          && requestedAzimuthNeedle )
         requestedAzimuthNeedle->hide();
 }
@@ -552,7 +554,7 @@ void RotatorWidget::rotConnected()
 {
     FCT_IDENTIFICATION;
 
-    ui->rotProfileCombo->setStyleSheet("QComboBox {color: green}");
+    ui->connectButton->setStyleSheet("QToolButton {background-color: green}");
     ui->gotoDoubleSpinBox->setEnabled(true);
     ui->gotoButton->setEnabled(true);
     ui->qsoBearingButton->setEnabled(true);
@@ -568,7 +570,7 @@ void RotatorWidget::rotDisconnected()
 {
     FCT_IDENTIFICATION;
 
-    ui->rotProfileCombo->setStyleSheet("QComboBox {color: red}");
+    ui->connectButton->setStyleSheet(QString());
     ui->gotoDoubleSpinBox->setEnabled(false);
     ui->gotoButton->setEnabled(false);
     ui->qsoBearingButton->setEnabled(false);
@@ -587,6 +589,11 @@ void RotatorWidget::rotDisconnected()
 RotatorWidget::~RotatorWidget()
 {
     delete ui;
+}
+
+void RotatorWidget::setConnectAction(QAction *action)
+{
+    ui->connectButton->setDefaultAction(action);
 }
 
 void RotatorWidget::registerContactWidget(const NewContactWidget *contactWidget)

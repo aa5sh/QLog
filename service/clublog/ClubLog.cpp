@@ -13,7 +13,7 @@
 #include "core/LogParam.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.clublog");
+MODULE_IDENTIFICATION("qlog.service.clublog.clublog");
 
 const QString ClubLogBase::SECURE_STORAGE_KEY = "Clublog";
 const QString ClubLogBase::API_KEY = "7a45c2b20f932ca8908b975a60f0a78a7602f65a";

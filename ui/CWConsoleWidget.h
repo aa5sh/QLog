@@ -8,6 +8,8 @@ namespace Ui {
 class CWConsoleWidget;
 }
 
+class QAction;
+
 class CWConsoleWidget : public QWidget
 {
     Q_OBJECT
@@ -16,6 +18,7 @@ public:
     explicit CWConsoleWidget(QWidget *parent = nullptr);
     ~CWConsoleWidget();
     void registerContactWidget(const NewContactWidget*);
+    void setConnectAction(QAction *action);
 
 signals:
     void cwKeyProfileChanged();

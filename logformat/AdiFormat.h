@@ -103,6 +103,9 @@ private:
     QTime parseTime(const QString &time);
     QString parseQslRcvd(const QString &value);
     QString parseQslSent(const QString &value);
+    QVariant parseEnumValue(const QString &fieldName,
+                            const QString &value,
+                            const QStringList &allowedValues);
     QString parseUploadStatus(const QString &value);
     QString parseDownloadStatus(const QString &value);
     QString parseMorseKeyType(const QString &value);

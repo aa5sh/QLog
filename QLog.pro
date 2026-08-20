@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.51.1
+VERSION = 0.52.0dev
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -88,12 +88,14 @@ SOURCES += \
         core/CredentialStore.cpp \
         core/FileCompressor.cpp \
         core/FldigiTCPServer.cpp \
+        core/FldigiUDPReceiver.cpp \
         core/LOVDownloader.cpp \
         core/LogDatabase.cpp \
         core/LogLocale.cpp \
         core/LogParam.cpp \
         core/MembershipQE.cpp \
         core/Migration.cpp \
+        core/MqttClient.cpp \
         core/NetworkNotification.cpp \
         core/PasswordCipher.cpp \
         core/PlatformParameterManager.cpp \
@@ -168,6 +170,7 @@ SOURCES += \
         service/GenericQSLDownloader.cpp \
         service/GenericQSOUploader.cpp \
         service/emailqsl/EmailQSLService.cpp \
+        service/QSLManager.cpp \
         service/cloudlog/Cloudlog.cpp \
         service/clublog/ClubLog.cpp \
         service/eqsl/Eqsl.cpp \
@@ -176,7 +179,10 @@ SOURCES += \
         service/kstchat/KSTChat.cpp \
         service/lotw/Lotw.cpp \
         service/potaapp/PotaApp.cpp \
+        service/pskreporter/PSKReporter.cpp \
+        service/rbn/RBNNetwork.cpp \
         service/qrzcom/QRZ.cpp \
+        service/qslinfo/QSLInfo.cpp \
         ui/ActivityEditor.cpp \
         ui/AmplifierWidget.cpp \
         ui/AdifRecoveryManager.cpp \
@@ -244,6 +250,7 @@ SOURCES += \
         ui/component/EditLine.cpp \
         ui/component/FreqQSpinBox.cpp \
         ui/component/ModeSubmodeDelegate.cpp \
+        ui/component/MultilineTextDelegate.cpp \
         ui/component/LogbookFieldComboBox.cpp \
         ui/component/MultiselectCompleter.cpp \
         ui/component/RepeatButton.cpp \
@@ -285,12 +292,14 @@ HEADERS += \
         core/CredentialStore.h \
         core/FileCompressor.h \
         core/FldigiTCPServer.h \
+        core/FldigiUDPReceiver.h \
         core/LOVDownloader.h \
         core/LogDatabase.h \
         core/LogLocale.h \
         core/LogParam.h \
         core/MembershipQE.h \
         core/Migration.h \
+        core/MqttClient.h \
         core/NetworkNotification.h \
         core/PasswordCipher.h \
         core/PlatformParameterManager.h \
@@ -327,10 +336,12 @@ HEADERS += \
         data/DxSpot.h \
         data/Dxcc.h \
         data/Gridsquare.h \
+        data/HeardMeSpot.h \
         data/HostsPortString.h \
         data/MainLayoutProfile.h \
         data/POTAEntity.h \
         data/POTASpot.h \
+        data/PskDecode.h \
         data/ProfileManager.h \
         data/RigProfile.h \
         data/RotProfile.h \
@@ -383,6 +394,8 @@ HEADERS += \
         service/GenericQSLDownloader.h \
         service/GenericQSOUploader.h \
         service/emailqsl/EmailQSLService.h \
+        service/QSLManager.h \
+        service/QSLManagerSource.h \
         service/cloudlog/Cloudlog.h \
         service/clublog/ClubLog.h \
         service/eqsl/Eqsl.h \
@@ -391,7 +404,10 @@ HEADERS += \
         service/kstchat/KSTChat.h \
         service/lotw/Lotw.h \
         service/potaapp/PotaApp.h \
+        service/pskreporter/PSKReporter.h \
+        service/rbn/RBNNetwork.h \
         service/qrzcom/QRZ.h \
+        service/qslinfo/QSLInfo.h \
         ui/ActivityEditor.h \
         ui/AmplifierWidget.h \
         ui/AdifRecoveryManager.h \
@@ -464,6 +480,7 @@ HEADERS += \
         ui/component/EditLine.h \
         ui/component/FreqQSpinBox.h \
         ui/component/ModeSubmodeDelegate.h \
+        ui/component/MultilineTextDelegate.h \
         ui/component/LogbookFieldComboBox.h \
         ui/component/MultiselectCompleter.h \
         ui/component/RepeatButton.h \

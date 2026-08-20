@@ -1,5 +1,6 @@
 #ifndef QLOG_ROTATOR_ROTATOR_H
 #define QLOG_ROTATOR_ROTATOR_H
+#include <atomic>
 #include <QTimer>
 
 #include "data/RotProfile.h"
@@ -24,9 +25,8 @@ public:
         static Rotator instance;
         return &instance;
     };
-    double getAzimuth();
-    double getElevation();
-    bool isRotConnected();
+    bool getPosition(double &azimuth, double &elevation) const;
+    bool isRotConnected() const;
 
     const QList<QPair<int, QString>> getModelList(const DriverID &id) const;
     const QList<QPair<int, QString>> getDriverList() const;
@@ -51,7 +51,6 @@ public slots:
 private slots:
     void setPositionImpl(double azimuth, double elevation);
     void stopTimerImplt();
-    void openImpl();
     void closeImpl();
     void shutdownImpl();
     void sendStateImpl();
@@ -89,17 +88,23 @@ private:
 
     QMap<int, DrvParams> drvMapping;
 
+    void openImpl(const RotProfile &profile, quint64 requestSequence);
     void __closeRot();
-    void __openRot();
+    void __openRot(const RotProfile &profile);
+    void driverPositionChanged(double azimuth, double elevation);
+    void driverErrorOccurred(const QString &error, const QString &detail);
+    void driverReady();
 
     GenericRotDrv *getDriver(const RotProfile &profile);
 
 private:
     GenericRotDrv *rotDriver;
     QMutex rotLock;
+    mutable QMutex stateLock;
     bool connected;
     double cacheAzimuth;
     double cacheElevation;
+    std::atomic<quint64> openRequestSequence;
 };
 
 #endif // QLOG_ROTATOR_ROTATOR_H

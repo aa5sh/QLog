@@ -3,6 +3,7 @@
 
 #include <QtWebSockets>
 #include <QHash>
+#include <QTimer>
 #include "GenericRigDrv.h"
 #include "rig/RigCaps.h"
 
@@ -38,6 +39,7 @@ public:
 
 private slots:
     void onConnected();
+    void onDisconnected();
     void onTextMessageReceived(const QString& message);
     void onSocketError(QAbstractSocket::SocketError socker_error);
 private:
@@ -47,7 +49,7 @@ private:
     void sendCmd(const QString &cmd,
                  bool addRigID,
                  const QStringList &args = QStringList());
-    const QString getModeNormalizedText(const QString& rawMode, QString &submode);
+    const QString getModeNormalizedText(const QString& inRawMode, QString &submode);
     const QString mode2RawMode(const QString &mode, const QString &submode, bool digiVariant);
 
     // commands functions
@@ -77,7 +79,9 @@ private:
     double getRawXIT();
 
     QWebSocket ws;
+    QTimer readyTimer;
     bool ready;
+    bool closing;
     bool receivedOnly;
     QStringList modeList;
     double currFreq;
@@ -88,6 +92,8 @@ private:
     bool RITEnabled;
     bool XITEnabled;
     bool currSplitEnabled;
+
+    const int READY_TIMEOUT_MS = 10000;
 
     const QHash<QString, TCIRigDrv::parseFce> responseParsers =
     {

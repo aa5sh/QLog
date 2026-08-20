@@ -20,7 +20,8 @@ Rotator::Rotator(QObject *parent) :
     rotDriver(nullptr),
     connected(false),
     cacheAzimuth(0.0),
-    cacheElevation(0.0)
+    cacheElevation(0.0),
+    openRequestSequence(0)
 {
     FCT_IDENTIFICATION;
 
@@ -51,26 +52,21 @@ Rotator::~Rotator()
     stopTimerImplt();
 }
 
-double Rotator::getAzimuth()
+bool Rotator::getPosition(double &azimuth, double &elevation) const
 {
     FCT_IDENTIFICATION;
 
-    MUTEXLOCKER;
-    return cacheAzimuth;
+    QMutexLocker locker(&stateLock);
+    azimuth = cacheAzimuth;
+    elevation = cacheElevation;
+    return connected;
 }
 
-double Rotator::getElevation()
+bool Rotator::isRotConnected() const
 {
     FCT_IDENTIFICATION;
 
-    MUTEXLOCKER;
-    return cacheElevation;
-}
-
-bool Rotator::isRotConnected()
-{
-    FCT_IDENTIFICATION;
-
+    QMutexLocker locker(&stateLock);
     return connected;
 }
 
@@ -121,15 +117,19 @@ void Rotator::stopTimer()
     FCT_IDENTIFICATION;
 
     MUTEXLOCKER;
-    bool check = QMetaObject::invokeMethod(Rotator::instance(),
-                                           &Rotator::stopTimerImplt,
-                                           Qt::QueuedConnection);
-    Q_ASSERT( check );
+    const bool queued = QMetaObject::invokeMethod(Rotator::instance(),
+                                                   &Rotator::stopTimerImplt,
+                                                   Qt::QueuedConnection);
+    if ( !queued )
+        qCWarning(runtime) << "Cannot queue Rotator timer stop";
+    Q_ASSERT( queued );
 }
 
 void Rotator::shutdown()
 {
     FCT_IDENTIFICATION;
+
+    ++openRequestSequence;
 
     if ( QThread::currentThread() == thread() )
     {
@@ -180,15 +180,27 @@ void Rotator::open()
 {
     FCT_IDENTIFICATION;
 
-    QMetaObject::invokeMethod(this, &Rotator::openImpl, Qt::QueuedConnection);
+    const RotProfile profile = RotProfilesManager::instance()->getCurProfile1();
+    const quint64 requestSequence = ++openRequestSequence;
+    QMetaObject::invokeMethod(this, [this, profile, requestSequence]()
+    {
+        openImpl(profile, requestSequence);
+    }, Qt::QueuedConnection);
 }
 
-void Rotator::openImpl()
+void Rotator::openImpl(const RotProfile &profile, quint64 requestSequence)
 {
     FCT_IDENTIFICATION;
 
     MUTEXLOCKER;
-    __openRot();
+
+    if ( requestSequence != openRequestSequence.load() )
+    {
+        qCDebug(runtime) << "Skipping obsolete Rotator open request";
+        return;
+    }
+
+    __openRot(profile);
 }
 
 void Rotator::sendState()
@@ -210,14 +222,9 @@ void Rotator::sendStateImpl()
     rotDriver->sendState();
 }
 
-void Rotator::__openRot()
+void Rotator::__openRot(const RotProfile &newRotProfile)
 {
     FCT_IDENTIFICATION;
-
-    // if rot is active then close it
-    __closeRot();
-
-    RotProfile newRotProfile = RotProfilesManager::instance()->getCurProfile1();
 
     if ( newRotProfile == RotProfile() )
     {
@@ -225,6 +232,20 @@ void Rotator::__openRot()
                              QString());
         return;
     }
+
+    if ( rotDriver )
+    {
+        const RotProfile &currentProfile = rotDriver->getCurrRotProfile();
+        if ( currentProfile == newRotProfile )
+        {
+            qCDebug(runtime) << "Rotator profile is already open:"
+                             << newRotProfile.profileName;
+            return;
+        }
+    }
+
+    // if rot is active then close it
+    __closeRot();
 
     qCDebug(runtime) << "Opening profile name: " << newRotProfile.profileName;
 
@@ -238,28 +259,14 @@ void Rotator::__openRot()
         return;
     }
 
-    connect(rotDriver, &GenericRotDrv::positioningChanged, this, [this](double a, double b)
-    {
-        cacheAzimuth = a;
-        cacheElevation = b;
-        emit positionChanged(a, b);
-    });
+    connect(rotDriver, &GenericRotDrv::positioningChanged,
+            this, &Rotator::driverPositionChanged);
 
-    connect(rotDriver, &GenericRotDrv::errorOccurred, this, [this](const QString &a,
-                                                                const QString &b)
-    {
-        close();
-        emit rotErrorPresent(a, b);
-    });
+    connect(rotDriver, &GenericRotDrv::errorOccurred,
+            this, &Rotator::driverErrorOccurred);
 
-    connect(rotDriver, &GenericRotDrv::rotIsReady, this, [this, newRotProfile]()
-    {
-        connected = true;
-
-        emit rotConnected();
-
-        sendState();
-    });
+    connect(rotDriver, &GenericRotDrv::rotIsReady,
+            this, &Rotator::driverReady);
 
     if ( !rotDriver->open() )
     {
@@ -269,6 +276,39 @@ void Rotator::__openRot()
         __closeRot();
         return;
     }
+}
+
+void Rotator::driverPositionChanged(double azimuth, double elevation)
+{
+    FCT_IDENTIFICATION;
+
+    {
+        QMutexLocker locker(&stateLock);
+        cacheAzimuth = azimuth;
+        cacheElevation = elevation;
+    }
+    emit positionChanged(azimuth, elevation);
+}
+
+void Rotator::driverErrorOccurred(const QString &error, const QString &detail)
+{
+    FCT_IDENTIFICATION;
+
+    close();
+    emit rotErrorPresent(error, detail);
+}
+
+void Rotator::driverReady()
+{
+    FCT_IDENTIFICATION;
+
+    {
+        QMutexLocker locker(&stateLock);
+        connected = true;
+    }
+
+    emit rotConnected();
+    sendState();
 }
 
 GenericRotDrv *Rotator::getDriver(const RotProfile &profile)
@@ -296,6 +336,7 @@ void Rotator::close()
 {
     FCT_IDENTIFICATION;
 
+    ++openRequestSequence;
     QMetaObject::invokeMethod(this, &Rotator::closeImpl, Qt::QueuedConnection);
 }
 
@@ -328,7 +369,10 @@ void Rotator::__closeRot()
 
     delete rotDriver;
     rotDriver = nullptr;
-    connected = false;
+    {
+        QMutexLocker locker(&stateLock);
+        connected = false;
+    }
     emit rotDisconnected();
 }
 

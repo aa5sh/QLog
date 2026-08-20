@@ -137,8 +137,10 @@ RigCaps HamlibRigDrv::getCaps(int model)
 }
 
 HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
+                           qint32 controlledRigModel,
                            QObject *parent)
     : GenericRigDrv(profile, parent),
+      controlledRigModel(controlledRigModel),
       rig(nullptr),
       SmartSDRSpotCounter(0),
       forceSendState(false),
@@ -170,8 +172,9 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
 
     rig_set_debug(RIG_DEBUG_BUG);
 
+    errorTimer.setSingleShot(true);
     connect(&errorTimer, &QTimer::timeout,
-            this, &HamlibRigDrv::checkErrorCounter);    
+            this, &HamlibRigDrv::checkErrorCounter);
 }
 
 HamlibRigDrv::~HamlibRigDrv()
@@ -310,8 +313,8 @@ bool HamlibRigDrv::open()
     qCDebug(runtime) << "Rig Open - OK";
 
     opened = true;
-    currRIT = MHz(rigProfile.ritOffset);
-    currXIT = MHz(rigProfile.xitOffset);
+    currRIT = MHz2Hz(rigProfile.ritOffset);
+    currXIT = MHz2Hz(rigProfile.xitOffset);
     morseOverCatSupported = ( rig->caps->send_morse != nullptr );
 
     rmode_t localRigModes = RIG_MODE_NONE;
@@ -844,7 +847,7 @@ bool HamlibRigDrv::checkModeChange()
          * #999
          * This is a workaround for Yaesu FTDx10 to work properly.
          */
-        vfo_t modeVFO = ( rigProfile.model == RIG_MODEL_FTDX10 ) ? RIG_VFO_NONE : RIG_VFO_CURR;
+        vfo_t modeVFO = ( controlledRigModel == RIG_MODEL_FTDX10 ) ? RIG_VFO_NONE : RIG_VFO_CURR;
 
         int status = rig_get_mode(rig, modeVFO, &curr_modeId, &pbwidth);
 
@@ -1236,7 +1239,12 @@ bool HamlibRigDrv::isRigRespOK(int errorStatus,
     if ( errorStatus == RIG_OK )
     {
         if ( emitError )
+        {
             postponedErrors.remove(errorName);
+
+            if ( postponedErrors.isEmpty() )
+                errorTimer.stop();
+        }
         return true;
     }
 
@@ -1246,7 +1254,12 @@ bool HamlibRigDrv::isRigRespOK(int errorStatus,
     {
         qCDebug(runtime) << "Emit Error detected";
 
-        if ( !RIG_IS_SOFT_ERRCODE(-errorStatus) )
+        // Before Hamlib 4.7 the macro expected a positive error code;
+        // since Hamlib 4.7 it expects the negative API return value.
+        const bool isSoftError = RIG_IS_SOFT_ERRCODE(errorStatus)
+                                 || RIG_IS_SOFT_ERRCODE(-errorStatus);
+
+        if ( !isSoftError )
         {
             // hard error, emit error now
             qCDebug(runtime) << "Hard Error";

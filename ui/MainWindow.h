@@ -60,6 +60,8 @@ private slots:
     void rotConnect();
     void steppirConnect();
     void amplifierConnect();
+    void selectEquipmentProfilesForBand(const QString &bandName);
+    void selectEffectiveRotatorProfile(const QString &antennaProfileName);
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -142,7 +144,12 @@ private:
     QDockWidget *amplifierDockWidget = nullptr;
     AmplifierWidget *amplifierWidget = nullptr;
     QMetaObject::Connection alertTextButtonConn;
+    SpotAlert displayedAlert;
+    bool hasDisplayedAlert = false;
     bool firstRun = false;
+    bool equipmentProfileSelectionSuspended = false;
+    bool rotatorConnectPending = false;
+    QString pendingEquipmentBand;
     void setupActivitiesMenu();
     void scheduleSteppirConnectRetry(int remainingAttempts);
 
@@ -155,6 +162,7 @@ private:
     void restoreContestMenuLinkExchange();
 
     QString stationCallsignStatus(const StationProfile &profile) const;
+    void applyRotatorProfile(const QString &profileName, bool connectRotator);
 
     void openNonVfoBandmaps(const QList<QPair<QString, QString>> &list);
     void clearNonVfoBandmaps();

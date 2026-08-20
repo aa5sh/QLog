@@ -80,7 +80,7 @@ void QSLPrintLabelRenderer::setPrintMode(QSLPrintMode mode)
     printMode = mode;
 }
 
-void QSLPrintLabelRenderer::setPageSize(QPageSize::PageSizeId pageSize)
+void QSLPrintLabelRenderer::setPageSize(const QPageSize &pageSize)
 {
     FCT_IDENTIFICATION;
 
@@ -558,7 +558,7 @@ QSizeF QSLPrintLabelRenderer::pageSizeMm() const
     if ( printMode == QSLPrintMode::DirectCard )
         return directCardGrid().pageSizeMm;
 
-    QSizeF size = QPageSize(outputPageSize).size(QPageSize::Millimeter);
+    QSizeF size = outputPageSize.size(QPageSize::Millimeter);
 
     if ( labelTemplate.orientation == QPageLayout::Landscape )
         size.transpose();
@@ -580,7 +580,7 @@ QSLPrintLabelRenderer::DirectCardGrid QSLPrintLabelRenderer::directCardGrid() co
 
     DirectCardGrid best;
 
-    const QSizeF portrait = QPageSize(outputPageSize).size(QPageSize::Millimeter);
+    const QSizeF portrait = outputPageSize.size(QPageSize::Millimeter);
     QSizeF landscape = portrait;
     landscape.transpose();
     const QList<QPair<QSizeF, QPageLayout::Orientation>> pageOptions =
@@ -631,13 +631,25 @@ QSLPrintLabelRenderer::DirectCardGrid QSLPrintLabelRenderer::directCardGrid() co
     return best;
 }
 
+int QSLPrintLabelRenderer::directCardCount(double printableLength, double cardLength) const
+{
+    if ( cardLength <= 0.0 )
+        return 0;
+
+    const double gap = cardLayout.cardGapMm;
+    const int count = qFloor((printableLength + gap) / (cardLength + gap));
+    const int nextCount = count + 1;
+    const double nextLength = nextCount * cardLength + (nextCount - 1) * gap;
+
+    return qFuzzyCompare(nextLength, printableLength) ? nextCount : count;
+}
+
 int QSLPrintLabelRenderer::directCardCols(const QSizeF &printableSize, bool rotateCard) const
 {
     FCT_IDENTIFICATION;
 
     const double cardWidth = rotateCard ? cardLayout.cardHeightMm : cardLayout.cardWidthMm;
-    return cardWidth > 0.0 ? qFloor((printableSize.width() + cardLayout.cardGapMm)
-                                    / (cardWidth + cardLayout.cardGapMm)) : 0;
+    return directCardCount(printableSize.width(), cardWidth);
 }
 
 int QSLPrintLabelRenderer::directCardRows(const QSizeF &printableSize, bool rotateCard) const
@@ -645,8 +657,7 @@ int QSLPrintLabelRenderer::directCardRows(const QSizeF &printableSize, bool rota
     FCT_IDENTIFICATION;
 
     const double cardHeight = rotateCard ? cardLayout.cardWidthMm : cardLayout.cardHeightMm;
-    return cardHeight > 0.0 ? qFloor((printableSize.height() + cardLayout.cardGapMm)
-                                     / (cardHeight + cardLayout.cardGapMm)) : 0;
+    return directCardCount(printableSize.height(), cardHeight);
 }
 
 QImage QSLPrintLabelRenderer::renderPage(int pageIndex, int dpi)

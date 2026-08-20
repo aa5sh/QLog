@@ -39,6 +39,7 @@ private slots:
     void skipChanged(int value);
     void zoomChanged(int value);
     void customTemplateFieldChanged();
+    void outputPageSizeChanged();
     void printModeChanged(int index);
     void cardLayoutChanged();
     void selectLabelTextColor();
@@ -73,12 +74,14 @@ private:
     LabelTemplate buildCustomTemplate() const;
     LabelTemplate currentLabelTemplate() const;
     QSLPrintMode currentPrintMode() const;
-    QPageSize::PageSizeId currentOutputPageSize() const;
+    QPageSize::PageSizeId currentOutputPageSizeId() const;
+    QPageSize currentOutputPageSize() const;
     QSLCardLayout buildCardLayout() const;
     LabelStyleOptions buildStyleOptions() const;
     QString buttonContrastTextColor(const QColor &backgroundColor) const;
     QString imageExportFileName(const QSLLabelData &label, int index) const;
     void updateRendererOptions();
+    void updateOutputPageSizeUi();
     void updatePrintModeUi();
     void updateLabelTextColorUi();
     void updateCardLabelBackgroundColorUi();

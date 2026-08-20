@@ -7,11 +7,11 @@ class POTAEntity {
 public:
     QString reference;
     QString name;
-    bool active;
-    qint16 entityID;
+    bool active = false;
+    qint16 entityID = 0;
     QString locationDesc;
-    double longitude;
-    double latitude;
+    double longitude = 0.0;
+    double latitude = 0.0;
     QString grid;
 };
 

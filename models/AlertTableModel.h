@@ -38,12 +38,14 @@ public:
     };
 
     AlertTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent){};
-    int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    int columnCount(const QModelIndex& parent = QModelIndex()) const;
-    QVariant data(const QModelIndex& index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     void addAlert(const SpotAlert &entry);
+    bool containsAlert(const SpotAlert &alert);
     void clear();
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     const AlertTableRecord getTableRecord(const QModelIndex& index);
     void aging(const int clear_interval_sec);
     void resetDupe();

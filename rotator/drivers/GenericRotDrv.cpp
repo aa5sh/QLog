@@ -1,5 +1,6 @@
 #include "GenericRotDrv.h"
 #include "core/debug.h"
+#include "data/AntProfile.h"
 
 MODULE_IDENTIFICATION("qlog.core.rot.driver.genericrotdrv");
 
@@ -34,7 +35,7 @@ double GenericRotDrv::normalizeAzimuth(double azimuth) const
 
     /* This function takes any azimuth value (in degrees), including
      * negative values or values greater than 360, and returns an
-     * equivalent angle normalized to the range [0, 360).
+     * equivalent angle normalized to the range [0, 360) - ADIF Spec
      */
 
     double normalized = fmod(azimuth, 360.0);
@@ -45,4 +46,18 @@ double GenericRotDrv::normalizeAzimuth(double azimuth) const
                      << "Normalized azimuth:" << normalized;
 
     return normalized;
+}
+
+double GenericRotDrv::toRotatorAzimuth(double azimuth) const
+{
+    FCT_IDENTIFICATION;
+
+    return normalizeAzimuth(azimuth - AntProfilesManager::instance()->getCurProfile1().azimuthOffset);
+}
+
+double GenericRotDrv::fromRotatorAzimuth(double azimuth) const
+{
+    FCT_IDENTIFICATION;
+
+    return normalizeAzimuth(azimuth + AntProfilesManager::instance()->getCurProfile1().azimuthOffset);
 }

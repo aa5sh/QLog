@@ -11,11 +11,13 @@
 #include <QHash>
 #include <QFormLayout>
 #include <QList>
+#include <QSet>
 #include <QToolButton>
 
 #include "data/DxSpot.h"
 #include "rig/Rig.h"
 #include "core/CallbookManager.h"
+#include "service/QSLManager.h"
 #include "data/StationProfile.h"
 #include "core/PropConditions.h"
 #include "core/LogLocale.h"
@@ -223,6 +225,7 @@ signals:
     void userFrequencyChanged(VFOID, double, double, double);
     void userModeChanged(VFOID, const QString &, const QString &mode,
                          const QString &subMode, qint32 width);
+    void currentModeChanged(QString mode);
     void markQSO(DxSpot spot);
 
     void callboolImageUrl(const QString&);
@@ -231,7 +234,9 @@ signals:
                         const QDateTime date);
     void rigProfileChanged();
     void callsignChanged(const QString& callsign);
+    void stationCallsignChanged(const QString &callsign);
     void contactReset();
+    void txBandChanged(const QString &bandName);
 
 public slots:
     void refreshRigProfileCombo();
@@ -246,12 +251,14 @@ public slots:
     // to receive RIG instructions
     void changeFrequency(VFOID, double, double, double);
     void changeSplit(VFOID, bool);
-    void changeModeWithoutSignals(const QString &mode, const QString &subMode);
+    void changeModeWithoutRigUpdate(const QString &mode, const QString &subMode);
     void changeModefromRig(VFOID, const QString &rawMode, const QString &mode,
                     const QString &subMode, qint32 width);
     void changePower(VFOID, double power);
     void rigConnected();
     void rigDisconnected();
+    void reportTXBand();
+    void requestTXBandReport();
     void setNearestSpot(const DxSpot &);
     void setNearestSpotColor();
     void setManualMode(bool);
@@ -270,7 +277,7 @@ public slots:
     void stopContest();
     void refreshCallsignsColors();
 
-    void changeSRXStringLink(int);
+    void changeSRXStringLink(int linkType, bool flexible = false);
 
 private slots:
     void handleCallsignFromUser();
@@ -286,6 +293,8 @@ private slots:
     void finalizeCallsignEdit();
     void setMembershipList(const QString&, QMap<QString, ClubStatusQuery::ClubInfo>);
     void setCallbookFields(const CallbookResponseData &data);
+    void callbookCallsignNotFound(const QString &callsign);
+    void qslManagerQueryFinished(QSLQueryResult result);
     void propModeChanged(const QString&);
     void sotaChanged(const QString&);
     void sotaEditFinished();
@@ -307,25 +316,32 @@ private slots:
     void setContestFieldsState();
     void queryPota();
     void handleDateTimeChangeFromUser();
+    void syncSRXStringLink();
 
 private:
     void useFieldsFromPrevQSO(const QString &callsign,
                               const QString &grid = QString());
     void setDxccInfo(const DxccEntity &curr);
     void setDxccInfo(const QString &callsign);
+    void refreshDxccFlag();
     void clearCallbookQueryFields();
     void clearMemberQueryFields();
     void readWidgetSettings();
     void writeWidgetSetting();
     void __modeChanged();
-    void updateTXBand(double freq);
+    void updateTXBand(double freq, bool reportChange = true);
     void updateRXBand(double freq);
     void updateCoordinates(double lat, double lon, CoordPrecision prec);
     void clearCoordinates();
     void updateDxccStatus();
     void updatePartnerLocTime();
     void setDefaultReport();
+    void showExternalQSOWarningOnce(const QString &message,
+                                    const StationProfile &profile,
+                                    const QSqlRecord &record);
     void addAddlFields(QSqlRecord &record, const StationProfile &profile);
+    bool externalQSOConflictsWithProfile(const QSqlRecord &record,
+                                         const StationProfile &profile) const;
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isQSOTimeStarted();
     void QSYContactWiping(double);
@@ -333,6 +349,7 @@ private:
     void changeCallsignManually(const QString &);
     void changeCallsignManually(const QString &, double);
     void __changeFrequency(VFOID, double vfoFreq, double ritFreq, double xitFreq);
+    void applyRigSplitState(bool enabled, bool reportBandChange);
     void showRXTXFreqs(bool);
     void setComboBaseData(QComboBox *, const QString &);
     void queryMemberList();
@@ -369,6 +386,7 @@ private:
     DxccEntity dxccEntity;
     QString defaultReport;
     CallbookManager callbookManager;
+    QSLManager qslManager;
     QTimer* contactTimer;
     Ui::NewContactWidget *ui;
     NewContactDynamicWidgets *uiDynamic;
@@ -393,6 +411,7 @@ private:
     WWFFEntity lastWWFF;
     bool isManualEnterMode;
     bool rigSplitEnabled;
+    bool txBandReportRequested;
     LogLocale locale;
     QDateTime timeOff;
     bool callbookSearchPaused;
@@ -406,6 +425,10 @@ private:
     QToolButton *tabCollapseBtn;
     ModeSelectionController *modeController;
     QStringList memberListHtmlItems;
+    QSet<QString> warnedExternalStationContexts;
+    NewContactEditLine *srxStringLinkSourceWidget = nullptr;
+    bool srxStringLinkFlexible = false;
+    bool srxStringEditedByUser = false;
 };
 
 #endif // QLOG_UI_NEWCONTACTWIDGET_H

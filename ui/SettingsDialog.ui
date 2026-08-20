@@ -555,6 +555,58 @@
                    </property>
                   </widget>
                  </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="antRotProfileLabel">
+                   <property name="text">
+                    <string>Assigned Rotator</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QComboBox" name="antRotProfileCombo">
+                   <property name="toolTip">
+                    <string>Rotator profile selected and connected automatically when this antenna profile becomes active. An Activity Rotator Override takes priority. Select None to leave the current rotator profile and connection unchanged.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0" colspan="2">
+                  <widget class="QGroupBox" name="antBandsGroup">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="title">
+                    <string>Auto-Select on Bands</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="antBandsGroupLayout">
+                    <property name="spacing">
+                     <number>2</number>
+                    </property>
+                    <item>
+                     <layout class="QGridLayout" name="antBandsLayout">
+                      <property name="verticalSpacing">
+                       <number>2</number>
+                      </property>
+                     </layout>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="antBandsWarningLabel">
+                      <property name="visible">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -2881,14 +2933,14 @@
                  <property name="verticalSpacing">
                   <number>2</number>
                  </property>
-                 <item row="1" column="0">
+                 <item row="0" column="0">
                   <widget class="QLabel" name="rotProfileNameLabel">
                    <property name="text">
                     <string>Profile Name</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
+                 <item row="0" column="1">
                   <widget class="QLineEdit" name="rotProfileNameEdit">
                    <property name="toolTip">
                     <string/>
@@ -2898,14 +2950,14 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
+                 <item row="1" column="0">
                   <widget class="QLabel" name="rotInterfaceLabel">
                    <property name="text">
                     <string>Interface</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
+                 <item row="1" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_42">
                    <item>
                     <widget class="QComboBox" name="rotInterfaceCombo">
@@ -2925,14 +2977,14 @@
                    </item>
                   </layout>
                  </item>
-                 <item row="4" column="0">
+                 <item row="2" column="0">
                   <widget class="QLabel" name="rotPortTypeLabel">
                    <property name="text">
                     <string>Port Type</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
+                 <item row="2" column="1">
                   <widget class="QComboBox" name="rotPortTypeCombo">
                    <item>
                     <property name="text">
@@ -2946,7 +2998,7 @@
                    </item>
                   </widget>
                  </item>
-                 <item row="5" column="0" colspan="2">
+                 <item row="3" column="0" colspan="2">
                   <widget class="QStackedWidget" name="rotStackedWidget">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -3273,6 +3325,9 @@
                  </item>
                  <item row="1" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_15">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3324,6 +3379,9 @@
                  </item>
                  <item row="2" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_16">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3363,6 +3421,9 @@
                  </item>
                  <item row="3" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_24">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3396,6 +3457,9 @@
                  </item>
                  <item row="4" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_25">
+                   <property name="spacing">
+                    <number>8</number>
+                   </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
@@ -3684,6 +3748,35 @@
            <widget class="QLabel" name="qrzNoticePadding">
             <property name="text">
              <string notr="true"/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="qslManagerGroupBox">
+         <property name="title">
+          <string>QSL Manager</string>
+         </property>
+         <layout class="QFormLayout" name="qslManagerFormLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="qslManagerSourceLabel">
+            <property name="text">
+             <string>Source</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="qslManagerSourceCombo"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="qslManagerNoticeLabel">
+            <property name="text">
+             <string>Automatically finds a QSL manager for an empty QSL Via field. Existing values are never replaced.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -4971,6 +5064,44 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="fldigiUDPGroupBox">
+         <property name="title">
+          <string>FLDigi</string>
+         </property>
+         <layout class="QFormLayout" name="fldigiUDPFormLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="fldigiUDPPortLabel">
+            <property name="text">
+             <string>ADIF UDP Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="fldigiUDPPortSpin">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Port where QLog listens for incoming ADIF records from FLDigi</string>
+            </property>
+            <property name="minimum">
+             <number>1025</number>
+            </property>
+            <property name="maximum">
+             <number>65534</number>
+            </property>
+            <property name="value">
+             <number>9876</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_17">
          <property name="title">
           <string>Notifications</string>
@@ -5190,7 +5321,7 @@
            <item>
             <widget class="QLabel" name="dateFormatDocLabel">
              <property name="text">
-              <string>&lt;a href=&quot;https://doc.qt.io/qt-6/qdate.html#fromString-1&quot;&gt;Time Format Documentation&lt;/a&gt;</string>
+              <string>&lt;a href=&quot;https://doc.qt.io/qt-6/qdate.html#fromString&quot;&gt;Time Format Documentation&lt;/a&gt;</string>
              </property>
              <property name="openExternalLinks">
               <bool>true</bool>
@@ -5299,6 +5430,26 @@
             </spacer>
            </item>
           </layout>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="dxccFlagsLabel">
+           <property name="text">
+            <string>DXCC Entity Flags</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="showDxccFlagsCheckBox">
+           <property name="toolTip">
+            <string>Show DXCC entity flags</string>
+           </property>
+           <property name="text">
+            <string>Show</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -5596,6 +5747,7 @@
   <tabstop>antDescEdit</tabstop>
   <tabstop>antAzBeamWidthSpinBox</tabstop>
   <tabstop>antAzOffsetSpinBox</tabstop>
+  <tabstop>antRotProfileCombo</tabstop>
   <tabstop>antAddProfileButton</tabstop>
   <tabstop>antDelProfileButton</tabstop>
   <tabstop>cwProfileNameEdit</tabstop>
@@ -5699,6 +5851,7 @@
   <tabstop>hamQthPasswordEdit</tabstop>
   <tabstop>qrzUsernameEdit</tabstop>
   <tabstop>qrzPasswordEdit</tabstop>
+  <tabstop>qslManagerSourceCombo</tabstop>
   <tabstop>webLookupURLEdit</tabstop>
   <tabstop>webLookupURLTestButton</tabstop>
   <tabstop>clublogEmailEdit</tabstop>
@@ -5733,6 +5886,7 @@
   <tabstop>wsjtMulticastCheckbox</tabstop>
   <tabstop>wsjtMulticastAddressEdit</tabstop>
   <tabstop>wsjtMulticastTTLSpin</tabstop>
+  <tabstop>fldigiUDPPortSpin</tabstop>
   <tabstop>notifLogIDEdit</tabstop>
   <tabstop>notifDXSpotsEdit</tabstop>
   <tabstop>notifSpotAlertEdit</tabstop>

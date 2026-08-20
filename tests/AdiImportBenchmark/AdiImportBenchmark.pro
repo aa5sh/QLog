@@ -1,4 +1,4 @@
-QT += testlib core sql
+QT += testlib core sql network
 CONFIG += console testcase c++11
 TEMPLATE = app
 TARGET = tst_adiimportbenchmark

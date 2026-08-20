@@ -86,7 +86,9 @@ sudo add-apt-repository ppa:foldyna/qlog
 sudo apt -U install qlog
 ```
 
-Fedora **RPM packages** are available via GitHub [Releases](https://github.com/foldynl/QLog/releases/latest)
+**Fedora** packages are available in the official repo, so it is enough to do a `dnf install qlog trustedqsl`.
+
+**RPM packages** are available via GitHub [Releases](https://github.com/foldynl/QLog/releases/latest)
 
 <a href='https://flathub.org/apps/io.github.foldynl.QLog'>   <img width='120' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 

@@ -15,7 +15,7 @@
 #include "core/LogParam.h"
 #include "data/Data.h"
 
-MODULE_IDENTIFICATION("qlog.core.eqsl");
+MODULE_IDENTIFICATION("qlog.service.eqsl.eqsl");
 
 extern QTemporaryDir tempDir;
 
@@ -384,7 +384,7 @@ void EQSLQSLDownloader::abortDownload()
     if ( currentReply )
     {
         currentReply->abort();
-        currentReply->deleteLater();
+        currentReply = nullptr;
     }
 }
 
@@ -556,6 +556,11 @@ void EQSLQSLDownloader::processReply(QNetworkReply *reply)
         connect(&adi, &AdiFormat::QSLMergeFinished, this, [this](QSLMergeStat stats)
         {
             emit receiveQSLComplete(stats);
+        });
+
+        connect(&adi, &AdiFormat::QSLMergeFailed, this, [this](const QString &error)
+        {
+            emit receiveQSLFailed(error);
         });
 
         adi.runQSLImport(adi.EQSL);

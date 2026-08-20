@@ -92,6 +92,8 @@ OmnirigV2RigDrv::OmnirigV2RigDrv(const RigProfile &profile,
       FREQMASK(OmnirigV2::PM_FREQA | OmnirigV2::PM_FREQB | OmnirigV2::PM_FREQ),
       VFO_A_MASK(OmnirigV2::PM_VFOA | OmnirigV2::PM_VFOAA | OmnirigV2::PM_VFOAB),
       VFO_B_MASK(OmnirigV2::PM_VFOB | OmnirigV2::PM_VFOBA | OmnirigV2::PM_VFOBB),
+      VFO_SPLIT_MASK(OmnirigV2::PM_VFOAB | OmnirigV2::PM_VFOBA),
+      VFO_SIMPLEX_MASK(OmnirigV2::PM_VFOAA | OmnirigV2::PM_VFOBB),
       VFO_SPEC_MASK(OmnirigV2::PM_VFOEQUAL | OmnirigV2::PM_VFOSWAP),
       ALLVFOsMASK(VFO_A_MASK | VFO_B_MASK | VFO_SPEC_MASK),
       SPLIT_MASK(OmnirigV2::PM_SPLITON | OmnirigV2::PM_SPLITOFF)
@@ -226,6 +228,13 @@ bool OmnirigV2RigDrv::open()
         return false;
     }
 
+    if ( !connPoint || !connCookie )
+    {
+        lastErrorText = tr("Initialization Error");
+        qCWarning(runtime) << "OmniRig event subscription is not initialized";
+        return false;
+    }
+
     long ifaceVer = 0;
     long swVer    = 0;
 
@@ -317,12 +326,12 @@ void OmnirigV2RigDrv::setFrequency(double newFreq)
 
     rig->get_Vfo(&vfo);
 
-    if ( vfo & VFO_B_MASK )
+    if ( (vfo & VFO_B_MASK) && (writableParams & OmnirigV2::PM_FREQB) )
     {
         qCDebug(runtime) << "Setting VFO B Freq";
         rig->put_FreqB(internalFreq);
     }
-    else if ( writableParams & OmnirigV2::PM_FREQA )
+    else if ( !(vfo & VFO_B_MASK) && (writableParams & OmnirigV2::PM_FREQA) )
     {
         qCDebug(runtime) << "Setting VFO A Freq";
         rig->put_FreqA(internalFreq);
@@ -382,7 +391,29 @@ void OmnirigV2RigDrv::setSplit(bool enabled)
 
     MUTEXLOCKER;
 
-    rig->put_Split(enabled ? OmnirigV2::PM_SPLITON : OmnirigV2::PM_SPLITOFF);
+    const OmnirigV2::RigParamX splitParam = enabled ? OmnirigV2::PM_SPLITON
+                                                     : OmnirigV2::PM_SPLITOFF;
+
+    if ( writableParams & splitParam )
+    {
+        rig->put_Split(splitParam);
+    }
+    else if ( !enabled )
+    {
+        OmnirigV2::RigParamX vfo = OmnirigV2::PM_UNKNOWN;
+        rig->get_Vfo(&vfo);
+
+        if ( (vfo & OmnirigV2::PM_VFOAB)
+             && (writableParams & OmnirigV2::PM_VFOAA) )
+        {
+            rig->put_Vfo(OmnirigV2::PM_VFOAA);
+        }
+        else if ( (vfo & OmnirigV2::PM_VFOBA)
+                  && (writableParams & OmnirigV2::PM_VFOBB) )
+        {
+            rig->put_Vfo(OmnirigV2::PM_VFOBB);
+        }
+    }
 
     commandSleep();
 }
@@ -613,7 +644,7 @@ bool OmnirigV2RigDrv::checkFreqChange(int params, bool force)
     }
 
     if ( !rigProfile.getFreqInfo ) return true;
-    if ( !force && !( params & (FREQMASK | ALLVFOsMASK) ) ) return true;
+    if ( !force && !( params & (FREQMASK | ALLVFOsMASK | SPLIT_MASK) ) ) return true;
 
     unsigned int vfo_freq = 0;
     OmnirigV2::RigParamX vfo = OmnirigV2::PM_UNKNOWN;
@@ -875,17 +906,28 @@ void OmnirigV2RigDrv::checkSplitChange(int params, bool force)
         return;
     }
 
-    if ( (params & SPLIT_MASK) || force )
+    const bool hasSplitParam = readableParams & SPLIT_MASK;
+    const int relevantParams = hasSplitParam ? SPLIT_MASK
+                                             : (VFO_SPLIT_MASK | VFO_SIMPLEX_MASK);
+
+    if ( (params & relevantParams) || force )
     {
         int inParams = params;
         if ( force )
         {
-            OmnirigV2::RigParamX s;
-            rig->get_Split(&s);
-            inParams = s;
+            OmnirigV2::RigParamX state = OmnirigV2::PM_UNKNOWN;
+
+            if ( hasSplitParam )
+                rig->get_Split(&state);
+            else
+                rig->get_Vfo(&state);
+
+            inParams = state;
         }
 
-        bool splitEnabled = ( inParams & OmnirigV2::PM_SPLITON ) != 0;
+        const bool splitEnabled = hasSplitParam
+                                      ? (inParams & OmnirigV2::PM_SPLITON)
+                                      : (inParams & VFO_SPLIT_MASK);
 
         qCDebug(runtime) << "Rig Split:" << splitEnabled;
         qCDebug(runtime) << "Object Split:" << currSplitEnabled;

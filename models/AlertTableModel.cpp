@@ -127,6 +127,30 @@ void AlertTableModel::clear()
     endResetModel();
 }
 
+bool AlertTableModel::containsAlert(const SpotAlert &alert)
+{
+    QMutexLocker locker(&alertListMutex);
+    return alertList.contains(AlertTableRecord(alert));
+}
+
+bool AlertTableModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    QMutexLocker locker(&alertListMutex);
+
+    if ( parent.isValid()
+         || row < 0
+         || count <= 0
+         || count > alertList.count() - row )
+        return false;
+
+    beginRemoveRows(parent, row, row + count - 1);
+    for ( int i = 0; i < count; ++i )
+        alertList.removeAt(row);
+    endRemoveRows();
+
+    return true;
+}
+
 const AlertTableModel::AlertTableRecord AlertTableModel::getTableRecord(const QModelIndex &index)
 {
     QMutexLocker locker(&alertListMutex);
@@ -287,7 +311,8 @@ bool AlertTableModel::AlertTableRecord::operator==(const AlertTableRecord &spot)
 {
    return ( (spot.alert.spot.callsign == this->alert.spot.callsign)
             && (spot.alert.spot.modeGroupString == this->alert.spot.modeGroupString)
-            && (qAbs(this->alert.spot.freq - spot.alert.spot.freq) <= FREQ_MATCH_TOLERANCE)
+            && (qAbs(MHz2Hz(this->alert.spot.freq) - MHz2Hz(spot.alert.spot.freq))
+                <= MHz2Hz(FREQ_MATCH_TOLERANCE))
             );
 }
 

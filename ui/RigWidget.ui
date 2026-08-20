@@ -35,20 +35,49 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QComboBox" name="rigProfilCombo">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="focusPolicy">
-        <enum>Qt::ClickFocus</enum>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
-       </property>
-      </widget>
+       <item>
+        <widget class="QToolButton" name="connectButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonIconOnly</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="rigProfilCombo">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QComboBox" name="bandComboBox">

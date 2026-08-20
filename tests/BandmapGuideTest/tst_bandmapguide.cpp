@@ -6,6 +6,8 @@
 #include <QSqlQuery>
 #include <QTemporaryDir>
 
+#include <cmath>
+
 #include "core/LogParam.h"
 #include "data/BandmapGuide.h"
 
@@ -40,6 +42,7 @@ private slots:
     void profilesUseExampleGuideOnFirstRun();
     void saveProfilesRoundTripFiltersInvalidData();
     void currentProfileFallsBackToFirstProfile();
+    void rangeContainsUsesHalfOpenHzBoundaries();
     void profileExistsRejectsEmptyAndMissingId();
     void setCurrentProfileIdEmitsChangedOnlyOnRealChange();
     void setEnabledEmitsChangedOnlyOnRealChange();
@@ -162,6 +165,27 @@ void BandmapGuideTest::currentProfileFallsBackToFirstProfile()
 
     QCOMPARE(current.id, first.id);
     QCOMPARE(current.name, first.name);
+}
+
+void BandmapGuideTest::rangeContainsUsesHalfOpenHzBoundaries()
+{
+    const BandmapGuide::Range lower(14.000000, 14.070000, QColor(Qt::red));
+    const BandmapGuide::Range upper(14.070000, 14.074000, QColor(Qt::blue));
+    const BandmapGuide::Range subHz(14.070000,
+                                    std::nextafter(14.070000, 15.0),
+                                    QColor(Qt::green));
+
+    QVERIFY(lower.isValid());
+    QVERIFY(!subHz.isValid());
+    QVERIFY(!lower.contains(13.999999));
+    QVERIFY(lower.contains(14.000000));
+    QVERIFY(lower.contains(14.069999));
+    QVERIFY(!lower.contains(14.070000));
+    QVERIFY(upper.contains(14.070000));
+
+    const double boundaryFromBelow = std::nextafter(14.070000, 0.0);
+    QVERIFY(!lower.contains(boundaryFromBelow));
+    QVERIFY(upper.contains(boundaryFromBelow));
 }
 
 void BandmapGuideTest::profileExistsRejectsEmptyAndMissingId()

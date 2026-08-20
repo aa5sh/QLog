@@ -35,6 +35,14 @@
 // in seconds
 #define DXTRENDS_TIMEOUT 60
 
+static bool jsonToFiniteDouble(const QJsonValue &jsonValue, double &value)
+{
+    bool ok = jsonValue.isDouble();
+    value = ok ? jsonValue.toDouble()
+               : jsonValue.toString().toDouble(&ok);
+    return ok && qIsFinite(value);
+}
+
 MODULE_IDENTIFICATION("qlog.core.conditions");
 
 PropConditions::PropConditions(QObject *parent) : QObject(parent),
@@ -137,28 +145,42 @@ void PropConditions::processReply(QNetworkReply* reply)
             QDomElement kindex = n.firstChildElement("kindex");
             QDomElement solarflux = n.firstChildElement("solarflux");
 
+            bool ok = false;
+
             if ( !aindex.isNull() )
             {
-                a_index = aindex.text().toInt();
-                qCDebug(runtime) << "A-Index: " << a_index;
-                a_index_last_update = QDateTime::currentDateTime();
-                emit AIndexUpdated();
+                const int value = aindex.text().toInt(&ok);
+                if ( ok )
+                {
+                    a_index = value;
+                    qCDebug(runtime) << "A-Index: " << a_index;
+                    a_index_last_update = QDateTime::currentDateTime();
+                    emit AIndexUpdated();
+                }
             }
 
             if ( !kindex.isNull() )
             {
-                k_index = kindex.text().toDouble();
-                qCDebug(runtime) << "K-Index: " << k_index;
-                k_index_last_update = QDateTime::currentDateTime();
-                emit KIndexUpdated();
+                const double value = kindex.text().toDouble(&ok);
+                if ( ok && qIsFinite(value) )
+                {
+                    k_index = value;
+                    qCDebug(runtime) << "K-Index: " << k_index;
+                    k_index_last_update = QDateTime::currentDateTime();
+                    emit KIndexUpdated();
+                }
             }
 
             if ( !solarflux.isNull() )
             {
-                flux = solarflux.text().toInt();
-                qCDebug(runtime) << "Flux: " << flux;
-                flux_last_update = QDateTime::currentDateTime();
-                emit fluxUpdated();
+                const int value = solarflux.text().toInt(&ok);
+                if ( ok )
+                {
+                    flux = value;
+                    qCDebug(runtime) << "Flux: " << flux;
+                    flux_last_update = QDateTime::currentDateTime();
+                    emit fluxUpdated();
+                }
             }
         }
         else if (replyURL == QUrl(AURORA_MAP))
@@ -168,20 +190,24 @@ void PropConditions::processReply(QNetworkReply* reply)
             QJsonDocument doc = QJsonDocument::fromJson(data);
             if ( ! doc.isNull() )
             {
-                double skipElement = 0.0;
+                const double skipElement = 0.0;
 
                 qCDebug(runtime) << "Aurora forecast Time:" << doc["Forecast Time"].toString();
                 const QJsonArray &jsonArray = doc["coordinates"].toArray();
-                for (const QJsonValue &value : jsonArray)
+                for ( const QJsonValue &value : jsonArray )
                 {
-                    QJsonArray obj = value.toArray();
-                    if ( obj.size() == 3 )
-                    {
-                        double longitute = obj[0].toDouble();
-                        double latitude = obj[1].toDouble();
-                        double prob = obj[2].toDouble();
-                        auroraMap.addPoint(longitute, latitude, prob, &skipElement);
-                    }
+                    const QJsonArray obj = value.toArray();
+                    double longitude;
+                    double latitude;
+                    double probability;
+
+                    if ( obj.size() != 3
+                         || !jsonToFiniteDouble(obj[0], longitude)
+                         || !jsonToFiniteDouble(obj[1], latitude)
+                         || !jsonToFiniteDouble(obj[2], probability) )
+                        continue;
+
+                    auroraMap.addPoint(longitude, latitude, probability, &skipElement);
                 }
                 auroraMap_last_update = QDateTime::currentDateTime();
                 emit auroraMapUpdated();
@@ -195,17 +221,23 @@ void PropConditions::processReply(QNetworkReply* reply)
 
             if ( ! doc.isNull() )
             {
-                double skipElement = 0.0;
+                const double skipElement = 0.0;
 
                 const QJsonArray &jsonArray = doc.array();
-                for (const QJsonValue &value : jsonArray)
+                for ( const QJsonValue &value : jsonArray )
                 {
-                    QJsonObject obj = value.toObject();
-                    QJsonObject station = obj["station"].toObject();
-                    double longitute = station["longitude"].toString().toDouble();
-                    double latitude = station["latitude"].toString().toDouble();
-                    double muf = obj["mufd"].toDouble();
-                    mufMap.addPoint(longitute, latitude, muf, &skipElement);
+                    const QJsonObject obj = value.toObject();
+                    const QJsonObject station = obj["station"].toObject();
+                    double longitude;
+                    double latitude;
+                    double muf;
+
+                    if ( !jsonToFiniteDouble(station["longitude"], longitude)
+                         || !jsonToFiniteDouble(station["latitude"], latitude)
+                         || !jsonToFiniteDouble(obj["mufd"], muf) )
+                        continue;
+
+                    mufMap.addPoint(longitude, latitude, muf, &skipElement);
                 }
                 mufMap_last_update = QDateTime::currentDateTime();
                 emit mufMapUpdated();

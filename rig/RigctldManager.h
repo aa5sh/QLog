@@ -44,6 +44,8 @@ private slots:
     void onReadyReadStderr();
 
 private:
+    friend class RigctldManagerTest;
+
     bool waitForRigctldReady(int timeoutMs = 5000);
     QStringList buildArguments(const RigProfile &profile) const;
 

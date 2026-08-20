@@ -282,6 +282,7 @@ void StatisticsWidget::refreshGraph()
          switch ( ui->statTypeSecCombo->currentIndex() )
          {
          case 0:  // Distance
+         {
              QString distCoef = QString::number(Gridsquare::localeDistanceCoef(locale));
              stmt = QString("WITH hist AS ( "
                     " SELECT CAST((distance * %1)/500.00 AS INTEGER) * 500 as dist_floor, "
@@ -295,6 +296,12 @@ void StatisticsWidget::refreshGraph()
                     "SELECT dist_floor as dist_range, count "
                     " FROM hist "
                     " ORDER BY 1").arg(distCoef);
+             break;
+         }
+         case 1:  // Operator callsigns
+             stmt = "SELECT COALESCE(NULLIF(TRIM(operator), ''), '" + tr("Not specified") + "'), COUNT(1) "
+                    "FROM contacts WHERE " + genericFilter.join(" AND ") + " "
+                    "GROUP BY 1 ORDER BY 2 DESC, 1";
              break;
          }
 
@@ -498,8 +505,10 @@ void StatisticsWidget::drawBarGraphs(const QString &title, QSqlQuery &query)
     axisY->applyNiceNumbers();
     axisY->setLabelFormat("%d");
 
-    series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
+    series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
     series->setLabelsVisible(true);
+
+    set->setLabelColor(QColor(Qt::black));
 
     chart->setTitle(title);
     chart->legend()->hide();
@@ -723,6 +732,7 @@ void StatisticsWidget::setSubTypesCombo(int mainTypeIdx)
         QString unit;
         Gridsquare::distance2localeUnitDistance(0, unit, locale);
         ui->statTypeSecCombo->addItem(tr("Distance") + QString(" [%1]").arg(unit));
+        ui->statTypeSecCombo->addItem(tr("Operator Callsign"));
     }
     break;
 

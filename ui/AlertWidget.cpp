@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "AlertWidget.h"
 #include "ui_AlertWidget.h"
 #include "core/debug.h"
@@ -29,6 +31,8 @@ AlertWidget::AlertWidget(QWidget *parent) :
 
     ui->alertTableView->addAction(ui->actionEditRules);
     ui->alertTableView->addAction(ui->actionColumnVisibility);
+    ui->alertTableView->addAction(ui->actionClearSelected);
+    ui->alertTableView->addAction(ui->actionClearSeparator);
     ui->alertTableView->addAction(ui->actionClear);
 
     restoreTableHeaderState();
@@ -66,6 +70,28 @@ void AlertWidget::clearAllAlerts()
     FCT_IDENTIFICATION;
 
     alertTableModel->clear();
+    emit alertsCleared();
+}
+
+void AlertWidget::clearSelectedAlerts()
+{
+    FCT_IDENTIFICATION;
+
+    const QModelIndexList selectedRows = ui->alertTableView->selectionModel()->selectedRows();
+    QList<int> sourceRows;
+
+    for ( const QModelIndex &index : selectedRows )
+        sourceRows << proxyModel->mapToSource(index).row();
+
+    if ( sourceRows.isEmpty() )
+        return;
+
+    // Rows must be removed in descending order to keep the remaining indexes valid.
+    std::sort(sourceRows.rbegin(), sourceRows.rend());
+
+    for ( const int row : sourceRows )
+        alertTableModel->removeRow(row);
+
     emit alertsCleared();
 }
 
@@ -187,6 +213,11 @@ int AlertWidget::alertCount() const
     FCT_IDENTIFICATION;
 
     return alertTableModel->rowCount();
+}
+
+bool AlertWidget::containsAlert(const SpotAlert &alert)
+{
+    return alertTableModel->containsAlert(alert);
 }
 
 void AlertWidget::finalizeBeforeAppExit()
