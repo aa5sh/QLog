@@ -385,7 +385,10 @@ void RotatorWidget::setUserButtonDesc(QPushButton *button,
         button->setEnabled(true);
     }
     else
+    {
         button->setText("");
+        button->setEnabled(false);
+    }
 }
 
 void RotatorWidget::redrawMap()
