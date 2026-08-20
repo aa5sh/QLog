@@ -631,6 +631,7 @@
     var pathLayer = L.layerGroup().addTo(map);
     const geodesic = new L.Geodesic([],{ wrap: false, color: "Fuchsia", steps: 5});
     const shortPathsGeodesic = new L.Geodesic([],{ wrap: false, color: "#cc2e41", steps: 5, opacity: 0.7, weight: 1});
+    var qsoPathEnd = null;
     pathLayer.addLayer(geodesic);
     pathLayer.addLayer(shortPathsGeodesic);
 
@@ -639,27 +640,33 @@
                                            dashArray: '10,10', dashOffset: '10'});
     var antGeodesic2 = new L.Geodesic([],{ wrap: false, color: "orange", steps: 5,
                                            dashArray: '10,10', dashOffset: '10'});
+    var antPath = null;
     antPathLayer.addLayer(antGeodesic1);
     antPathLayer.addLayer(antGeodesic2);
 
     function drawPath(points) {
         geodesic.setLatLngs([]);
         shortPathsGeodesic.setLatLngs([]);
+        qsoPathEnd = points.length == 2 ? points[1] : null;
 
-        if (points.length != 2)
-            return;
-        geodesic.setLatLngs([points[0], points[1]]);
-        map.fitBounds(geodesic.getBounds(), {animate:false});
+        if (qsoPathEnd) {
+            geodesic.setLatLngs([points[0], qsoPathEnd]);
+            map.fitBounds(geodesic.getBounds(), {animate:false});
+        }
+
+        redrawAntPath();
     }
 
     function drawShortPaths(coords) {
         const paths = [];
         geodesic.setLatLngs([]);
+        qsoPathEnd = null;
         coords.forEach(function(rawPath) {
             const path = normalizePath(rawPath);
             paths.push([path.from, path.to]);
         });
         shortPathsGeodesic.setLatLngs(paths);
+        redrawAntPath();
     }
 
     function drawShortPathsBusy(coords, text) {
@@ -688,29 +695,38 @@
         return {"lat": newLat, "lng": (lon2 * 180 / M_PI)};
     }
 
-    // generic function to render Ant Path
-    function drawAntPath(fromPoint, distance, azimuth, antAngle) {
+    function visibleAntPathDistance(fromPoint) {
+        const bounds = map.getBounds();
+        return Math.max(...[bounds.getNorthWest(), bounds.getNorthEast(),
+                            bounds.getSouthWest(), bounds.getSouthEast()]
+                          .map(corner => map.distance(fromPoint, corner))) / 1000;
+    }
+
+    function redrawAntPath() {
         let line1 = []; // empty field means delete the line;
         let line2 = []; // empty field means delete the line;
-        if (fromPoint && Object.keys(fromPoint).length != 0) {
-            line1 = [fromPoint, beamEndPosition(fromPoint, distance, azimuth - (antAngle/2))];
-            line2 = [fromPoint, beamEndPosition(fromPoint, distance, azimuth + (antAngle/2))];
+        if (antPath) {
+            const distance = qsoPathEnd
+                               ? map.distance(antPath.from, qsoPathEnd) / 1000
+                               : visibleAntPathDistance(antPath.from);
+            line1 = [antPath.from, beamEndPosition(antPath.from, distance,
+                                                   antPath.azimuth - (antPath.angle/2))];
+            line2 = [antPath.from, beamEndPosition(antPath.from, distance,
+                                                   antPath.azimuth + (antPath.angle/2))];
         }
         antGeodesic1.setLatLngs(line1);
         antGeodesic2.setLatLngs(line2);
-        // too many movements if focusing also antenna path, disable it
-        //fitQSOAnt();
     }
 
-    function fitQSOAnt() {
-       let bound = geodesic.getBounds();
-       if ( map.hasLayer(antPathLayer) ) {
-          bound.extend(antGeodesic1.getBounds());
-          bound.extend(antGeodesic2.getBounds());
-       }
-       //map.fitBounds(bound, {animate:false});
-       map.panTo(bound.getCenter(), {animate:false});
+    // generic function to render Ant Path
+    function drawAntPath(fromPoint, azimuth, antAngle) {
+        antPath = fromPoint && Object.keys(fromPoint).length != 0
+                    ? {from: fromPoint, azimuth: azimuth, angle: antAngle}
+                    : null;
+        redrawAntPath();
     }
+
+    map.on('moveend resize', redrawAntPath);
 
     var markersLayer = L.layerGroup().addTo(map);
 

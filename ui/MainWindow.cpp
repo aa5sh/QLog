@@ -137,7 +137,6 @@ MainWindow::MainWindow(QWidget* parent) :
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
-    ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
     ui->chatWidget->registerContactWidget(ui->newContactWidget);
 
     const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();

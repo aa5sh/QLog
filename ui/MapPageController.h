@@ -108,7 +108,6 @@ public:
     void drawShortPathsBusy(const QList<MapPath> &paths,
                             const QString &text);
     void drawAntPath(const MapCoordinate &from,
-                     double distance,
                      double azimuth,
                      double antAngle);
     void clearAntPath();

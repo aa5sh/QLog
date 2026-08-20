@@ -323,15 +323,13 @@ void MapPageController::drawShortPathsBusy(const QList<MapPath> &paths,
 }
 
 void MapPageController::drawAntPath(const MapCoordinate &from,
-                                    double distance,
                                     double azimuth,
                                     double antAngle)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("drawAntPath(%1, %2, %3, %4);")
+    runJavaScript(QStringLiteral("drawAntPath(%1, %2, %3);")
                   .arg(jsonObject(coordinateObject(from)))
-                  .arg(distance)
                   .arg(azimuth)
                   .arg(antAngle));
 }
@@ -340,7 +338,7 @@ void MapPageController::clearAntPath()
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QLatin1String("drawAntPath({}, 0, 0, 0);"));
+    runJavaScript(QLatin1String("drawAntPath({});"));
 }
 
 void MapPageController::setGridLayers(const QStringList &confirmedGrids,
