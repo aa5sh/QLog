@@ -392,6 +392,10 @@ void RotatorWidget::redrawMap()
     if ( compassScene )
         compassScene->deleteLater();
 
+    antennaNeedle = nullptr;
+    requestedAzimuthNeedle = nullptr;
+    QSOAzimuthNeedle = nullptr;
+
     compassScene = new QGraphicsScene(this);
     ui->compassView->setScene(compassScene);
     ui->compassView->setStyleSheet("background-color: transparent;");
