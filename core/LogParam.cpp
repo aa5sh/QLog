@@ -1104,6 +1104,28 @@ void LogParam::setMapLayerState(const QString &widgetID, const QString &layerNam
     setParam(widgetID + "/layerstate/" + layerName, state);
 }
 
+double LogParam::getRotatorMapZoom()
+{
+    return getParam("rotator/mapzoom", 1.0).toDouble();
+}
+
+void LogParam::setRotatorMapZoom(double zoom)
+{
+    setParam("rotator/mapzoom", zoom);
+}
+
+QPointF LogParam::getRotatorMapCenter()
+{
+    return QPointF(getParam("rotator/mapcenterx", 0.0).toDouble(),
+                   getParam("rotator/mapcentery", 0.0).toDouble());
+}
+
+void LogParam::setRotatorMapCenter(const QPointF &center)
+{
+    setParam("rotator/mapcenterx", center.x());
+    setParam("rotator/mapcentery", center.y());
+}
+
 uint LogParam::getWsjtxFilterDxccStatus()
 {
     return getParam("wsjtx/filter/dxccstatus", (DxccStatus::NewEntity | DxccStatus::NewBand |
