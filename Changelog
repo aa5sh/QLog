@@ -41,6 +41,7 @@ TBC - 0.52.0
 - Flrig - various fixes
 - Hamlib Rotaror - various fixes
 - PSTRot - various fixes
+- Rotator Widget - various fixes
 
 2026/07/07 - 0.51.1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)

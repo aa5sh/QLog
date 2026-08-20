@@ -19,7 +19,6 @@ RotatorWidget::RotatorWidget(QWidget *parent) :
     antennaNeedle(nullptr),
     requestedAzimuthNeedle(nullptr),
     QSOAzimuthNeedle(nullptr),
-    waitingFirstValue(true),
     compassScene(nullptr),
     ui(new Ui::RotatorWidget),
     antennaAzimuth(0.0),
@@ -155,11 +154,6 @@ void RotatorWidget::positionChanged(double in_azimuth, double in_elevation)
 
     antennaAzimuth = (in_azimuth < 0.0 ) ? 360.0 + in_azimuth : in_azimuth;
     if ( antennaNeedle) antennaNeedle->setRotation(antennaAzimuth);
-    if ( waitingFirstValue )
-    {
-        waitingFirstValue = false;
-        if ( requestedAzimuthNeedle) requestedAzimuthNeedle->setRotation(in_azimuth);
-    }
     ui->gotoDoubleSpinBox->blockSignals(true);
     ui->gotoDoubleSpinBox->setValue(antennaAzimuth);
     ui->gotoDoubleSpinBox->blockSignals(false);
@@ -562,7 +556,6 @@ void RotatorWidget::rotConnected()
     ui->leftButton->setVisible(ui->userButtonsProfileCombo->count()>1);
     ui->rightButton->setVisible(ui->userButtonsProfileCombo->count()>1);
     refreshRotUserButtons();
-    waitingFirstValue = true;
     if ( antennaNeedle ) antennaNeedle->show();
 }
 

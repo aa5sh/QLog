@@ -68,7 +68,6 @@ private:
     QGraphicsPathItem* antennaNeedle;
     QGraphicsPathItem* requestedAzimuthNeedle;
     QGraphicsPathItem* QSOAzimuthNeedle;
-    bool waitingFirstValue;
     QGraphicsScene* compassScene;
     Ui::RotatorWidget *ui;
     double antennaAzimuth;
