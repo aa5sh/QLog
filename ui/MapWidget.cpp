@@ -1,19 +1,26 @@
 #include <QGraphicsTextItem>
+#include <QMouseEvent>
 #include <QTime>
 #include <QTimer>
+#include <QWheelEvent>
 #include <QDebug>
 #include <QPainter>
 #include <QVector3D>
 #include <QtMath>
 #include "MapWidget.h"
 #include "core/debug.h"
+#include "core/LogParam.h"
 #include "data/Gridsquare.h"
 #include "data/StationProfile.h"
 
 MODULE_IDENTIFICATION("qlog.ui.mapwidget");
 
 MapWidget::MapWidget(QWidget *parent) :
-    QGraphicsView(parent)
+    QGraphicsView(parent),
+    mapZoom(1.0),
+    mapCenter(0.0, 0.0),
+    targetLatitude(qQNaN()),
+    targetLongitude(qQNaN())
 {
     FCT_IDENTIFICATION;
 
@@ -24,6 +31,20 @@ MapWidget::MapWidget(QWidget *parent) :
     QPixmap pix(":/res/map/nasabluemarble.jpg");
     scene->addPixmap(pix);
     scene->setSceneRect(pix.rect());
+
+    mapZoom = LogParam::getOfflineMapZoom();
+    if ( !qIsFinite(mapZoom) )
+        mapZoom = MAP_ZOOM_MIN;
+    else
+        mapZoom = qBound(MAP_ZOOM_MIN, mapZoom, MAP_ZOOM_MAX);
+
+    mapCenter = LogParam::getOfflineMapCenter();
+    if ( !qIsFinite(mapCenter.x()) || !qIsFinite(mapCenter.y()) )
+        mapCenter = stationMapCenter();
+
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setDragMode(QGraphicsView::ScrollHandDrag);
 
     nightOverlay = new QGraphicsPixmapItem();
     scene->addItem(nightOverlay);
@@ -50,6 +71,9 @@ MapWidget::MapWidget(QWidget *parent) :
 void MapWidget::clear()
 {
     FCT_IDENTIFICATION;
+
+    targetLatitude = qQNaN();
+    targetLongitude = qQNaN();
 
     QMutableListIterator<QGraphicsItem*> i(items);
 
@@ -323,7 +347,11 @@ void MapWidget::setTarget(double lat, double lon)
 
     qCDebug(function_parameters) << lat << lon;
 
+    const bool targetChanged = lat != targetLatitude || lon != targetLongitude;
     clear();
+
+    targetLatitude = lat;
+    targetLongitude = lon;
 
     if ( qIsNaN(lat) || qIsNaN(lon) ) return;
 
@@ -340,16 +368,132 @@ void MapWidget::setTarget(double lat, double lon)
         qCDebug(runtime) << "My QTH" << qthLat << qthLon;
 
         QPoint qth = coordToPoint(qthLat, qthLon);
-        drawPoint(qth);
         drawLine(qth, point);
+        if ( targetChanged )
+            fitQSOPath(qth, point);
     }
+}
+
+void MapWidget::stationProfileChanged()
+{
+    FCT_IDENTIFICATION;
+
+    mapCenter = stationMapCenter();
+    updateMapTransform();
+    LogParam::setOfflineMapCenter(mapCenter);
+}
+
+void MapWidget::fitQSOPath(const QPoint &qth, const QPoint &target)
+{
+    FCT_IDENTIFICATION;
+
+    const QRectF sceneRect = scene->sceneRect();
+
+    if ( qAbs(qth.x() - target.x()) > sceneRect.width() / 2.0 )
+    {
+        mapZoom = MAP_ZOOM_MIN;
+        mapCenter = sceneRect.center();
+    }
+    else
+    {
+        QRectF pathBounds = QRectF(QPointF(qth), QPointF(target)).normalized();
+        for ( QGraphicsItem *item : static_cast<const QList<QGraphicsItem*>>(items) )
+            pathBounds = pathBounds.united(item->sceneBoundingRect());
+        pathBounds.adjust(-20.0, -20.0, 20.0, 20.0);
+
+        resetTransform();
+        fitInView(sceneRect, Qt::KeepAspectRatio);
+        const QRectF fullView = mapToScene(viewport()->rect()).boundingRect();
+        const double zoom = 0.9 * qMin(fullView.width() / pathBounds.width(),
+                                       fullView.height() / pathBounds.height());
+        mapZoom = qBound(MAP_ZOOM_MIN, zoom, MAP_ZOOM_MAX);
+        mapCenter = pathBounds.center();
+    }
+
+    updateMapTransform();
+    LogParam::setOfflineMapZoom(mapZoom);
+    LogParam::setOfflineMapCenter(mapCenter);
+}
+
+void MapWidget::wheelEvent(QWheelEvent *event)
+{    
+    const int delta = event->angleDelta().y() != 0
+                          ? event->angleDelta().y()
+                          : event->pixelDelta().y();
+
+    if ( delta != 0 )
+    {
+        setMapZoom(mapZoom + (delta > 0 ? MAP_ZOOM_STEP : -MAP_ZOOM_STEP));
+        event->accept();
+        return;
+    }
+
+    QGraphicsView::wheelEvent(event);
+}
+
+void MapWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    QGraphicsView::mouseReleaseEvent(event);
+
+    const QPointF center = currentMapCenter();
+    if ( event->button() == Qt::LeftButton && center != mapCenter )
+    {
+        mapCenter = center;
+        LogParam::setOfflineMapCenter(mapCenter);
+    }
+}
+
+QPointF MapWidget::stationMapCenter()
+{
+    FCT_IDENTIFICATION;
+
+    const Gridsquare myGrid = Gridsquare::mapDisplayGrid(
+        StationProfilesManager::instance()->getCurProfile1().locator);
+    return myGrid.isValid()
+           ? coordToPoint(myGrid.getLatitude(), myGrid.getLongitude())
+           : scene->sceneRect().center();
+}
+
+QPointF MapWidget::currentMapCenter() const
+{
+    return mapToScene(viewport()->rect().center());
+}
+
+void MapWidget::setMapZoom(double zoom)
+{
+    FCT_IDENTIFICATION;
+
+    const double boundedZoom = qBound(MAP_ZOOM_MIN, zoom, MAP_ZOOM_MAX);
+
+    if ( qFuzzyCompare(mapZoom, boundedZoom) )
+        return;
+
+    mapCenter = currentMapCenter();
+    mapZoom = boundedZoom;
+    updateMapTransform();
+    LogParam::setOfflineMapZoom(mapZoom);
+}
+
+void MapWidget::updateMapTransform()
+{
+    if ( !scene || scene->sceneRect().isEmpty() )
+        return;
+
+    const QRectF sceneRect = scene->sceneRect();
+    mapCenter.setX(qBound(sceneRect.left(), mapCenter.x(), sceneRect.right()));
+    mapCenter.setY(qBound(sceneRect.top(), mapCenter.y(), sceneRect.bottom()));
+
+    resetTransform();
+    fitInView(sceneRect, Qt::KeepAspectRatio);
+    scale(mapZoom, mapZoom);
+    centerOn(mapCenter);
 }
 
 void MapWidget::showEvent(QShowEvent* event)
 {
     FCT_IDENTIFICATION;
 
-    this->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    updateMapTransform();
     QWidget::showEvent(event);
 }
 
@@ -357,7 +501,7 @@ void MapWidget::resizeEvent(QResizeEvent* event)
 {
     FCT_IDENTIFICATION;
 
-    this->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    updateMapTransform();
     QWidget::resizeEvent(event);
 }
 

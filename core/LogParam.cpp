@@ -1104,6 +1104,28 @@ void LogParam::setMapLayerState(const QString &widgetID, const QString &layerNam
     setParam(widgetID + "/layerstate/" + layerName, state);
 }
 
+double LogParam::getOfflineMapZoom()
+{
+    return getParam("offlinemap/mapzoom", 1.0).toDouble();
+}
+
+void LogParam::setOfflineMapZoom(double zoom)
+{
+    setParam("offlinemap/mapzoom", zoom);
+}
+
+QPointF LogParam::getOfflineMapCenter()
+{
+    return QPointF(getParam("offlinemap/mapcenterx", qQNaN()).toDouble(),
+                   getParam("offlinemap/mapcentery", qQNaN()).toDouble());
+}
+
+void LogParam::setOfflineMapCenter(const QPointF &center)
+{
+    setParam("offlinemap/mapcenterx", center.x());
+    setParam("offlinemap/mapcentery", center.y());
+}
+
 double LogParam::getRotatorMapZoom()
 {
     return getParam("rotator/mapzoom", 1.0).toDouble();

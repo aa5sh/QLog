@@ -242,6 +242,8 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->rotatorWidget, &RotatorWidget::stationProfileChanged);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->mapWidget, &MapWidget::stationProfileChanged);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->chatWidget, &ChatWidget::reloadStationProfile);
