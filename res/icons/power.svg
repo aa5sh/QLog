@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="25"
+    viewBox="0 0 24 25">
+
+    <g
+        fill="none"
+        stroke="#ababab"
+        stroke-width="2.4"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+
+        <!-- Power stem -->
+        <path d="M12 3.5 V11.5"/>
+
+        <!-- Open power ring -->
+        <path d="
+            M7.1 6.9
+            A8 8 0 1 0 16.9 6.9
+        "/>
+
+    </g>
+</svg>

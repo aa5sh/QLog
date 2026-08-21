@@ -35,8 +35,8 @@ public:
     QString parity;
     qint32 driver;
 
-    bool operator== (const RotProfile &profile);
-    bool operator!= (const RotProfile &profile);
+    bool operator== (const RotProfile &profile) const;
+    bool operator!= (const RotProfile &profile) const;
 
     rotPortType getPortType() const;
 

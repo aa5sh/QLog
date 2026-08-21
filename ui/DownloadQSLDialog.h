@@ -2,6 +2,7 @@
 #define DOWNLOADQSLDIALOG_H
 
 #include <QDialog>
+#include <functional>
 #include "core/LogLocale.h"
 #include "logformat/LogFormat.h"
 #include "service/GenericQSLDownloader.h"
@@ -21,11 +22,13 @@ public:
 private:
     void prepareDownload(GenericQSLDownloader* service,
                          const QString &serviceName,
-                         bool qslSinceActive,
-                         const QString &settingString);
+                         const std::function<void()> &downloadSucceeded);
     void startNextDownload();
     void loadDialogState();
+    void loadLotwDate();
+    void loadEqslDate();
     void saveDialogState();
+    QStringList selectedLotwCallsigns() const;
 
     Ui::DownloadQSLDialog *ui;
     LogLocale locale;

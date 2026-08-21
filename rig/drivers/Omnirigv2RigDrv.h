@@ -107,6 +107,8 @@ private:
     const int FREQMASK;
     const int VFO_A_MASK;
     const int VFO_B_MASK;
+    const int VFO_SPLIT_MASK;
+    const int VFO_SIMPLEX_MASK;
     const int VFO_SPEC_MASK;
     const int ALLVFOsMASK;
     const int SPLIT_MASK;

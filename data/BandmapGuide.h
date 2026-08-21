@@ -29,6 +29,7 @@ public:
               const QString &rangeLabel = QString());
 
         bool isValid() const;
+        bool contains(double frequency) const;
     };
 
     struct Profile

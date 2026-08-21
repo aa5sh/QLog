@@ -97,7 +97,7 @@ public:
     void setPrintBorders(bool enabled);
     void setStyleOptions(const LabelStyleOptions &opts);
     void setPrintMode(QSLPrintMode mode);
-    void setPageSize(QPageSize::PageSizeId pageSize);
+    void setPageSize(const QPageSize &pageSize);
     void setCardLayout(const QSLCardLayout &layout);
     void setCardBackgroundImage(const QImage &image);
 
@@ -132,6 +132,7 @@ private:
     QSizeF pageSizeMm() const;
     QSizeF directCardPrintableSize(const QSizeF &pageSize) const;
     DirectCardGrid directCardGrid() const;
+    int directCardCount(double printableLength, double cardLength) const;
     int directCardCols(const QSizeF &printableSize, bool rotateCard) const;
     int directCardRows(const QSizeF &printableSize, bool rotateCard) const;
     qreal mmToUnits(const qreal mm, const qreal dpi) const;
@@ -148,7 +149,7 @@ private:
     bool printBorders = false;
     LabelStyleOptions styleOptions;
     QSLPrintMode printMode = QSLPrintMode::LabelSheet;
-    QPageSize::PageSizeId outputPageSize = QPageSize::A4;
+    QPageSize outputPageSize = QPageSize(QPageSize::A4);
     QSLCardLayout cardLayout;
     QImage cardBackgroundImage;
 

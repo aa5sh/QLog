@@ -1,6 +1,7 @@
 #include "FlrigRigDrv.h"
 #include "core/debug.h"
 #include "rig/macros.h"
+#include <limits>
 
 MODULE_IDENTIFICATION("qlog.rig.driver.flrigrigdrv");
 
@@ -37,6 +38,8 @@ FlrigRigDrv::FlrigRigDrv(const RigProfile &profile,
     : GenericRigDrv(profile, parent),
       networkManager(new QNetworkAccessManager(this)),
       rigReady(false),
+      stopped(false),
+      commandRunning(false),
       hostUrl(QString("http://%1:%2/").arg(profile.hostname).arg(profile.netport))
 {
     FCT_IDENTIFICATION;
@@ -73,7 +76,7 @@ QStringList FlrigRigDrv::getAvailableModes()
 {
     FCT_IDENTIFICATION;
 
-    return rigAvailableModes.keys();
+    return rigAvailableModes;
 }
 
 void FlrigRigDrv::setFrequency(double newFreq)
@@ -84,7 +87,7 @@ void FlrigRigDrv::setFrequency(double newFreq)
 
     if ( !rigProfile.getFreqInfo || !rigReady ) return;
 
-    if ( newFreq == currFreq )
+    if ( newFreq == MHz2Hz(currFreq) )
     {
         qCDebug(runtime) << "The same Freq - skip change" << currFreq << currFreq;
         return;
@@ -156,7 +159,7 @@ void FlrigRigDrv::setPTT(bool ptt)
 
     if ( !rigProfile.getPTTInfo || !rigReady ) return;
 
-    sendXmlRpcCommand("rig.set_ptt", { ptt });
+    sendXmlRpcCommand("rig.set_ptt", { ptt ? 1 : 0 });
 }
 
 void FlrigRigDrv::setKeySpeed(qint16 wpm)
@@ -223,6 +226,10 @@ void FlrigRigDrv::stopTimers()
 {
     FCT_IDENTIFICATION;
 
+    stopped = true;
+    controlQueue.clear();
+    pollQueue.clear();
+
     for ( QTimer* timer : static_cast<const QList<QTimer*>>(runningTimers) )
         timer->stop();
 
@@ -285,9 +292,9 @@ void FlrigRigDrv::rspGET_MODES(const QVariant &value)
 
     for ( const QString &mode : receivedModes)
         if ( raw2ADIFModeMapping.contains(mode) )
-            rigAvailableModes[mode] = raw2ADIFModeMapping.value(mode);
+            rigAvailableModes << mode;
 
-    qCDebug(runtime) << "Rig Modes" << rigAvailableModes.keys();
+    qCDebug(runtime) << "Rig Modes" << rigAvailableModes;
 
     rigReady = true;
     emit rigIsReady();
@@ -298,7 +305,7 @@ void FlrigRigDrv::reqGET_VFO()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getFreqInfo ) sendXmlRpcCommand("rig.get_vfo");
+    if ( rigProfile.getFreqInfo ) sendXmlRpcCommand("rig.get_vfo", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_VFO(const QVariant &value)
@@ -313,11 +320,12 @@ void FlrigRigDrv::rspGET_VFO(const QVariant &value)
 
     qCDebug(function_parameters) << value;
 
-    double vfoFreq = Hz2MHz(value.toLongLong());
+    const qint64 vfoFreqHz = value.toLongLong();
+    const double vfoFreq = Hz2MHz(vfoFreqHz);
     qCDebug(runtime) << "Rig Freq: "<< QSTRING_FREQ(vfoFreq);
     qCDebug(runtime) << "Object Freq: "<< QSTRING_FREQ(currFreq);
 
-    if ( vfoFreq != currFreq )
+    if ( vfoFreqHz != MHz2Hz(currFreq) )
     {
         currFreq = vfoFreq;
         qCDebug(runtime) << "emitting FREQ changed";
@@ -333,7 +341,7 @@ void FlrigRigDrv::reqGET_MODE()
 {
     FCT_IDENTIFICATION;
 
-     if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_mode");
+     if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_mode", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_MODE(const QVariant &value)
@@ -360,9 +368,10 @@ void FlrigRigDrv::rspGET_MODE(const QVariant &value)
 
         QString submode;
         const QString &mode = getModeNormalizedText(rawMode, submode);
+        const qint32 bandwidth = (currBW >= 0) ? currBW : 0;
 
-        qCDebug(runtime) << "emitting MODE changed" << rawMode << mode << submode;
-        emit modeChanged(rawMode, mode, submode, 0);
+        qCDebug(runtime) << "emitting MODE changed" << rawMode << mode << submode << bandwidth;
+        emit modeChanged(rawMode, mode, submode, bandwidth);
     }
 
     QTimer::singleShot(rigProfile.pollInterval, this, &FlrigRigDrv::reqGET_MODE);
@@ -372,7 +381,7 @@ void FlrigRigDrv::reqGET_BW()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_bw");
+    if ( rigProfile.getModeInfo ) sendXmlRpcCommand("rig.get_bw", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_BW(const QVariant &value)
@@ -394,8 +403,14 @@ void FlrigRigDrv::rspGET_BW(const QVariant &value)
     else
     {
         bool ok = false;
-        int rigBW = values.at(0).toInt(&ok);
-        if ( !ok ) qCDebug(runtime) << "Received BW is not a number";
+        int rigBW = BANDWIDTH_UNKNOWN;
+
+        // A pair may be low/high or width/center, so its width is ambiguous.
+        if ( values.value(1).toString().isEmpty() )
+            rigBW = values.at(0).toInt(&ok);
+
+        if ( !ok )
+            qCDebug(runtime) << "Received BW cannot be represented as a single number";
 
         qCDebug(runtime) << "Rig BW: "<< rigBW;
         qCDebug(runtime) << "Object BW: "<< currBW;
@@ -417,7 +432,7 @@ void FlrigRigDrv::reqGET_POWER()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getPWRInfo )  sendXmlRpcCommand("rig.get_power");
+    if ( rigProfile.getPWRInfo )  sendXmlRpcCommand("rig.get_power", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_POWER(const QVariant &value)
@@ -452,7 +467,7 @@ void FlrigRigDrv::reqGET_AB()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getVFOInfo )  sendXmlRpcCommand("rig.get_AB");
+    if ( rigProfile.getVFOInfo )  sendXmlRpcCommand("rig.get_AB", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_AB(const QVariant &value)
@@ -487,7 +502,7 @@ void FlrigRigDrv::reqGET_PTT()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getPTTInfo )  sendXmlRpcCommand("rig.get_ptt");
+    if ( rigProfile.getPTTInfo )  sendXmlRpcCommand("rig.get_ptt", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspGET_PTT(const QVariant &value)
@@ -516,7 +531,7 @@ void FlrigRigDrv::reqCWIO_GET_WPM()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getKeySpeed )  sendXmlRpcCommand("rig.cwio_get_wpm");
+    if ( rigProfile.getKeySpeed )  sendXmlRpcCommand("rig.cwio_get_wpm", {}, PollCommand);
 }
 
 void FlrigRigDrv::rspCWIO_GET_WPM(const QVariant &value)
@@ -542,7 +557,7 @@ void FlrigRigDrv::reqGET_SPLIT()
 {
     FCT_IDENTIFICATION;
 
-    if ( rigProfile.getSplitInfo ) sendXmlRpcCommand("rig.get_split", {}, false);
+    if ( rigProfile.getSplitInfo ) sendXmlRpcCommand("rig.get_split", {}, PollCommand, false);
 }
 
 void FlrigRigDrv::rspGET_SPLIT(const QVariant &value)
@@ -580,7 +595,7 @@ void FlrigRigDrv::reqGET_TX_FREQ()
 {
     FCT_IDENTIFICATION;
 
-    sendXmlRpcCommand("rig.get_vfoB", {}, false);
+    sendXmlRpcCommand("rig.get_vfoB", {}, PollCommand, false);
 }
 
 void FlrigRigDrv::rspGET_TX_FREQ(const QVariant &value)
@@ -589,12 +604,13 @@ void FlrigRigDrv::rspGET_TX_FREQ(const QVariant &value)
 
     qCDebug(function_parameters) << value;
 
-    double txFreq = Hz2MHz(value.toLongLong());
+    const qint64 txFreqHz = value.toLongLong();
+    const double txFreq = Hz2MHz(txFreqHz);
 
     qCDebug(runtime) << "Rig TX Freq:" << QSTRING_FREQ(txFreq);
     qCDebug(runtime) << "Object TX Freq:" << QSTRING_FREQ(currTxFreq);
 
-    if ( txFreq != currTxFreq )
+    if ( txFreqHz != MHz2Hz(currTxFreq) )
     {
         currTxFreq = txFreq;
         qCDebug(runtime) << "emitting TX FREQ changed";
@@ -629,11 +645,41 @@ void FlrigRigDrv::handleError(const QString &category, const QString &errorMsg)
     emit errorOccurred(category, lastErrorText);
 }
 
-void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant> &params, bool emitError)
+void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant> &params,
+                                    XmlRpcCommandType type, bool emitError)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << method << params << emitError;
+    qCDebug(function_parameters) << method << params << type << emitError;
+
+    if ( stopped ) return;
+
+    const XmlRpcCommand command = {method, params, emitError};
+
+    if ( type == PollCommand )
+        pollQueue.enqueue(command);
+    else
+        controlQueue.enqueue(command);
+
+    sendNextXmlRpcCommand();
+}
+
+void FlrigRigDrv::sendNextXmlRpcCommand()
+{
+    FCT_IDENTIFICATION;
+
+    if ( stopped || commandRunning || !lastErrorText.isEmpty() ) return;
+    if ( controlQueue.isEmpty() && pollQueue.isEmpty() ) return;
+
+    const XmlRpcCommand command = !controlQueue.isEmpty() ? controlQueue.dequeue()
+                                                          : pollQueue.dequeue();
+    commandRunning = true;
+
+    const QString &method = command.method;
+    const QList<QVariant> &params = command.params;
+    const bool emitError = command.emitError;
+
+    qCDebug(runtime) << "Sending XML-RPC command" << method << params;
 
     QByteArray data;
     QXmlStreamWriter writer(&data);
@@ -655,7 +701,11 @@ void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant>
             switch ( param.type() )
             {
                 case QVariant::Double:
-                  writer.writeTextElement("double", QString::number(param.toDouble())); break;
+                  // QString::number() defaults to 6 significant digits, which can round
+                  // radio frequencies. max_digits10 preserves the value during conversion.
+                  writer.writeTextElement("double",
+                                          QString::number(param.toDouble(), 'g',
+                                                          std::numeric_limits<double>::max_digits10)); break;
                 case QVariant::Int:
                   writer.writeTextElement("i4", QString::number(param.toInt())); break;
                 default:
@@ -690,15 +740,19 @@ void FlrigRigDrv::sendXmlRpcCommand(const QString &method, const QList<QVariant>
             if (emitError)
                 handleError(tr("Timeout"), tr("FLRig response timeout"));
         }
+        runningTimers.removeOne(timeoutTimer);
         timeoutTimer->deleteLater();
     });
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, method, timeoutTimer]()
     {
+        runningTimers.removeOne(timeoutTimer);
         timeoutTimer->stop();
         timeoutTimer->deleteLater();
         handleXmlRpcResponse(reply, method);
         reply->deleteLater();
+        commandRunning = false;
+        sendNextXmlRpcCommand();
     });
 }
 
@@ -921,17 +975,17 @@ void FlrigRigDrv::buildModeMappingHash()
         { "PKT(L)",    { "SSB",     "LSB",  true  } },
         { "PKT-L",     { "SSB",     "LSB",  true  } },
         { "PKT-U",     { "SSB",     "USB",  true  } },
-        { "PSK",       { "RTTY",    "",     true  } },
-        { "PSK-R",     { "RTTY",    "",     true  } },
+        { "PSK",       { "PSK",     "",     false } },
+        { "PSK-R",     { "PSK",     "",     false } },
         { "RTTY",      { "RTTY",    "",     true  } },
         { "RTTY(L)",   { "RTTY",    "",     true  } },
         { "RTTY-L",    { "RTTY",    "",     true  } },
         { "RTTY-R",    { "RTTY",    "",     true  } },
         { "RTTY(U)",   { "RTTY",    "",     true  } },
         { "RTTY-U",    { "RTTY",    "",     true  } },
-     // { "SAH",       { "DATA",    "SAH",  true  } },
-     // { "SAL",       { "DATA",    "SAL",  true  } },
-     // { "SAM",       { "DATA",    "SAM",  true  } },
+        { "SAH",       { "AM",      "",     false } },
+        { "SAL",       { "AM",      "",     false } },
+        { "SAM",       { "AM",      "",     false } },
      // { "SPEC",      { "DATA",    "SPEC", true  } },
         { "UCW",       { "CW",      "",     false } },
         { "USB",       { "SSB",     "USB",  false } },
@@ -1000,12 +1054,15 @@ const QString FlrigRigDrv::mode2RawMode(const QString &mode, const QString &subm
     qCDebug(function_parameters) << mode << submode << digiVariant;
 
     // find a suitable mode from the connected Rig modes
-    for ( auto it = rigAvailableModes.cbegin(); it != rigAvailableModes.cend(); it++ )
+    for ( const QString &rawMode : rigAvailableModes )
     {
-        qCDebug(runtime) << "Key:" << it.key()
-                         << "Values:" << it->mode << it->submode << it->digiMode;
-        if ( it->mode == mode && it->submode == submode && it->digiMode == digiVariant )
-            return it.key();
+        const RigMode &modeInfo = raw2ADIFModeMapping.value(rawMode);
+        qCDebug(runtime) << "Key:" << rawMode
+                         << "Values:" << modeInfo.mode << modeInfo.submode << modeInfo.digiMode;
+        if ( modeInfo.mode == mode
+             && modeInfo.submode == submode
+             && modeInfo.digiMode == digiVariant )
+            return rawMode;
     }
 
     return QString();

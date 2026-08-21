@@ -178,7 +178,7 @@ private:
 
     void __closeRig();
     void __openRig();
-    GenericRigDrv *getDriver(const RigProfile &profile);
+    GenericRigDrv *getDriver(const RigProfile &profile, qint32 controlledRigModel);
     void emitRigStatusChanged();
 
 private:

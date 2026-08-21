@@ -96,6 +96,9 @@ QSODetailDialog::QSODetailDialog(const QSqlRecord &qso,
     connect(&callbookManager, &CallbookManager::callsignNotFound,
             this, &QSODetailDialog::callsignNotFound);
 
+    connect(&qslManager, &QSLManager::queryFinished,
+            this, &QSODetailDialog::qslManagerQueryFinished);
+
     connect(&callbookManager, &CallbookManager::loginFailed,
             this, &QSODetailDialog::callbookLoginFailed);
 
@@ -1122,7 +1125,12 @@ void QSODetailDialog::callsignFound(const CallbookResponseData &data)
 {
     FCT_IDENTIFICATION;
 
-    callbookLookupFinished();
+    if ( data.call.compare(ui->callsignEdit->text().trimmed(),
+                           Qt::CaseInsensitive) != 0 )
+    {
+        callbookLookupFinished();
+        return;
+    }
 
     /* blank or not fully filled then update it */
     const QString fnamelname = QString("%1 %2").arg(data.fname, data.lname);
@@ -1152,19 +1160,42 @@ void QSODetailDialog::callsignFound(const CallbookResponseData &data)
     if ( ui->iotaEdit->text().isEmpty() )   ui->iotaEdit->setText(data.iota);
     if ( ui->emailEdit->text().isEmpty() )  ui->emailEdit->setText(data.email);
     if ( ui->countyEdit->text().isEmpty() ) ui->countyEdit->setText(data.county);
-    if ( ui->qslViaEdit->text().isEmpty() ) ui->qslViaEdit->setText(data.qsl_via);
     if ( ui->urlEdit->text().isEmpty() )    ui->urlEdit->setText(data.url);
     if ( ui->stateEdit->text().isEmpty() )  ui->stateEdit->setText(data.us_state);
     if ( ui->ituEdit->text().isEmpty() )    ui->ituEdit->setText(data.ituz);
     if ( ui->cqEdit->text().isEmpty() )     ui->cqEdit->setText(data.cqz);
+
+    if ( ui->qslViaEdit->text().isEmpty() )
+        qslManager.queryCallsign(data.call, data.qsl_via);
+
+    callbookLookupFinished();
 }
 
-void QSODetailDialog::callsignNotFound(const QString &)
+void QSODetailDialog::callsignNotFound(const QString &callsign)
 {
     FCT_IDENTIFICATION;
 
-    /* Do not show any info, not needed */
+    if ( callsign.compare(ui->callsignEdit->text().trimmed(),
+                          Qt::CaseInsensitive) == 0
+         && ui->qslViaEdit->text().isEmpty() )
+    {
+        qslManager.queryCallsign(callsign);
+    }
+
     callbookLookupFinished();
+}
+
+void QSODetailDialog::qslManagerQueryFinished(QSLQueryResult result)
+{
+    FCT_IDENTIFICATION;
+
+    if ( result.callsign.compare(ui->callsignEdit->text().trimmed(),
+                                 Qt::CaseInsensitive) == 0
+         && ui->qslViaEdit->text().isEmpty()
+         && !result.qslVia.isEmpty() )
+    {
+        ui->qslViaEdit->setText(result.qslVia);
+    }
 }
 
 void QSODetailDialog::callbookLoginFailed(const QString&)
@@ -1667,9 +1698,11 @@ void QSOEditMapperDelegate::setEditorData(QWidget *editor,
 
         if ( label )
         {
-          QString statusIcon = QString("<img src=':/icons/%1-24px.svg'></td>").arg((index.data().toString() == "Y") ? "done" : "close");
-          label->setText(statusIcon);
-          label->setProperty("originvalue", index.data());
+            const bool confirmed = index.data().toString() == "Y";
+            label->setText(QStringLiteral("<span style='color:#ababab; font-size:20px'>%1</span>")
+                           .arg(confirmed ? QStringLiteral("&#10003;")
+                                          : QStringLiteral("&#10005;")));
+            label->setProperty("originvalue", index.data());
         }
         return;
     }

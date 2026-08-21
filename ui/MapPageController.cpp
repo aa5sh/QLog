@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <QUrl>
 #include <QWebEngineView>
+#include <QtMath>
 
 #include "core/debug.h"
 #include "core/IBPBeacon.h"
@@ -323,15 +324,13 @@ void MapPageController::drawShortPathsBusy(const QList<MapPath> &paths,
 }
 
 void MapPageController::drawAntPath(const MapCoordinate &from,
-                                    double distance,
                                     double azimuth,
                                     double antAngle)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("drawAntPath(%1, %2, %3, %4);")
+    runJavaScript(QStringLiteral("drawAntPath(%1, %2, %3);")
                   .arg(jsonObject(coordinateObject(from)))
-                  .arg(distance)
                   .arg(azimuth)
                   .arg(antAngle));
 }
@@ -340,7 +339,16 @@ void MapPageController::clearAntPath()
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QLatin1String("drawAntPath({}, 0, 0, 0);"));
+    runJavaScript(QLatin1String("drawAntPath({});"));
+}
+
+void MapPageController::setAntennaTarget(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    if ( qIsFinite(azimuth) )
+        runJavaScript(QStringLiteral("setAntennaTarget(%1);")
+                      .arg(azimuth, 0, 'g', 16));
 }
 
 void MapPageController::setGridLayers(const QStringList &confirmedGrids,
@@ -409,20 +417,30 @@ void MapPageController::setCurrentBand(const QString &band)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("setIbpCurrentBand(%1);")
+    runJavaScript(QStringLiteral("setCurrentBand(%1);")
                   .arg(jsonString(band)));
+}
+
+void MapPageController::setHeardMeMode(const QString &mode)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("setHeardMeMode(%1);")
+                  .arg(jsonString(mode)));
 }
 
 void MapPageController::addWsjtxSpot(const MapPoint &point,
                                      const QString &color,
-                                     const QString &textColor)
+                                     const QString &textColor,
+                                     bool halo)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("addWSJTXSpot(%1, %2, %3);")
-                  .arg(jsonObject(pointObject(point)),
-                       jsonString(color),
-                       jsonString(textColor)));
+    runJavaScript(QStringLiteral("addWSJTXSpot(%1, %2, %3, %4);")
+                  .arg(jsonObject(pointObject(point)))
+                  .arg(jsonString(color))
+                  .arg(jsonString(textColor))
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 void MapPageController::clearWsjtxSpots()
@@ -430,6 +448,33 @@ void MapPageController::clearWsjtxSpots()
     FCT_IDENTIFICATION;
 
     runJavaScript(QLatin1String("clearWSJTXSpots();"));
+}
+
+void MapPageController::clearHeardMeSpots()
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QLatin1String("clearHeardMeSpots();"));
+}
+
+void MapPageController::addHeardMePoint(const MapPoint &point,
+                                        qint32 report,
+                                        const QString &band,
+                                        const QString &displayGroup,
+                                        const QString &color,
+                                        double opacity,
+                                        bool halo)
+{
+    FCT_IDENTIFICATION;
+
+    runJavaScript(QStringLiteral("addHeardMePoint(%1, %2, %3, %4, %5, %6, %7);")
+                  .arg(jsonObject(pointObject(point)))
+                  .arg(report)
+                  .arg(jsonString(band))
+                  .arg(jsonString(displayGroup))
+                  .arg(jsonString(color))
+                  .arg(opacity)
+                  .arg(halo ? QLatin1String("true") : QLatin1String("false")));
 }
 
 QString MapPageController::generateIbpDataJS()
@@ -468,6 +513,8 @@ QString MapPageController::generateLayerControlJS(MapLayer::Layers layers)
     appendOption(MapLayer::Grid, tr("Grid"), QStringLiteral("maidenheadConfWorked"));
 
     appendOption(MapLayer::Grayline, tr("Gray-Line"), QStringLiteral("grayline"));
+
+    appendOption(MapLayer::HeardMe, tr("Heard Me"), QStringLiteral("heardMeLayer"));
 
     appendOption(MapLayer::Ibp, tr("IBP"), QStringLiteral("IBPLayer"));
 
@@ -543,8 +590,10 @@ void MapPageController::handleLayerSelectionChanged(const QVariant &data, const 
 
     qCDebug(function_parameters) << data << state;
 
-    LogParam::setMapLayerState(configID, data.toString(),
-                               (state.toString().toLower() == "on") ? true : false);
+    const QString key = data.toString();
+    const bool visible = state.toString().compare(QLatin1String("on"), Qt::CaseInsensitive) == 0;
+    LogParam::setMapLayerState(configID, key, visible);
+    emit layerVisibilityChanged(key, visible);
 }
 
 void MapPageController::chatCallsignClicked(const QVariant &data)
@@ -568,6 +617,14 @@ void MapPageController::IBPCallsignClicked(const QVariant &callsign, const QVari
     emit IBPPressed(callsign.toString(), freq.toDouble());
 }
 
+void MapPageController::requestAntennaAzimuth(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    if ( qIsFinite(azimuth) && azimuth >= 0.0 && azimuth < 360.0 )
+        emit antennaAzimuthRequested(azimuth);
+}
+
 void MapPageController::finishLoading(bool ok)
 {
     FCT_IDENTIFICATION;
@@ -578,6 +635,11 @@ void MapPageController::finishLoading(bool ok)
     pageLoaded = true;
     postponedScripts.append(generateIbpDataJS());
     postponedScripts.append(generateLayerControlJS(mapLayers));
+    postponedScripts.append(QStringLiteral("configureAntennaContextMenu(%1, %2, %3, %4);")
+                            .arg(jsonString(tr("Target Antenna Here")),
+                                 jsonString(tr("QSO Short Path")),
+                                 jsonString(tr("QSO Long Path")),
+                                 jsonString(tr("Stop Antenna"))));
     mainPage->runJavaScript(postponedScripts.join(QLatin1Char('\n')));
     postponedScripts.clear();
 

@@ -19,6 +19,7 @@ public:
     static bool isSmartSDRSlice(const struct rig_caps *caps);
     static bool isCIVAddrRig(const struct rig_caps *caps);
     explicit HamlibRigDrv(const RigProfile &profile,
+                          qint32 controlledRigModel,
                           QObject *parent = nullptr);
     virtual ~HamlibRigDrv();
 
@@ -85,6 +86,7 @@ private:
     serial_parity_e stringToHamlibParity(const QString &in_parity);
     serial_control_state_e stringToHamlibSerialSignal(const QString &signalString);
     QString hamlibErrorString(int);
+    const qint32 controlledRigModel;
     RIG* rig;
     QTimer timer;
     QTimer errorTimer;

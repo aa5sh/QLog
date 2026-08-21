@@ -96,9 +96,11 @@ bool LogbookModel::setModeSubmodeData(int row, const QString &newMode, const QSt
 
     // In the normal logbook table mode each QSqlTableModel::setData() is
     // submitted immediately. The virtual Mode/Submode column maps to two real
-    // DB fields, so we temporarily collect both edits and submit them together.
+    // DB fields, so collect both edits into one row update. Unlike
+    // OnManualSubmit, OnRowChange refreshes only this row and preserves the
+    // view's selection and persistent indexes.
     if ( submitCombinedChange )
-        setEditStrategy(QSqlTableModel::OnManualSubmit);
+        setEditStrategy(QSqlTableModel::OnRowChange);
 
     // Always write both real fields. This clears a stale submode when the user
     // changes from a submode-based mode, for example MFSK/FT4, to a plain mode.
@@ -147,6 +149,9 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
         return modeSubmodeData(index.row(), role);
 
     if (role == Qt::DecorationRole && index.column() == COLUMN_CALL) {
+        if ( !Data::instance()->dxccFlagsVisible() )
+            return QVariant();
+
         const QString &flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
 
         return ( !flag.isEmpty() ) ? QIcon(QString(":/flags/16/%1.png").arg(flag))
@@ -169,9 +174,21 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
 
     if ( role == Qt::ToolTipRole && index.column() == COLUMN_CALL )
     {
-        QString flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
+        const int row = index.row();
+        const auto qslStatus = [this, row](ColumnID column)
+        {
+            const bool confirmed = QSqlTableModel::data(this->index(row, column),
+                                                        Qt::DisplayRole).toString() == "Y";
 
-        return QString("<img src=':/flags/64/%1.png'>").arg(flag) +
+            return QStringLiteral("  <td style='color:#ababab; font-size:20px'>%1</td>")
+                    .arg(confirmed ? QStringLiteral("&#10003;") : QStringLiteral("&#10005;"));
+        };
+        const QString flag = Data::instance()->dxccFlag(QSqlTableModel::data(this->index(index.row(), COLUMN_DXCC), Qt::DisplayRole).toInt());
+        const QString flagHtml = flag.isEmpty()
+                                 ? QString()
+                                 : QString("<img src=':/flags/64/%1.png'>").arg(flag);
+
+        return flagHtml +
                "<h2>" + QSqlTableModel::data(index, Qt::DisplayRole).toString() + "</h2>   " +
                "<table>" +
                 " <tr>" +
@@ -218,27 +235,15 @@ QVariant LogbookModel::data(const QModelIndex &index, int role) const
                "  </tr>" +
                "  <tr> " +
                "  <td><b>" + tr("QSL Received") + "</b></td>" +
-               QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                           COLUMN_QSL_RCVD),
-                                                                                               Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-               QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                           COLUMN_LOTW_RCVD),
-                                                                                               Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-               QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                           COLUMN_EQSL_QSL_RCVD),
-                                                                                               Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
+               qslStatus(COLUMN_QSL_RCVD) +
+               qslStatus(COLUMN_LOTW_RCVD) +
+               qslStatus(COLUMN_EQSL_QSL_RCVD) +
                 "  </tr> " +
                 "  <tr> " +
                 "  <td><b>" + tr("QSL Sent") + "</b></td>" +
-                QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                            COLUMN_QSL_SENT),
-                                                                                                Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-                QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                            COLUMN_LOTW_SENT),
-                                                                                                Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
-                QString("  <td><img src=':/icons/%1-24px.svg'></td>").arg((QSqlTableModel::data(this->index(index.row(),
-                                                                                                            COLUMN_EQSL_QSL_SENT),
-                                                                                                Qt::DisplayRole).toString() == "Y") ? "done" : "close") +
+                qslStatus(COLUMN_QSL_SENT) +
+                qslStatus(COLUMN_LOTW_SENT) +
+                qslStatus(COLUMN_EQSL_QSL_SENT) +
                 "  </tr> " +
                "</table>";
     }

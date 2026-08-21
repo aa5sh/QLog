@@ -225,7 +225,8 @@ bool DxTableModel::addEntry(const DxSpot &entry, bool deduplicate,
                 break;
 
             if ( record.callsign == entry.callsign
-                 && qAbs(MHz(record.freq) - MHz(entry.freq)) < kHz(dedup_freq_tolerance) )
+                 && qAbs(MHz2Hz(record.freq) - MHz2Hz(entry.freq))
+                    < dedup_freq_tolerance * 1000.0 )
             {
                 qCDebug(runtime) << "Duplicate spot" << record.callsign << record.freq <<  entry.callsign << entry.freq;
                 shouldInsert = false;
@@ -1417,7 +1418,7 @@ void DxWidget::prepareQSOSpot(QSqlRecord qso)
 
             // DX Spider allow to enter QSO freq in MHz but it is not reliable for SHF bands.
             // a more reliable way is to send a spot with kHz value
-            ui->commandEdit->setText(QString("dx %1 %2 ").arg(QString::number(Hz2kHz(MHz(spotFreq)), 'f', 0),
+            ui->commandEdit->setText(QString("dx %1 %2 ").arg(QString::number(Hz2kHz(MHz2Hz(spotFreq)), 'f', 0),
                                                               qso.value("callsign").toString()));
             ui->commandEdit->setFocus();
         }
@@ -1863,8 +1864,8 @@ void DxWidget::processDxSpot(const QString &spotter,
     }
     if ( spot.bandPlanMode == BandPlan::BAND_MODE_PHONE )
     {
-        spot.bandPlanMode = (spot.freq < 10.0 ) ? BandPlan::BAND_MODE_LSB
-                                                : BandPlan::BAND_MODE_USB;
+        spot.bandPlanMode = (MHz2Hz(spot.freq) < MHz2Hz(10.0)) ? BandPlan::BAND_MODE_LSB
+                                                               : BandPlan::BAND_MODE_USB;
     }
     spot.modeGroupString = BandPlan::bandMode2BandModeGroupString(spot.bandPlanMode);
     spot.dxcc = Data::instance()->lookupDxcc(call);
@@ -2026,7 +2027,9 @@ void DxWidget::potaRefFromComment(DxSpot &spot) const
     if ( spot.dxcc.dxcc == 0 )
         return;
 
-    QString flagA2Code = Data::instance()->dxccFlag(spot.dxcc.dxcc);
+    // The flag code is also used as a POTA country prefix. This is semantic
+    // data and must remain available when flag images are hidden in the GUI.
+    QString flagA2Code = Data::instance()->dxccFlagCode(spot.dxcc.dxcc);
 
     if ( flagA2Code == "england" || flagA2Code == "scotland"
          || flagA2Code == "wales")

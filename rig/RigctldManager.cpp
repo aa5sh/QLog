@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QRegularExpression>
+#include <hamlib/riglist.h>
 
 #include "RigctldManager.h"
 #include "core/debug.h"
@@ -345,58 +346,103 @@ QStringList RigctldManager::buildArguments(const RigProfile &profile) const
         if ( profile.stopbits > 0 ) args << "-C" << QString("stop_bits=%1").arg(static_cast<int>(profile.stopbits));
 
         // Parity
-        if ( !profile.parity.isEmpty() && profile.parity.compare(SerialPort::SERIAL_PARITY_NO, Qt::CaseInsensitive) )
+        if ( !profile.parity.isEmpty() )
         {
             QString parity = profile.parity.toLower();
-            if      ( parity == SerialPort::SERIAL_PARITY_EVEN ) parity = "E";
-            else if ( parity == SerialPort::SERIAL_PARITY_ODD )  parity = "O";
-            else parity = "N";
-            args << "-C" << QString("serial_parity=%1").arg(parity);
+            if      ( parity == SerialPort::SERIAL_PARITY_NO )    parity = "None";
+            else if ( parity == SerialPort::SERIAL_PARITY_EVEN )  parity = "Even";
+            else if ( parity == SerialPort::SERIAL_PARITY_ODD )   parity = "Odd";
+            else if ( parity == SerialPort::SERIAL_PARITY_MARK )  parity = "Mark";
+            else if ( parity == SerialPort::SERIAL_PARITY_SPACE ) parity = "Space";
+            else parity.clear();
+
+            if ( !parity.isEmpty() )
+                args << "-C" << QString("serial_parity=%1").arg(parity);
         }
 
         // Flow control
-        if ( !profile.flowcontrol.isEmpty() && profile.flowcontrol.compare(SerialPort::SERIAL_FLOWCONTROL_NONE, Qt::CaseInsensitive) )
+        if ( !profile.flowcontrol.isEmpty() )
         {
             QString flow = profile.flowcontrol.toLower();
-            if ( flow == SerialPort::SERIAL_FLOWCONTROL_HARDWARE )      flow = "Hardware";
+            if      ( flow == SerialPort::SERIAL_FLOWCONTROL_NONE )     flow = "None";
+            else if ( flow == SerialPort::SERIAL_FLOWCONTROL_HARDWARE ) flow = "Hardware";
             else if ( flow == SerialPort::SERIAL_FLOWCONTROL_SOFTWARE ) flow = "XONXOFF";
-            args << "-C" << QString("serial_handshake=%1").arg(flow);
+            else flow.clear();
+
+            if ( !flow.isEmpty() )
+                args << "-C" << QString("serial_handshake=%1").arg(flow);
         }
 
+        // PTT
+        if ( !profile.pttPortPath.isEmpty() ) args << "-p" << profile.pttPortPath;
+        if ( !profile.pttType.isEmpty() ) args << "-C" << QString("ptt_type=%1").arg(profile.pttType);
+        args << "-C" << "ptt_share=1";
+
         // CIV address for Icom
-        if (profile.civAddr >= 0) args << "-C" << QString("civaddr=%1").arg(profile.civAddr, 2, 16, QChar('0'));
+        if (profile.civAddr >= 0) args << "-C" << QString("civaddr=%1").arg(profile.civAddr);
 
         // DTR signal
-        if ( !profile.dtr.isEmpty() && profile.dtr.compare(SerialPort::SERIAL_SIGNAL_NONE, Qt::CaseInsensitive) )
+        if ( !profile.dtr.isEmpty() )
         {
             QString dtr = profile.dtr.toLower();
-            if ( dtr == SerialPort::SERIAL_SIGNAL_HIGH )     dtr = "ON";
+            if      ( dtr == SerialPort::SERIAL_SIGNAL_NONE ) dtr = "Unset";
+            else if ( dtr == SerialPort::SERIAL_SIGNAL_HIGH ) dtr = "ON";
             else if ( dtr == SerialPort::SERIAL_SIGNAL_LOW ) dtr = "OFF";
-            args << "-C" << QString("dtr_state=%1").arg(dtr);
+            else dtr.clear();
+
+            if ( !dtr.isEmpty() )
+                args << "-C" << QString("dtr_state=%1").arg(dtr);
         }
 
         // RTS signal
-        if ( !profile.rts.isEmpty() && profile.rts.compare(SerialPort::SERIAL_SIGNAL_NONE, Qt::CaseInsensitive) )
+        if ( !profile.rts.isEmpty() )
         {
             QString rts = profile.rts.toLower();
-            if ( rts == SerialPort::SERIAL_SIGNAL_HIGH )     rts = "ON";
+            if      ( rts == SerialPort::SERIAL_SIGNAL_NONE ) rts = "Unset";
+            else if ( rts == SerialPort::SERIAL_SIGNAL_HIGH ) rts = "ON";
             else if ( rts == SerialPort::SERIAL_SIGNAL_LOW ) rts = "OFF";
-            args << "-C" << QString("rts_state=%1").arg(rts);
+            else rts.clear();
+
+            if ( !rts.isEmpty() )
+                args << "-C" << QString("rts_state=%1").arg(rts);
         }
+
+#ifdef RIG_MODEL_FT950
+        if ( profile.model == RIG_MODEL_FT950 )
+            args << "-C" << "disable_yaesu_bandselect=1";
+#endif
     }
 
     // Additional user-specified arguments
     if ( !profile.rigctldArgs.isEmpty() )
     {
-        // Split by whitespace, respecting quotes
-        QStringList extraArgs = profile.rigctldArgs.split(QRegularExpression("\\s+"), // clazy:exclude=use-static-qregularexpression
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-                                                          Qt::SkipEmptyParts);
+        args << QProcess::splitCommand(profile.rigctldArgs);
 #else
-                                                          QString::SkipEmptyParts);
-#endif
+        QStringList extraArgs;
+        QString currentArg;
+        bool inQuotes = false;
 
+        for ( const QChar &character : profile.rigctldArgs )
+        {
+            if ( character == QLatin1Char('"') )
+                inQuotes = !inQuotes;
+            else if ( character.isSpace() && !inQuotes )
+            {
+                if ( !currentArg.isEmpty() )
+                {
+                    extraArgs << currentArg;
+                    currentArg.clear();
+                }
+            }
+            else
+                currentArg += character;
+        }
+
+        if ( !currentArg.isEmpty() )
+            extraArgs << currentArg;
         args << extraArgs;
+#endif
     }
 
     qCDebug(runtime) << args;
@@ -418,6 +464,9 @@ void RigctldManager::onProcessFinished(int exitCode, QProcess::ExitStatus exitSt
 
     if ( stoppingInProgress )
         return;
+
+    if ( exitStatus == QProcess::NormalExit )
+        emit errorOccurred(tr("rigctld stopped unexpectedly with exit code %1.").arg(exitCode));
 
     emit stopped();
 }

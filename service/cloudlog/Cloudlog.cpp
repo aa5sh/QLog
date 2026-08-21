@@ -11,7 +11,7 @@
 #include "core/LogParam.h"
 #include "logformat/AdiFormat.h"
 
-MODULE_IDENTIFICATION("qlog.core.cloudlog");
+MODULE_IDENTIFICATION("qlog.service.cloudlog.clublog");
 
 const QString CloudlogBase::SECURE_STORAGE_API_KEY = "Cloudlog";
 const QString CloudlogBase::CONFIG_USERNAME_API_CONST = "logbookapi";

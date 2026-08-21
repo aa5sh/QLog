@@ -52,6 +52,8 @@ public slots:
 private slots:
     void rigConnect();
     void rotConnect();
+    void selectEquipmentProfilesForBand(const QString &bandName);
+    void selectEffectiveRotatorProfile(const QString &antennaProfileName);
     void cwKeyerConnect();
     void cwKeyerConnectProfile(QString);
     void cwKeyerDisconnectProfile(QString);
@@ -126,7 +128,12 @@ private:
     QActionGroup *linkExchangeGroup;
     QPushButton *activityButton;
     QMetaObject::Connection alertTextButtonConn;
+    SpotAlert displayedAlert;
+    bool hasDisplayedAlert = false;
     bool firstRun = false;
+    bool equipmentProfileSelectionSuspended = false;
+    bool rotatorConnectPending = false;
+    QString pendingEquipmentBand;
     void setupActivitiesMenu();
 
 
@@ -138,6 +145,7 @@ private:
     void restoreContestMenuLinkExchange();
 
     QString stationCallsignStatus(const StationProfile &profile) const;
+    void applyRotatorProfile(const QString &profileName, bool connectRotator);
 
     void openNonVfoBandmaps(const QList<QPair<QString, QString>> &list);
     void clearNonVfoBandmaps();

@@ -4,10 +4,18 @@ Summary: Qt Logging program for hamradio operators
 Name: QLog
 Version: %{REPO_VERSION}
 Release: 1%{?dist}
-License: GPLv3
+
+
+# QLog is generally GPL 3+, with the following exceptions:
+# core/csv.hpp (MIT)
+# core/zonedetect.c (BSD 3 clause)
+# core/zonedetect.h (BSD 3 clause)
+# devtools/timezones/builder/builder.cpp (BSD 3 clause)
+# devtools/timezones/timezone_DATA_LICENSE (ODbL)
+License: GPL-3.0-or-later AND BSD-3-Clause AND MIT AND ODbL-1.0
 Group: Productivity/Hamradio/Logging
 Source: https://github.com/foldynl/QLog/archive/refs/tags/v%{version}.tar.gz#/qlog-%{version}.tar.gz
-URL: https://github.com/foldynl/QLog/wiki
+URL: https://github.com/foldynl/QLog
 Packager: Ladislav Foldyna <ok1mlg@gmail.com>
 BuildRequires: gcc-c++
 BuildRequires: make
@@ -45,6 +53,9 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %files
 %{_bindir}/*
 %license LICENSE
+%license LICENSE.BSD-3-Clause
+%license LICENSE.MIT
+%license devtools/timezones/timezone_DATA_LICENSE
 %doc README.md Changelog
 %{_datadir}/applications/qlog.desktop
 %{_datadir}//icons/hicolor/256x256/apps/qlog.png
@@ -52,6 +63,55 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_mandir}/man1/*
 
 %changelog
+* Fri Aug 21 2026 Ladislav Foldyna - 0.52.0-1
+- [NEW] - QSL Printing - Added Custom Paper Size (issue #1089)
+- [NEW] - FLDigi Logging - Added ADIF UDP logging method (issue #1113)
+- [NEW] - Services - Added QSLInfo.de as the QSL Manager Service (PR #1116 @aa5sh @foldynl)
+- [NEW] - Alerts - Added ability to clear selected alerts (PR #1104 @aa5sh)
+- [NEW] - LoTW - Added an All Callsigns option (PR #1084 @aa5sh)
+- [NEW] - LoTW/eQSL - Report reasons for unmatched QSOs
+- [NEW] - Online Map - Added HeardMe Spot from PSKReporter and RBN (PR #1115 #1107 @aa5sh @foldynl)
+- [NEW] - Online Map - WSJTX-CQ Added the second ring if SNR > -15dB
+- [NEW] - Online Map - Added interactive antenna control; Target Antenna context menu
+- [NEW] - Offline Map - Added zoom, panning, and QSO path fitting
+- [NEW] - Settings - Antenna profile can be selected automatically by TX band (issue #392 #781)
+- [NEW] - Settings - Antenna profile can have an Assigned Rotator
+- [NEW] - Settings - Added an option to hide DXCC entity flags (issue #1129)
+- [NEW] - Statistics - Added QSO histogram by operator callsign (PR #1127 @mc-doge666)
+- [NEW] - Added direct labeling of QSL Sent QSO context menu (PR #1123 @mc-doge666)
+- [NEW] - Contest - Added Flexible Exchange Linking
+- [NEW] - Rotator Widget - Add persistent map navigation (zooming/moving)
+- [CHANGED] - Online Map - Improve dark mode night-side visibility
+- [CHANGED] - Online Map - Adapt antenna beam length to map context
+- [CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)
+- [CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)
+- [CHANGED] - Logging External QSO - Warn once per station context is different
+- [CHANGED] - LoTW - Do not overwrite paper QSL received-via field
+- [CHANGED] - LoTW - Resolve ambiguous QSL matches by exact time
+- [CHANGED] - Activity Editor - Rotator Override takes priority over the antenna's Assigned Rotator
+- [CHANGED] - Main Menu - Removed Equipment - Added Power On-Off buttons to corresponding widgets
+- Fixed WAAC not connected to the Log (issue #1097)
+- Fixed Rig Widget displays an incorrect Bandmap Guide Label (issue #1108)
+- Fixed Cannot directly edit notes or multiline fields (issue #1111)
+- Fixed LoTW - Merge QSL credits instead of overwriting them
+- Fixed LoTW - Case-insensitive compare for SAT_NAME
+- Fixed eQSL - Refresh AG status for redownloaded confirmations
+- Fixed Rotator - Apply antenna azimuth offset consistently across drivers
+- Fixed Offline Map Ant Path calculation
+- Fixed Rotator Widget - Use circular distance for azimuth deadband
+- Fixed QSL confirmation status is not displayed correctly in QSO Detail and tooltip (issue #1125)
+- Fixed DXCC flag assignments and documented neutral handling of territorial disputes (issue #1129)
+- Fixed EQSL abort crash (issue #1138 PR #1139 @aa5sh)
+- Fixed serial parity configuration passed to rigctld
+- Fixed Added more lighthouse suffixes LH, LS, LT
+- Hamlib Share Rig - various fixes
+- Omnirig - various fixes
+- TCI - various fixes
+- Flrig - various fixes
+- Hamlib Rotaror - various fixes
+- PSTRot - various fixes
+- Rotator Widget - various fixes
+
 * Tue Jul 7 2026 Ladislav Foldyna - 0.51.1-1
 - Fixed WSJTX QSO Name Field is cleared (issue #1019)
 - Fixed WAAC - added missing ZS0, ZS9, displaying prefixes (issue #1070)

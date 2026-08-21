@@ -51,6 +51,7 @@ RigCaps TCIRigDrv::getCaps(int)
 TCIRigDrv::TCIRigDrv(const RigProfile &profile, QObject *parent)
     : GenericRigDrv(profile, parent),
       ready(false),
+      closing(false),
       receivedOnly(false),
       currFreq(0.0),
       currTxFreq(0.0),
@@ -63,12 +64,24 @@ TCIRigDrv::TCIRigDrv(const RigProfile &profile, QObject *parent)
     FCT_IDENTIFICATION;
 
     connect(&ws, &QWebSocket::connected, this, &TCIRigDrv::onConnected);
+    connect(&ws, &QWebSocket::disconnected, this, &TCIRigDrv::onDisconnected);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
     connect(&ws, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
             this, &TCIRigDrv::onSocketError);
 #else
     connect(&ws, &QWebSocket::errorOccurred, this, &TCIRigDrv::onSocketError);
 #endif
+
+    readyTimer.setSingleShot(true);
+    connect(&readyTimer, &QTimer::timeout, this, [this]()
+    {
+        qCDebug(runtime) << "Timeout waiting for READY";
+        closing = true;
+        ready = false;
+        ws.close();
+        emit errorOccurred(tr("Error Occurred"),
+                           tr("Timeout waiting for TCI READY"));
+    });
 }
 
 TCIRigDrv::~TCIRigDrv()
@@ -81,6 +94,10 @@ TCIRigDrv::~TCIRigDrv()
 bool TCIRigDrv::open()
 {
     FCT_IDENTIFICATION;
+
+    readyTimer.stop();
+    closing = false;
+    ready = false;
 
     QUrl url;
     url.setScheme("ws");
@@ -259,7 +276,10 @@ void TCIRigDrv::sendMorse(const QString &text)
         return;
     }
 
-    QStringList args {text};
+    QString escapedText(text);
+    escapedText.replace(':', '^').replace(',', '~').replace(';', '*');
+
+    QStringList args {escapedText};
     sendCmd("cw_macros", true, args);
 }
 
@@ -304,13 +324,15 @@ void TCIRigDrv::stopTimers()
 {
     FCT_IDENTIFICATION;
 
-    // no timer
+    readyTimer.stop();
 
     // send STOP command????
 
     // close the WebSocket here becuase this method is called
     // via queue signals. What caused that there is not warning
     // that Websocket is destroyed from another thread
+    closing = true;
+    ready = false;
     ws.close();
     return;
 }
@@ -324,7 +346,7 @@ void TCIRigDrv::sendDXSpot(const DxSpot &spot)
 
     const QColor &spotColor = Data::statusToColor(spot.status, spot.dupeCount, QColor(187,194,195));
 
-    unsigned long long internalFreq = static_cast<unsigned long long>(MHz(spot.freq));
+    unsigned long long internalFreq = static_cast<unsigned long long>(MHz2Hz(spot.freq));
 
     QString submode;
     const QString &mode = BandPlan::bandPlanMode2ExpectedMode(spot.bandPlanMode, submode);
@@ -350,11 +372,29 @@ void TCIRigDrv::onConnected()
             this, &TCIRigDrv::onTextMessageReceived);
 
     // QLog has to wait for READY message to complete connection = to emit RigReady
+    readyTimer.start(READY_TIMEOUT_MS);
+}
+
+void TCIRigDrv::onDisconnected()
+{
+    FCT_IDENTIFICATION;
+
+    if ( closing )
+        return;
+
+    onSocketError(QAbstractSocket::RemoteHostClosedError);
 }
 
 void TCIRigDrv::onSocketError(QAbstractSocket::SocketError socker_error)
 {
     FCT_IDENTIFICATION;
+
+    if ( closing )
+        return;
+
+    readyTimer.stop();
+    closing = true;
+    ready = false;
 
     QString error_msg;
 
@@ -421,6 +461,12 @@ void TCIRigDrv::onTextMessageReceived(const QString &message)
         const QStringList &cmdElemets = trimmedCommand.split(":", QString::SkipEmptyParts);
 #endif
 
+        if ( cmdElemets.isEmpty() )
+        {
+            qCWarning(runtime) << "Incorrect TCI command" << trimmedCommand;
+            continue;
+        }
+
         const QString &cmdName = cmdElemets.at(0).toLower().trimmed();
         QStringList cmdArgs;
         TCIRigDrv::parseFce parser = responseParsers.value(cmdName);
@@ -477,12 +523,13 @@ void TCIRigDrv::sendCmd(const QString &cmd,
     ws.sendTextMessage(cmdText);
 }
 
-const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &submode)
+const QString TCIRigDrv::getModeNormalizedText(const QString &inRawMode, QString &submode)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << rawMode;
+    qCDebug(function_parameters) << inRawMode;
 
+    const QString rawMode = inRawMode.toUpper();
     submode = QString();
 
     if ( rawMode.contains("CW") )
@@ -500,14 +547,29 @@ const QString TCIRigDrv::getModeNormalizedText(const QString &rawMode, QString &
         return "SSB";
     }
 
-    if ( rawMode == "AM" )
+    if ( rawMode == "AM" || rawMode == "SAM" )
         return "AM";
 
-    if ( rawMode == "NFM" )
+    if ( rawMode == "FM" || rawMode == "NFM" || rawMode == "WFM" )
         return "FM";
 
-    if ( rawMode == "WFM" )
-        return "FM";
+    if ( rawMode == "FT8" )
+        return "FT8";
+
+    if ( rawMode == "FT4" || rawMode == "FT2" )
+    {
+        submode = rawMode;
+        return "MFSK";
+    }
+
+    if ( rawMode == "BPSK" )
+        return "PSK";
+
+    if ( rawMode == "WSPR"
+         || rawMode == "JT65"
+         || rawMode == "JT9"
+         || rawMode == "RTTY" )
+        return rawMode;
 
     if ( rawMode == "DIGL" )
     {
@@ -531,7 +593,7 @@ const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submod
     if (mode == "SSB")
     {
         QString innerSubmode = submode;
-        if ( digiVariant )
+        if ( digiVariant && !submode.isEmpty() )
         {
             const QString digMode = QLatin1String("DIG") + submode.at(0);
             if ( modeList.contains(digMode) )
@@ -544,15 +606,38 @@ const QString TCIRigDrv::mode2RawMode(const QString &mode, const QString &submod
         return mode;
 
     if ( mode == "FM" )
+    {
+        if ( modeList.contains("NFM") )
+            return "NFM";
+
+        if ( modeList.contains("FM") )
+            return "FM";
+
+        if ( modeList.contains("WFM") )
+            return "WFM";
+
         return "NFM";
+    }
 
     if ( mode == "AM" )
-        return mode;
-
-    if ( mode == "FT8" )
     {
-        if ( modeList.contains("FT8") )
-            return "FT8";
+        if ( modeList.contains("AM") )
+            return "AM";
+
+        if ( modeList.contains("SAM") )
+            return "SAM";
+
+        return "AM";
+    }
+
+    if ( mode == "FT8"
+         || mode == "WSPR"
+         || mode == "JT65"
+         || mode == "JT9"
+         || mode == "RTTY" )
+    {
+        if ( modeList.contains(mode) )
+            return mode;
 
         if ( modeList.contains("DIGU") )
             return "DIGU";
@@ -598,6 +683,7 @@ void TCIRigDrv::rspREADY(const QStringList &)
 {
     FCT_IDENTIFICATION;
 
+    readyTimer.stop();
     ready = true;
     emit rigIsReady();
 }
@@ -665,12 +751,12 @@ void TCIRigDrv::rspVFO(const QStringList &cmdArgs)
             return;
 
         bool ok;
-        double txFreq = cmdArgs.at(2).toDouble(&ok);
+        const qint64 txFreqHz = cmdArgs.at(2).toLongLong(&ok);
         if ( ok )
         {
-            double txFreqMHz = Hz2MHz(txFreq);
+            const double txFreqMHz = Hz2MHz(txFreqHz);
             qCDebug(runtime) << "Rig TX Freq" << QSTRING_FREQ(txFreqMHz);
-            if ( txFreqMHz != currTxFreq )
+            if ( txFreqHz != MHz2Hz(currTxFreq) )
             {
                 currTxFreq = txFreqMHz;
                 qCDebug(runtime) << "emitting TX FREQ changed";
@@ -679,7 +765,7 @@ void TCIRigDrv::rspVFO(const QStringList &cmdArgs)
         }
         else
         {
-            qCDebug(runtime) << "Received TX Freq is not double" << cmdArgs.at(2);
+            qCDebug(runtime) << "Received TX Freq is not integer" << cmdArgs.at(2);
         }
         return;
     }
@@ -902,7 +988,7 @@ void TCIRigDrv::rspCW_MACROS_SPEED(const QStringList &cmdArgs)
     }
     else
     {
-        qCDebug(runtime) << "Received RIT is not a double" << cmdArgs.at(1);
+        qCDebug(runtime) << "Received Key Speed is not a number" << cmdArgs.at(0);
     }
 }
 
@@ -1018,7 +1104,7 @@ void TCIRigDrv::setRITFreq(double rit)
 
 double TCIRigDrv::getXITFreq()
 {
-    return currFreq + currXIT;
+    return currFreq + getRawXIT();
 }
 
 void TCIRigDrv::setXITFreq(double xit)
@@ -1035,4 +1121,3 @@ double TCIRigDrv::getRawXIT()
 {
     return ( ( XITEnabled ) ? currXIT : 0.0 );
 }
-

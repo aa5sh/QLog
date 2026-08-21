@@ -7,6 +7,7 @@
 
 #include "core/debug.h"
 #include "data/BandPlan.h"
+#include "rig/macros.h"
 
 MODULE_IDENTIFICATION("qlog.logformat.cabrilloformat");
 
@@ -391,7 +392,7 @@ QString CabrilloFormat::formatField(const QString &value,
             bool ok;
             double mhz = value.toDouble(&ok);
             if ( ok )
-                result = QString::number(static_cast<int>(mhz * 1000));
+                result = QString::number(MHz2Hz(mhz) / 1000);
         }
         else if ( formatter == FMT_TIME_HHMM )
         {

@@ -52,6 +52,7 @@ QSLPrintLabelDialog::QSLPrintLabelDialog(QWidget *parent) :
     ui->printModeComboBox->addItem(tr("QSL Card"), static_cast<int>(QSLPrintMode::DirectCard));
     ui->printPageSizeComboBox->addItem("A4", static_cast<int>(QPageSize::A4));
     ui->printPageSizeComboBox->addItem("Letter", static_cast<int>(QPageSize::Letter));
+    ui->printPageSizeComboBox->addItem(tr("Custom"), static_cast<int>(QPageSize::Custom));
 
     /* Populate template combo: predefined + Custom */
     const QList<LabelTemplate> templates = QSLPrintLabelRenderer::predefinedTemplates();
@@ -164,6 +165,9 @@ void QSLPrintLabelDialog::loadSettings()
     ui->printModeComboBox->setCurrentIndex(printModeIdx >= 0 ? printModeIdx : 0);
     int outputPageSizeIdx = ui->printPageSizeComboBox->findData(LogParam::getQslLabelPageSize());
     ui->printPageSizeComboBox->setCurrentIndex(outputPageSizeIdx >= 0 ? outputPageSizeIdx : 0);
+    ui->customPageWidthSpinBox->setValue(LogParam::getQslLabelCustomPageWidth());
+    ui->customPageHeightSpinBox->setValue(LogParam::getQslLabelCustomPageHeight());
+    updateOutputPageSizeUi();
 
     ui->printBordersCheckBox->setChecked(LogParam::getQslLabelPrintBorders());
 
@@ -248,7 +252,9 @@ void QSLPrintLabelDialog::saveSettings()
     LogParam::setQslLabelSkip(ui->skipSpinBox->value());
     LogParam::setQslLabelZoom(zoomPercent);
     LogParam::setQslLabelPrintMode(ui->printModeComboBox->currentData().toInt());
-    LogParam::setQslLabelPageSize(static_cast<int>(currentOutputPageSize()));
+    LogParam::setQslLabelPageSize(static_cast<int>(currentOutputPageSizeId()));
+    LogParam::setQslLabelCustomPageWidth(ui->customPageWidthSpinBox->value());
+    LogParam::setQslLabelCustomPageHeight(ui->customPageHeightSpinBox->value());
     LogParam::setQslLabelPrintBorders(ui->printBordersCheckBox->isChecked());
     LogParam::setQslLabelDateFormat(ui->dateFormatEdit->text());
     LogParam::setQslLabelSansFont(ui->sansFontComboBox->currentFont().family());
@@ -340,7 +346,7 @@ LabelTemplate QSLPrintLabelDialog::buildCustomTemplate() const
     LabelTemplate tmpl;
     tmpl.name = tr("Custom");
     tmpl.orientation = QPageLayout::Portrait;
-    tmpl.pageSize = currentOutputPageSize();
+    tmpl.pageSize = currentOutputPageSizeId();
     tmpl.cols = ui->colsSpinBox->value();
     tmpl.rows = ui->rowsSpinBox->value();
     tmpl.labelWidthMm = ui->labelWidthSpinBox->value();
@@ -372,11 +378,29 @@ QSLPrintMode QSLPrintLabelDialog::currentPrintMode() const
     return static_cast<QSLPrintMode>(ui->printModeComboBox->currentData().toInt());
 }
 
-QPageSize::PageSizeId QSLPrintLabelDialog::currentOutputPageSize() const
+QPageSize::PageSizeId QSLPrintLabelDialog::currentOutputPageSizeId() const
 {
     FCT_IDENTIFICATION;
 
     return static_cast<QPageSize::PageSizeId>(ui->printPageSizeComboBox->currentData().toInt());
+}
+
+QPageSize QSLPrintLabelDialog::currentOutputPageSize() const
+{
+    FCT_IDENTIFICATION;
+
+    const QPageSize::PageSizeId pageSizeId = currentOutputPageSizeId();
+
+    if ( pageSizeId == QPageSize::Custom )
+    {
+        return QPageSize(QSizeF(ui->customPageWidthSpinBox->value(),
+                               ui->customPageHeightSpinBox->value()),
+                         QPageSize::Millimeter,
+                         tr("Custom"),
+                         QPageSize::ExactMatch);
+    }
+
+    return QPageSize(pageSizeId);
 }
 
 QSLCardLayout QSLPrintLabelDialog::buildCardLayout() const
@@ -506,6 +530,17 @@ void QSLPrintLabelDialog::updateRendererOptions()
     renderer.setCardLayout(buildCardLayout());
     renderer.setCardBackgroundImage(cardBackgroundImageData);
     renderer.setStyleOptions(buildStyleOptions());
+}
+
+void QSLPrintLabelDialog::updateOutputPageSizeUi()
+{
+    FCT_IDENTIFICATION;
+
+    const bool custom = currentOutputPageSizeId() == QPageSize::Custom;
+    ui->customPageWidthLabel->setVisible(custom);
+    ui->customPageWidthSpinBox->setVisible(custom);
+    ui->customPageHeightLabel->setVisible(custom);
+    ui->customPageHeightSpinBox->setVisible(custom);
 }
 
 void QSLPrintLabelDialog::updatePrintModeUi()
@@ -697,6 +732,14 @@ void QSLPrintLabelDialog::customTemplateFieldChanged()
     if ( index >= 0 && index < templates.size() )
         return;
 
+    refreshData();
+}
+
+void QSLPrintLabelDialog::outputPageSizeChanged()
+{
+    FCT_IDENTIFICATION;
+
+    updateOutputPageSizeUi();
     refreshData();
 }
 
@@ -1039,8 +1082,9 @@ void QSLPrintLabelDialog::updatePreview()
     int totalLabels = renderer.labelCount();
 
     bool hasLabels = ( totalLabels > 0 );
-    ui->printButton->setEnabled(hasLabels);
-    ui->exportPdfButton->setEnabled(hasLabels);
+    bool hasPages = ( totalPages > 0 );
+    ui->printButton->setEnabled(hasLabels && hasPages);
+    ui->exportPdfButton->setEnabled(hasLabels && hasPages);
     ui->exportImagesButton->setEnabled(hasLabels && currentPrintMode() == QSLPrintMode::DirectCard);
 
     if ( currentPrintMode() == QSLPrintMode::DirectCard )
@@ -1076,7 +1120,13 @@ void QSLPrintLabelDialog::updatePreview()
     else
     {
         ui->previewLabel->clear();
-        ui->previewLabel->setText(tr("No matching QSOs found"));
+
+        if ( hasLabels
+             && currentPrintMode() == QSLPrintMode::DirectCard )
+            ui->previewLabel->setText(tr("The QSL card does not fit on the selected page size"));
+        else
+            ui->previewLabel->setText(tr("No matching QSOs found"));
+
         ui->previewLabel->setAlignment(Qt::AlignCenter);
     }
 }

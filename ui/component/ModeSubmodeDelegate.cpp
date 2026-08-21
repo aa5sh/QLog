@@ -2,6 +2,7 @@
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
+#include <QApplication>
 #include <QComboBox>
 #include <QKeyEvent>
 #include <QHBoxLayout>
@@ -14,7 +15,8 @@ ModeSubmodeEditor::ModeSubmodeEditor(bool showMode, QWidget *parent) :
     QWidget(parent),
     modeCombo(new QComboBox(this)),
     submodeCombo(new QComboBox(this)),
-    modeController(nullptr)
+    modeController(nullptr),
+    finished(false)
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -25,12 +27,23 @@ ModeSubmodeEditor::ModeSubmodeEditor(bool showMode, QWidget *parent) :
     if ( !showMode )
         modeCombo->hide();
 
+    setFocusProxy(showMode ? modeCombo : submodeCombo);
+
     // Existing QSOs may contain modes disabled for new contacts. Both the
     // merged editor and the submode-only editor must therefore offer all modes.
     modeController = new ModeSelectionController(modeCombo, submodeCombo,
                                                  false, false, false, false, this);
     connect(modeCombo, &QComboBox::currentTextChanged,
             modeController, &ModeSelectionController::applyCurrentMode);
+    modeCombo->installEventFilter(this);
+    submodeCombo->installEventFilter(this);
+    connect(qApp, &QApplication::focusChanged, this,
+            [this](QWidget *old, QWidget *now)
+            {
+                if ( !ownsFocus(now)
+                     && !(ownsFocus(old) && QApplication::activePopupWidget()) )
+                    requestSave();
+            });
 }
 
 void ModeSubmodeEditor::setModeSubmode(const QString &mode, const QString &submode)
@@ -38,12 +51,6 @@ void ModeSubmodeEditor::setModeSubmode(const QString &mode, const QString &submo
     modeCombo->setCurrentText(mode);
     modeController->applyCurrentMode();
     submodeCombo->setCurrentText(submode);
-}
-
-void ModeSubmodeEditor::installComboEventFilter(QObject *filter)
-{
-    modeCombo->installEventFilter(filter);
-    submodeCombo->installEventFilter(filter);
 }
 
 QString ModeSubmodeEditor::mode() const
@@ -54,6 +61,69 @@ QString ModeSubmodeEditor::mode() const
 QString ModeSubmodeEditor::submode() const
 {
     return submodeCombo->currentText();
+}
+
+bool ModeSubmodeEditor::eventFilter(QObject *watched, QEvent *event)
+{
+    QComboBox *combo = qobject_cast<QComboBox *>(watched);
+
+    if ( combo && event->type() == QEvent::KeyPress )
+    {
+        const QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        const bool popupVisible = combo->view() && combo->view()->isVisible();
+
+        if ( keyEvent->key() == Qt::Key_Escape && !popupVisible )
+        {
+            requestCancel();
+            return true;
+        }
+
+        if ( (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+             && !popupVisible )
+        {
+            requestSave();
+            return true;
+        }
+    }
+
+    return QWidget::eventFilter(watched, event);
+}
+
+bool ModeSubmodeEditor::ownsFocus(const QWidget *widget) const
+{
+    if ( !widget )
+        return false;
+
+    if ( widget == this || isAncestorOf(widget) )
+        return true;
+
+    const auto popupOwnsFocus = [widget](const QComboBox *combo)
+    {
+        const QAbstractItemView *view = combo->view();
+        const QWidget *popup = view ? view->window() : nullptr;
+        return (view && (widget == view || view->isAncestorOf(widget)))
+               || (popup && (widget == popup || popup->isAncestorOf(widget)));
+    };
+
+    return popupOwnsFocus(modeCombo) || popupOwnsFocus(submodeCombo);
+}
+
+void ModeSubmodeEditor::requestSave()
+{
+    if ( finished )
+        return;
+
+    finished = true;
+    emit saveRequested();
+}
+
+void ModeSubmodeEditor::requestCancel()
+{
+    if ( finished )
+        return;
+
+    finished = true;
+    emit cancelRequested();
 }
 
 ModeSubmodeDelegate::ModeSubmodeDelegate(QObject *parent) :
@@ -67,7 +137,17 @@ QWidget *ModeSubmodeDelegate::createEditor(QWidget *parent,
 {
     ModeSubmodeEditor *editor = new ModeSubmodeEditor(true, parent);
     ModeSubmodeDelegate *delegate = const_cast<ModeSubmodeDelegate *>(this);
-    editor->installComboEventFilter(delegate);
+    connect(editor, &ModeSubmodeEditor::saveRequested, delegate,
+            [delegate, editor]()
+            {
+                emit delegate->commitData(editor);
+                emit delegate->closeEditor(editor, QAbstractItemDelegate::NoHint);
+            });
+    connect(editor, &ModeSubmodeEditor::cancelRequested, delegate,
+            [delegate, editor]()
+            {
+                emit delegate->closeEditor(editor, QAbstractItemDelegate::NoHint);
+            });
     return editor;
 }
 
@@ -99,35 +179,6 @@ void ModeSubmodeDelegate::updateEditorGeometry(QWidget *editor,
     editor->setGeometry(option.rect);
 }
 
-bool ModeSubmodeDelegate::eventFilter(QObject *object, QEvent *event)
-{
-    QComboBox *combo = qobject_cast<QComboBox *>(object);
-    if ( combo )
-    {
-        if ( event->type() == QEvent::KeyPress )
-        {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if ( keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter )
-            {
-                if ( combo->view() && combo->view()->isVisible() )
-                    return false;
-
-                QWidget *editor = combo->parentWidget();
-                if ( editor )
-                {
-                    emit commitData(editor);
-                    emit closeEditor(editor, QAbstractItemDelegate::NoHint);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    return QStyledItemDelegate::eventFilter(object, event);
-}
-
 SubmodeDelegate::SubmodeDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
@@ -139,7 +190,17 @@ QWidget *SubmodeDelegate::createEditor(QWidget *parent,
 {
     ModeSubmodeEditor *editor = new ModeSubmodeEditor(false, parent);
     SubmodeDelegate *delegate = const_cast<SubmodeDelegate *>(this);
-    editor->installComboEventFilter(delegate);
+    connect(editor, &ModeSubmodeEditor::saveRequested, delegate,
+            [delegate, editor]()
+            {
+                emit delegate->commitData(editor);
+                emit delegate->closeEditor(editor, QAbstractItemDelegate::NoHint);
+            });
+    connect(editor, &ModeSubmodeEditor::cancelRequested, delegate,
+            [delegate, editor]()
+            {
+                emit delegate->closeEditor(editor, QAbstractItemDelegate::NoHint);
+            });
     return editor;
 }
 
@@ -172,33 +233,4 @@ void SubmodeDelegate::updateEditorGeometry(QWidget *editor,
                                            const QModelIndex &) const
 {
     editor->setGeometry(option.rect);
-}
-
-bool SubmodeDelegate::eventFilter(QObject *object, QEvent *event)
-{
-    QComboBox *combo = qobject_cast<QComboBox *>(object);
-    if ( combo )
-    {
-        if ( event->type() == QEvent::KeyPress )
-        {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if ( keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter )
-            {
-                if ( combo->view() && combo->view()->isVisible() )
-                    return false;
-
-                QWidget *editor = combo->parentWidget();
-                if ( editor )
-                {
-                    emit commitData(editor);
-                    emit closeEditor(editor, QAbstractItemDelegate::NoHint);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    return QStyledItemDelegate::eventFilter(object, event);
 }

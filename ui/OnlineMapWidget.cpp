@@ -27,7 +27,6 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
   QWebEngineView(parent),
   mapController(new MapPageController(QStringLiteral("onlinemap"), this)),
   prop_cond(nullptr),
-  contact(nullptr),
   lastSeenAzimuth(0.0),
   lastSeenElevation(0.0),
   isRotConnected(false)
@@ -42,7 +41,8 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
                           | MapLayer::Ibp
                           | MapLayer::Beam
                           | MapLayer::Chat
-                          | MapLayer::Wsjtx);
+                          | MapLayer::Wsjtx
+                          | MapLayer::HeardMe);
     connect(mapController.data(), &MapPageController::loaded,
             this, &OnlineMapWidget::finishLoading);
     setFocusPolicy(Qt::ClickFocus);
@@ -56,6 +56,23 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
+    connect(mapController.data(), &MapPageController::antennaAzimuthRequested, this, &OnlineMapWidget::antennaAzimuthRequested);
+    connect(mapController.data(), &MapPageController::layerVisibilityChanged,
+            this, [this](const QString &key, bool visible)
+    {
+        if ( key == QLatin1String("heardMeLayer") )
+            emit heardMeLayerVisibilityChanged(visible);
+    });
+}
+
+bool OnlineMapWidget::isHeardMeLayerVisible() const
+{
+    FCT_IDENTIFICATION;
+
+    const QString key = QStringLiteral("heardMeLayer");
+    const QStringList states = LogParam::getMapLayerStates(QStringLiteral("onlinemap"));
+    return states.contains(key)
+           && LogParam::getMapLayerState(QStringLiteral("onlinemap"), key);
 }
 
 void OnlineMapWidget::setTarget(double lat, double lon)
@@ -84,9 +101,13 @@ void OnlineMapWidget::setTarget(double lat, double lon)
     {
         mapController->clearPath();
     }
+}
 
-    // redraw ant path because QSO distance can change
-    antPositionChanged(lastSeenAzimuth, lastSeenElevation);
+void OnlineMapWidget::setAntennaTarget(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    mapController->setAntennaTarget(azimuth);
 }
 
 void OnlineMapWidget::changeTheme(int theme, bool isDark)
@@ -175,19 +196,9 @@ void OnlineMapWidget::antPositionChanged(double in_azimuth, double in_elevation)
 
     if ( myGrid.isValid() )
     {
-        double beamLen = 3000; // in km
         double azimuthBeamWidth = AntProfilesManager::instance()->getCurProfile1().azimuthBeamWidth;
 
-        if ( contact )
-        {
-            double newBeamLen = contact->getQSODistance();
-            if ( !qIsNaN(newBeamLen) )
-            {
-                beamLen = newBeamLen;
-            }
-        }
         mapController->drawAntPath(MapCoordinate(myGrid.getLatitude(), myGrid.getLongitude()),
-                                   beamLen,
                                    in_azimuth,
                                    azimuthBeamWidth);
     }
@@ -248,7 +259,7 @@ void OnlineMapWidget::IBPCallsignTrigger(const QString &callsign, double freq)
 
     qCDebug(function_parameters) << callsign << freq;
 
-    Rig::instance()->setFrequency(MHz(freq));
+    Rig::instance()->setFrequency(MHz2Hz(freq));
     Rig::instance()->setMode("CW", QString());
 }
 
@@ -267,7 +278,6 @@ void OnlineMapWidget::flyToMyQTH()
                                            QStringLiteral("yellowIcon")),
                                   4);
     }
-    // redraw ant path because QSO distance can change
     antPositionChanged(lastSeenAzimuth, lastSeenElevation);
 }
 
@@ -305,7 +315,8 @@ void OnlineMapWidget::drawWSJTXSpot(const WsjtxEntry &spot)
                                              spotGrid.getLongitude()),
                                     Data::colorToHTMLColor(background),
                                     Data::colorToHTMLColor(Data::textColorForBackground(background,
-                                                                                       QColor(Qt::black))));
+                                                                                       QColor(Qt::black))),
+                                    spot.decode.snr > -15);
     }
 }
 
@@ -314,6 +325,70 @@ void OnlineMapWidget::clearWSJTXSpots()
     FCT_IDENTIFICATION;
 
     mapController->clearWsjtxSpots();
+}
+
+void OnlineMapWidget::clearHeardMeSpots()
+{
+    FCT_IDENTIFICATION;
+
+    mapController->clearHeardMeSpots();
+}
+
+void OnlineMapWidget::setHeardMeMode(const QString &mode)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << mode;
+    mapController->setHeardMeMode(mode);
+}
+
+void OnlineMapWidget::addHeardMePoint(const PskDecode &spot,
+                                      PSKReporter::Direction direction)
+{
+    FCT_IDENTIFICATION;
+
+    const bool sentBy = (direction == PSKReporter::Direction::SentBy);
+    HeardMeSpot heardMeSpot;
+    heardMeSpot.callsign = sentBy ? spot.receiverCallsign
+                                  : spot.senderCallsign;
+    heardMeSpot.locator = sentBy ? spot.receiverLocator
+                                 : spot.senderLocator;
+    heardMeSpot.frequency = spot.frequency;
+    heardMeSpot.report = spot.report;
+    heardMeSpot.status = spot.status;
+    heardMeSpot.dupeCount = spot.dupeCount;
+
+    addHeardMeSpot(heardMeSpot);
+}
+
+void OnlineMapWidget::addHeardMeSpot(const HeardMeSpot &spot)
+{
+    FCT_IDENTIFICATION;
+
+    const Gridsquare spotGrid = Gridsquare::mapDisplayGrid(spot.locator);
+    const Band bandDecoded = BandPlan::freq2Band(spot.frequency);
+    const bool pskReporterSpot = spot.displayGroup == HeardMeSpot::DisplayGroup::PskReporter;
+    const QString displayGroup = spot.displayGroup == HeardMeSpot::DisplayGroup::CW
+                                 ? QStringLiteral("CW")
+                                 : spot.displayGroup == HeardMeSpot::DisplayGroup::RTTY
+                                   ? QStringLiteral("RTTY")
+                                   : QStringLiteral("PSK");
+
+    if ( spotGrid.isValid() && !bandDecoded.name.isEmpty() )
+    {
+        const QColor background = Data::statusToColor(spot.status,
+                                                       spot.dupeCount,
+                                                       QColor(Qt::white));
+        mapController->addHeardMePoint(MapPoint(spot.callsign,
+                                                spotGrid.getLatitude(),
+                                                spotGrid.getLongitude()),
+                                       spot.report,
+                                       bandDecoded.name,
+                                       displayGroup,
+                                       Data::colorToHTMLColor(background),
+                                       0.8,
+                                       spot.report > (pskReporterSpot ? -15 : 15));
+    }
 }
 
 OnlineMapWidget::~OnlineMapWidget()
@@ -326,10 +401,4 @@ void OnlineMapWidget::assignPropConditions(PropConditions *conditions)
     FCT_IDENTIFICATION;
 
     prop_cond = conditions;
-}
-
-void OnlineMapWidget::registerContactWidget(const NewContactWidget *contactWidget)
-{
-    FCT_IDENTIFICATION;
-    contact = contactWidget;
 }

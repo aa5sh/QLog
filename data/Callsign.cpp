@@ -214,5 +214,9 @@ const QStringList Callsign::secondarySpecialSuffixes =
     "QRP",  // QRP - unofficial
     "R",    // repeaters
     "B",    // beacon
-    "LGT"   // 'LIGHTHOUSE' or 'LIGHTSHIP'  - unofficial
+    //  LightHouse - https://illw.net/index.php/guidelines
+    "LGT",  // 'LIGHTHOUSE' or 'LIGHTSHIP'  - unofficial
+    "LH",   // 'LIGHTHOUSE' or 'LIGHTSHIP'  - unofficial
+    "LS",   // 'LIGHTSHIP'  - unofficial
+    "LT",   // 'LIGHTHOUSE' - unofficial
 };

@@ -5,7 +5,6 @@
 #include "data/BandmapGuide.h"
 #include "data/MainLayoutProfile.h"
 #include "data/RigProfile.h"
-#include "data/RotProfile.h"
 #include "data/StationProfile.h"
 
 MODULE_IDENTIFICATION("qlog.data.activityprofile");
@@ -191,7 +190,12 @@ void ActivityProfilesManager::setAllProfiles()
     ActivityProfile currActivity = getCurProfile1();
 
     if (currActivity == ActivityProfile() )
+    {
+        // Leaving an Activity removes its equipment overrides. Let consumers
+        // immediately restore automatic antenna and rotator selection.
+        emit changeFinished(QString());
         return;
+    }
 
     for( auto i = currActivity.profiles.begin(); i != currActivity.profiles.end(); i++ )
     {
@@ -208,7 +212,8 @@ void ActivityProfilesManager::setAllProfiles()
             RigProfilesManager::instance()->setCurProfile1(i.value().name);
             break;
         case ActivityProfile::ROT_PROFILE:
-            RotProfilesManager::instance()->setCurProfile1(i.value().name);
+            // Applied by MainWindow after the antenna so the Activity override
+            // has deterministic precedence over the antenna's Assigned Rotator.
             break;
         case ActivityProfile::MAIN_LAYOUT_PROFILE:
             MainLayoutProfilesManager::instance()->setCurProfile1(i.value().name);

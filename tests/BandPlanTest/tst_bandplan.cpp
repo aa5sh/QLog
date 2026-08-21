@@ -3,6 +3,8 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+#include <cmath>
+
 #include "data/BandPlan.h"
 
 namespace {
@@ -28,6 +30,7 @@ private slots:
     void freq2ExpectedMode();
     void freq2Band_data();
     void freq2Band();
+    void bandUsesWholeHzBoundaries();
     void bandsList_onlyDXCC();
     void modeToDXCCModeGroup_data();
     void modeToDXCCModeGroup();
@@ -72,7 +75,7 @@ void BandPlanTest::initTestCase()
         {"60m", 5.350, 5.450, 1},
         {"40m", 7.000, 7.300, 1},
         {"30m", 10.100, 10.150, 1},
-        {"20m", 14.000, 14.350, 1},
+        {"20m", std::nextafter(14.000, 0.0), std::nextafter(14.350, 15.0), 1},
         {"17m", 18.068, 18.168, 1},
         {"15m", 21.000, 21.450, 1},
         {"12m", 24.890, 24.990, 1},
@@ -154,6 +157,9 @@ void BandPlanTest::freq2BandMode_data()
     QTest::newRow("cw") << 14.0 << BandPlan::BAND_MODE_CW;
     QTest::newRow("digital") << 14.071 << BandPlan::BAND_MODE_DIGITAL;
     QTest::newRow("ft8") << 14.074 << BandPlan::BAND_MODE_FT8;
+    QTest::newRow("ft8_from_below_double")
+            << std::nextafter(14.074, 0.0)
+            << BandPlan::BAND_MODE_FT8;
     QTest::newRow("usb") << 14.200 << BandPlan::BAND_MODE_USB;
     QTest::newRow("out_of_band") << 1.0 << BandPlan::BAND_MODE_PHONE;
     QTest::newRow("negative") << -1.0 << BandPlan::BAND_MODE_PHONE;
@@ -245,6 +251,13 @@ void BandPlanTest::freq2Band_data()
             << c.freq
             << QString::fromLatin1(c.name);
     }
+
+    QTest::newRow("20m_start_from_below_double")
+            << std::nextafter(14.000, 0.0)
+            << QStringLiteral("20m");
+    QTest::newRow("20m_end_from_above_double")
+            << std::nextafter(14.350, 15.0)
+            << QStringLiteral("20m");
 }
 
 void BandPlanTest::freq2Band()
@@ -254,6 +267,24 @@ void BandPlanTest::freq2Band()
 
     const Band band = BandPlan::freq2Band(frequency);
     QCOMPARE(band.name, expectedBand);
+}
+
+void BandPlanTest::bandUsesWholeHzBoundaries()
+{
+    Band band;
+    band.name = QStringLiteral("20m");
+    band.start = 14.000;
+    band.end = 14.350;
+
+    QVERIFY(band.contains(std::nextafter(band.start, 0.0)));
+    QVERIFY(band.contains(std::nextafter(band.end, 15.0)));
+    QVERIFY(!band.contains(13.999999));
+    QVERIFY(!band.contains(14.350001));
+
+    Band sameBand = band;
+    sameBand.start = std::nextafter(band.start, 0.0);
+    sameBand.end = std::nextafter(band.end, 15.0);
+    QVERIFY(band == sameBand);
 }
 
 void BandPlanTest::bandsList_onlyDXCC()

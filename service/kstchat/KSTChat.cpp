@@ -19,7 +19,7 @@
 #include "core/CredentialStore.h"
 #include "core/LogParam.h"
 
-MODULE_IDENTIFICATION("qlog.core.kstchat");
+MODULE_IDENTIFICATION("qlog.service.kstchat.kstchat");
 
 REGISTRATION_SECURE_SERVICE(KSTChat);
 

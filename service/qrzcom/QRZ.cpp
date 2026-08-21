@@ -15,7 +15,7 @@
 
 //https://www.qrz.com/docs/logbook/QRZLogbookAPI.html
 
-MODULE_IDENTIFICATION("qlog.core.qrz");
+MODULE_IDENTIFICATION("qlog.service.qrz.qrz");
 const QString QRZBase::SECURE_STORAGE_KEY = "QRZCOM";
 const QString QRZBase::SECURE_STORAGE_API_KEY = "QRZCOMAPI";
 const QString QRZBase::CONFIG_USERNAME_API_CONST = "logbookapi";

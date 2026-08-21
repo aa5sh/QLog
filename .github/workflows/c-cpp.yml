@@ -29,6 +29,17 @@ jobs:
       run: qmake QLog.pro
     - name: make
       run: make -j2
+    - name: Configure tests
+      run: |
+        mkdir -p tests/build
+        cd tests/build
+        qmake ../tests.pro
+    - name: Build and run tests
+      working-directory: tests/build
+      env:
+        QT_QPA_PLATFORM: offscreen
+        QLOG_RUN_ADI_IMPORT_BENCHMARK: '1'
+      run: make -j2 check
 
   ubuntu-build-qt6:
     name: Ubuntu CI QT6
@@ -49,6 +60,17 @@ jobs:
       run: qmake6 QLog.pro
     - name: make
       run: make -j2
+    - name: Configure tests
+      run: |
+        mkdir -p tests/build
+        cd tests/build
+        qmake6 ../tests.pro
+    - name: Build and run tests
+      working-directory: tests/build
+      env:
+        QT_QPA_PLATFORM: offscreen
+        QLOG_RUN_ADI_IMPORT_BENCHMARK: '1'
+      run: make -j2 check
 
   macos-build:
      name: MacOS CI
@@ -88,6 +110,17 @@ jobs:
          cd build
          qmake6 -config release ..
          make -j4
+     - name: Configure tests
+       run: |
+         mkdir -p tests/build
+         cd tests/build
+         qmake6 ../tests.pro
+     - name: Build and run tests
+       working-directory: tests/build
+       env:
+         QT_QPA_PLATFORM: offscreen
+         QLOG_RUN_ADI_IMPORT_BENCHMARK: '1'
+       run: make -j4 check
 
   deb-package:
     name: DEB Package Build

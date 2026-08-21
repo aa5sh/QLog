@@ -16,7 +16,7 @@ QString AwardWAAC::rulesUrl() const
 
 QString AwardWAAC::headersColumns(const QString &) const
 {
-    return QStringLiteral("d.name col1, d.prefix col2 ");
+    return QStringLiteral("translate_to_locale(d.name) col1, d.prefix col2 ");
 }
 
 QString AwardWAAC::sqlDetailTable(const QString &entity) const
@@ -31,7 +31,12 @@ QString AwardWAAC::additionalWhere(const QString &) const
     return " AND d.cont = 'AF' AND (d.deleted = 0 OR d.id IN (493, 488, 244)) ";
 }
 
-QString AwardWAAC::clickFilter(const QString &, const QString &col2Value) const
+QString AwardWAAC::clickFilter(const QString &, const QString &) const
 {
-    return QString("dxcc = '%1' ").arg(col2Value);
+    return QString();
+}
+
+bool AwardWAAC::clickUsesCountryName() const
+{
+    return true;
 }

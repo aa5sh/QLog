@@ -14,6 +14,7 @@
 #include <QCheckBox>
 #include <QColor>
 #include <QDoubleSpinBox>
+#include <QMap>
 #include <QSet>
 
 #include "data/StationProfile.h"
@@ -46,6 +47,7 @@ public:
 
 public slots:
     void save();
+    void reject() override;
 
     void addRigProfile();
     void delRigProfile();
@@ -183,6 +185,15 @@ private:
     QString qsoStatusColorStyleValue(const QColor &color) const;
     void setValidationResultColor(QLineEdit *);
     void generateMembershipCheckboxes();
+    void generateAntBandCheckboxes();
+    void updateAntBandCheckboxVisibility();
+    void updateAntBandWarning();
+    void refreshAntRotProfileCombo();
+    void snapshotEquipmentProfiles();
+    void restoreEquipmentProfiles();
+    QString antBandConflictWarning() const;
+    QStringList updatedAntProfileBands(const QStringList &existingBands) const;
+    void setAntProfileBands(const QStringList &bands);
     static void refreshProfileView(QAbstractItemView *view, const QStringList &names);
     static void disableCapCheckbox(QCheckBox *checkbox);
     static void initProfileListView(QAbstractItemView *view);
@@ -239,6 +250,7 @@ private:
     static constexpr int ADIF_FILE_COLUMN_STATION_PROFILE = 2;
     static constexpr int ADIF_FILE_COLUMN_QSL_SENT = 3;
     static constexpr int ADIF_FILE_COLUMN_LAST_RECOVERY = 4;
+    static constexpr int BAND_CHECKBOX_COLUMNS = 4;
 
     static constexpr const char* EMPTY_CWKEY_PROFILE = " ";
 
@@ -258,6 +270,7 @@ private:
     QCompleter *sigCompleter;
     QCompleter *countyCompleter;
     QList<QCheckBox*> memberListCheckBoxes;
+    QList<QCheckBox*> antBandCheckBoxes;
     Ui::SettingsDialog *ui;
     LogLocale locale;
     bool sotaFallback;
@@ -269,6 +282,11 @@ private:
     QStandardItemModel *adifRecoveryModel;
     QSet<QString> loadedAdifRecoveryKeys;
     QSet<QString> removedAdifRecoveryKeys;
+    QMap<QString, AntProfile> initialAntProfiles;
+    QMap<QString, RotProfile> initialRotProfiles;
+    QString initialAntProfileName;
+    QString initialRotProfileName;
+    bool equipmentProfilesRestored = false;
 };
 
 #endif // QLOG_UI_SETTINGSDIALOG_H

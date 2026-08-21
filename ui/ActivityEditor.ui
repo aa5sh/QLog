@@ -1293,10 +1293,10 @@
           <item row="1" column="0">
            <widget class="QCheckBox" name="antennaProfileCheckbox">
             <property name="toolTip">
-             <string>If unchecked, the profile does not change</string>
+             <string>Use this antenna profile instead of automatic TX-band selection while this Activity is active. If unchecked, QLog selects the antenna automatically from the current TX band when a matching profile exists.</string>
             </property>
             <property name="text">
-             <string>Antenna</string>
+             <string>Antenna Override</string>
             </property>
            </widget>
           </item>
@@ -1357,10 +1357,10 @@
           <item row="3" column="0">
            <widget class="QCheckBox" name="rotatorProfileCheckbox">
             <property name="toolTip">
-             <string>If unchecked, the profile does not change</string>
+             <string>Use this rotator profile instead of the active antenna's Assigned Rotator while this Activity is active. If unchecked, QLog uses the active antenna's Assigned Rotator, or leaves the current rotator unchanged when none is assigned.</string>
             </property>
             <property name="text">
-             <string>Rotator</string>
+             <string>Rotator Override</string>
             </property>
            </widget>
           </item>
@@ -1385,7 +1385,7 @@
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>Connect automatically</string>
+               <string>Connect the overridden rotator while this Activity is active. If unchecked, the rotator profile is selected but the rotator is disconnected.</string>
               </property>
               <property name="text">
                <string>Connect</string>

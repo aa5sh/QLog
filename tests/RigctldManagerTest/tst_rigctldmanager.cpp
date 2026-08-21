@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDir>
 #include <QCoreApplication>
+#include <hamlib/riglist.h>
 
 #include "rig/RigctldManager.h"
 #include "data/RigProfile.h"
@@ -20,10 +21,14 @@ private slots:
     void findRigctldPath_returnsNonEmptyIfInstalled();
     void findRigctldPath_prefersAppDirectory();
 
-    // buildArguments tests (via start with mock)
+    // buildArguments tests
     void buildArguments_includesModel();
     void buildArguments_includesPort();
     void buildArguments_includesSerialSettings();
+    void buildArguments_mapsSerialSettings();
+    void buildArguments_includesPttSettings();
+    void buildArguments_includesModelSettings();
+    void buildArguments_formatsCivAddressAsDecimal();
     void buildArguments_includesAdditionalArgs();
 
     // Lifecycle tests
@@ -33,6 +38,7 @@ private slots:
     void getConnectHost_returnsLocalhost();
     void getConnectPort_returnsConfiguredPort();
     void stop_isIdempotentWithoutStart();
+    void unexpectedFinish_reportsExitCode();
 
     // getVersion tests
     void getVersion_returnsInvalidForNonexistentPath();
@@ -119,51 +125,140 @@ void RigctldManagerTest::findRigctldPath_prefersAppDirectory()
 }
 
 // ============================================================================
-// buildArguments tests (indirect via profile inspection)
+// buildArguments tests
 // ============================================================================
 
 void RigctldManagerTest::buildArguments_includesModel()
 {
-    // We can't directly test buildArguments (private), but we can verify
-    // that start() uses the correct model from profile
-    // This is more of a documentation test
-
+    RigctldManager manager;
     RigProfile profile;
     profile.model = 1234;
     profile.rigctldPort = 14532;
     profile.portPath = "/dev/ttyUSB0";
 
-    // Verify profile is set correctly
-    QCOMPARE(profile.model, 1234);
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args.value(0), QString("-m"));
+    QCOMPARE(args.value(1), QString("1234"));
 }
 
 void RigctldManagerTest::buildArguments_includesPort()
 {
+    RigctldManager manager;
     RigProfile profile;
     profile.rigctldPort = 5000;
 
-    QCOMPARE(profile.rigctldPort, static_cast<quint16>(5000));
+    const QStringList args = manager.buildArguments(profile);
+    const int portOption = args.indexOf("-t");
+
+    QVERIFY(portOption >= 0);
+    QCOMPARE(args.value(portOption + 1), QString("5000"));
 }
 
 void RigctldManagerTest::buildArguments_includesSerialSettings()
 {
+    RigctldManager manager;
     RigProfile profile;
-    profile.baudrate = 9600;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.baudrate = 38400;
     profile.databits = 8;
     profile.stopbits = 1;
-    profile.parity = "None";
-    profile.flowcontrol = "None";
+    profile.parity = "no";
+    profile.flowcontrol = "none";
+    profile.dtr = "none";
+    profile.rts = "none";
 
-    QCOMPARE(profile.baudrate, 9600u);
-    QCOMPARE(profile.databits, static_cast<quint8>(8));
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args, QStringList({"-m", "1",
+                                "-t", "4532",
+                                "-r", "/dev/ttyUSB0",
+                                "-s", "38400",
+                                "-C", "data_bits=8",
+                                "-C", "stop_bits=1",
+                                "-C", "serial_parity=None",
+                                "-C", "serial_handshake=None",
+                                "-C", "ptt_share=1",
+                                "-C", "dtr_state=Unset",
+                                "-C", "rts_state=Unset"}));
+}
+
+void RigctldManagerTest::buildArguments_mapsSerialSettings()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.parity = "even";
+    profile.flowcontrol = "hardware";
+    profile.dtr = "high";
+    profile.rts = "low";
+
+    const QStringList args = manager.buildArguments(profile);
+
+    QVERIFY(args.contains("serial_parity=Even"));
+    QVERIFY(args.contains("serial_handshake=Hardware"));
+    QVERIFY(args.contains("dtr_state=ON"));
+    QVERIFY(args.contains("rts_state=OFF"));
+}
+
+void RigctldManagerTest::buildArguments_includesPttSettings()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.pttType = "DTR";
+    profile.pttPortPath = "/dev/ttyUSB1";
+
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args.value(args.indexOf("-p") + 1), QString("/dev/ttyUSB1"));
+    QVERIFY(args.contains("ptt_type=DTR"));
+    QVERIFY(args.contains("ptt_share=1"));
+
+    profile.pttType = "None";
+    profile.pttPortPath.clear();
+    const QStringList noneArgs = manager.buildArguments(profile);
+    QVERIFY(noneArgs.contains("ptt_type=None"));
+}
+
+void RigctldManagerTest::buildArguments_includesModelSettings()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+#ifdef RIG_MODEL_FT950
+    profile.model = RIG_MODEL_FT950;
+#endif
+
+    const QStringList args = manager.buildArguments(profile);
+
+#ifdef RIG_MODEL_FT950
+    QVERIFY(args.contains("disable_yaesu_bandselect=1"));
+#endif
+}
+
+void RigctldManagerTest::buildArguments_formatsCivAddressAsDecimal()
+{
+    RigctldManager manager;
+    RigProfile profile;
+    profile.portPath = "/dev/ttyUSB0";
+    profile.civAddr = 0x94;
+
+    const QStringList args = manager.buildArguments(profile);
+
+    QVERIFY(args.contains("civaddr=148"));
 }
 
 void RigctldManagerTest::buildArguments_includesAdditionalArgs()
 {
+    RigctldManager manager;
     RigProfile profile;
-    profile.rigctldArgs = "-v -v --debug";
+    profile.rigctldArgs = "-v -p \"C:/My PTT/COM port\" --debug";
 
-    QCOMPARE(profile.rigctldArgs, QString("-v -v --debug"));
+    const QStringList args = manager.buildArguments(profile);
+
+    QCOMPARE(args.mid(args.size() - 4),
+             QStringList({"-v", "-p", "C:/My PTT/COM port", "--debug"}));
 }
 
 // ============================================================================
@@ -245,6 +340,20 @@ void RigctldManagerTest::stop_isIdempotentWithoutStart()
 
     QVERIFY(!manager.isRunning());
     QCOMPARE(stoppedSpy.count(), 0);
+}
+
+void RigctldManagerTest::unexpectedFinish_reportsExitCode()
+{
+    RigctldManager manager;
+    QSignalSpy stoppedSpy(&manager, &RigctldManager::stopped);
+    QSignalSpy errorSpy(&manager, &RigctldManager::errorOccurred);
+
+    manager.onProcessFinished(7, QProcess::NormalExit);
+
+    QCOMPARE(stoppedSpy.count(), 1);
+    QCOMPARE(errorSpy.count(), 1);
+    const QString error = errorSpy.first().first().toString();
+    QVERIFY(error.contains("7"));
 }
 
 // ============================================================================

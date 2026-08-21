@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QColor>
 #include <QImage>
+#include <QPointF>
 #include <QVariant>
 #include <QMutex>
 #include <QList>
@@ -45,6 +46,8 @@ public:
     static int getContestDupeType();
     static bool setContestLinkExchange(const QVariant &data);
     static int getContestLinkExchange();
+    static bool setContestLinkExchangeFlexibleType(int columnID);
+    static int getContestLinkExchangeFlexibleType();
     static bool setContestFilter(const QString &filterName);
     static QString getContestFilter();
     static bool setContestID(const QString &contestID);
@@ -146,8 +149,18 @@ public:
     static void setDownloadQSLServiceLastDate(const QString& name, const QDate &date);
     static bool getDownloadQSLServiceLastQSOQSL(const QString& name);
     static void setDownloadQSLServiceLastQSOQSL(const QString& name, bool state);
+    static QDate getDownloadQSLLoTWLastDate(const QString &call, bool qslSince);
+    static void setDownloadQSLLoTWLastDate(const QString &call, bool qslSince, const QDate &date);
+    static bool hasDownloadQSLLoTWLastCall();
     static QString getDownloadQSLLoTWLastCall();
     static void setDownloadQSLLoTWLastCall(const QString &call);
+    static QDate getDownloadQSLeQSLLastDate(const QString &username,
+                                            const QString &profile,
+                                            bool qslSince);
+    static void setDownloadQSLeQSLLastDate(const QString &username,
+                                           const QString &profile,
+                                           bool qslSince,
+                                           const QDate &date);
     static QString getDownloadQSLeQSLLastProfile();
     static void setDownloadQSLeQSLLastProfile(const QString &profile);
 
@@ -217,6 +230,8 @@ public:
     static void setPrimaryCallbook(const QString& callbookName);
     static QString getSecondaryCallbook(const QString &defaultValue);
     static void setSecondaryCallbook(const QString& callbookName);
+    static QString getQSLManagerSource(const QString &defaultValue);
+    static void setQSLManagerSource(const QString &sourceId);
     static QString getCallbookWebLookupURL(const QString &defaultURL);
     static void setCallbookWebLookupURL(const QString& url);
 
@@ -233,6 +248,8 @@ public:
     static void setNetworkNotifAlertsSpotAddrs(const QString &addrs);
     static QString getNetworkNotifRigStateAddrs();
     static void setNetworkNotifRigStateAddrs(const QString &addrs);
+    static int getNetworkFldigiUDPListenerPort(int defaultPort);
+    static void setNetworkFldigiUDPListenerPort(int port);
     static int getNetworkWsjtxListenerPort(int defaultPort);
     static void setNetworkNotifRigStateAddrs(int port);
     static QString getNetworkWsjtxForwardAddrs();
@@ -304,6 +321,22 @@ public:
     static QStringList getMapLayerStates(const QString &widgetID);
     static bool getMapLayerState(const QString &widgetID, const QString &layerName);
     static void setMapLayerState(const QString &widgetID, const QString &layerName, bool state);
+
+    /***************
+     * Offline Map
+     ***************/
+    static double getOfflineMapZoom();
+    static void setOfflineMapZoom(double zoom);
+    static QPointF getOfflineMapCenter();
+    static void setOfflineMapCenter(const QPointF &center);
+
+    /****************
+     * Rotator Widget
+     ****************/
+    static double getRotatorMapZoom();
+    static void setRotatorMapZoom(double zoom);
+    static QPointF getRotatorMapCenter();
+    static void setRotatorMapCenter(const QPointF &center);
 
     /***************
      * WSJTX Dialog
@@ -407,6 +440,8 @@ public:
     static void setMainWindowAlertBeep(bool state);
     static int getMainWindowDarkMode();
     static void setMainWindowDarkMode(int state);
+    static bool getShowDxccFlags();
+    static void setShowDxccFlags(bool state);
     static QVariantMap getQsoStatusColors();
     static void setQsoStatusColors(const QVariantMap &colors);
     static QByteArray getMainWindowGeometry();
@@ -434,6 +469,10 @@ public:
     static void setQslLabelPrintMode(int mode);
     static int getQslLabelPageSize();
     static void setQslLabelPageSize(int pageSize);
+    static double getQslLabelCustomPageWidth();
+    static void setQslLabelCustomPageWidth(double width);
+    static double getQslLabelCustomPageHeight();
+    static void setQslLabelCustomPageHeight(double height);
     static QString getQslLabelImageExportPath(const QString &defaultPath);
     static void setQslLabelImageExportPath(const QString &path);
     static int getQslLabelCustomPageSize();

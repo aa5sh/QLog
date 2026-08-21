@@ -4,7 +4,6 @@
 #include "HamlibRotDrv.h"
 #include "core/debug.h"
 #include "data/SerialPort.h"
-#include "data/AntProfile.h"
 
 #define MUTEXLOCKER     qCDebug(runtime) << "Waiting for Rot Drv mutex"; \
                         QMutexLocker locker(&drvLock); \
@@ -41,6 +40,9 @@ RotCaps HamlibRotDrv::getCaps(int model)
 
     const struct rot_caps *caps = rot_get_caps(model);
     RotCaps ret;
+
+    if ( !caps )
+        return ret;
 
     ret.isNetworkOnly = (model == RIG_MODEL_NETRIGCTL);
 
@@ -85,6 +87,7 @@ HamlibRotDrv::HamlibRotDrv(const RotProfile &profile,
 
     rig_set_debug(RIG_DEBUG_BUG);
 
+    errorTimer.setSingleShot(true);
     connect(&errorTimer, &QTimer::timeout,
             this, &HamlibRotDrv::checkErrorCounter);
 
@@ -208,12 +211,7 @@ void HamlibRotDrv::setPosition(double in_azimuth, double in_elevation)
     }
 
     double newElevation = in_elevation;
-    double newAzimuth = in_azimuth - AntProfilesManager::instance()->getCurProfile1().azimuthOffset;
-    // offset interval is -180 to 180
-    // azimuth input interval is 0 to 360
-    // min value is -180
-    // max valus is 540
-    newAzimuth = fmod(newAzimuth + 360, 360);
+    double newAzimuth = toRotatorAzimuth(in_azimuth);
     qCDebug(runtime) << "Azimuth (with offset)" << newAzimuth;
 
     /**********************************/
@@ -329,11 +327,8 @@ void HamlibRotDrv::checkAzEl()
         int status = rot_get_position(rot, &az, &el);
         if ( isRotRespOK(status, tr("Get Possition Error")) )
         {
-            double newAzimuth = az;
+            double newAzimuth = fromRotatorAzimuth(az);
             double newElevation = el;
-            // Azimuth Normalization (-180,180) -> (0,360) - ADIF defined interval is 0-360
-            newAzimuth += AntProfilesManager::instance()->getCurProfile1().azimuthOffset;
-            newAzimuth = normalizeAzimuth(newAzimuth);
 
              qCDebug(runtime) << "Rot Position: " << newAzimuth << newElevation;
              qCDebug(runtime) << "Object Position: "<< azimuth << elevation;
@@ -362,7 +357,12 @@ bool HamlibRotDrv::isRotRespOK(int errorStatus, const QString errorName, bool em
     if ( errorStatus == RIG_OK ) // there are no special codes for ROT, use RIG codes
     {
         if ( emitError )
+        {
             postponedErrors.remove(errorName);
+
+            if ( postponedErrors.isEmpty() )
+                errorTimer.stop();
+        }
         return true;
     }
 
@@ -372,7 +372,12 @@ bool HamlibRotDrv::isRotRespOK(int errorStatus, const QString errorName, bool em
     {
         qCDebug(runtime) << "Emit Error detected";
 
-        if ( !RIG_IS_SOFT_ERRCODE(-errorStatus) )
+        // Before Hamlib 4.7 the macro expected a positive error code;
+        // since Hamlib 4.7 it expects the negative API return value.
+        const bool isSoftError = RIG_IS_SOFT_ERRCODE(errorStatus)
+                                 || RIG_IS_SOFT_ERRCODE(-errorStatus);
+
+        if ( !isSoftError )
         {
             // hard error, emit error now
             qCDebug(runtime) << "Hard Error";
