@@ -16,6 +16,7 @@ public:
     {
         shortDescs.resize(MAX_ROT_USER_BUTTONS);
         bearings.resize(MAX_ROT_USER_BUTTONS);
+        bearings.fill(-1.0);
     }
 
     QString profileName;

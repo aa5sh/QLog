@@ -1304,127 +1304,127 @@
         <translation>Formulaire</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="40"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="67"/>
         <source>CW Keyer Profile</source>
         <translation>Profil de manipulateur CW</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="62"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="91"/>
         <source>Shortcuts profile</source>
         <translation>Profil de raccourcis</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="94"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="123"/>
         <source>Speed</source>
         <translation>Vitesse</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="97"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="126"/>
         <source>N/A</source>
         <translation>N/D</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="106"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="135"/>
         <source> WPM</source>
         <translation> WPM (mots/min)</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="140"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="169"/>
         <source>Sent text</source>
         <translation>Texte envoyé</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="154"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="183"/>
         <source>Echoed text</source>
         <translation>Texte en écho</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="170"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="199"/>
         <source>&amp;CW</source>
         <translation>&amp;CW</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="183"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="212"/>
         <source>Text to send</source>
         <translation>Texte à envoyer</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="193"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="222"/>
         <source>Switch between sending &lt;b&gt;words&lt;/b&gt; individually (separated by spaces)&lt;br&gt; and sending the entire text as a &lt;b&gt;whole&lt;/b&gt; (separated by a new line).</source>
         <translation>Alterner entre l&apos;envoi par &lt;b&gt;mots&lt;/b&gt; individuels (séparés par des espaces)&lt;br&gt; et l&apos;envoi du texte &lt;b&gt;complet&lt;/b&gt; (séparé par un saut de ligne).</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="233"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="262"/>
         <source>F1</source>
         <translation>F1</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="261"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="290"/>
         <source>F2</source>
         <translation>F2</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="283"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="312"/>
         <source>F3</source>
         <translation>F3</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="302"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="331"/>
         <source>F4</source>
         <translation>F4</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="321"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="350"/>
         <source>F5</source>
         <translation>F5</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="340"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="369"/>
         <source>F6</source>
         <translation>F6</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="359"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="388"/>
         <source>F7</source>
         <translation>F7</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="408"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="437"/>
         <source>Immediately stop CW sending</source>
         <translation>Arrêt immédiat de l&apos;émission CW</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="411"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="440"/>
         <source>Halt</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="437"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="466"/>
         <source>Clear Sent and Echo Console</source>
         <translation>Effacer la console d&apos;envoi et d&apos;écho</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="440"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="469"/>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.ui" line="468"/>
+        <location filename="../ui/CWConsoleWidget.ui" line="497"/>
         <source>CW Console - Halt Sending</source>
         <translation>Console CW - Arrêt d&apos;émission</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.cpp" line="383"/>
+        <location filename="../ui/CWConsoleWidget.cpp" line="390"/>
         <source>Rig must be connected</source>
         <translation>Le poste doit être connecté</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.cpp" line="449"/>
+        <location filename="../ui/CWConsoleWidget.cpp" line="456"/>
         <source>Word</source>
         <translation>Mot</translation>
     </message>
     <message>
-        <location filename="../ui/CWConsoleWidget.cpp" line="449"/>
+        <location filename="../ui/CWConsoleWidget.cpp" line="456"/>
         <source>Whole</source>
         <translation>Complet</translation>
     </message>
@@ -8522,680 +8522,675 @@ Submode: %2</source>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="88"/>
-        <source>&amp;Equipment</source>
-        <translation>&amp;Équipement</translation>
-    </message>
-    <message>
-        <location filename="../ui/MainWindow.ui" line="96"/>
         <source>&amp;Help</source>
         <translation>&amp;Aide</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="109"/>
+        <location filename="../ui/MainWindow.ui" line="101"/>
         <source>&amp;Window</source>
         <translation>&amp;Fenêtre</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="126"/>
+        <location filename="../ui/MainWindow.ui" line="118"/>
         <source>Se&amp;rvice</source>
         <translation>Se&amp;rvices</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="135"/>
-        <location filename="../ui/MainWindow.cpp" line="1964"/>
+        <location filename="../ui/MainWindow.ui" line="127"/>
+        <location filename="../ui/MainWindow.cpp" line="1970"/>
         <source>Contest</source>
         <translation>Concours (Contest)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="139"/>
+        <location filename="../ui/MainWindow.ui" line="131"/>
         <source>Dupe Check</source>
         <translation>Vérif. Doublons</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="148"/>
+        <location filename="../ui/MainWindow.ui" line="140"/>
         <source>Sequence</source>
         <translation>Séquence</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="157"/>
+        <location filename="../ui/MainWindow.ui" line="149"/>
         <source>Linking Exchange With</source>
         <translation>Lier l&apos;échange avec</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="184"/>
+        <location filename="../ui/MainWindow.ui" line="175"/>
         <source>Toolbar</source>
         <translation>Barre d&apos;outils</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="212"/>
-        <location filename="../ui/MainWindow.ui" line="572"/>
+        <location filename="../ui/MainWindow.ui" line="203"/>
+        <location filename="../ui/MainWindow.ui" line="571"/>
         <source>Clock</source>
         <translation>Horloge</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="221"/>
-        <location filename="../ui/MainWindow.ui" line="475"/>
+        <location filename="../ui/MainWindow.ui" line="212"/>
+        <location filename="../ui/MainWindow.ui" line="470"/>
         <source>Map</source>
         <translation>Carte</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="234"/>
-        <location filename="../ui/MainWindow.ui" line="463"/>
+        <location filename="../ui/MainWindow.ui" line="225"/>
+        <location filename="../ui/MainWindow.ui" line="458"/>
         <source>DX Cluster</source>
         <translation>DX Cluster</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="243"/>
+        <location filename="../ui/MainWindow.ui" line="234"/>
         <source>WSJTX</source>
         <translation>WSJTX</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="252"/>
-        <location filename="../ui/MainWindow.ui" line="548"/>
+        <location filename="../ui/MainWindow.ui" line="243"/>
+        <location filename="../ui/MainWindow.ui" line="547"/>
         <source>Rotator</source>
         <translation>Rotor</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="261"/>
-        <location filename="../ui/MainWindow.ui" line="556"/>
+        <location filename="../ui/MainWindow.ui" line="252"/>
+        <location filename="../ui/MainWindow.ui" line="555"/>
         <source>Bandmap</source>
         <translation>Carte des bandes</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="270"/>
-        <location filename="../ui/MainWindow.ui" line="564"/>
+        <location filename="../ui/MainWindow.ui" line="261"/>
+        <location filename="../ui/MainWindow.ui" line="563"/>
         <source>Rig</source>
         <translation>TRX</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="279"/>
-        <location filename="../ui/MainWindow.ui" line="592"/>
+        <location filename="../ui/MainWindow.ui" line="270"/>
+        <location filename="../ui/MainWindow.ui" line="591"/>
         <source>Online Map</source>
         <translation>Carte en ligne</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="288"/>
-        <location filename="../ui/MainWindow.ui" line="651"/>
+        <location filename="../ui/MainWindow.ui" line="279"/>
+        <location filename="../ui/MainWindow.ui" line="654"/>
         <source>CW Console</source>
         <translation>Console CW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="297"/>
-        <location filename="../ui/MainWindow.ui" line="706"/>
+        <location filename="../ui/MainWindow.ui" line="288"/>
+        <location filename="../ui/MainWindow.ui" line="709"/>
         <source>Chat</source>
         <translation>Chat</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="306"/>
-        <location filename="../ui/MainWindow.ui" line="736"/>
+        <location filename="../ui/MainWindow.ui" line="297"/>
+        <location filename="../ui/MainWindow.ui" line="739"/>
         <source>Profile Image</source>
         <translation>Image de profil</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="315"/>
-        <location filename="../ui/MainWindow.ui" line="923"/>
+        <location filename="../ui/MainWindow.ui" line="306"/>
+        <location filename="../ui/MainWindow.ui" line="926"/>
         <source>Alerts</source>
         <translation>Alertes</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="328"/>
+        <location filename="../ui/MainWindow.ui" line="319"/>
         <source>Quit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="331"/>
+        <location filename="../ui/MainWindow.ui" line="322"/>
         <source>Application - Quit</source>
         <translation>Quitter l&apos;application</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="349"/>
+        <location filename="../ui/MainWindow.ui" line="340"/>
         <source>&amp;Settings</source>
         <translation>&amp;Réglages</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="357"/>
-        <location filename="../ui/MainWindow.cpp" line="1342"/>
-        <location filename="../ui/MainWindow.cpp" line="1350"/>
-        <location filename="../ui/MainWindow.cpp" line="1371"/>
-        <location filename="../ui/MainWindow.cpp" line="1387"/>
-        <location filename="../ui/MainWindow.cpp" line="1401"/>
+        <location filename="../ui/MainWindow.ui" line="348"/>
+        <location filename="../ui/MainWindow.cpp" line="1348"/>
+        <location filename="../ui/MainWindow.cpp" line="1356"/>
+        <location filename="../ui/MainWindow.cpp" line="1377"/>
+        <location filename="../ui/MainWindow.cpp" line="1393"/>
         <location filename="../ui/MainWindow.cpp" line="1407"/>
+        <location filename="../ui/MainWindow.cpp" line="1413"/>
         <source>Pack Data &amp;&amp; Settings</source>
         <translation>Sauvegarder données &amp;&amp; réglages</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="365"/>
-        <location filename="../ui/MainWindow.cpp" line="1474"/>
+        <location filename="../ui/MainWindow.ui" line="356"/>
+        <location filename="../ui/MainWindow.cpp" line="1480"/>
         <source>Unpack Data &amp;&amp; Settings</source>
         <translation>Restaurer données &amp;&amp; réglages</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="377"/>
-        <location filename="../ui/MainWindow.ui" line="380"/>
+        <location filename="../ui/MainWindow.ui" line="368"/>
+        <location filename="../ui/MainWindow.ui" line="371"/>
         <source>New QSO - Clear</source>
         <translation>Nouveau QSO - Effacer</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="395"/>
+        <location filename="../ui/MainWindow.ui" line="386"/>
         <source>&amp;Import</source>
         <translation>&amp;Importer</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="407"/>
+        <location filename="../ui/MainWindow.ui" line="398"/>
         <source>&amp;Export</source>
         <translation>&amp;Exporter</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="418"/>
+        <location filename="../ui/MainWindow.ui" line="413"/>
         <source>Connect R&amp;ig</source>
         <translation>Connecter le T&amp;RX</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="433"/>
+        <location filename="../ui/MainWindow.ui" line="428"/>
         <source>&amp;About</source>
         <translation>À &amp;propos</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="445"/>
-        <location filename="../ui/MainWindow.ui" line="448"/>
+        <location filename="../ui/MainWindow.ui" line="440"/>
+        <location filename="../ui/MainWindow.ui" line="443"/>
         <source>New QSO - Save</source>
         <translation>Nouveau QSO - Enregistrer</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="487"/>
+        <location filename="../ui/MainWindow.ui" line="482"/>
         <source>S&amp;tatistics</source>
         <translation>S&amp;tatistiques</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="495"/>
+        <location filename="../ui/MainWindow.ui" line="490"/>
         <source>QSL &amp;Gallery</source>
         <translation>&amp;Galerie QSL</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="507"/>
+        <location filename="../ui/MainWindow.ui" line="502"/>
         <source>Developer Tools</source>
         <translation>Outils dev</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="510"/>
+        <location filename="../ui/MainWindow.ui" line="505"/>
         <source>Run custom read-only SQL queries against the logbook database</source>
         <translation>Exécuter des requêtes SQL personnalisées en lecture seule sur la base de données du logbook</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="521"/>
+        <location filename="../ui/MainWindow.ui" line="516"/>
         <source>Print QS&amp;L</source>
         <translation>Imprimer QS&amp;L</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="529"/>
+        <location filename="../ui/MainWindow.ui" line="524"/>
         <source>Wsjtx</source>
         <translation>WSJTX</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="540"/>
+        <location filename="../ui/MainWindow.ui" line="539"/>
         <source>Connect R&amp;otator</source>
         <translation>Connecter le r&amp;otor</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="584"/>
+        <location filename="../ui/MainWindow.ui" line="583"/>
         <source>QSO &amp;Filters</source>
         <translation>&amp;Filtres de QSO</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="604"/>
+        <location filename="../ui/MainWindow.ui" line="603"/>
         <source>&amp;Awards</source>
         <translation>&amp;Diplômes</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="616"/>
+        <location filename="../ui/MainWindow.ui" line="615"/>
         <source>DXCC &amp;Submission List</source>
         <translation>&amp;Liste de soumission DXCC</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="619"/>
+        <location filename="../ui/MainWindow.ui" line="618"/>
         <source>Generate a list of contacts to submit for ARRL DXCC award credit</source>
         <translation>Générer une liste de contacts à soumettre pour le crédit ARRL DXCC</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="627"/>
+        <location filename="../ui/MainWindow.ui" line="626"/>
         <source>Edit Rules</source>
         <translation>Modifier les règles</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="638"/>
+        <location filename="../ui/MainWindow.ui" line="637"/>
         <source>Beep</source>
         <translation>Bip</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="646"/>
+        <location filename="../ui/MainWindow.ui" line="649"/>
         <source>Connect &amp;CW Keyer</source>
         <translation>Connecter le manipulateur &amp;CW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="663"/>
+        <location filename="../ui/MainWindow.ui" line="666"/>
         <source>&amp;Wiki</source>
         <translation>&amp;Wiki</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="671"/>
+        <location filename="../ui/MainWindow.ui" line="674"/>
         <source>Report &amp;Bug...</source>
         <translation>Signaler un &amp;bug...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="682"/>
+        <location filename="../ui/MainWindow.ui" line="685"/>
         <source>&amp;Manual Entry</source>
         <translation>Saisie &amp;manuelle</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="685"/>
+        <location filename="../ui/MainWindow.ui" line="688"/>
         <source>Switch New Contact dialog to the manually entry mode&lt;br/&gt;(time, freq, profiles etc. are not taken from their common sources)</source>
         <translation>Passer la saisie de contact en mode manuel&lt;br/&gt;(l&apos;heure, la fréquence et les profils ne sont plus synchronisés)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="693"/>
+        <location filename="../ui/MainWindow.ui" line="696"/>
         <source>Mailing List...</source>
         <translation>Liste de diffusion...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="701"/>
+        <location filename="../ui/MainWindow.ui" line="704"/>
         <source>Edit</source>
         <translation>Modifier</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="714"/>
         <location filename="../ui/MainWindow.ui" line="717"/>
+        <location filename="../ui/MainWindow.ui" line="720"/>
         <source>Save Arrangement</source>
         <translation>Enregistrer la disposition</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="728"/>
+        <location filename="../ui/MainWindow.ui" line="731"/>
         <source>Keep Options</source>
         <translation>Conserver les options</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="731"/>
+        <location filename="../ui/MainWindow.ui" line="734"/>
         <source>Restore connection options after application restart</source>
         <translation>Restaurer les options de connexion au redémarrage</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="747"/>
+        <location filename="../ui/MainWindow.ui" line="750"/>
         <source>Logbook - Search Callsign</source>
         <translation>Carnet de trafic - Chercher indicatif</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="764"/>
         <location filename="../ui/MainWindow.ui" line="767"/>
+        <location filename="../ui/MainWindow.ui" line="770"/>
         <source>New QSO - Add text from Callsign field to Bandmap</source>
         <translation>Nouveau QSO - Ajouter l&apos;indicatif à la carte des bandes</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="784"/>
+        <location filename="../ui/MainWindow.ui" line="787"/>
         <source>Rig - Band Down</source>
         <translation>TRX - Bande inférieure</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="801"/>
+        <location filename="../ui/MainWindow.ui" line="804"/>
         <source>Rig - Band Up</source>
         <translation>TRX - Bande supérieure</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="818"/>
+        <location filename="../ui/MainWindow.ui" line="821"/>
         <source>New QSO - Use Callsign from the Whisperer</source>
         <translation>Nouveau QSO - Utiliser l&apos;indicatif du Whisperer</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="835"/>
+        <location filename="../ui/MainWindow.ui" line="838"/>
         <source>CW Console - Key Speed Up</source>
         <translation>Console CW - Augmenter la vitesse</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="852"/>
+        <location filename="../ui/MainWindow.ui" line="855"/>
         <source>CW Console - Key Speed Down</source>
         <translation>Console CW - Diminuer la vitesse</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="869"/>
+        <location filename="../ui/MainWindow.ui" line="872"/>
         <source>CW Console - Profile Up</source>
         <translation>Console CW - Profil suivant</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="886"/>
+        <location filename="../ui/MainWindow.ui" line="889"/>
         <source>CW Console - Profile Down</source>
         <translation>Console CW - Profil précédent</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="903"/>
+        <location filename="../ui/MainWindow.ui" line="906"/>
         <source>Rig - PTT On/Off</source>
         <translation>TRX - PTT On/Off</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="931"/>
+        <location filename="../ui/MainWindow.ui" line="934"/>
         <source>Clear All</source>
         <translation>Tout effacer</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="939"/>
+        <location filename="../ui/MainWindow.ui" line="942"/>
         <source>Show Alerts</source>
         <translation>Afficher les alertes</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="950"/>
+        <location filename="../ui/MainWindow.ui" line="953"/>
         <source>All Bands</source>
         <translation>Toutes bandes</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="961"/>
+        <location filename="../ui/MainWindow.ui" line="964"/>
         <source>Each Band</source>
         <translation>Par bande</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="972"/>
+        <location filename="../ui/MainWindow.ui" line="975"/>
         <source>Each Band &amp;&amp; Mode</source>
         <translation>Par bande &amp;&amp; mode</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="983"/>
+        <location filename="../ui/MainWindow.ui" line="986"/>
         <source>No Check</source>
         <translation>Pas de vérif.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="994"/>
+        <location filename="../ui/MainWindow.ui" line="997"/>
         <source>Single</source>
         <translation>Simple</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1005"/>
+        <location filename="../ui/MainWindow.ui" line="1008"/>
         <source>Per Band</source>
         <translation>Par bande</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1016"/>
+        <location filename="../ui/MainWindow.ui" line="1019"/>
         <source>Stop</source>
         <translation>Arrêt</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1024"/>
+        <location filename="../ui/MainWindow.ui" line="1027"/>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1035"/>
+        <location filename="../ui/MainWindow.ui" line="1038"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1047"/>
+        <location filename="../ui/MainWindow.ui" line="1050"/>
         <source>Upload</source>
         <translation>Envoyer</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1050"/>
+        <location filename="../ui/MainWindow.ui" line="1053"/>
         <source>Service - Upload QSOs</source>
         <translation>Service - Envoi des QSO</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1064"/>
+        <location filename="../ui/MainWindow.ui" line="1067"/>
         <source>Download QSLs</source>
         <translation>Récupérer QSL</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1067"/>
+        <location filename="../ui/MainWindow.ui" line="1070"/>
         <source>Service - Download QSLs</source>
         <translation>Service - Récupération des QSL</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1081"/>
+        <location filename="../ui/MainWindow.ui" line="1084"/>
         <source>Download LoTW DXCC Credits</source>
         <translation>Télécharger les crédits DXCC LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1084"/>
+        <location filename="../ui/MainWindow.ui" line="1087"/>
         <source>Service - Download LoTW DXCC Credits</source>
         <translation>Service - Télécharger les crédits DXCC LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1095"/>
+        <location filename="../ui/MainWindow.ui" line="1098"/>
         <source>Theme: Native</source>
         <translation>Thème : Natif</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1106"/>
+        <location filename="../ui/MainWindow.ui" line="1109"/>
         <source>Theme: QLog Light</source>
         <translation>Thème : QLog Clair</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1117"/>
+        <location filename="../ui/MainWindow.ui" line="1120"/>
         <source>Theme: QLog Dark</source>
         <translation>Thème : QLog Sombre</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1125"/>
+        <location filename="../ui/MainWindow.ui" line="1128"/>
         <source>What&apos;s New</source>
         <translation>Nouveautés</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="1133"/>
+        <location filename="../ui/MainWindow.ui" line="1136"/>
         <source>Export Cabrillo</source>
         <translation>Exporter Cabrillo</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="91"/>
+        <location filename="../ui/MainWindow.cpp" line="94"/>
         <source>Color Theme</source>
         <translation>Thème de couleur</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="114"/>
+        <location filename="../ui/MainWindow.cpp" line="117"/>
         <source>Not enabled for non-Fusion style</source>
         <translation>Non activé pour le style hors-Fusion</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="189"/>
+        <location filename="../ui/MainWindow.cpp" line="191"/>
         <source>Press to tune the alert</source>
         <translation>Appuyez pour régler l&apos;alerte</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="319"/>
+        <location filename="../ui/MainWindow.cpp" line="324"/>
         <source>FLDigi</source>
         <translation>FLDigi</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="320"/>
+        <location filename="../ui/MainWindow.cpp" line="325"/>
         <source>FLDigi test message received.</source>
         <translation>Message de test FLDigi reçu.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="327"/>
+        <location filename="../ui/MainWindow.cpp" line="332"/>
         <source>Startup ADI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="493"/>
+        <location filename="../ui/MainWindow.cpp" line="499"/>
         <source>Clublog Immediately Upload Error</source>
         <translation>Erreur d&apos;envoi immédiat Clublog</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="719"/>
-        <location filename="../ui/MainWindow.cpp" line="732"/>
-        <location filename="../ui/MainWindow.cpp" line="742"/>
+        <location filename="../ui/MainWindow.cpp" line="725"/>
+        <location filename="../ui/MainWindow.cpp" line="738"/>
+        <location filename="../ui/MainWindow.cpp" line="748"/>
         <source>&lt;b&gt;Error Detail:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Détail de l&apos;erreur :&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="766"/>
+        <location filename="../ui/MainWindow.cpp" line="772"/>
         <source>op: </source>
         <translation>op : </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="943"/>
+        <location filename="../ui/MainWindow.cpp" line="949"/>
         <source>A New Version</source>
         <translation>Nouvelle version disponible</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="944"/>
+        <location filename="../ui/MainWindow.cpp" line="950"/>
         <source>A new version %1 is available.</source>
         <translation>Une nouvelle version %1 est disponible.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="948"/>
+        <location filename="../ui/MainWindow.cpp" line="954"/>
         <source>Remind Me Later</source>
         <translation>Me le rappeler plus tard</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="949"/>
+        <location filename="../ui/MainWindow.cpp" line="955"/>
         <source>Download</source>
         <translation>Télécharger</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1192"/>
-        <location filename="../ui/MainWindow.cpp" line="1240"/>
+        <location filename="../ui/MainWindow.cpp" line="1198"/>
+        <location filename="../ui/MainWindow.cpp" line="1246"/>
         <source>QLog Warning</source>
         <translation>Avertissement QLog</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1193"/>
+        <location filename="../ui/MainWindow.cpp" line="1199"/>
         <source>LoTW is not configured properly.&lt;p&gt;Please, use &lt;b&gt;Settings&lt;/b&gt; dialog to configure it.&lt;/p&gt;</source>
         <translation>LoTW n’est pas configuré correctement.&lt;p&gt;Utilisez la boîte de dialogue &lt;b&gt;Paramètres&lt;/b&gt; pour le configurer.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1214"/>
-        <location filename="../ui/MainWindow.cpp" line="1291"/>
+        <location filename="../ui/MainWindow.cpp" line="1220"/>
+        <location filename="../ui/MainWindow.cpp" line="1297"/>
         <source>QLog Error</source>
         <translation>Erreur QLog</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1215"/>
+        <location filename="../ui/MainWindow.cpp" line="1221"/>
         <source>Cannot load local DXCC entities from the logbook: </source>
         <translation>Impossible de charger les entités DXCC locales depuis le journal : </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1229"/>
+        <location filename="../ui/MainWindow.cpp" line="1235"/>
         <source>Unknown DXCC Entity</source>
         <translation>Entité DXCC inconnue</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1241"/>
+        <location filename="../ui/MainWindow.cpp" line="1247"/>
         <source>Cannot determine a local DXCC entity from logbook contacts.</source>
         <translation>Impossible de déterminer une entité DXCC locale à partir des contacts du journal.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1247"/>
+        <location filename="../ui/MainWindow.cpp" line="1253"/>
         <source>LoTW DXCC Credits</source>
         <translation>Crédits DXCC LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1248"/>
+        <location filename="../ui/MainWindow.cpp" line="1254"/>
         <source>Select the local DXCC entity for which LoTW DXCC credits will be downloaded:</source>
         <translation>Sélectionnez l’entité DXCC locale pour laquelle les crédits DXCC LoTW seront téléchargés :</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1259"/>
+        <location filename="../ui/MainWindow.cpp" line="1265"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1263"/>
+        <location filename="../ui/MainWindow.cpp" line="1269"/>
         <source>Downloading LoTW DXCC credits</source>
         <translation>Téléchargement des crédits DXCC LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1271"/>
+        <location filename="../ui/MainWindow.cpp" line="1277"/>
         <source>Processing LoTW DXCC credits</source>
         <translation>Traitement des crédits DXCC LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1283"/>
+        <location filename="../ui/MainWindow.cpp" line="1289"/>
         <source>LoTW DXCC Credit Import Summary</source>
         <translation>Résumé de l’importation des crédits DXCC LoTW</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1291"/>
+        <location filename="../ui/MainWindow.cpp" line="1297"/>
         <source>LoTW DXCC credit import failed: </source>
         <translation>Échec de l’importation des crédits DXCC LoTW : </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1343"/>
+        <location filename="../ui/MainWindow.cpp" line="1349"/>
         <source>Failed to encrypt credentials.</source>
         <translation>Échec du chiffrement des identifiants.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1352"/>
+        <location filename="../ui/MainWindow.cpp" line="1358"/>
         <source>Database files (*.dbe);;All files (*)</source>
         <translation>Fichiers base de données (*.dbe);;Tous les fichiers (*)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1372"/>
+        <location filename="../ui/MainWindow.cpp" line="1378"/>
         <source>Failed to create temporary file.</source>
         <translation>Échec de création du fichier temporaire.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1388"/>
+        <location filename="../ui/MainWindow.cpp" line="1394"/>
         <source>Failed to dump the database.</source>
         <translation>Échec de l&apos;exportation de la base de données.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1393"/>
+        <location filename="../ui/MainWindow.cpp" line="1399"/>
         <source>Compressing database...</source>
         <translation>Compression de la base...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1402"/>
+        <location filename="../ui/MainWindow.cpp" line="1408"/>
         <source>Database successfully dumped to
 %1</source>
         <translation>Base de données exportée avec succès vers
 %1</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1408"/>
+        <location filename="../ui/MainWindow.cpp" line="1414"/>
         <source>Failed to compress the database.</source>
         <translation>Échec de la compression de la base de données.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1475"/>
+        <location filename="../ui/MainWindow.cpp" line="1481"/>
         <source>Failed to prepare database for import.</source>
         <translation>Échec de la préparation de la base pour l&apos;importation.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1652"/>
+        <location filename="../ui/MainWindow.cpp" line="1658"/>
         <source>Classic</source>
         <translation>Classique</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1889"/>
+        <location filename="../ui/MainWindow.cpp" line="1895"/>
         <source>Accept any received exchange. %1 is updated only when the received exchange is valid for this field.</source>
         <translation>Accepter tout exchange reçu. %1 n’est mis à jour que si l’exchange reçu est valide pour ce champ.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1911"/>
+        <location filename="../ui/MainWindow.cpp" line="1917"/>
         <source>Standard Linking</source>
         <translation>Liaison standard</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1927"/>
+        <location filename="../ui/MainWindow.cpp" line="1933"/>
         <source>Flexible Linking</source>
         <translation>Liaison flexible</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1965"/>
+        <location filename="../ui/MainWindow.cpp" line="1971"/>
         <source>Do you want to remove the Contest filter %1?</source>
         <translation>Voulez-vous supprimer le filtre de concours %1 ?</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="1996"/>
+        <location filename="../ui/MainWindow.cpp" line="2002"/>
         <source>Contest: </source>
         <translation>Concours : </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2353"/>
+        <location filename="../ui/MainWindow.cpp" line="2359"/>
         <source>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Based on Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icon by &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Satellite images by &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect by &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;TimeZone Database by &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</source>
         <translation>&lt;h1&gt;QLog %1&lt;/h1&gt;&lt;p&gt;&amp;copy; 2019 Thomas Gatzweiler DL2IC&lt;br/&gt;&amp;copy; 2021-2026 Ladislav Foldyna OK1MLG&lt;br/&gt;&amp;copy; 2025-2026 Michael Morgan AA5SH&lt;br/&gt;&amp;copy; 2025-2026 Kyle Boyle VE9KZ&lt;/p&gt;&lt;p&gt;Basé sur Qt %2&lt;br/&gt;%3&lt;br/&gt;%4&lt;br/&gt;%5&lt;/p&gt;&lt;p&gt;Icônes par &lt;a href=&apos;http://www.iconshock.com&apos;&gt;Icon Shock&lt;/a&gt;&lt;br /&gt;Images satellites par &lt;a href=&apos;http://www.nasa.gov&apos;&gt;NASA&lt;/a&gt;&lt;br /&gt;ZoneDetect par &lt;a href=&apos;https://github.com/BertoldVdb/ZoneDetect&apos;&gt;Bertold Van den Bergh&lt;/a&gt;&lt;br /&gt;Base de données TimeZone par &lt;a href=&apos;https://github.com/evansiroky/timezone-boundary-builder&apos;&gt;Evan Siroky&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2384"/>
+        <location filename="../ui/MainWindow.cpp" line="2390"/>
         <source>About</source>
         <translation>À propos</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="2435"/>
+        <location filename="../ui/MainWindow.cpp" line="2441"/>
         <source>N/A</source>
         <translation>N/D</translation>
     </message>
@@ -9203,54 +9198,74 @@ Submode: %2</source>
 <context>
     <name>MapPageController</name>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="499"/>
+        <location filename="../ui/MapPageController.cpp" line="507"/>
         <source>Aurora</source>
         <translation>Aurore</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="501"/>
+        <location filename="../ui/MapPageController.cpp" line="509"/>
         <source>Beam</source>
         <translation type="unfinished">Azimut (Beam)</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="503"/>
+        <location filename="../ui/MapPageController.cpp" line="511"/>
         <source>Chat</source>
         <translation>Chat</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="505"/>
+        <location filename="../ui/MapPageController.cpp" line="513"/>
         <source>Grid</source>
         <translation>Grille/Locator</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="507"/>
+        <location filename="../ui/MapPageController.cpp" line="515"/>
         <source>Gray-Line</source>
         <translation>Ligne de gris (Gray-Line)</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="509"/>
+        <location filename="../ui/MapPageController.cpp" line="517"/>
         <source>Heard Me</source>
         <translation>M’ont entendu</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="511"/>
+        <location filename="../ui/MapPageController.cpp" line="519"/>
         <source>IBP</source>
         <translation>IBP</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="513"/>
+        <location filename="../ui/MapPageController.cpp" line="521"/>
         <source>MUF</source>
         <translation>MUF</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="515"/>
+        <location filename="../ui/MapPageController.cpp" line="523"/>
         <source>WSJTX - CQ</source>
         <translation>WSJTX - Appels CQ</translation>
     </message>
     <message>
-        <location filename="../ui/MapPageController.cpp" line="517"/>
+        <location filename="../ui/MapPageController.cpp" line="525"/>
         <source>Path</source>
         <translation>Chemin/Trajet</translation>
+    </message>
+    <message>
+        <location filename="../ui/MapPageController.cpp" line="639"/>
+        <source>Target Antenna Here</source>
+        <translation>Orienter ici</translation>
+    </message>
+    <message>
+        <location filename="../ui/MapPageController.cpp" line="640"/>
+        <source>QSO Short Path</source>
+        <translation>QSO Petit Chemin (SP)</translation>
+    </message>
+    <message>
+        <location filename="../ui/MapPageController.cpp" line="641"/>
+        <source>QSO Long Path</source>
+        <translation>QSO Grand Chemin (LP)</translation>
+    </message>
+    <message>
+        <location filename="../ui/MapPageController.cpp" line="642"/>
+        <source>Stop Antenna</source>
+        <translation>Arrêter l’antenne</translation>
     </message>
 </context>
 <context>
@@ -9916,9 +9931,9 @@ Vous pouvez laisser les champs vides et les configurer plus tard dans les Param�
         <location filename="../core/main.cpp" line="455"/>
         <location filename="../ui/ExportDialog.cpp" line="171"/>
         <location filename="../ui/ImportDialog.cpp" line="343"/>
-        <location filename="../ui/MainWindow.cpp" line="717"/>
-        <location filename="../ui/MainWindow.cpp" line="730"/>
-        <location filename="../ui/MainWindow.cpp" line="740"/>
+        <location filename="../ui/MainWindow.cpp" line="723"/>
+        <location filename="../ui/MainWindow.cpp" line="736"/>
+        <location filename="../ui/MainWindow.cpp" line="746"/>
         <location filename="../ui/NewContactWidget.cpp" line="1577"/>
         <location filename="../ui/SettingsDialog.cpp" line="779"/>
         <location filename="../ui/SettingsDialog.cpp" line="804"/>
@@ -10114,17 +10129,17 @@ Vous pouvez laisser les champs vides et les configurer plus tard dans les Param�
         <translation>Ce nom de filtre existe déjà.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="718"/>
+        <location filename="../ui/MainWindow.cpp" line="724"/>
         <source>&lt;b&gt;Rig Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Erreur Transceiver :&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="731"/>
+        <location filename="../ui/MainWindow.cpp" line="737"/>
         <source>&lt;b&gt;Rotator Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Erreur Rotor :&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.cpp" line="741"/>
+        <location filename="../ui/MainWindow.cpp" line="747"/>
         <source>&lt;b&gt;CW Keyer Error:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Erreur Keyer CW :&lt;/b&gt; </translation>
     </message>
@@ -12127,68 +12142,68 @@ Vous pouvez laisser les champs vides et les configurer plus tard dans les Param�
         <translation>Formulaire</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="99"/>
+        <location filename="../ui/RigWidget.ui" line="128"/>
         <source>RX</source>
         <translation>RX</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="258"/>
+        <location filename="../ui/RigWidget.ui" line="287"/>
         <source>Disconnected</source>
         <translation>Déconnecté</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="264"/>
-        <location filename="../ui/RigWidget.ui" line="313"/>
+        <location filename="../ui/RigWidget.ui" line="293"/>
+        <location filename="../ui/RigWidget.ui" line="342"/>
         <source> MHz</source>
         <translation> MHz</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="332"/>
+        <location filename="../ui/RigWidget.ui" line="361"/>
         <source>Disable Split</source>
         <translation>Désactiver le split</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="367"/>
+        <location filename="../ui/RigWidget.ui" line="396"/>
         <source>RIT: 0.00000 MHz</source>
         <translation>RIT : 0.00000 MHz</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.ui" line="379"/>
+        <location filename="../ui/RigWidget.ui" line="408"/>
         <source>XIT: 0.00000 MHz</source>
         <translation>XIT : 0.00000 MHz</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="157"/>
+        <location filename="../ui/RigWidget.cpp" line="161"/>
         <source>PWR: %1W</source>
         <translation>PWR : %1W</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="528"/>
+        <location filename="../ui/RigWidget.cpp" line="532"/>
         <source>OUT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="529"/>
+        <location filename="../ui/RigWidget.cpp" line="533"/>
         <source>Outside Bandmap Guide range</source>
         <translation>Hors de la plage du guide Bandmap</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="556"/>
+        <location filename="../ui/RigWidget.cpp" line="560"/>
         <source>SOS</source>
         <translation>SOS</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="557"/>
+        <location filename="../ui/RigWidget.cpp" line="561"/>
         <source>Emergency frequency: %1 MHz</source>
         <translation>Fréquence d’urgence : %1 MHz</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="576"/>
+        <location filename="../ui/RigWidget.cpp" line="580"/>
         <source>IBP</source>
         <translation>IBP</translation>
     </message>
     <message>
-        <location filename="../ui/RigWidget.cpp" line="577"/>
+        <location filename="../ui/RigWidget.cpp" line="581"/>
         <source>International Beacon Project: %1 MHz</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12372,47 +12387,47 @@ Veuillez installer Hamlib ou spécifier le chemin manuellement.</translation>
         <translation>Formulaire</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="64"/>
+        <location filename="../ui/RotatorWidget.ui" line="96"/>
         <source>Az:</source>
         <translation>Az :</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="86"/>
+        <location filename="../ui/RotatorWidget.ui" line="118"/>
         <source>°</source>
         <translation>°</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="105"/>
+        <location filename="../ui/RotatorWidget.ui" line="137"/>
         <source>Goto</source>
         <translation>Aller à</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="176"/>
+        <location filename="../ui/RotatorWidget.ui" line="208"/>
         <source>Previous Button Profile</source>
         <translation>Profil de boutons précédent</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="284"/>
+        <location filename="../ui/RotatorWidget.ui" line="316"/>
         <source>Next Button Profile</source>
         <translation>Profil de boutons suivant</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="313"/>
+        <location filename="../ui/RotatorWidget.ui" line="345"/>
         <source>QSO LP</source>
         <translation>QSO LP</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="316"/>
+        <location filename="../ui/RotatorWidget.ui" line="348"/>
         <source>QSO Long Path</source>
         <translation>QSO Grand Chemin (LP)</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="321"/>
+        <location filename="../ui/RotatorWidget.ui" line="353"/>
         <source>QSO SP</source>
         <translation>QSO SP</translation>
     </message>
     <message>
-        <location filename="../ui/RotatorWidget.ui" line="324"/>
+        <location filename="../ui/RotatorWidget.ui" line="356"/>
         <source>QSO Short Path</source>
         <translation>QSO Petit Chemin (SP)</translation>
     </message>

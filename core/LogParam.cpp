@@ -1214,6 +1214,50 @@ void LogParam::setMapLayerState(const QString &widgetID, const QString &layerNam
     setParam(widgetID + "/layerstate/" + layerName, state);
 }
 
+double LogParam::getOfflineMapZoom()
+{
+    return getParam("offlinemap/mapzoom", 1.0).toDouble();
+}
+
+void LogParam::setOfflineMapZoom(double zoom)
+{
+    setParam("offlinemap/mapzoom", zoom);
+}
+
+QPointF LogParam::getOfflineMapCenter()
+{
+    return QPointF(getParam("offlinemap/mapcenterx", qQNaN()).toDouble(),
+                   getParam("offlinemap/mapcentery", qQNaN()).toDouble());
+}
+
+void LogParam::setOfflineMapCenter(const QPointF &center)
+{
+    setParam("offlinemap/mapcenterx", center.x());
+    setParam("offlinemap/mapcentery", center.y());
+}
+
+double LogParam::getRotatorMapZoom()
+{
+    return getParam("rotator/mapzoom", 1.0).toDouble();
+}
+
+void LogParam::setRotatorMapZoom(double zoom)
+{
+    setParam("rotator/mapzoom", zoom);
+}
+
+QPointF LogParam::getRotatorMapCenter()
+{
+    return QPointF(getParam("rotator/mapcenterx", 0.0).toDouble(),
+                   getParam("rotator/mapcentery", 0.0).toDouble());
+}
+
+void LogParam::setRotatorMapCenter(const QPointF &center)
+{
+    setParam("rotator/mapcenterx", center.x());
+    setParam("rotator/mapcentery", center.y());
+}
+
 uint LogParam::getWsjtxFilterDxccStatus()
 {
     return getParam("wsjtx/filter/dxccstatus", (DxccStatus::NewEntity | DxccStatus::NewBand |

@@ -7,7 +7,6 @@
 #include "ui/MapPageController.h"
 #include "core/PropConditions.h"
 #include "rig/Rig.h"
-#include "ui/NewContactWidget.h"
 #include "service/kstchat/KSTChat.h"
 #include "service/pskreporter/PSKReporter.h"
 #include "data/HeardMeSpot.h"
@@ -27,13 +26,13 @@ public:
     ~OnlineMapWidget();
 
     void assignPropConditions(PropConditions *);
-    void registerContactWidget(const NewContactWidget*);
     bool isHeardMeLayerVisible() const;
 
 signals:
     void chatCallsignPressed(QString);
     void wsjtxCallsignPressed(QString);
     void heardMeLayerVisibilityChanged(bool visible);
+    void antennaAzimuthRequested(double azimuth);
 
 public slots:
     void setTarget(double lat, double lon);
@@ -41,6 +40,7 @@ public slots:
     void auroraDataUpdate();
     void mufDataUpdate();
     void setIBPBand(VFOID, double, double, double);
+    void setAntennaTarget(double azimuth);
     void antPositionChanged(double in_azimuth, double in_elevation);
     void rotConnected();
     void rotDisconnected();
@@ -64,7 +64,6 @@ private:
 
     QScopedPointer<MapPageController> mapController;
     PropConditions *prop_cond;
-    const NewContactWidget *contact;
     double lastSeenAzimuth, lastSeenElevation;
     bool isRotConnected;
 };

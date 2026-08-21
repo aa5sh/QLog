@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <QUrl>
 #include <QWebEngineView>
+#include <QtMath>
 
 #include "core/debug.h"
 #include "core/IBPBeacon.h"
@@ -323,15 +324,13 @@ void MapPageController::drawShortPathsBusy(const QList<MapPath> &paths,
 }
 
 void MapPageController::drawAntPath(const MapCoordinate &from,
-                                    double distance,
                                     double azimuth,
                                     double antAngle)
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QStringLiteral("drawAntPath(%1, %2, %3, %4);")
+    runJavaScript(QStringLiteral("drawAntPath(%1, %2, %3);")
                   .arg(jsonObject(coordinateObject(from)))
-                  .arg(distance)
                   .arg(azimuth)
                   .arg(antAngle));
 }
@@ -340,7 +339,16 @@ void MapPageController::clearAntPath()
 {
     FCT_IDENTIFICATION;
 
-    runJavaScript(QLatin1String("drawAntPath({}, 0, 0, 0);"));
+    runJavaScript(QLatin1String("drawAntPath({});"));
+}
+
+void MapPageController::setAntennaTarget(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    if ( qIsFinite(azimuth) )
+        runJavaScript(QStringLiteral("setAntennaTarget(%1);")
+                      .arg(azimuth, 0, 'g', 16));
 }
 
 void MapPageController::setGridLayers(const QStringList &confirmedGrids,
@@ -609,6 +617,14 @@ void MapPageController::IBPCallsignClicked(const QVariant &callsign, const QVari
     emit IBPPressed(callsign.toString(), freq.toDouble());
 }
 
+void MapPageController::requestAntennaAzimuth(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    if ( qIsFinite(azimuth) && azimuth >= 0.0 && azimuth < 360.0 )
+        emit antennaAzimuthRequested(azimuth);
+}
+
 void MapPageController::finishLoading(bool ok)
 {
     FCT_IDENTIFICATION;
@@ -619,6 +635,11 @@ void MapPageController::finishLoading(bool ok)
     pageLoaded = true;
     postponedScripts.append(generateIbpDataJS());
     postponedScripts.append(generateLayerControlJS(mapLayers));
+    postponedScripts.append(QStringLiteral("configureAntennaContextMenu(%1, %2, %3, %4);")
+                            .arg(jsonString(tr("Target Antenna Here")),
+                                 jsonString(tr("QSO Short Path")),
+                                 jsonString(tr("QSO Long Path")),
+                                 jsonString(tr("Stop Antenna"))));
     mainPage->runJavaScript(postponedScripts.join(QLatin1Char('\n')));
     postponedScripts.clear();
 

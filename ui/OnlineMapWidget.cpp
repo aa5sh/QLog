@@ -27,7 +27,6 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
   QWebEngineView(parent),
   mapController(new MapPageController(QStringLiteral("onlinemap"), this)),
   prop_cond(nullptr),
-  contact(nullptr),
   lastSeenAzimuth(0.0),
   lastSeenElevation(0.0),
   isRotConnected(false)
@@ -57,6 +56,7 @@ OnlineMapWidget::OnlineMapWidget(QWidget *parent):
     connect(mapController.data(), &MapPageController::chatCallsignPressed, this, &OnlineMapWidget::chatCallsignTrigger);
     connect(mapController.data(), &MapPageController::wsjtxCallsignPressed, this, &OnlineMapWidget::wsjtxCallsignTrigger);
     connect(mapController.data(), &MapPageController::IBPPressed, this, &OnlineMapWidget::IBPCallsignTrigger);
+    connect(mapController.data(), &MapPageController::antennaAzimuthRequested, this, &OnlineMapWidget::antennaAzimuthRequested);
     connect(mapController.data(), &MapPageController::layerVisibilityChanged,
             this, [this](const QString &key, bool visible)
     {
@@ -101,9 +101,13 @@ void OnlineMapWidget::setTarget(double lat, double lon)
     {
         mapController->clearPath();
     }
+}
 
-    // redraw ant path because QSO distance can change
-    antPositionChanged(lastSeenAzimuth, lastSeenElevation);
+void OnlineMapWidget::setAntennaTarget(double azimuth)
+{
+    FCT_IDENTIFICATION;
+
+    mapController->setAntennaTarget(azimuth);
 }
 
 void OnlineMapWidget::changeTheme(int theme, bool isDark)
@@ -192,19 +196,9 @@ void OnlineMapWidget::antPositionChanged(double in_azimuth, double in_elevation)
 
     if ( myGrid.isValid() )
     {
-        double beamLen = 3000; // in km
         double azimuthBeamWidth = AntProfilesManager::instance()->getCurProfile1().azimuthBeamWidth;
 
-        if ( contact )
-        {
-            double newBeamLen = contact->getQSODistance();
-            if ( !qIsNaN(newBeamLen) )
-            {
-                beamLen = newBeamLen;
-            }
-        }
         mapController->drawAntPath(MapCoordinate(myGrid.getLatitude(), myGrid.getLongitude()),
-                                   beamLen,
                                    in_azimuth,
                                    azimuthBeamWidth);
     }
@@ -284,7 +278,6 @@ void OnlineMapWidget::flyToMyQTH()
                                            QStringLiteral("yellowIcon")),
                                   4);
     }
-    // redraw ant path because QSO distance can change
     antPositionChanged(lastSeenAzimuth, lastSeenElevation);
 }
 
@@ -408,10 +401,4 @@ void OnlineMapWidget::assignPropConditions(PropConditions *conditions)
     FCT_IDENTIFICATION;
 
     prop_cond = conditions;
-}
-
-void OnlineMapWidget::registerContactWidget(const NewContactWidget *contactWidget)
-{
-    FCT_IDENTIFICATION;
-    contact = contactWidget;
 }

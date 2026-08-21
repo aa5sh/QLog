@@ -183,7 +183,6 @@ MainWindow::MainWindow(QWidget* parent) :
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
-    ui->onlineMapWidget->registerContactWidget(ui->newContactWidget);
     ui->chatWidget->registerContactWidget(ui->newContactWidget);
 
     WaveshareWidget *waveshareWidget = new WaveshareWidget(this);
@@ -298,7 +297,9 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::refreshStationProfileCombo);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
-            ui->rotatorWidget, &RotatorWidget::redrawMap);
+            ui->rotatorWidget, &RotatorWidget::stationProfileChanged);
+    connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
+            ui->mapWidget, &MapWidget::stationProfileChanged);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
             ui->onlineMapWidget, &OnlineMapWidget::flyToMyQTH);
     connect(StationProfilesManager::instance(), &StationProfilesManager::profileChanged,
@@ -311,7 +312,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::themeChanged, ui->bandmapWidget, &BandmapWidget::update);
     connect(this, &MainWindow::themeChanged, ui->clockWidget, &ClockWidget::updateClock);
     connect(this, &MainWindow::themeChanged, ui->onlineMapWidget, &OnlineMapWidget::changeTheme);
-    connect(this, &MainWindow::themeChanged, ui->rotatorWidget, &RotatorWidget::redrawMap);
+    connect(this, &MainWindow::themeChanged, ui->rotatorWidget, &RotatorWidget::updateMapViewport);
     connect(this, &MainWindow::themeChanged, stats, &StatisticsWidget::changeTheme);
 
     connect(ui->actionThemeNative, &QAction::triggered, this, [this]() {
@@ -360,6 +361,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rotator::instance(), &Rotator::positionChanged, ui->rotatorWidget, &RotatorWidget::positionChanged);
     connect(Rotator::instance(), &Rotator::rotConnected, ui->rotatorWidget, &RotatorWidget::rotConnected);
     connect(Rotator::instance(), &Rotator::rotDisconnected, ui->rotatorWidget, &RotatorWidget::rotDisconnected);
+    connect(ui->rotatorWidget, &RotatorWidget::bearingRequested, ui->onlineMapWidget, &OnlineMapWidget::setAntennaTarget);
 
     connect(SteppirController::instance(), &SteppirController::errorPresent, this, &MainWindow::steppirErrorHandler);
     connect(SteppirController::instance(), &SteppirController::connected, this, [this]() {
@@ -548,6 +550,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->onlineMapWidget, &OnlineMapWidget::chatCallsignPressed, ui->chatWidget, &ChatWidget::setChatCallsign);
     connect(ui->onlineMapWidget, &OnlineMapWidget::wsjtxCallsignPressed, ui->wsjtxWidget, &WsjtxWidget::callsignClicked);
+    connect(ui->onlineMapWidget, &OnlineMapWidget::antennaAzimuthRequested, ui->rotatorWidget, &RotatorWidget::setBearing);
     connect(ui->onlineMapWidget, &OnlineMapWidget::heardMeLayerVisibilityChanged,
             this, [this, setHeardMeCallsign](bool visible)
     {

@@ -119,6 +119,73 @@
     .label{ margin-top: 10px; font: 14px sans-serif; color:#333; }
     body.qlog-map-dark .label{ color:#d7dce2; }
 
+    .ant-azimuth-handle {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #2563eb;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.55);
+      color: #2563eb;
+      cursor: grab;
+    }
+    .ant-azimuth-handle svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1.8;
+    }
+    .ant-azimuth-handle.leaflet-drag-target {
+      cursor: grabbing;
+    }
+    body.qlog-map-dark .ant-azimuth-handle {
+      border-color: #8ab4f8;
+      background: rgba(54, 64, 74, 0.96);
+      color: #8ab4f8;
+    }
+    .ant-context-menu .leaflet-popup-content {
+      margin: 4px;
+    }
+    .ant-context-menu button {
+      display: block;
+      width: 100%;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 3px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .ant-context-menu button:not(:disabled):hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+    .ant-context-menu button:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+    .ant-context-menu-separator {
+      margin: 3px 4px;
+      border-top: 1px solid rgba(0, 0, 0, 0.16);
+    }
+    body.qlog-map-dark .ant-context-menu .leaflet-popup-content-wrapper,
+    body.qlog-map-dark .ant-context-menu .leaflet-popup-tip {
+      background: #36404a;
+      color: #e8eaed;
+    }
+    body.qlog-map-dark .ant-context-menu button:not(:disabled):hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    body.qlog-map-dark .ant-context-menu-separator {
+      border-top-color: rgba(255, 255, 255, 0.2);
+    }
+
   </style>
 </head>
 
@@ -631,6 +698,7 @@
     var pathLayer = L.layerGroup().addTo(map);
     const geodesic = new L.Geodesic([],{ wrap: false, color: "Fuchsia", steps: 5});
     const shortPathsGeodesic = new L.Geodesic([],{ wrap: false, color: "#cc2e41", steps: 5, opacity: 0.7, weight: 1});
+    var qsoPathEnd = null;
     pathLayer.addLayer(geodesic);
     pathLayer.addLayer(shortPathsGeodesic);
 
@@ -639,27 +707,59 @@
                                            dashArray: '10,10', dashOffset: '10'});
     var antGeodesic2 = new L.Geodesic([],{ wrap: false, color: "orange", steps: 5,
                                            dashArray: '10,10', dashOffset: '10'});
+    var antPreviewGeodesic1 = new L.Geodesic([],{ wrap: false, color: "white", steps: 5,
+                                                  dashArray: '10,10', dashOffset: '10',
+                                                  interactive: false});
+    var antPreviewGeodesic2 = new L.Geodesic([],{ wrap: false, color: "white", steps: 5,
+                                                  dashArray: '10,10', dashOffset: '10',
+                                                  interactive: false});
+    var antPath = null;
+    var antTarget = null;
+    var antHandleDragging = false;
+    var antContextMenuLabels = {};
+    const antHandleSize = 24;
+    const antContextMenu = L.popup({className: 'ant-context-menu',
+                                    closeButton: false});
+    const antAzimuthHandle = L.marker([0, 0], {
+        draggable: true,
+        keyboard: false,
+        zIndexOffset: 1000,
+        icon: L.divIcon({className: 'ant-azimuth-handle',
+                        html: '<svg viewBox="0 0 24 24" aria-hidden="true">'
+                              + '<circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>'
+                              + '<path d="M12 14v6M8.5 20h7M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/>'
+                              + '</svg>',
+                        iconSize: [antHandleSize, antHandleSize],
+                        iconAnchor: [antHandleSize / 2, antHandleSize / 2]})
+    });
     antPathLayer.addLayer(antGeodesic1);
     antPathLayer.addLayer(antGeodesic2);
+    antPathLayer.addLayer(antPreviewGeodesic1);
+    antPathLayer.addLayer(antPreviewGeodesic2);
 
     function drawPath(points) {
         geodesic.setLatLngs([]);
         shortPathsGeodesic.setLatLngs([]);
+        qsoPathEnd = points.length == 2 ? L.latLng(points[1]) : null;
 
-        if (points.length != 2)
-            return;
-        geodesic.setLatLngs([points[0], points[1]]);
-        map.fitBounds(geodesic.getBounds(), {animate:false});
+        if (qsoPathEnd) {
+            geodesic.setLatLngs([points[0], qsoPathEnd]);
+            map.fitBounds(geodesic.getBounds(), {animate:false});
+        }
+
+        redrawAntPath();
     }
 
     function drawShortPaths(coords) {
         const paths = [];
         geodesic.setLatLngs([]);
+        qsoPathEnd = null;
         coords.forEach(function(rawPath) {
             const path = normalizePath(rawPath);
             paths.push([path.from, path.to]);
         });
         shortPathsGeodesic.setLatLngs(paths);
+        redrawAntPath();
     }
 
     function drawShortPathsBusy(coords, text) {
@@ -688,29 +788,293 @@
         return {"lat": newLat, "lng": (lon2 * 180 / M_PI)};
     }
 
-    // generic function to render Ant Path
-    function drawAntPath(fromPoint, distance, azimuth, antAngle) {
-        let line1 = []; // empty field means delete the line;
-        let line2 = []; // empty field means delete the line;
-        if (fromPoint && Object.keys(fromPoint).length != 0) {
-            line1 = [fromPoint, beamEndPosition(fromPoint, distance, azimuth - (antAngle/2))];
-            line2 = [fromPoint, beamEndPosition(fromPoint, distance, azimuth + (antAngle/2))];
-        }
-        antGeodesic1.setLatLngs(line1);
-        antGeodesic2.setLatLngs(line2);
-        // too many movements if focusing also antenna path, disable it
-        //fitQSOAnt();
+    function visibleAntPathDistance(fromPoint) {
+        const bounds = map.getBounds();
+        return Math.max(...[bounds.getNorthWest(), bounds.getNorthEast(),
+                            bounds.getSouthWest(), bounds.getSouthEast()]
+                          .map(corner => map.distance(fromPoint, corner))) / 1000;
     }
 
-    function fitQSOAnt() {
-       let bound = geodesic.getBounds();
-       if ( map.hasLayer(antPathLayer) ) {
-          bound.extend(antGeodesic1.getBounds());
-          bound.extend(antGeodesic2.getBounds());
-       }
-       //map.fitBounds(bound, {animate:false});
-       map.panTo(bound.getCenter(), {animate:false});
+    function antPathDistance() {
+        return qsoPathEnd
+               ? map.distance(antPath.from, qsoPathEnd) / 1000
+               : visibleAntPathDistance(antPath.from);
     }
+
+    function normalizeAzimuth(azimuth) {
+        return (azimuth % 360 + 360) % 360;
+    }
+
+    function bearingTo(from, to) {
+        const lat1 = from.lat * Math.PI / 180;
+        const lat2 = to.lat * Math.PI / 180;
+        const longitudeDifference = (to.lng - from.lng) * Math.PI / 180;
+        const y = Math.sin(longitudeDifference) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2)
+                  - Math.sin(lat1) * Math.cos(lat2) * Math.cos(longitudeDifference);
+        return normalizeAzimuth(Math.atan2(y, x) * 180 / Math.PI);
+    }
+
+    function antViewportBounds() {
+        const size = map.getSize();
+        const margin = antHandleSize / 2;
+        return L.bounds(L.point(margin, margin),
+                        L.point(size.x - margin, size.y - margin));
+    }
+
+    function antPositionIsVisible(position) {
+        return antViewportBounds().contains(
+            map.latLngToContainerPoint(position));
+    }
+
+    function visibleDistanceRange(azimuth, preferredDistance) {
+        const maximumDistance = antPathDistance();
+        const viewport = antViewportBounds();
+        const segmentCount = 32;
+        const ranges = [];
+        let previousDistance = 0;
+        let previousPoint = map.latLngToContainerPoint(antPath.from);
+
+        for (let i = 1; i <= segmentCount; ++i) {
+            const distance = maximumDistance * i / segmentCount;
+            const point = map.latLngToContainerPoint(
+                beamEndPosition(antPath.from, distance, azimuth));
+            const clipped = L.LineUtil.clipSegment(previousPoint, point,
+                                                   viewport, false);
+            if (clipped) {
+                const segmentLength = previousPoint.distanceTo(point);
+                const distancePerPixel = segmentLength > 0
+                    ? (distance - previousDistance) / segmentLength : 0;
+                const start = previousDistance
+                    + previousPoint.distanceTo(clipped[0]) * distancePerPixel;
+                const end = previousDistance
+                    + previousPoint.distanceTo(clipped[1]) * distancePerPixel;
+                const lastRange = ranges[ranges.length - 1];
+
+                if (lastRange && start <= lastRange.end + 0.001)
+                    lastRange.end = Math.max(lastRange.end, end);
+                else
+                    ranges.push({start: start, end: end});
+            }
+            previousDistance = distance;
+            previousPoint = point;
+        }
+
+        if (!ranges.length)
+            return null;
+
+        if (!Number.isFinite(preferredDistance))
+            return ranges.reduce((longest, range) =>
+                range.end - range.start > longest.end - longest.start
+                    ? range : longest);
+
+        const distanceFrom = range => Math.max(range.start - preferredDistance,
+                                               preferredDistance - range.end,
+                                               0);
+        return ranges.reduce((nearest, range) =>
+            distanceFrom(range) < distanceFrom(nearest) ? range : nearest);
+    }
+
+    function updateAntTargetPosition() {
+        if (!antPath || antHandleDragging)
+            return;
+
+        const azimuth = antTarget
+            ? antTarget.azimuth : normalizeAzimuth(antPath.azimuth);
+        let position = antTarget && antPositionIsVisible(antTarget.position)
+            ? antTarget.position : null;
+
+        if (!position) {
+            const preferredDistance = antTarget ? antTarget.distance : null;
+            const visibleRange = visibleDistanceRange(azimuth, preferredDistance);
+            if (visibleRange) {
+                const distance = antTarget
+                    ? Math.max(visibleRange.start,
+                               Math.min(antTarget.distance, visibleRange.end))
+                    : visibleRange.start
+                      + (visibleRange.end - visibleRange.start) * 0.55;
+                position = beamEndPosition(antPath.from, distance, azimuth);
+            }
+        }
+
+        if (!position) {
+            antPathLayer.removeLayer(antAzimuthHandle);
+            return;
+        }
+
+        antAzimuthHandle.setLatLng(position);
+        if (!antPathLayer.hasLayer(antAzimuthHandle))
+            antPathLayer.addLayer(antAzimuthHandle);
+    }
+
+    function setAntBeam(geodesic1, geodesic2, azimuth) {
+        let line1 = []; // empty field means delete the line;
+        let line2 = []; // empty field means delete the line;
+        if (antPath && Number.isFinite(azimuth)) {
+            const distance = antPathDistance();
+            line1 = [antPath.from, beamEndPosition(antPath.from, distance,
+                                                   azimuth - (antPath.angle/2))];
+            line2 = [antPath.from, beamEndPosition(antPath.from, distance,
+                                                   azimuth + (antPath.angle/2))];
+        }
+        geodesic1.setLatLngs(line1);
+        geodesic2.setLatLngs(line2);
+    }
+
+    function updateAntTargetPreview() {
+        const azimuth = antPath && antHandleDragging
+                        ? bearingTo(antPath.from, antAzimuthHandle.getLatLng())
+                        : NaN;
+        setAntBeam(antPreviewGeodesic1, antPreviewGeodesic2, azimuth);
+    }
+
+    function redrawAntPath() {
+        setAntBeam(antGeodesic1, antGeodesic2,
+                   antPath ? normalizeAzimuth(antPath.azimuth) : NaN);
+        updateAntTargetPreview();
+
+        if (antPath)
+            updateAntTargetPosition();
+        else
+            antPathLayer.removeLayer(antAzimuthHandle);
+    }
+
+    // generic function to render Ant Path
+    function drawAntPath(fromPoint, azimuth, antAngle) {
+        if (fromPoint && Object.keys(fromPoint).length != 0) {
+            if (antPath
+                && (antPath.from.lat != fromPoint.lat || antPath.from.lng != fromPoint.lng))
+                antTarget = null;
+            antPath = {from: fromPoint, azimuth: azimuth, angle: antAngle};
+        } else {
+            antPath = null;
+            antTarget = null;
+            antHandleDragging = false;
+        }
+        redrawAntPath();
+    }
+
+    function requestAntennaTarget(position) {
+        if (!antPath)
+            return;
+
+        position = L.latLng(position.lat, position.lng);
+        const azimuth = bearingTo(antPath.from, position);
+        antTarget = {
+            azimuth: azimuth,
+            distance: map.distance(antPath.from, position) / 1000,
+            position: position
+        };
+        updateAntTargetPosition();
+        sendToQt('requestAntennaAzimuth', azimuth);
+    }
+
+    function requestQSOAntennaTarget(longPath) {
+        if (!antPath || !qsoPathEnd)
+            return;
+
+        const distance = map.distance(antPath.from, qsoPathEnd) / 1000;
+        let azimuth = bearingTo(antPath.from, qsoPathEnd);
+        if (longPath)
+            azimuth = normalizeAzimuth(azimuth + 180);
+
+        requestAntennaTarget(longPath
+            ? beamEndPosition(antPath.from, distance, azimuth)
+            : qsoPathEnd);
+    }
+
+    antAzimuthHandle.on('dragstart', function() {
+        antHandleDragging = true;
+        updateAntTargetPreview();
+    });
+    antAzimuthHandle.on('drag', updateAntTargetPreview);
+    antAzimuthHandle.on('dragend', function() {
+        antHandleDragging = false;
+        updateAntTargetPreview();
+        requestAntennaTarget(antAzimuthHandle.getLatLng());
+    });
+
+    function configureAntennaContextMenu(targetLabel, shortPathLabel,
+                                         longPathLabel, stopLabel) {
+        antContextMenuLabels = {
+            target: targetLabel,
+            shortPath: shortPathLabel,
+            longPath: longPathLabel,
+            stop: stopLabel
+        };
+    }
+
+    function addAntennaContextMenuItem(menu, label, handler) {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.textContent = label;
+        item.disabled = !antPath;
+        item.addEventListener('click', function() {
+            if (!antPath)
+                return;
+            handler();
+            map.closePopup(antContextMenu);
+        });
+        menu.appendChild(item);
+    }
+
+    function addAntennaContextMenuSeparator(menu) {
+        const separator = document.createElement('div');
+        separator.className = 'ant-context-menu-separator';
+        menu.appendChild(separator);
+    }
+
+    map.on('contextmenu', function(event) {
+        const menu = document.createElement('div');
+        addAntennaContextMenuItem(menu, antContextMenuLabels.target,
+                                  () => requestAntennaTarget(event.latlng));
+
+        if (qsoPathEnd) {
+            addAntennaContextMenuSeparator(menu);
+            addAntennaContextMenuItem(menu, antContextMenuLabels.shortPath,
+                                      () => requestQSOAntennaTarget(false));
+            addAntennaContextMenuItem(menu, antContextMenuLabels.longPath,
+                                      () => requestQSOAntennaTarget(true));
+        }
+
+        addAntennaContextMenuSeparator(menu);
+        addAntennaContextMenuItem(menu, antContextMenuLabels.stop,
+                                  () => sendToQt('requestAntennaAzimuth',
+                                      normalizeAzimuth(antPath.azimuth)));
+
+        antContextMenu.setLatLng(event.latlng)
+                      .setContent(menu)
+                      .openOn(map);
+    });
+
+    function setAntennaTarget(azimuth) {
+        if (!antPath || !Number.isFinite(azimuth))
+            return;
+
+        const targetAzimuth = normalizeAzimuth(azimuth);
+        if (antTarget && Math.abs(antTarget.azimuth - targetAzimuth) < 1e-9) {
+            updateAntTargetPosition();
+            return;
+        }
+
+        const visibleRange = antTarget
+            ? null : visibleDistanceRange(targetAzimuth, null);
+        const distance = antTarget
+            ? antTarget.distance
+            : visibleRange
+              ? visibleRange.start
+                + (visibleRange.end - visibleRange.start) * 0.55
+              : antPathDistance() * 0.55;
+        antTarget = {
+            azimuth: targetAzimuth,
+            distance: distance,
+            position: beamEndPosition(antPath.from, distance, targetAzimuth)
+        };
+        updateAntTargetPosition();
+    }
+
+    map.on('move zoom resize', updateAntTargetPosition);
+    map.on('moveend resize', redrawAntPath);
 
     var markersLayer = L.layerGroup().addTo(map);
 

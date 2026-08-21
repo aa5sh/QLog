@@ -108,10 +108,10 @@ public:
     void drawShortPathsBusy(const QList<MapPath> &paths,
                             const QString &text);
     void drawAntPath(const MapCoordinate &from,
-                     double distance,
                      double azimuth,
                      double antAngle);
     void clearAntPath();
+    void setAntennaTarget(double azimuth);
 
     void setGridLayers(const QStringList &confirmedGrids,
                        const QStringList &workedGrids);
@@ -145,6 +145,7 @@ signals:
     void chatCallsignPressed(QString callsign);
     void wsjtxCallsignPressed(QString callsign);
     void IBPPressed(QString callsign, double frequency);
+    void antennaAzimuthRequested(double azimuth);
 
 public slots:
     void handleLayerSelectionChanged(const QVariant &data,
@@ -153,6 +154,7 @@ public slots:
     void wsjtxCallsignClicked(const QVariant &data);
     void IBPCallsignClicked(const QVariant &callsign,
                             const QVariant &freq);
+    void requestAntennaAzimuth(double azimuth);
 
 private:
     static QString jsonArray(const QJsonArray &array);

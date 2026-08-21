@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QColor>
 #include <QImage>
+#include <QPointF>
 #include <QVariant>
 #include <QMutex>
 #include <QList>
@@ -346,6 +347,22 @@ public:
     static QStringList getMapLayerStates(const QString &widgetID);
     static bool getMapLayerState(const QString &widgetID, const QString &layerName);
     static void setMapLayerState(const QString &widgetID, const QString &layerName, bool state);
+
+    /***************
+     * Offline Map
+     ***************/
+    static double getOfflineMapZoom();
+    static void setOfflineMapZoom(double zoom);
+    static QPointF getOfflineMapCenter();
+    static void setOfflineMapCenter(const QPointF &center);
+
+    /****************
+     * Rotator Widget
+     ****************/
+    static double getRotatorMapZoom();
+    static void setRotatorMapZoom(double zoom);
+    static QPointF getRotatorMapCenter();
+    static void setRotatorMapCenter(const QPointF &center);
 
     /***************
      * WSJTX Dialog

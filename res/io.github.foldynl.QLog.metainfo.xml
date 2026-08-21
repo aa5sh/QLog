@@ -51,6 +51,59 @@
   <url type="vcs-browser">https://github.com/foldynl/QLog</url>
   <url type="contribute">https://github.com/foldynl/QLog/blob/master/CONTRIBUTING.md</url>
   <releases>
+    <release version="0.52.0" date="2026-08-21">
+      <description>
+        <ul>
+          <li>[NEW] - QSL Printing - Added Custom Paper Size (issue #1089)</li>
+          <li>[NEW] - FLDigi Logging - Added ADIF UDP logging method (issue #1113)</li>
+          <li>[NEW] - Services - Added QSLInfo.de as the QSL Manager Service (PR #1116 @aa5sh @foldynl)</li>
+          <li>[NEW] - Alerts - Added ability to clear selected alerts (PR #1104 @aa5sh)</li>
+          <li>[NEW] - LoTW - Added an All Callsigns option (PR #1084 @aa5sh)</li>
+          <li>[NEW] - LoTW/eQSL - Report reasons for unmatched QSOs</li>
+          <li>[NEW] - Online Map - Added HeardMe Spot from PSKReporter and RBN (PR #1115 #1107 @aa5sh @foldynl)</li>
+          <li>[NEW] - Online Map - WSJTX-CQ Added the second ring if SNR &gt; -15dB</li>
+          <li>[NEW] - Online Map - Added interactive antenna control; Target Antenna context menu</li>
+          <li>[NEW] - Offline Map - Added zoom, panning, and QSO path fitting</li>
+          <li>[NEW] - Settings - Antenna profile can be selected automatically by TX band (issue #392 #781)</li>
+          <li>[NEW] - Settings - Antenna profile can have an Assigned Rotator</li>
+          <li>[NEW] - Settings - Added an option to hide DXCC entity flags (issue #1129)</li>
+          <li>[NEW] - Statistics - Added QSO histogram by operator callsign (PR #1127 @mc-doge666)</li>
+          <li>[NEW] - Added direct labeling of QSL Sent QSO context menu (PR #1123 @mc-doge666)</li>
+          <li>[NEW] - Contest - Added Flexible Exchange Linking</li>
+          <li>[NEW] - Rotator Widget - Add persistent map navigation (zooming/moving)</li>
+          <li>[CHANGED] - Online Map - Improve dark mode night-side visibility</li>
+          <li>[CHANGED] - Online Map - Adapt antenna beam length to map context</li>
+          <li>[CHANGED] - ADI/ADX Import - Added checks of enumerated values (issue #1117 PR #1119 @aa5sh)</li>
+          <li>[CHANGED] - ADI/ADX Import - Warnings are displayed if an incorrect enum (issue #1117 PR #1119)</li>
+          <li>[CHANGED] - Logging External QSO - Warn once per station context is different</li>
+          <li>[CHANGED] - LoTW - Do not overwrite paper QSL received-via field</li>
+          <li>[CHANGED] - LoTW - Resolve ambiguous QSL matches by exact time</li>
+          <li>[CHANGED] - Activity Editor - Rotator Override takes priority over the antenna's Assigned Rotator</li>
+          <li>[CHANGED] - Main Menu - Removed Equipment - Added Power On-Off buttons to corresponding widgets</li>
+          <li>Fixed WAAC not connected to the Log (issue #1097)</li>
+          <li>Fixed Rig Widget displays an incorrect Bandmap Guide Label (issue #1108)</li>
+          <li>Fixed Cannot directly edit notes or multiline fields (issue #1111)</li>
+          <li>Fixed LoTW - Merge QSL credits instead of overwriting them</li>
+          <li>Fixed LoTW - Case-insensitive compare for SAT_NAME</li>
+          <li>Fixed eQSL - Refresh AG status for redownloaded confirmations</li>
+          <li>Fixed Rotator - Apply antenna azimuth offset consistently across drivers</li>
+          <li>Fixed Offline Map Ant Path calculation</li>
+          <li>Fixed Rotator Widget - Use circular distance for azimuth deadband</li>
+          <li>Fixed QSL confirmation status is not displayed correctly in QSO Detail and tooltip (issue #1125)</li>
+          <li>Fixed DXCC flag assignments and documented neutral handling of territorial disputes (issue #1129)</li>
+          <li>Fixed EQSL abort crash (issue #1138 PR #1139 @aa5sh)</li>
+          <li>Fixed serial parity configuration passed to rigctld</li>
+          <li>Fixed Added more lighthouse suffixes LH, LS, LT</li>
+          <li>Hamlib Share Rig - various fixes</li>
+          <li>Omnirig - various fixes</li>
+          <li>TCI - various fixes</li>
+          <li>Flrig - various fixes</li>
+          <li>Hamlib Rotaror - various fixes</li>
+          <li>PSTRot - various fixes</li>
+          <li>Rotator Widget - various fixes</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.51.1" date="2026-07-07">
       <description>
         <ul>
