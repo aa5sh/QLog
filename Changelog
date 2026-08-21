@@ -1,4 +1,4 @@
-TBC - 0.52.0
+2026/08/21 - 0.52.0
 - [NEW] - QSL Printing - Added Custom Paper Size (issue #1089)
 - [NEW] - FLDigi Logging - Added ADIF UDP logging method (issue #1113)
 - [NEW] - Services - Added QSLInfo.de as the QSL Manager Service (PR #1116 @aa5sh @foldynl)
