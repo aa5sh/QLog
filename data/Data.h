@@ -114,7 +114,8 @@ public:
                                        const QString &oldMode,
                                        const qint32 newDxcc,
                                        const QString &newBand,
-                                       const QString &newMode);
+                                       const QString &newMode,
+                                       const QString &newPropMode);
     static qulonglong dupeNewCountWhenQSOAdded(qulonglong oldCounter,
                                                const QString &oldBand,
                                                const QString &oldMode,
@@ -140,6 +141,7 @@ public:
     static void reloadQsoStatusColors();
     static QString colorToHTMLColor(const QColor&);
     static QString statusToText(const DxccStatus &status);
+    static QString satelliteDxccStatusToText(const DxccStatus &status);
     static QString removeAccents(const QString &input);
     static int getITUZMin();
     static int getITUZMax();
@@ -157,6 +159,25 @@ public:
 
     static QString safeQueryString(const QUrlQuery &query);
     DxccStatus dxccStatus(int dxcc, const QString &band, const QString &mode);
+    // Live views follow the propagation mode selected in New Contact.
+    // Record-specific calculations must use dxccStatus() or satelliteDxccStatus().
+    DxccStatus currentDxccStatus(int dxcc, const QString &band, const QString &mode);
+    DxccStatus currentDxccNewStatusWhenQSOAdded(const DxccStatus &oldStatus,
+                                                bool oldStatusSatellite,
+                                                qint32 oldDxcc,
+                                                const QString &oldBand,
+                                                const QString &oldMode,
+                                                qint32 newDxcc,
+                                                const QString &newBand,
+                                                const QString &newMode,
+                                                const QString &newPropMode);
+    static DxccStatus satelliteDxccNewStatusWhenQSOAdded(const DxccStatus &oldStatus,
+                                                         qint32 oldDxcc,
+                                                         qint32 newDxcc,
+                                                         const QString &newPropMode);
+    DxccStatus satelliteDxccStatus(int dxcc);
+    void setSatelliteDxccContext(bool satellite);
+    bool isSatelliteDxccContext() const { return satelliteDxccContext; }
     QStringList contestList();
     QStringList propagationModesList() const { return QStringList{""} + propagationModes.values(); }
     QStringList propagationModesIDList() const { return QStringList{""} + propagationModes.keys(); }
@@ -195,6 +216,7 @@ public:
     static QCompleter* createCountyCompleter(int dxcc, QObject *parent = nullptr);
 
 signals:
+    void satelliteDxccContextChanged();
 
 public slots:
     void invalidateDXCCStatusCache(const QSqlRecord &record);
@@ -239,6 +261,8 @@ private:
     bool isDXCCIDAD1CQueryValid;
     bool isDXCCIDClublogQueryValid;
     QuadKeyCache<DxccStatus> dxccStatusCache;
+    QCache<QPair<int, int>, DxccStatus> satelliteDxccStatusCache;
+    bool satelliteDxccContext = false;
 
     static const char translitTab[];
     static const int tranlitIndexMap[];

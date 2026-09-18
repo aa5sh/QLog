@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QWebEngineView>
-#include <QScopedPointer>
+#include <QPointer>
 #include "ui/MapPageController.h"
 #include "core/PropConditions.h"
 #include "rig/Rig.h"
@@ -39,6 +39,7 @@ public slots:
     void changeTheme(int, bool isDark);
     void auroraDataUpdate();
     void mufDataUpdate();
+    void setCurrentBand(const QString &band);
     void setIBPBand(VFOID, double, double, double);
     void setAntennaTarget(double azimuth);
     void antPositionChanged(double in_azimuth, double in_elevation);
@@ -62,7 +63,7 @@ protected slots:
 
 private:
 
-    QScopedPointer<MapPageController> mapController;
+    QPointer<MapPageController> mapController;
     PropConditions *prop_cond;
     double lastSeenAzimuth, lastSeenElevation;
     bool isRotConnected;

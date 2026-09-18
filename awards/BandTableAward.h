@@ -59,7 +59,7 @@
  *
  * Override clickUsesCountryName() to return true if col1 is a country name
  * that should be passed as the "country" parameter instead of a filter clause
- * (used by DXCC). */
+ * (used by country-list awards such as DXCC and WANA). */
 class BandTableAward : public AwardDefinition
 {
 public:
@@ -192,10 +192,22 @@ protected:
     virtual QString clickFilter(const QString &col1Value,
                                 const QString &col2Value) const;
 
+    /* Return an award-wide SQL predicate that must also be applied when a
+     * detail row is opened in the logbook.  Unlike clickFilter(), this is
+     * appended for both ordinary rows and country-name based rows.
+     * Default: empty. */
+    virtual QString additionalClickFilter() const;
+
     /* Return true if col1 is a country name to be passed as the "country"
      * parameter of AwardConditionSelected (instead of a filter clause).
-     * Only DXCC uses this. Default: false. */
+     * Default: false. */
     virtual bool clickUsesCountryName() const;
+
+    /* Satellite normally follows the generic award's band/mode rules. */
+    virtual bool hasIndependentSatelliteCategory() const;
+
+    /* EME normally follows the generic award's mode rules. */
+    virtual bool hasIndependentEMECategory() const;
 
     // ===================================================================
     //  STATIC HELPERS — use these in additionalCTEs() / sourceContactsOverride()
@@ -235,6 +247,9 @@ private:
     QTableView *m_tableView = nullptr;
     AwardsTableModel *m_model = nullptr;
     QString m_currentEntity;
+    QString m_currentModeFilter;
+    QString m_currentUserFilter;
+    bool m_currentIndependentEME = false;
 };
 
 #endif // QLOG_AWARDS_BANDTABLEAWARD_H

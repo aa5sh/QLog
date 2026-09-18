@@ -32,12 +32,16 @@ bool DBSchemaMigration::run(bool force)
         return false;
     }
 
-    if (currentVersion == latestVersion) {
-        qCDebug(runtime) << "Database schema already up to date";
-        // temporarily added to create a trigger without calling db migration
-        //refreshUploadStatusTrigger();
-    }
-    else
+    qCDebug(runtime) << "Backup before migration";
+    backupAllQSOsToADX(true);
+
+    qCDebug(runtime) << "Starting database migration";
+
+    QProgressDialog progress("Migrating the database...", nullptr, currentVersion, latestVersion);
+    progress.setWindowTitle(tr("Database Migration"));
+    progress.show();
+
+    while ((currentVersion = getVersion()) < latestVersion)
     {
         qCDebug(runtime) << "Backup before migration";
         backupAllQSOsToADX(true);
@@ -453,6 +457,9 @@ bool DBSchemaMigration::updateExternalResource(bool force)
     LOVDownloader downloader;
 
     QProgressDialog progress;
+    progress.setWindowTitle(tr("Updating External Resources"));
+    progress.setAutoClose(false);
+    progress.setAutoReset(false);
 
     connect(&downloader, &LOVDownloader::processingSize,
             &progress, &QProgressDialog::setMaximum);

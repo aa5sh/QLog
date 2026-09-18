@@ -271,6 +271,10 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->newContactWidget, &NewContactWidget::setValuesFromActivity);
     connect(ui->newContactWidget, &NewContactWidget::txBandChanged,
             this, &MainWindow::selectEquipmentProfilesForBand);
+    connect(ui->newContactWidget, &NewContactWidget::rxBandChanged,
+            ui->onlineMapWidget, &OnlineMapWidget::setCurrentBand);
+    connect(ui->newContactWidget, &NewContactWidget::rxBandChanged,
+            ui->bandmapWidget, &BandmapWidget::setCurrentBand);
 
     connect(AntProfilesManager::instance(), &AntProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::refreshAntProfileCombo);
@@ -288,6 +292,7 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->rigWidget, &RigWidget::refreshRigProfileCombo);
 
     ui->newContactWidget->reportTXBand();
+    ui->newContactWidget->reportRXBand();
 
     connect(MainLayoutProfilesManager::instance(), &MainLayoutProfilesManager::profileChanged,
             ui->newContactWidget, &NewContactWidget::setupCustomUi);
@@ -408,6 +413,7 @@ MainWindow::MainWindow(QWidget* parent) :
     });
 
     connect(adifRecoveryManager, &AdifRecoveryManager::contactsRecovered, ui->logbookWidget, &LogbookWidget::updateTable);
+    connect(adifRecoveryManager, &AdifRecoveryManager::importedEntities, this, &MainWindow::importedEntities);
     connect(adifRecoveryManager, &AdifRecoveryManager::problem, this, [this](const QString &message)
     {
         if ( !message.isEmpty() )
@@ -450,6 +456,12 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::settingsChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
     connect(this, &MainWindow::settingsChanged, ui->newContactWidget, &NewContactWidget::readGlobalSettings);
+    connect(Data::instance(), &Data::satelliteDxccContextChanged, ui->dxWidget, &DxWidget::recalculateDxccStatus);
+    connect(Data::instance(), &Data::satelliteDxccContextChanged, ui->wsjtxWidget, &WsjtxWidget::recalculateDxccStatus);
+    connect(Data::instance(), &Data::satelliteDxccContextChanged, ui->bandmapWidget, &BandmapWidget::recalculateDxccStatus);
+    connect(Data::instance(), &Data::satelliteDxccContextChanged, ui->alertsWidget, &AlertWidget::recalculateDxccStatus);
+    connect(Data::instance(), &Data::satelliteDxccContextChanged, ui->chatWidget, &ChatWidget::recalculateDxccStatus);
+    connect(Data::instance(), &Data::satelliteDxccContextChanged, ui->onlineMapWidget, &OnlineMapWidget::clearHeardMeSpots);
     connect(this, &MainWindow::altBackslash, Rig::instance(), &Rig::setPTT);
     connect(this, &MainWindow::manualMode, ui->newContactWidget, &NewContactWidget::setManualMode);
     connect(this, &MainWindow::settingsChanged, waveshareWidget, &WaveshareWidget::reloadSettings);
@@ -463,6 +475,14 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(this, &MainWindow::dupeTypeChanged, ui->chatWidget, &ChatWidget::recalculateDupe);
     connect(this, &MainWindow::dupeTypeChanged, ui->newContactWidget, &NewContactWidget::refreshCallsignsColors);
 
+    connect(this, &MainWindow::importedEntities, Data::instance(), &Data::invalidateSetOfDXCCStatusCache); // must be the first import signal
+    connect(this, &MainWindow::importedEntities, ui->dxWidget, &DxWidget::updateSpotsDxccStatus);
+    connect(this, &MainWindow::importedEntities, ui->wsjtxWidget, &WsjtxWidget::updateSpotsDxccStatus);
+    connect(this, &MainWindow::importedEntities, ui->bandmapWidget, &BandmapWidget::updateSpotsDxccStatus);
+    connect(this, &MainWindow::importedEntities, ui->alertsWidget, &AlertWidget::updateSpotsDxccStatus);
+    connect(this, &MainWindow::importedEntities, ui->chatWidget, &ChatWidget::updateSpotsDxccStatus);
+    connect(this, &MainWindow::importedEntities, ui->newContactWidget, &NewContactWidget::refreshCallsignsColors);
+
     connect(ui->rigWidget, &RigWidget::rigProfileChanged, this, &MainWindow::rigConnect);
 
     connect(ui->rotatorWidget, &RotatorWidget::rotProfileChanged, this, &MainWindow::rotConnect);
@@ -473,15 +493,17 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(ui->logbookWidget, &LogbookWidget::deletedEntities, Data::instance(), &Data::invalidateSetOfDXCCStatusCache); // must be the first delete signal
     connect(ui->logbookWidget, &LogbookWidget::logbookUpdated, stats, &StatisticsWidget::refreshWidget);
+    connect(ui->logbookWidget, &LogbookWidget::contactUpdated, Data::instance(), &Data::clearDXCCStatusCache);
     connect(ui->logbookWidget, &LogbookWidget::contactUpdated, &networknotification, &NetworkNotification::QSOUpdated);
     connect(ui->logbookWidget, &LogbookWidget::clublogContactUpdated, clublogRT, &ClubLogUploader::updateQSOImmediately);
     connect(ui->logbookWidget, &LogbookWidget::contactDeleted, &networknotification, &NetworkNotification::QSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->dxWidget, &DxWidget::updateSpotsDxccStatus);
     connect(ui->logbookWidget, &LogbookWidget::contactDeleted, ui->bandmapWidget, &BandmapWidget::updateSpotsDupeWhenQSODeleted);
-    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->bandmapWidget, &BandmapWidget::updateSpotsDxccStatusWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->bandmapWidget, &BandmapWidget::updateSpotsDxccStatus);
     connect(ui->logbookWidget, &LogbookWidget::contactDeleted, ui->alertsWidget, &AlertWidget::updateSpotsDupeWhenQSODeleted);
-    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->alertsWidget, &AlertWidget::updateSpotsDxccStatusWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->alertsWidget, &AlertWidget::updateSpotsDxccStatus);
     connect(ui->logbookWidget, &LogbookWidget::contactDeleted, ui->chatWidget, &ChatWidget::updateSpotsDupeWhenQSODeleted);
-    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->chatWidget, &ChatWidget::updateSpotsDxccStatusWhenQSODeleted);
+    connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->chatWidget, &ChatWidget::updateSpotsDxccStatus);
     connect(ui->logbookWidget, &LogbookWidget::deletedEntities, ui->newContactWidget, &NewContactWidget::refreshCallsignsColors);
     connect(ui->logbookWidget, &LogbookWidget::clublogContactDeleted, clublogRT, &ClubLogUploader::deleteQSOImmediately);
     connect(ui->logbookWidget, &LogbookWidget::sendDXSpotContactReq, ui->dxWidget, &DxWidget::prepareQSOSpot);
@@ -494,6 +516,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->alertsWidget, &AlertWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->chatWidget, &ChatWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->wsjtxWidget, &WsjtxWidget::updateSpotsStatusWhenQSOAdded);
+    connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->dxWidget, &DxWidget::updateSpotsStatusWhenQSOAdded);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, ui->dxWidget, &DxWidget::setLastQSO);
     connect(ui->newContactWidget, &NewContactWidget::contactAdded, clublogRT, &ClubLogUploader::insertQSOImmediately);
     connect(ui->newContactWidget, &NewContactWidget::contestStarted, this, &MainWindow::startContest);
@@ -502,7 +525,6 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->newContactWidget, &NewContactWidget::newTarget, ui->rotatorWidget, &RotatorWidget::setQSOBearing);
     connect(ui->newContactWidget, &NewContactWidget::filterCallsign, ui->logbookWidget, &LogbookWidget::filterCallsign);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->bandmapWidget, &BandmapWidget::updateTunedFrequency);
-    connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->onlineMapWidget, &OnlineMapWidget::setIBPBand);
     connect(ui->newContactWidget, &NewContactWidget::userFrequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(ui->newContactWidget, &NewContactWidget::userModeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(ui->newContactWidget, &NewContactWidget::markQSO, ui->bandmapWidget, &BandmapWidget::addSpot);
@@ -572,7 +594,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui->alertsWidget, &AlertWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
     connect(ui->alertsWidget, &AlertWidget::tuneWsjtx, wsjtx, &WsjtxUDPReceiver::sendReply);
 
-    conditions = new PropConditions();
+    conditions = new PropConditions(this);
 
     connect(conditions, &PropConditions::conditionsUpdated, this, &MainWindow::conditionsUpdated);
     connect(conditions, &PropConditions::auroraMapUpdated, ui->onlineMapWidget, &OnlineMapWidget::auroraDataUpdate);
@@ -1370,6 +1392,7 @@ void MainWindow::showServiceDownloadLotwDXCCCredits()
 
     LotwDXCCCreditDownloader *downloader = new LotwDXCCCreditDownloader(this);
     QProgressDialog *progressDialog = new QProgressDialog("", tr("Cancel"), 0, 0, this);
+    progressDialog->setWindowTitle(tr("LoTW DXCC Credit Download"));
     progressDialog->setWindowModality(Qt::WindowModal);
     progressDialog->setRange(0, 0);
     progressDialog->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -2484,6 +2507,9 @@ void MainWindow::importLog() {
     ImportDialog dialog(this);
     dialog.exec();
     ui->logbookWidget->updateTable();
+
+    if ( !dialog.getImportedEntities().isEmpty() )
+        emit importedEntities(dialog.getImportedEntities());
 }
 
 void MainWindow::exportLog() {
@@ -2575,11 +2601,11 @@ void MainWindow::showWikiHelp()
     QDesktopServices::openUrl(QString("https://github.com/foldynl/QLog/wiki"));
 }
 
-void MainWindow::showMailingList()
+void MainWindow::showDiscussion()
 {
     FCT_IDENTIFICATION;
 
-    QDesktopServices::openUrl(QString("https://groups.io/g/qlog"));
+    QDesktopServices::openUrl(QString("https://github.com/foldynl/QLog/discussions"));
 }
 
 void MainWindow::showReportBug()
@@ -2707,17 +2733,7 @@ MainWindow::~MainWindow()
     AmplifierController::instance()->close();
     Rig::instance()->shutdown();
 
-    conditions->deleteLater();
-    conditionsLabel->deleteLater();
-    profileLabel->deleteLater();
-    callsignLabel->deleteLater();
-    locatorLabel->deleteLater();
     QSqlDatabase::database().close();
-    clublogRT->deleteLater();
-    if ( wsjtx )
-        wsjtx->deleteLater();
 
-    seqGroup->deleteLater();
-    dupeGroup->deleteLater();
     delete ui;
 }

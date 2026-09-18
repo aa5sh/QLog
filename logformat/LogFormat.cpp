@@ -282,11 +282,15 @@ void LogFormat::setDuplicateQSOCallback(duplicateQSOBehaviour (*func)(QSqlRecord
 unsigned long LogFormat::runImport(QTextStream& importLogStream,
                                    const StationProfile *defaultStationProfile,
                                    unsigned long *warnings,
-                                   unsigned long *errors)
+                                   unsigned long *errors,
+                                   QSet<uint> *importedEntities)
 {
     FCT_IDENTIFICATION;
 
     this->importStart();
+
+    if ( importedEntities )
+        importedEntities->clear();
 
     unsigned long count = 0L;
     *errors = 0L;
@@ -773,6 +777,9 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
                            record,
                            tr("Imported"));
             count++;
+
+            if ( importedEntities )
+                importedEntities->insert(record.value(RECORDIDX(LogbookModel::COLUMN_DXCC)).toUInt());
         }
     }
 
@@ -836,8 +843,14 @@ QString LogFormat::mergeCreditValues(const QString &currentValue, const QString 
 
 bool LogFormat::isSatelliteDXCCCredit(const DXCCCreditRecord &credit)
 {
-    return splitCreditValues(credit.creditGranted).contains("DXCC_SATELLITE",
-                                                            Qt::CaseInsensitive);
+    for ( const QString &value : splitCreditValues(credit.creditGranted) )
+    {
+        if ( value.section(':', 0, 0).compare(QLatin1String("DXCC_SATELLITE"),
+                                             Qt::CaseInsensitive) == 0 )
+            return true;
+    }
+
+    return false;
 }
 
 bool LogFormat::isDXCCEntityCode(const QString &call)
@@ -1178,6 +1191,24 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                                             addInfo.join(", "));
     };
 
+    auto dxccStateDetails = [&](const QSqlRecord &record,
+                                const QString &band,
+                                const QString &mode)
+    {
+        Data *data = Data::instance();
+        data->invalidateDXCCStatusCache(record);
+
+        const bool satellite = record.value("prop_mode").toString().compare(
+                                   QLatin1String("SAT"), Qt::CaseInsensitive) == 0;
+        const DxccStatus status = satellite
+                                  ? data->satelliteDxccStatus(record.value("dxcc").toInt())
+                                  : data->dxccStatus(record.value("dxcc").toInt(), band, mode);
+        return QStringList{
+            satellite ? Data::satelliteDxccStatusToText(status)
+                      : tr("DXCC State:") + " " + Data::statusToText(status)
+        };
+    };
+
     static QRegularExpression reLeadingZero("^0+");
     QSLMergeStat stats = {QStringList(), QStringList(), QStringList(), QStringList(), 0};
     this->importStart();
@@ -1502,12 +1533,13 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                     }
                     if ( newlyReceived )
                     {
-                        const DxccStatus status = Data::instance()->dxccStatus(originalRecord.value("dxcc").toInt(), band.toString(), mode.toString());
                         stats.newQSLs.append(
                                     reportFormatter(start_time.toDateTime(),
                                                     call.toString(),
                                                     mode.toString(),
-                                                    {tr("DXCC State:") + " " + Data::statusToText(status)},
+                                                    dxccStateDetails(originalRecord,
+                                                                     band.toString(),
+                                                                     mode.toString()),
                                                     stationCallsign));
                     }
                     else
@@ -1612,8 +1644,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
             if ( newlyReceived )
             {
-                const DxccStatus status = Data::instance()->dxccStatus(originalRecord.value("dxcc").toInt(), band.toString(), mode.toString());
-                stats.newQSLs.append(reportFormatter(start_time.toDateTime(), call.toString(), mode.toString(), {tr("DXCC State:") + " " + Data::statusToText(status)}));
+                stats.newQSLs.append(reportFormatter(start_time.toDateTime(),
+                                                     call.toString(),
+                                                     mode.toString(),
+                                                     dxccStateDetails(originalRecord,
+                                                                      band.toString(),
+                                                                      mode.toString())));
             }
             else
             {

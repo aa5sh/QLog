@@ -179,6 +179,7 @@ private:
 
     void readSettings();
     void writeSettings();
+    void setRigDefaultsFromCaps(const RigCaps&);
     void setUIBasedOnRigCaps(const RigCaps&);
     void refreshRigAssignedCWKeyCombo();
     void refreshBandmapGuideCombo();

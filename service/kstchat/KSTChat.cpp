@@ -213,9 +213,15 @@ void KSTChat::recalculateDxccStatus()
 
     const QString &currBand = contact->getBand();
     const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
 
     for ( KSTUsersInfo &user: userList )
-        user.status = Data::instance()->dxccStatus(user.dxcc.dxcc, currBand, modeGroupString);
+    {
+        user.status = Data::instance()->currentDxccStatus(user.dxcc.dxcc,
+                                                          currBand,
+                                                          modeGroupString);
+        user.dxccStatusSatellite = satellite;
+    }
 
     emit usersListUpdated();
 
@@ -234,16 +240,24 @@ void KSTChat::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
     const QString &callsign = record.value("callsign").toString();
     const QString &currBand = contact->getBand();
     const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
 
     for ( KSTUsersInfo &user: userList )
     {
-        user.status = Data::dxccNewStatusWhenQSOAdded(user.status,
-                                                      user.dxcc.dxcc,
-                                                      currBand,
-                                                      modeGroupString,
-                                                      dxcc,
-                                                      currBand,
-                                                      dxccModeGroup);
+        if ( user.dxcc.dxcc == dxcc )
+        {
+            user.status = Data::instance()->currentDxccNewStatusWhenQSOAdded(
+                              user.status,
+                              user.dxccStatusSatellite,
+                              user.dxcc.dxcc,
+                              currBand,
+                              modeGroupString,
+                              dxcc,
+                              band,
+                              dxccModeGroup,
+                              record.value("prop_mode").toString());
+            user.dxccStatusSatellite = satellite;
+        }
         if ( user.callsign == callsign )
             user.dupeCount = Data::dupeNewCountWhenQSOAdded(user.dupeCount,
                                                             currBand,
@@ -279,24 +293,26 @@ void KSTChat::updateSpotsStatusWhenQSODeleted(const QSqlRecord &record)
 
 }
 
-void KSTChat::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+void KSTChat::updateSpotsDxccStatus(const QSet<uint> &entities)
 {
     FCT_IDENTIFICATION;
-
-    // this method is called at the end of QSO Delete (after commit).
 
     if ( entities.isEmpty() || !contact)
         return;
 
     const QString &currBand = contact->getBand();
     const QString &modeGroupString = BandPlan::modeToDXCCModeGroup(contact->getMode());
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
 
     for ( KSTUsersInfo &user: userList )
     {
         if ( !entities.contains(user.dxcc.dxcc) )
             continue;
 
-        user.status = Data::instance()->dxccStatus(user.dxcc.dxcc, currBand, modeGroupString);
+        user.status = Data::instance()->currentDxccStatus(user.dxcc.dxcc,
+                                                          currBand,
+                                                          modeGroupString);
+        user.dxccStatusSatellite = satellite;
     }
     emit usersListUpdated();
 }
@@ -599,7 +615,10 @@ void KSTChat::finalizeShowUsersCommand(const QStringList &buffer)
             if ( contact )
             {
                 const QString &modeGroup = BandPlan::modeToDXCCModeGroup(contact->getMode());
-                user.status = Data::instance()->dxccStatus(user.dxcc.dxcc, contact->getBand(), modeGroup);
+                user.status = Data::instance()->currentDxccStatus(user.dxcc.dxcc,
+                                                                  contact->getBand(),
+                                                                  modeGroup);
+                user.dxccStatusSatellite = Data::instance()->isSatelliteDxccContext();
                 user.dupeCount = Data::countDupe(user.callsign, contact->getBand(), modeGroup);
             }
             userList << user;

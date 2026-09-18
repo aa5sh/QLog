@@ -262,6 +262,127 @@ void DxTableModel::refreshStatusColors()
                      {Qt::BackgroundRole, Qt::ForegroundRole});
 }
 
+void DxTableModel::recalculateDxccStatus()
+{
+    if ( dxData.isEmpty() )
+        return;
+
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
+
+    for ( DxSpot &spot : dxData )
+    {
+        spot.status = Data::instance()->currentDxccStatus(spot.dxcc.dxcc,
+                                                          spot.band,
+                                                          spot.modeGroupString);
+        spot.dxccStatusSatellite = satellite;
+    }
+
+    emit dataChanged(createIndex(0, 1),
+                     createIndex(dxData.size() - 1, 1),
+                     {Qt::BackgroundRole, Qt::ForegroundRole, Qt::ToolTipRole});
+}
+
+void DxTableModel::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    const qint32 dxcc = record.value("dxcc").toInt();
+    const QString &band = record.value("band").toString();
+    const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
+    const QString &callsign = record.value("callsign").toString();
+    const QString &propMode = record.value("prop_mode").toString();
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
+    int changedRangeStart = -1;
+
+    for ( int row = 0; row < dxData.size(); ++row )
+    {
+        DxSpot &spot = dxData[row];
+        const DxccStatus oldStatus = spot.status;
+        const qulonglong oldDupeCount = spot.dupeCount;
+
+        if ( spot.dxcc.dxcc == dxcc )
+        {
+            const QString &spotDxccModeGroup =
+                spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FTx
+                ? BandPlan::MODE_GROUP_STRING_DIGITAL
+                : spot.modeGroupString;
+
+            spot.status = Data::instance()->currentDxccNewStatusWhenQSOAdded(
+                              spot.status,
+                              spot.dxccStatusSatellite,
+                              spot.dxcc.dxcc,
+                              spot.band,
+                              spotDxccModeGroup,
+                              dxcc,
+                              band,
+                              dxccModeGroup,
+                              propMode);
+            spot.dxccStatusSatellite = satellite;
+        }
+
+        if ( spot.callsign == callsign )
+        {
+            spot.dupeCount = Data::dupeNewCountWhenQSOAdded(spot.dupeCount,
+                                                            spot.band,
+                                                            spot.modeGroupString,
+                                                            band,
+                                                            dxccModeGroup);
+        }
+
+        const bool changed = spot.status != oldStatus || spot.dupeCount != oldDupeCount;
+        if ( changed && changedRangeStart < 0 )
+        {
+            changedRangeStart = row;
+        }
+        else if ( !changed && changedRangeStart >= 0 )
+        {
+            emit dataChanged(createIndex(changedRangeStart, 1),
+                             createIndex(row - 1, 1),
+                             {Qt::BackgroundRole, Qt::ForegroundRole, Qt::ToolTipRole});
+            changedRangeStart = -1;
+        }
+    }
+
+    if ( changedRangeStart >= 0 )
+    {
+        emit dataChanged(createIndex(changedRangeStart, 1),
+                         createIndex(dxData.size() - 1, 1),
+                         {Qt::BackgroundRole, Qt::ForegroundRole, Qt::ToolTipRole});
+    }
+}
+
+void DxTableModel::updateSpotsDxccStatus(const QSet<uint> &entities)
+{
+    if ( entities.isEmpty() )
+        return;
+
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
+    int firstChangedRow = -1;
+    int lastChangedRow = -1;
+
+    for ( int row = 0; row < dxData.size(); ++row )
+    {
+        DxSpot &spot = dxData[row];
+
+        if ( !entities.contains(spot.dxcc.dxcc) )
+            continue;
+
+        spot.status = Data::instance()->currentDxccStatus(spot.dxcc.dxcc,
+                                                          spot.band,
+                                                          spot.modeGroupString);
+        spot.dxccStatusSatellite = satellite;
+
+        if ( firstChangedRow < 0 )
+            firstChangedRow = row;
+        lastChangedRow = row;
+    }
+
+    if ( firstChangedRow >= 0 )
+    {
+        emit dataChanged(createIndex(firstChangedRow, 1),
+                         createIndex(lastChangedRow, 1),
+                         {Qt::BackgroundRole, Qt::ForegroundRole, Qt::ToolTipRole});
+    }
+}
+
 int WCYTableModel::rowCount(const QModelIndex&) const
 {
     return wcyData.count();
@@ -1397,6 +1518,13 @@ void DxTableModel::updateWorkedStation(QSqlRecord qsoRecord)
 
 
 
+void DxWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
+{
+    FCT_IDENTIFICATION;
+
+    dxTableModel->updateSpotsStatusWhenQSOAdded(record);
+}
+
 void DxWidget::reloadSetting()
 {
     FCT_IDENTIFICATION;
@@ -1426,6 +1554,20 @@ void DxWidget::refreshStatusColors()
     dxTableModel->refreshStatusColors();
 }
 
+void DxWidget::recalculateDxccStatus()
+{
+    FCT_IDENTIFICATION;
+
+    dxTableModel->recalculateDxccStatus();
+}
+
+void DxWidget::updateSpotsDxccStatus(const QSet<uint> &entities)
+{
+    FCT_IDENTIFICATION;
+
+    dxTableModel->updateSpotsDxccStatus(entities);
+}
+
 void DxWidget::prepareQSOSpot(QSqlRecord qso)
 {
     FCT_IDENTIFICATION;
@@ -1445,9 +1587,13 @@ void DxWidget::prepareQSOSpot(QSqlRecord qso)
                                 && qso.value("freq_rx").toDouble() != 0.0 ) ? qso.value("freq_rx").toDouble()
                                                                             : qso.value("freq").toDouble();
 
+            if ( spotFreq <= 0.0 )
+                QMessageBox::warning(this, tr("QLog Warning"),
+                                     tr("An exact frequency is required to spot a QSO"));
+
             // DX Spider allow to enter QSO freq in MHz but it is not reliable for SHF bands.
             // a more reliable way is to send a spot with kHz value
-            ui->commandEdit->setText(QString("dx %1 %2 ").arg(QString::number(Hz2kHz(MHz2Hz(spotFreq)), 'f', 0),
+            ui->commandEdit->setText(QString("dx %1 %2 ").arg(QString::number(Hz2kHz(MHz2Hz(spotFreq)), 'f', 1),
                                                               qso.value("callsign").toString()));
             ui->commandEdit->setFocus();
         }
@@ -1899,7 +2045,10 @@ void DxWidget::processDxSpot(const QString &spotter,
     spot.modeGroupString = BandPlan::bandMode2BandModeGroupString(spot.bandPlanMode);
     spot.dxcc = Data::instance()->lookupDxcc(call);
     spot.dxcc_spotter = Data::instance()->lookupDxcc(spotter);
-    spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+    spot.status = Data::instance()->currentDxccStatus(spot.dxcc.dxcc,
+                                                      spot.band,
+                                                      spot.modeGroupString);
+    spot.dxccStatusSatellite = Data::instance()->isSatelliteDxccContext();
     spot.callsign_member = MembershipQE::instance()->query(spot.callsign);
     spot.dupeCount = Data::countDupe(spot.callsign, spot.band, spot.modeGroupString);
     wwffRefFromComment(spot);

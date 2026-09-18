@@ -107,6 +107,7 @@ void WsjtxTableModel::addOrReplaceEntry(const WsjtxEntry &entry)
         }
 
         wsjtxData[idx].status = entry.status;
+        wsjtxData[idx].dxccStatusSatellite = entry.dxccStatusSatellite;
         wsjtxData[idx].decode = entry.decode;
         wsjtxData[idx].receivedTime = entry.receivedTime;
         wsjtxData[idx].dupeCount = entry.dupeCount;
@@ -194,6 +195,61 @@ void WsjtxTableModel::refreshStatusColors()
     emit dataChanged(createIndex(0, COLUMN_CALLSIGN),
                      createIndex(wsjtxData.size() - 1, COLUMN_CALLSIGN),
                      {Qt::BackgroundRole, Qt::ForegroundRole});
+}
+
+void WsjtxTableModel::recalculateDxccStatus()
+{
+    if ( wsjtxData.isEmpty() )
+        return;
+
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
+
+    for ( WsjtxEntry &entry : wsjtxData )
+    {
+        entry.status = Data::instance()->currentDxccStatus(entry.dxcc.dxcc,
+                                                           entry.band,
+                                                           entry.modeGroupString);
+        entry.dxccStatusSatellite = satellite;
+    }
+
+    emit dataChanged(createIndex(0, COLUMN_CALLSIGN),
+                     createIndex(wsjtxData.size() - 1, COLUMN_CALLSIGN),
+                     {Qt::BackgroundRole, Qt::ForegroundRole, Qt::ToolTipRole});
+}
+
+bool WsjtxTableModel::updateSpotsDxccStatus(const QSet<uint> &entities)
+{
+    if ( entities.isEmpty() )
+        return false;
+
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
+    int firstChangedRow = -1;
+    int lastChangedRow = -1;
+
+    for ( int row = 0; row < wsjtxData.size(); ++row )
+    {
+        WsjtxEntry &entry = wsjtxData[row];
+
+        if ( !entities.contains(entry.dxcc.dxcc) )
+            continue;
+
+        entry.status = Data::instance()->currentDxccStatus(entry.dxcc.dxcc,
+                                                           entry.band,
+                                                           entry.modeGroupString);
+        entry.dxccStatusSatellite = satellite;
+
+        if ( firstChangedRow < 0 )
+            firstChangedRow = row;
+        lastChangedRow = row;
+    }
+
+    if ( firstChangedRow < 0 )
+        return false;
+
+    emit dataChanged(createIndex(firstChangedRow, COLUMN_CALLSIGN),
+                     createIndex(lastChangedRow, COLUMN_CALLSIGN),
+                     {Qt::BackgroundRole, Qt::ForegroundRole, Qt::ToolTipRole});
+    return true;
 }
 
 QList<WsjtxEntry> WsjtxTableModel::entries() const

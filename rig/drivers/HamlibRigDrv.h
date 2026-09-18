@@ -7,6 +7,7 @@
 
 #include "GenericRigDrv.h"
 #include "rig/RigCaps.h"
+#include "rig/drivers/HamlibCompat.h"
 
 class HamlibRigDrv : public GenericRigDrv
 {
@@ -49,7 +50,7 @@ private:
 
 // https://github.com/Hamlib/Hamlib/issues/1647
 // use a newer HAMLIB API rig_list_foreach_model from 4.2
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,2,0)
     static int addRig (const rig_model_t rigModel, void *data);
 #else
     static int addRig(const rig_caps *caps, void* data);
@@ -81,6 +82,9 @@ private:
                                         QString &submode) const;
     const QString hamlibMode2String(const rmode_t mode) const;
     const QString hamlibVFO2String(const vfo_t vfo) const;
+    static QString hamlibFlowControl2String(serial_handshake_e flowControl);
+    static QString hamlibParity2String(serial_parity_e parity);
+    static QString hamlibPTTType2String(ptt_type_t pttType);
     vfo_t getTxVfo() const;
     serial_handshake_e stringToHamlibFlowControl(const QString &in_flowcontrol);
     serial_parity_e stringToHamlibParity(const QString &in_parity);
