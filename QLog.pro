@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = qlog
 TEMPLATE = app
-VERSION = 0.52.0
+VERSION = 0.53.0
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -55,6 +55,7 @@ CONFIG += c++11 force_debug_info
 CONFIG *= link_pkgconfig
 
 SOURCES += \
+        awards/AwardCanadaAward.cpp \
         awards/AwardDefinition.cpp \
         awards/AwardDXCC.cpp \
         awards/AwardGridsquare.cpp \
@@ -71,6 +72,8 @@ SOURCES += \
         awards/AwardSOTA.cpp \
         awards/AwardWAAC.cpp \
         awards/AwardWAIP.cpp \
+        awards/AwardWANA.cpp \
+        awards/AwardWorkedAllRAC.cpp \
         awards/SecondarySubdivisionAward.cpp \
         awards/AwardWAC.cpp \
         awards/AwardWAS.cpp \
@@ -101,6 +104,7 @@ SOURCES += \
         core/QSLPrintLabelRenderer.cpp \
         core/QSLStorage.cpp \
         core/QSOFilterManager.cpp \
+        core/QSOFilterDateRange.cpp \
         core/WsjtxUDPReceiver.cpp \
         core/debug.cpp \
         core/EmergencyFrequency.cpp \
@@ -223,6 +227,7 @@ SOURCES += \
         ui/QSLImportStatDialog.cpp \
         ui/QSODetailDialog.cpp \
         ui/QSOFilterDetail.cpp \
+        ui/component/QSOFilterDateRangeEdit.cpp \
         ui/QSOFilterDialog.cpp \
         ui/QTableQSOView.cpp \
         ui/RigWidget.cpp \
@@ -247,6 +252,7 @@ SOURCES += \
         ui/component/SwitchButton.cpp
 
 HEADERS += \
+        awards/AwardCanadaAward.h \
         awards/AwardDefinition.h \
         awards/AwardDXCC.h \
         awards/AwardGridsquare.h \
@@ -263,6 +269,8 @@ HEADERS += \
         awards/AwardSOTA.h \
         awards/AwardWAAC.h \
         awards/AwardWAIP.h \
+        awards/AwardWANA.h \
+        awards/AwardWorkedAllRAC.h \
         awards/SecondarySubdivisionAward.h \
         awards/AwardWAC.h \
         awards/AwardWAS.h \
@@ -293,6 +301,7 @@ HEADERS += \
         core/QSLPrintLabelRenderer.h \
         core/QSLStorage.h \
         core/QSOFilterManager.h \
+        core/QSOFilterDateRange.h \
         core/QuadKeyCache.h \
         core/WsjtxUDPReceiver.h \
         core/csv.hpp \
@@ -366,6 +375,7 @@ HEADERS += \
         rig/RigctldManager.h \
         rig/drivers/FlrigRigDrv.h \
         rig/drivers/GenericRigDrv.h \
+        rig/drivers/HamlibCompat.h \
         rig/drivers/HamlibRigDrv.h \
         rig/drivers/TCIRigDrv.h \
         rig/macros.h \
@@ -437,6 +447,7 @@ HEADERS += \
         ui/QSLImportStatDialog.h \
         ui/QSODetailDialog.h \
         ui/QSOFilterDetail.h \
+        ui/component/QSOFilterDateRangeEdit.h \
         ui/QSOFilterDialog.h \
         ui/QTableQSOView.h \
         ui/ShowUploadDialog.h \
@@ -467,6 +478,10 @@ HEADERS += \
         ui/component/SwitchButton.h
 
 FORMS += \
+        ui/QSOFilterRule.ui \
+        ui/component/QSOFilterDateRangeEdit.ui \
+        ui/component/QSOFilterDateBoundary.ui \
+        ui/component/QSOFilterDateRangeDialog.ui \
         ui/ActivityEditor.ui \
         ui/AlertRuleDetail.ui \
         ui/AlertSettingDialog.ui \

@@ -6,6 +6,13 @@
 #include "rig/macros.h"
 #include "data/SerialPort.h"
 #include "data/Data.h"
+#include "rig/drivers/HamlibCompat.h"
+
+// Hamlib 4.7 moved these public accessors out of rig.h.
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4, 7, 0)
+#include <hamlib/rig_state.h>
+#include <hamlib/port.h>
+#endif
 
 #ifndef HAMLIB_FILPATHLEN
 #define HAMLIB_FILPATHLEN FILPATHLEN
@@ -16,11 +23,6 @@
     || errcode == RIG_ETRUNC || errcode == RIG_ENAVAIL || errcode == RIG_ENTARGET \
     || errcode == RIG_EVFO || errcode == RIG_EDOM)
 
-#endif
-
-// macro introduced hamlib 4.6
-#ifndef PTTPORT
-#define PTTPORT(r) (&r->state.pttport)
 #endif
 
 int HamlibRigDrv::RIGCTLD_MODEL = RIG_MODEL_NETRIGCTL;
@@ -39,7 +41,7 @@ QList<QPair<int, QString>> HamlibRigDrv::getModelList()
 
     rig_load_all_backends();
 
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,2,0)
     rig_list_foreach_model(addRig, &ret);
 #else
     rig_list_foreach(addRig, &ret);
@@ -54,15 +56,15 @@ QList<QPair<QString, QString> > HamlibRigDrv::getPTTTypeList()
 
     QList<QPair<QString, QString>> ret;
 
-    ret << QPair<QString, QString>("None", tr("None"))
-        << QPair<QString, QString>("RIG", tr("CAT"))
-        << QPair<QString, QString>("DTR", tr("DTR"))
-        << QPair<QString, QString>("RTS", tr("RTS"));
+    ret << QPair<QString, QString>(hamlibPTTType2String(RIG_PTT_NONE), tr("None"))
+        << QPair<QString, QString>(hamlibPTTType2String(RIG_PTT_RIG), tr("CAT"))
+        << QPair<QString, QString>(hamlibPTTType2String(RIG_PTT_SERIAL_DTR), tr("DTR"))
+        << QPair<QString, QString>(hamlibPTTType2String(RIG_PTT_SERIAL_RTS), tr("RTS"));
 
     return ret;
 }
 
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 2  )
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,2,0)
 int HamlibRigDrv::addRig (const rig_model_t rigModel, void *data)
 {
     QList<QPair<int, QString>> *list = static_cast<QList<QPair<int, QString>>*>(data);
@@ -100,6 +102,8 @@ RigCaps HamlibRigDrv::getCaps(int model)
 
     if ( caps )
     {
+        ret.isNetworkOnly = ( caps->port_type == RIG_PORT_NETWORK
+                              || caps->port_type == RIG_PORT_UDP_NETWORK );
         ret.canGetFreq = ( caps->get_freq );
         ret.canGetMode = ( caps->get_mode );
         ret.canGetVFO =  ( caps->get_vfo );
@@ -114,12 +118,12 @@ RigCaps HamlibRigDrv::getCaps(int model)
         ret.isCIVAddrSupported = isCIVAddrRig(caps);
         ret.canGetSplit = ( caps->get_split_vfo && caps->get_split_freq );
 
-        if ( ret.isNetworkOnly )
+        if ( model == RIG_MODEL_NETRIGCTL )
         {
-#if ( HAMLIBVERSION_MAJOR == 4 && ( HAMLIBVERSION_MINOR == 2 || HAMLIBVERSION_MINOR == 3 ) )
-         /* due to a hamlib issue #855 (https://github.com/Hamlib/Hamlib/issues/855)
-         * the PWR will be disabled for 4.2.x and 4.3.x for NETRIG
-         */
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,2,0) \
+    && HAMLIB_VERSION < HAMLIB_VERSION_CHECK(4,4,0)
+            // Hamlib issue #855 can overflow NETRIGCTL's power2mW command
+            // buffer in 4.2.x and 4.3.x; the fix was first released in 4.4.
             ret.canGetPWR = false;
 #else
             // this feature is known after connection to RIG what is too late for QLog, Let's try to enable it.
@@ -130,8 +134,15 @@ RigCaps HamlibRigDrv::getCaps(int model)
 #endif
         }
 
+        // Hamlib uses the backend's maximum supported rate as its default.
+        ret.serialBaudRate = caps->serial_rate_max;
         ret.serialDataBits = caps->serial_data_bits;
         ret.serialStopBits = caps->serial_stop_bits;
+
+        ret.serialFlowControl = hamlibFlowControl2String(caps->serial_handshake);
+        ret.serialParity = hamlibParity2String(caps->serial_parity);
+
+        ret.defaultPTTType = hamlibPTTType2String(caps->ptt_type);
     }
     return ret;
 }
@@ -217,26 +228,26 @@ bool HamlibRigDrv::open()
     {
         //handling Network Radio
         const QString portString = rigProfile.hostname + ":" + QString::number(rigProfile.netport);
-        strncpy(rig->state.rigport.pathname, portString.toLocal8Bit().constData(), HAMLIB_FILPATHLEN - 1);
+        strncpy(QLOG_HAMLIB_RIGPORT(rig)->pathname, portString.toLocal8Bit().constData(), HAMLIB_FILPATHLEN - 1);
     }
     else if ( portType == RigProfile::SERIAL_ATTACHED )
     {
         //handling Serial Port Radio
-        strncpy(rig->state.rigport.pathname, rigProfile.portPath.toLocal8Bit().constData(), HAMLIB_FILPATHLEN - 1);
-        rig->state.rigport.parm.serial.rate = rigProfile.baudrate;
-        rig->state.rigport.parm.serial.data_bits = rigProfile.databits;
-        rig->state.rigport.parm.serial.stop_bits = rigProfile.stopbits;
-        rig->state.rigport.parm.serial.handshake = stringToHamlibFlowControl(rigProfile.flowcontrol);
-        rig->state.rigport.parm.serial.parity = stringToHamlibParity(rigProfile.parity);
-        rig->state.rigport.parm.serial.dtr_state = stringToHamlibSerialSignal(rigProfile.dtr);
-        rig->state.rigport.parm.serial.rts_state = stringToHamlibSerialSignal(rigProfile.rts);
+        strncpy(QLOG_HAMLIB_RIGPORT(rig)->pathname, rigProfile.portPath.toLocal8Bit().constData(), HAMLIB_FILPATHLEN - 1);
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.rate = rigProfile.baudrate;
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.data_bits = rigProfile.databits;
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.stop_bits = rigProfile.stopbits;
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.handshake = stringToHamlibFlowControl(rigProfile.flowcontrol);
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.parity = stringToHamlibParity(rigProfile.parity);
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.dtr_state = stringToHamlibSerialSignal(rigProfile.dtr);
+        QLOG_HAMLIB_RIGPORT(rig)->parm.serial.rts_state = stringToHamlibSerialSignal(rigProfile.rts);
 
         qCDebug(runtime) << "Using PTT Type" << rigProfile.pttType.toLocal8Bit().constData()
                          << "PTT Path" << rigProfile.pttPortPath;
 
         if ( !rigProfile.pttPortPath.isEmpty() )
         {
-            strncpy(PTTPORT(rig)->pathname, rigProfile.pttPortPath.toLocal8Bit().constData(), HAMLIB_FILPATHLEN - 1);
+            strncpy(QLOG_HAMLIB_PTTPORT(rig)->pathname, rigProfile.pttPortPath.toLocal8Bit().constData(), HAMLIB_FILPATHLEN - 1);
         }
 
         if ( rig_set_conf(rig, rig_token_lookup(rig, "ptt_type"), rigProfile.pttType.toLocal8Bit().constData()) != RIG_OK )
@@ -318,7 +329,7 @@ bool HamlibRigDrv::open()
     morseOverCatSupported = ( rig->caps->send_morse != nullptr );
 
     rmode_t localRigModes = RIG_MODE_NONE;
-    localRigModes = static_cast<rmode_t>(rig->state.mode_list); // static_cast is due to the old Hamlib versions
+    localRigModes = static_cast<rmode_t>(QLOG_HAMLIB_STATE(rig)->mode_list); // static_cast is due to the old Hamlib versions
                                                                 // where mode_list is defined as INT
     /* hamlib 3.x and 4.x are very different - workaround */
     for ( unsigned char i = 0; i < (sizeof(rmode_t)*8)-1; i++ )
@@ -362,7 +373,7 @@ vfo_t HamlibRigDrv::getTxVfo() const
 
     // TX VFO is always B/SUB — setSplit() forces RX to A/MAIN before
     // enabling split, so we always know where TX lives.
-    vfo_t txVfo = (rig->state.vfo_list & RIG_VFO_B) ? RIG_VFO_B : RIG_VFO_SUB;
+    vfo_t txVfo = (QLOG_HAMLIB_STATE(rig)->vfo_list & RIG_VFO_B) ? RIG_VFO_B : RIG_VFO_SUB;
 
     qCDebug(runtime) << "txVfo:" << hamlibVFO2String(txVfo);
 
@@ -435,7 +446,7 @@ void HamlibRigDrv::setSplit(bool enabled)
     // Same strategy as WSJT-X (HamlibTransceiver::do_start).
     if ( enabled )
     {
-        vfo_t rxVfo = (rig->state.vfo_list & RIG_VFO_A) ? RIG_VFO_A : RIG_VFO_MAIN;
+        vfo_t rxVfo = (QLOG_HAMLIB_STATE(rig)->vfo_list & RIG_VFO_A) ? RIG_VFO_A : RIG_VFO_MAIN;
         int rcVfo = rig_set_vfo(rig, rxVfo);
         qCDebug(runtime) << "Forced RX VFO to" << hamlibVFO2String(rxVfo)
                          << "result:" << rcVfo;
@@ -521,7 +532,7 @@ void HamlibRigDrv::setPTT(bool newPTTState)
 
     qCDebug(function_parameters) << newPTTState;
 
-    if ( !rigProfile.getPTTInfo || PTTPORT(rig)->type.ptt == RIG_PTT_NONE )
+    if ( !rigProfile.getPTTInfo || QLOG_HAMLIB_PTTPORT(rig)->type.ptt == RIG_PTT_NONE )
         return;
 
     MUTEXLOCKER;
@@ -617,7 +628,7 @@ void HamlibRigDrv::stopMorse()
         return;
     }
 
-#if (HAMLIBVERSION_MAJOR >= 4)
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,0,0)
     int status = rig_stop_morse(rig, RIG_VFO_CURR);
     isRigRespOK(status, tr("Cannot stop Morse"), false);
 #endif
@@ -655,7 +666,7 @@ void HamlibRigDrv::sendDXSpot(const DxSpot &spot)
 
     if ( isSmartSDRSlice(rig->caps) )
     {
-#if (HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 5 )
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,5,0)
         const QString freqStr = QString::number(spot.freq, 'f', 3);
         const QString call = spot.callsign.trimmed().toUpper();
         const QColor spotColor = Data::statusToColor(spot.status, spot.dupeCount, QColor(187,194,195));
@@ -1282,7 +1293,7 @@ bool HamlibRigDrv::isRigRespOK(int errorStatus,
 
 bool HamlibRigDrv::isSmartSDRSlice(const rig_caps *caps)
 {
-#if (HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 6 ) // Hamlib 4.6 implements SmartSDR Slices.
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,6,0) // Hamlib 4.6 implements SmartSDR Slices.
     return QString::fromLatin1(caps->model_name).contains("SmartSDR Slice", Qt::CaseInsensitive);
 #else
     Q_UNUSED(caps)
@@ -1347,6 +1358,56 @@ const QString HamlibRigDrv::hamlibVFO2String(const vfo_t vfo) const
     return QString(rawVFO);
 }
 
+QString HamlibRigDrv::hamlibFlowControl2String(serial_handshake_e flowControl)
+{
+    switch ( flowControl )
+    {
+    case RIG_HANDSHAKE_XONXOFF:
+        return SerialPort::SERIAL_FLOWCONTROL_SOFTWARE;
+    case RIG_HANDSHAKE_HARDWARE:
+        return SerialPort::SERIAL_FLOWCONTROL_HARDWARE;
+    case RIG_HANDSHAKE_NONE:
+    default:
+        return SerialPort::SERIAL_FLOWCONTROL_NONE;
+    }
+}
+
+QString HamlibRigDrv::hamlibParity2String(serial_parity_e parity)
+{
+    switch ( parity )
+    {
+    case RIG_PARITY_ODD:
+        return SerialPort::SERIAL_PARITY_ODD;
+    case RIG_PARITY_EVEN:
+        return SerialPort::SERIAL_PARITY_EVEN;
+    case RIG_PARITY_MARK:
+        return SerialPort::SERIAL_PARITY_MARK;
+    case RIG_PARITY_SPACE:
+        return SerialPort::SERIAL_PARITY_SPACE;
+    case RIG_PARITY_NONE:
+    default:
+        return SerialPort::SERIAL_PARITY_NO;
+    }
+}
+
+QString HamlibRigDrv::hamlibPTTType2String(ptt_type_t pttType)
+{
+    switch ( pttType )
+    {
+    case RIG_PTT_NONE:
+        return "None";
+    case RIG_PTT_RIG:
+    case RIG_PTT_RIG_MICDATA:
+        return "RIG";
+    case RIG_PTT_SERIAL_DTR:
+        return "DTR";
+    case RIG_PTT_SERIAL_RTS:
+        return "RTS";
+    default:
+        return QString();
+    }
+}
+
 serial_handshake_e HamlibRigDrv::stringToHamlibFlowControl(const QString &in_flowcontrol)
 {
     FCT_IDENTIFICATION;
@@ -1407,7 +1468,7 @@ QString HamlibRigDrv::hamlibErrorString(int errorCode)
     QString ret;
     QString detail(rigerror(errorCode));
 
-#if ( HAMLIBVERSION_MAJOR >= 4 && HAMLIBVERSION_MINOR >= 5 )
+#if HAMLIB_VERSION >= HAMLIB_VERSION_CHECK(4,5,0)
     // The rigerror has different behavior since 4.5. It contains the stack trace in the first part
     // Need to use rigerror2
     ret = QString(rigerror2(errorCode));
@@ -1426,5 +1487,4 @@ QString HamlibRigDrv::hamlibErrorString(int errorCode)
 
 #undef HAMLIB_FILPATHLEN
 #undef RIG_IS_SOFT_ERRCODE
-#undef PTTPORT
 #undef MUTEXLOCKER

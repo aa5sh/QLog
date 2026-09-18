@@ -207,6 +207,9 @@ void PropConditions::processReply(QNetworkReply* reply)
                          || !jsonToFiniteDouble(obj[2], probability) )
                         continue;
 
+                    if ( longitude > 180.0 )
+                        longitude -= 360.0;
+
                     auroraMap.addPoint(longitude, latitude, probability, &skipElement);
                 }
                 auroraMap_last_update = QDateTime::currentDateTime();
@@ -236,6 +239,9 @@ void PropConditions::processReply(QNetworkReply* reply)
                          || !jsonToFiniteDouble(station["latitude"], latitude)
                          || !jsonToFiniteDouble(obj["mufd"], muf) )
                         continue;
+
+                    if ( longitude > 180.0 )
+                        longitude -= 360.0;
 
                     mufMap.addPoint(longitude, latitude, muf, &skipElement);
                 }

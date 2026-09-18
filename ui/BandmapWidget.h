@@ -68,6 +68,7 @@ public:
 
 public slots:
     void update();
+    void setCurrentBand(const QString &bandName);
     void updateTunedFrequency(VFOID, double, double, double);
     void updateMode(VFOID, const QString &, const QString &mode,
                     const QString &subMode, qint32 width);
@@ -78,7 +79,7 @@ public slots:
     void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
     void updateSpotsStatusWhenQSOUpdated(const QSqlRecord &);
     void updateSpotsDupeWhenQSODeleted(const QSqlRecord &record);
-    void updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities);
+    void updateSpotsDxccStatus(const QSet<uint> &entities);
     void recalculateDxccStatus();
     void resetDupe();
     void recalculateDupe();

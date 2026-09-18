@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QScopeGuard>
 #include <QXmlStreamReader>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -24,6 +25,14 @@
 #include "core/FileCompressor.h"
 
 MODULE_IDENTIFICATION("qlog.core.lovdownloader");
+
+namespace
+{
+bool isCTYCSV(const QByteArray &data)
+{
+    return data.left(data.indexOf('\n')).split(',').size() == 10;
+}
+}
 
 LOVDownloader::LOVDownloader(QObject *parent) :
     QObject(parent),
@@ -107,8 +116,17 @@ void LOVDownloader::loadData(const LOVDownloader::SourceDefinition &sourceDef)
     QByteArray data = file.readAll();
     file.close();
 
-    if (sourceDef.fileName.endsWith(".gz", Qt::CaseInsensitive))
+    if ( sourceDef.fileName.endsWith(".gz", Qt::CaseInsensitive) )
         data = FileCompressor::gunzip(data);
+
+    if (sourceDef.type == CTY && !isCTYCSV(data))
+    {
+        qCWarning(runtime) << "Invalid cached CTY data; removing cache";
+        file.remove();
+
+        emit finished(loadBundledCTY(sourceDef));
+        return;
+    }
 
     emit processingSize(data.size());
 
@@ -128,6 +146,31 @@ bool LOVDownloader::isTableFilled(const QString &tableName)
 
     qCDebug(runtime) << i;
     return i==1;
+}
+
+bool LOVDownloader::loadBundledCTY(const LOVDownloader::SourceDefinition &sourceDef)
+{
+    FCT_IDENTIFICATION;
+
+    abortRequested = false;
+    qCWarning(runtime) << "Using bundled CTY data";
+
+    QFile file(":/res/data/cty.csv");
+    if ( ! file.open(QIODevice::ReadOnly) )
+    {
+        qWarning() << "Cannot open bundled CTY data";
+        return false;
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    emit processingSize(data.size());
+
+    QTextStream stream(data);
+    parseData(sourceDef, stream);
+
+    return isTableFilled(sourceDef.tableName);
 }
 
 bool LOVDownloader::deleteTable(const QString &tableName)
@@ -452,7 +495,7 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
                                     const QString &insertSQL,
                                     const QStringList &csvColumns,
                                     csv::CSVFormat format,
-                                    const QString &preValidateContains)
+                                    const QString &preValidateContains) try
 {
     FCT_IDENTIFICATION;
 
@@ -468,12 +511,13 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
         return false;
     }
 
-    QSqlDatabase::database().transaction();
+    QSqlDatabase database = QSqlDatabase::database();
+    database.transaction();
+    auto rollbackGuard = qScopeGuard([&database]() { database.rollback(); });
 
     if ( !deleteTable(sourceDef.tableName) )
     {
         qCWarning(runtime) << "Delete failed - rollback:" << sourceDef.tableName;
-        QSqlDatabase::database().rollback();
         return false;
     }
 
@@ -481,11 +525,10 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
     if ( !insertQuery.prepare(insertSQL) )
     {
         qWarning() << "Cannot prepare insert statement for" << sourceDef.tableName;
-        QSqlDatabase::database().rollback();
         return false;
     }
 
-    csv::CSVReader reader = csv::parse(csvData, format);
+    csv::CSVReader reader = csv::parse_unsafe(csvData, format);
 
     const std::vector<std::string> colNames = reader.get_col_names();
     for ( const QString &col : csvColumns )
@@ -493,7 +536,6 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
         if ( std::find(colNames.begin(), colNames.end(), col.toStdString()) == colNames.end() )
         {
             qWarning() << "Missing column:" << col << "in" << sourceDef.tableName;
-            QSqlDatabase::database().rollback();
             return false;
         }
     }
@@ -507,12 +549,8 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
         stdCols.push_back(col.toStdString());
 
     QVector<QVariantList> columns(colCount);
-
-    auto reserveAll = [&]()
-    {
-        for ( auto &col : columns )
-            col.reserve(CHUNK);
-    };
+    for ( QVariantList &column : columns )
+        column.reserve(CHUNK);
 
     auto flushChunk = [&]() -> bool
     {
@@ -529,11 +567,9 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
         for ( QVariantList &col : columns )
             col.clear();
 
-        reserveAll();
         return true;
     };
 
-    reserveAll();
     int count = 0;
 
     for ( csv::CSVRow &row : reader )
@@ -558,7 +594,13 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
         }
     }
 
-    if ( !abortRequested && !columns[0].isEmpty() )
+    if ( !abortRequested && count == 0 )
+    {
+        qWarning() << "No records found in" << sourceDef.tableName;
+        return false;
+    }
+
+    if ( !abortRequested && count % CHUNK != 0 )
     {
         if ( !flushChunk() )
             abortRequested = true;
@@ -566,13 +608,23 @@ bool LOVDownloader::parseCSVGeneric(const SourceDefinition &sourceDef,
 
     if ( !abortRequested )
     {
-        QSqlDatabase::database().commit();
+        database.commit();
+        rollbackGuard.dismiss();
         qCDebug(runtime) << sourceDef.tableName << "update finished:" << count << "entities loaded.";
         return true;
     }
 
     qCWarning(runtime) << sourceDef.tableName << "update failed - rollback";
-    QSqlDatabase::database().rollback();
+    return false;
+}
+catch ( const std::exception &exception )
+{
+    qWarning() << "CSV parsing failed for" << sourceDef.tableName << ":" << exception.what();
+    return false;
+}
+catch ( ... )
+{
+    qWarning() << "CSV parsing failed for" << sourceDef.tableName << ": unknown exception";
     return false;
 }
 
@@ -1056,10 +1108,14 @@ void LOVDownloader::processReply(QNetworkReply *reply)
     Q_ASSERT(sourceDef.type == sourceType);
 
     int replyStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    const bool successfulResponse = reply->error() == QNetworkReply::NoError
+                                    && replyStatusCode >= 200 && replyStatusCode < 300;
+    const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
+    const bool invalidCTYResponse = sourceType == CTY
+                                    && (contentType.startsWith("text/html", Qt::CaseInsensitive)
+                                        || !isCTYCSV(data));
 
-    if ( reply->isFinished()
-         && reply->error() == QNetworkReply::NoError
-         && replyStatusCode >= 200 && replyStatusCode < 300)
+    if (successfulResponse && !invalidCTYResponse)
     {
         qCDebug(runtime) << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
         qCDebug(runtime) << reply->header(QNetworkRequest::KnownHeaders::LocationHeader);
@@ -1084,10 +1140,17 @@ void LOVDownloader::processReply(QNetworkReply *reply)
     }
     else
     {
+        if (invalidCTYResponse)
+            qCWarning(runtime) << "Received invalid CTY data; ignoring response";
         qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
         qCDebug(runtime) << "Failed to download " << sourceDef.fileName;
 
         reply->deleteLater();
-        emit finished(false);
+
+        bool fallbackLoaded = false;
+        if (sourceType == CTY)
+            fallbackLoaded = loadBundledCTY(sourceDef);
+
+        emit finished(fallbackLoaded);
     }
 }

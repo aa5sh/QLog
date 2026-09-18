@@ -753,6 +753,20 @@ void BandmapWidget::setBandmapAnimation(bool isEnable)
     bandmapAnimation = isEnable;
 }
 
+void BandmapWidget::setCurrentBand(const QString &bandName)
+{
+    FCT_IDENTIFICATION;
+
+    const Band &newBand = BandPlan::bandName2Band(bandName);
+    if ( newBand.name.isEmpty()
+         || newBand == currentBand
+         || isAlreadyOpened(newBand) )
+        return;
+
+    setBand(newBand);
+    update();
+}
+
 void BandmapWidget::setBand(const Band &newBand, bool savePrevBandZoom)
 {
     FCT_IDENTIFICATION;
@@ -879,19 +893,30 @@ void BandmapWidget::updateSpotsStatusWhenQSOAdded(const QSqlRecord &record)
     const QString &band = record.value("band").toString();
     const QString &dxccModeGroup = BandPlan::modeToDXCCModeGroup(record.value("mode").toString());
     const QString &callsign = record.value("callsign").toString();
+    const bool satellite = Data::instance()->isSatelliteDxccContext();
 
     for ( auto it = spots.begin(); it != spots.end(); ++it )
     {
         DxSpot &spot =  it.value();
-        spot.status = Data::dxccNewStatusWhenQSOAdded(spot.status,
-                                                      spot.dxcc.dxcc,
-                                                      spot.band,
-                                                      ( ( spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FTx )
-                                                           ? BandPlan::MODE_GROUP_STRING_DIGITAL
-                                                           : dxccModeGroup ),
-                                                      dxcc,
-                                                      band,
-                                                      dxccModeGroup);
+        if ( spot.dxcc.dxcc == dxcc )
+        {
+            const QString &spotDxccModeGroup =
+                spot.modeGroupString == BandPlan::MODE_GROUP_STRING_FTx
+                ? BandPlan::MODE_GROUP_STRING_DIGITAL
+                : spot.modeGroupString;
+
+            spot.status = Data::instance()->currentDxccNewStatusWhenQSOAdded(
+                              spot.status,
+                              spot.dxccStatusSatellite,
+                              spot.dxcc.dxcc,
+                              spot.band,
+                              spotDxccModeGroup,
+                              dxcc,
+                              band,
+                              dxccModeGroup,
+                              record.value("prop_mode").toString());
+            spot.dxccStatusSatellite = satellite;
+        }
         if ( spot.callsign == callsign )
             spot.dupeCount = Data::dupeNewCountWhenQSOAdded(spot.dupeCount,
                                                             spot.band,
@@ -947,10 +972,10 @@ void BandmapWidget::updateSpotsDupeWhenQSODeleted(const QSqlRecord &record)
                                                                dxccModeGroup);
     }
     // do not call updateStation. it will be updated at the end of delete procedure
-    // by updateSpotsDxccStatusWhenQSODeleted;
+    // by updateSpotsDxccStatus;
 }
 
-void BandmapWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entities)
+void BandmapWidget::updateSpotsDxccStatus(const QSet<uint> &entities)
 {
     FCT_IDENTIFICATION;
 
@@ -960,8 +985,6 @@ void BandmapWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entiti
         qCDebug(runtime) << "NonVFO widget - skipping";
         return;
     }
-
-    // this method is called at the end of QSO Delete (after commit).
 
     if ( entities.isEmpty() )
         return;
@@ -973,7 +996,10 @@ void BandmapWidget::updateSpotsDxccStatusWhenQSODeleted(const QSet<uint> &entiti
         if ( !entities.contains(spot.dxcc.dxcc) )
             continue;
 
-        spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+        spot.status = Data::instance()->currentDxccStatus(spot.dxcc.dxcc,
+                                                          spot.band,
+                                                          spot.modeGroupString);
+        spot.dxccStatusSatellite = Data::instance()->isSatelliteDxccContext();
     }
     updateStations();
     updateNearestSpot(true);
@@ -993,7 +1019,10 @@ void BandmapWidget::recalculateDxccStatus()
     for ( auto it = spots.begin(); it != spots.end(); ++it )
     {
         DxSpot &spot = it.value();
-        spot.status = Data::instance()->dxccStatus(spot.dxcc.dxcc, spot.band, spot.modeGroupString);
+        spot.status = Data::instance()->currentDxccStatus(spot.dxcc.dxcc,
+                                                          spot.band,
+                                                          spot.modeGroupString);
+        spot.dxccStatusSatellite = Data::instance()->isSatelliteDxccContext();
     }
     updateStations();
     updateNearestSpot(true);

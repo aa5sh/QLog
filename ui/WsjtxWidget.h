@@ -32,7 +32,9 @@ public slots:
     void callsignClicked(QString);
     void tableViewClicked(QModelIndex);
     void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
+    void updateSpotsDxccStatus(const QSet<uint> &entities);
     void refreshStatusColors();
+    void recalculateDxccStatus();
 
 private slots:
     void displayedColumns();
@@ -56,6 +58,7 @@ private:
     QStringList dxMemberList() const;
     void reloadSetting();
     void clearTable();
+    void redrawMapSpots();
 
     WsjtxTableModel* wsjtxTableModel;
     WsjtxStatus status;

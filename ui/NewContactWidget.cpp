@@ -277,6 +277,8 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     ui->bandTXLabel->setVisible(false);
     ui->freqRXLabel->setVisible(false);
     ui->freqTXLabel->setVisible(false);
+    ui->freqRXEdit->enableBandSelection();
+    ui->freqTXEdit->enableBandSelection();
 
     /***********************/
     /* Read Widget Setting */
@@ -287,11 +289,18 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     /* Reload Global Setting */
     /*************************/
     readGlobalSettings();
+    restoreBandSetting();
 
     /**********************/
     /* Clear Contact Form */
     /**********************/
     resetContact();
+    updateBandLabels();
+
+    connect(ui->freqTXEdit, &FreqQSpinBox::bandSelected,
+            this, &NewContactWidget::bandTXChanged);
+    connect(ui->freqRXEdit, &FreqQSpinBox::bandSelected,
+            this, &NewContactWidget::bandRXChanged);
 
     /************************/
     /* Connect Field Change */
@@ -358,7 +367,7 @@ void NewContactWidget::queryMemberList()
 
     if ( callsign.size() >= 3 )
     {
-        MembershipQE::instance()->asyncQueryDetails(callsign, ui->bandRXLabel->text(), ui->modeEdit->currentText());
+        MembershipQE::instance()->asyncQueryDetails(callsign, bandTX.name, ui->modeEdit->currentText());
     }
 }
 
@@ -385,6 +394,9 @@ void NewContactWidget::writeWidgetSetting()
     FCT_IDENTIFICATION;
 
     LogParam::setNewContactFreq(realRigFreq);
+    LogParam::setNewContactBand(ui->freqRXEdit->hasBand()
+                                ? bandRX.name
+                                : QString());
     LogParam::setNewContactMode(ui->modeEdit->currentText());
     LogParam::setNewContactSubMode(ui->submodeEdit->currentText());
     LogParam::setNewContactPower(uiDynamic->powerEdit->value());
@@ -395,6 +407,22 @@ void NewContactWidget::writeWidgetSetting()
     LogParam::setNewContactQSLVia(ui->qslSentViaBox->itemData(ui->qslSentViaBox->currentIndex()).toString());
     LogParam::setNewContactPropMode(Data::instance()->propagationModeTextToID(ui->propagationModeEdit->currentText()));
     LogParam::setNewContactTabsExpanded(tabCollapseBtn->isChecked());
+}
+
+void NewContactWidget::restoreBandSetting()
+{
+    const QString savedBandName = LogParam::getNewContactBand();
+    if ( savedBandName.isEmpty() )
+        return;
+
+    const QSignalBlocker rxBlocker(ui->freqRXEdit);
+    const QSignalBlocker txBlocker(ui->freqTXEdit);
+    if ( ui->freqRXEdit->setBand(savedBandName) )
+    {
+        ui->freqTXEdit->setBand(savedBandName);
+        bandRX = BandPlan::bandName2Band(savedBandName);
+        bandTX = bandRX;
+    }
 }
 
 /* function read global setting, called when starting or when Setting is reloaded */
@@ -428,6 +456,7 @@ void NewContactWidget::readGlobalSettings()
 
     ui->freqRXEdit->loadBands();
     ui->freqTXEdit->loadBands();
+    setBandSelectionEnabled();
 
     updatePartnerLocTime();
     ui->dateEdit->setDisplayFormat(locale.formatDateShortWithYYYY());
@@ -472,6 +501,9 @@ void NewContactWidget::handleCallsignFromUser()
     callsign = newCallsign;
 
     qslManager.abortQuery();
+    if ( callsign.isEmpty() )
+        operatorEditedCallbookFields.clear();
+
     clearCallbookQueryFields();
     clearMemberQueryFields();
 
@@ -522,8 +554,7 @@ void NewContactWidget::setDxccInfo(const DxccEntity &curr)
         uiDynamic->cqzEdit->setText(QString::number(dxccEntity.cqz));
         uiDynamic->ituEdit->setText(QString::number(dxccEntity.ituz));
         updateCoordinates(dxccEntity.latlon[0], dxccEntity.latlon[1], COORD_DXCC);
-        ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, BandPlan::freq2Band(ui->freqTXEdit->value()));
-        ui->stationTableWidget->setDxCallsign(ui->callsignEdit->text(), BandPlan::freq2Band(ui->freqTXEdit->value()));
+        refreshDXStatTables();
         uiDynamic->contEdit->setCurrentText(dxccEntity.cont);
         updateDxccStatus();
         updateCountyCompleter(dxccEntity.dxcc);
@@ -534,8 +565,7 @@ void NewContactWidget::setDxccInfo(const DxccEntity &curr)
         uiDynamic->cqzEdit->clear();
         uiDynamic->ituEdit->clear();
         clearCoordinates();
-        ui->dxccTableWidget->clear();
-        ui->stationTableWidget->clear();
+        refreshDXStatTables();
         uiDynamic->contEdit->setCurrentText("");
         ui->dxccStatus->clear();
 
@@ -553,6 +583,23 @@ void NewContactWidget::refreshDxccFlag()
     ui->flagView->setPixmap((!flag.isEmpty())
                             ? QPixmap(QString(":/flags/64/%1.png").arg(flag))
                             : QPixmap());
+}
+
+bool NewContactWidget::isSatelliteQSO() const
+{
+    return Data::instance()->propagationModeTextToID(ui->propagationModeEdit->currentText())
+           == QLatin1String("SAT");
+}
+
+void NewContactWidget::refreshDXStatTables()
+{
+    const bool satellite = isSatelliteQSO();
+    const Band highlightedBand = satellite ? Band() : bandTX;
+
+    ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, highlightedBand, satellite);
+    ui->stationTableWidget->setDxCallsign(ui->callsignEdit->text(),
+                                          highlightedBand,
+                                          satellite);
 }
 
 void NewContactWidget::setDxccInfo(const QString &callsign)
@@ -620,14 +667,20 @@ void NewContactWidget::useFieldsFromPrevQSO(const QString &callsign, const QStri
         {
             // entered callsign is base callsign - no portable QTH. Get all fields from
             // previous QSO
-            uiDynamic->qthEdit->setText(prevQSOExactMatchQuery.value("qth_intl").toString());
-            uiDynamic->gridEdit->setText(prevQSOExactMatchQuery.value("gridsquare").toString());
-            uiDynamic->dokEdit->setText(prevQSOExactMatchQuery.value("darc_dok").toString());
+            setCallbookQueryField(uiDynamic->qthEdit,
+                                  prevQSOExactMatchQuery.value("qth_intl").toString());
+            setCallbookQueryField(uiDynamic->gridEdit,
+                                  prevQSOExactMatchQuery.value("gridsquare").toString());
+            setCallbookQueryField(uiDynamic->dokEdit,
+                                  prevQSOExactMatchQuery.value("darc_dok").toString());
         }
-        uiDynamic->nameEdit->setText(prevQSOExactMatchQuery.value("name_intl").toString());
+        setCallbookQueryField(uiDynamic->nameEdit,
+                              prevQSOExactMatchQuery.value("name_intl").toString());
         ui->noteEdit->insertPlainText(prevQSOExactMatchQuery.value("notes_intl").toString());
-        uiDynamic->emailEdit->setText(prevQSOExactMatchQuery.value("email").toString());
-        uiDynamic->urlEdit->setText(prevQSOExactMatchQuery.value("web").toString());
+        setCallbookQueryField(uiDynamic->emailEdit,
+                              prevQSOExactMatchQuery.value("email").toString());
+        setCallbookQueryField(uiDynamic->urlEdit,
+                              prevQSOExactMatchQuery.value("web").toString());
 
         emit filterCallsign(baseCallsign);
     }
@@ -646,10 +699,13 @@ void NewContactWidget::useFieldsFromPrevQSO(const QString &callsign, const QStri
         if ( prevQSOBaseCallMatchQuery.next() )
         {
             // partial informaion available
-            uiDynamic->nameEdit->setText(prevQSOBaseCallMatchQuery.value("name_intl").toString());
+            setCallbookQueryField(uiDynamic->nameEdit,
+                                  prevQSOBaseCallMatchQuery.value("name_intl").toString());
             ui->noteEdit->insertPlainText(prevQSOBaseCallMatchQuery.value("notes_intl").toString());
-            uiDynamic->emailEdit->setText(prevQSOBaseCallMatchQuery.value("email").toString());
-            uiDynamic->urlEdit->setText(prevQSOBaseCallMatchQuery.value("web").toString());
+            setCallbookQueryField(uiDynamic->emailEdit,
+                                  prevQSOBaseCallMatchQuery.value("email").toString());
+            setCallbookQueryField(uiDynamic->urlEdit,
+                                  prevQSOBaseCallMatchQuery.value("web").toString());
 
             emit filterCallsign(baseCallsign);
         }
@@ -683,23 +739,23 @@ void NewContactWidget::setCallbookFields(const CallbookResponseData& data)
         if ( name.isEmpty() )
             name = ( data.fname.isEmpty() && data.lname.isEmpty() ) ? data.nick
                                                                     : fnamelname;
-        uiDynamic->nameEdit->setText(name);
+        setCallbookQueryField(uiDynamic->nameEdit, name);
     }
 
     if ( uiDynamic->gridEdit->text().isEmpty()
          || data.gridsquare.contains(uiDynamic->gridEdit->text()) )
-        uiDynamic->gridEdit->setText(data.gridsquare);
+        setCallbookQueryField(uiDynamic->gridEdit, data.gridsquare);
 
     if ( uiDynamic->qthEdit->text().isEmpty()
          || data.qth.contains(uiDynamic->qthEdit->text()))
-        uiDynamic->qthEdit->setText(data.qth);
+        setCallbookQueryField(uiDynamic->qthEdit, data.qth);
 
-    if ( uiDynamic->dokEdit->text().isEmpty() )    uiDynamic->dokEdit->setText(data.dok);
-    if ( uiDynamic->iotaEdit->text().isEmpty() )   uiDynamic->iotaEdit->setText(data.iota);
-    if ( uiDynamic->emailEdit->text().isEmpty() )  uiDynamic->emailEdit->setText(data.email);
-    if ( uiDynamic->countyEdit->text().isEmpty() ) uiDynamic->countyEdit->setText(data.county);
-    if ( uiDynamic->urlEdit->text().isEmpty() )    uiDynamic->urlEdit->setText(data.url);
-    if ( uiDynamic->stateEdit->text().isEmpty() )  uiDynamic->stateEdit->setText(data.us_state);
+    if ( uiDynamic->dokEdit->text().isEmpty() )    setCallbookQueryField(uiDynamic->dokEdit, data.dok);
+    if ( uiDynamic->iotaEdit->text().isEmpty() )   setCallbookQueryField(uiDynamic->iotaEdit, data.iota);
+    if ( uiDynamic->emailEdit->text().isEmpty() )  setCallbookQueryField(uiDynamic->emailEdit, data.email);
+    if ( uiDynamic->countyEdit->text().isEmpty() ) setCallbookQueryField(uiDynamic->countyEdit, data.county);
+    if ( uiDynamic->urlEdit->text().isEmpty() )    setCallbookQueryField(uiDynamic->urlEdit, data.url);
+    if ( uiDynamic->stateEdit->text().isEmpty() )  setCallbookQueryField(uiDynamic->stateEdit, data.us_state);
     if ( data.eqsl == "Y" )                        ui->eqslLabel->setText("eQSL");
     if ( data.lotw == "Y" )                        ui->lotwLabel->setText("LoTW");
     if ( !data.dxcc.isEmpty() )
@@ -875,37 +931,98 @@ void NewContactWidget::setMembershipList(const QString &in_callsign,
     updateMemberListLabel();
 }
 
-
 void NewContactWidget::showExternalQSOWarningOnce(const QString &message,
-                                                  const StationProfile &profile,
+                                                  const StationProfile &activeProfile,
                                                   const QSqlRecord &record)
 {
     FCT_IDENTIFICATION;
 
-    // Treat a changed profile callsign or grid as a new station context.
-    const QStringList warningContext = {
-        profile.profileName,
-        profile.callsign.trimmed().toUpper(),
-        profile.locator.trimmed().toUpper(),
+    const QStringList contextFields = {
+        activeProfile.profileName,
+        activeProfile.callsign.trimmed().toUpper(),
+        activeProfile.locator.trimmed().toUpper(),
         record.value("station_callsign").toString().trimmed().toUpper(),
         record.value("my_gridsquare").toString().trimmed().toUpper()
     };
-    const QString warningKey = warningContext.join(QChar(0x1f));
+    const QString stationContext = contextFields.join(QChar(0x1f));
 
-    if ( warnedExternalStationContexts.contains(warningKey) )
+    if ( warnedExternalStationContexts.contains(stationContext) )
         return;
 
-    warnedExternalStationContexts.insert(warningKey);
+    warnedExternalStationContexts.insert(stationContext);
 
-    QMessageBox* messageBox =
-            new QMessageBox(QMessageBox::Information,
-                            tr("QLog Information"),
-                            message,
-                            QMessageBox::Ok,
-                            this);
-    messageBox->setAttribute(Qt::WA_DeleteOnClose);
-    messageBox->setTextFormat(Qt::PlainText);
-    messageBox->open();
+    qWarning() << message;
+
+    QMessageBox::information(nullptr,
+                             tr("QLog Information"),
+                             message);
+}
+
+void NewContactWidget::showMatchingStationProfileInfoOnce(const StationProfile &matchedProfile,
+                                                          const StationProfile &activeProfile)
+{
+    FCT_IDENTIFICATION;
+
+    if ( notifiedMatchingStationProfiles.contains(matchedProfile.profileName) )
+        return;
+
+    notifiedMatchingStationProfiles.insert(matchedProfile.profileName);
+
+    QString message;
+    if ( activeProfile.profileName.isEmpty() )
+    {
+        message = tr("QSO was saved using matching Station Profile \"%1\". "
+                     "No Station Profile is active.").arg(matchedProfile.profileName);
+    }
+    else
+    {
+        message = tr("QSO was saved using matching Station Profile \"%1\". "
+                     "Active profile is \"%2\".").arg(matchedProfile.profileName, activeProfile.profileName);
+    }
+
+    qInfo() << message;
+    QMessageBox::information(nullptr,
+                             tr("QLog Information"),
+                             message);
+}
+
+QString NewContactWidget::externalQSOStationWarningText(const QSqlRecord &record,
+                                                        const StationProfile &activeProfile,
+                                                        const QList<StationProfile> &matchingProfiles) const
+{
+    FCT_IDENTIFICATION;
+
+    if ( matchingProfiles.size() > 1 )
+    {
+        QStringList profileNames;
+        for ( const StationProfile &profile : matchingProfiles )
+            profileNames.append(profile.profileName);
+
+        return tr("The external QSO was saved without Station Profile data: "
+                  "received station %1 / %2 matches multiple Station "
+                  "Profiles (%3).").arg(record.value("station_callsign").toString(),
+                                        record.value("my_gridsquare").toString(),
+                                        profileNames.join(QStringLiteral(", ")));
+    }
+
+    if ( activeProfile.profileName.isEmpty() )
+    {
+        return tr("The external QSO was saved without Station Profile data "
+                  "because no matching Station Profile was found.");
+    }
+
+    const auto displayedValue = [](const QString &value)
+    {
+        return value.isEmpty() ? tr("not provided") : value;
+    };
+
+    return tr("The external QSO was saved without Station Profile data: "
+              "received station %1 / %2 does not match active Station "
+              "Profile \"%3\" (%4 / %5).") .arg(displayedValue(record.value("station_callsign").toString()),
+                                                displayedValue(record.value("my_gridsquare").toString()),
+                                                activeProfile.profileName,
+                                                displayedValue(activeProfile.callsign.trimmed()),
+                                                displayedValue(activeProfile.locator.trimmed()));
 }
 
 /* function just refresh Station Profile Combo */
@@ -973,9 +1090,12 @@ void NewContactWidget::refreshRigProfileCombo()
     if ( isManualEnterMode )
         return;
 
-    __changeFrequency(VFO1, realRigFreq,
-                      realRigFreq + RigProfilesManager::instance()->getProfile(currentText).ritOffset,
-                      realRigFreq + RigProfilesManager::instance()->getProfile(currentText).xitOffset);
+    if ( !ui->freqRXEdit->hasBand() && !ui->freqTXEdit->hasBand() )
+    {
+        __changeFrequency(VFO1, realRigFreq,
+                          realRigFreq + RigProfilesManager::instance()->getProfile(currentText).ritOffset,
+                          realRigFreq + RigProfilesManager::instance()->getProfile(currentText).xitOffset);
+    }
 
     uiDynamic->powerEdit->setValue(RigProfilesManager::instance()->getProfile(currentText).defaultPWR);
 }
@@ -1085,17 +1205,14 @@ void NewContactWidget::updateTXBand(double freq, bool reportChange)
 
     qCDebug(function_parameters)<<freq;
 
-    const QString previousBandName = bandTX.name;
-    bandTX = BandPlan::freq2Band(freq);
+    updateTXBand(BandPlan::freq2Band(freq), reportChange);
+}
 
-    if (bandTX.name.isEmpty())
-    {
-        ui->bandTXLabel->setText("OOB!");
-    }
-    else if (bandTX.name != ui->bandTXLabel->text())
-    {
-        ui->bandTXLabel->setText(bandTX.name);
-    }
+void NewContactWidget::updateTXBand(const Band &band, bool reportChange)
+{
+    const QString previousBandName = bandTX.name;
+    bandTX = band;
+    updateBandLabels();
 
     if ( reportChange
          && !isManualEnterMode
@@ -1106,11 +1223,9 @@ void NewContactWidget::updateTXBand(double freq, bool reportChange)
     }
 
     updateSatMode();
-    updateDxccStatus();
-    queryPota(); // It is not possible to call the potaquert everywhere when the freq changes,
-                 // call it when band is changed
-    ui->dxccTableWidget->setDxcc(dxccEntity.dxcc, BandPlan::freq2Band(ui->freqTXEdit->value()));
-    ui->stationTableWidget->setDxCallsign(ui->callsignEdit->text(), BandPlan::freq2Band(ui->freqTXEdit->value()));
+    setSTXSeq();
+    refreshCallsignsColors();
+    refreshDXStatTables();
 }
 
 void NewContactWidget::reportTXBand()
@@ -1122,6 +1237,13 @@ void NewContactWidget::reportTXBand()
 
     txBandReportRequested = false;
     emit txBandChanged(bandTX.name);
+}
+
+void NewContactWidget::reportRXBand()
+{
+    FCT_IDENTIFICATION;
+
+    emit rxBandChanged(bandRX.name);
 }
 
 void NewContactWidget::requestTXBandReport()
@@ -1137,19 +1259,39 @@ void NewContactWidget::updateRXBand(double freq)
 
     qCDebug(function_parameters)<<freq;
 
-    bandRX = BandPlan::freq2Band(freq);
+    updateRXBand(BandPlan::freq2Band(freq));
+    queryPota();
+}
 
-    if (bandRX.name.isEmpty())
-    {
-        setBandLabel("OOB!");
-    }
-    else if (bandRX.name != ui->bandRXLabel->text())
-    {
-        setBandLabel(bandRX.name);
-    }
+void NewContactWidget::updateRXBand(const Band &band)
+{
+    const QString previousBandName = bandRX.name;
+    bandRX = band;
+    updateBandLabels();
     updateSatMode();
-    setSTXSeq();
-    refreshCallsignsColors();
+
+    if ( bandRX.name != previousBandName )
+        emit rxBandChanged(bandRX.name);
+}
+
+void NewContactWidget::bandTXChanged(const QString &bandName)
+{
+    FCT_IDENTIFICATION;
+
+    updateTXBand(BandPlan::bandName2Band(bandName));
+    formFieldChanged();
+}
+
+void NewContactWidget::bandRXChanged(const QString &bandName)
+{
+    FCT_IDENTIFICATION;
+
+    updateRXBand(BandPlan::bandName2Band(bandName));
+
+    if ( !bandName.isEmpty() )
+        ui->freqTXEdit->setBand(bandName);
+    queryPota();
+    formFieldChanged();
 }
 
 void NewContactWidget::gridChanged()
@@ -1168,21 +1310,36 @@ void NewContactWidget::gridChanged()
     updateCoordinates(newGrid.getLatitude(), newGrid.getLongitude(), COORD_GRID);
 }
 
+QList<QLineEdit *> NewContactWidget::callbookQueryFields() const
+{
+    return {
+        uiDynamic->nameEdit,
+        uiDynamic->gridEdit,
+        uiDynamic->qthEdit,
+        uiDynamic->dokEdit,
+        uiDynamic->iotaEdit,
+        uiDynamic->emailEdit,
+        uiDynamic->countyEdit,
+        uiDynamic->urlEdit,
+        uiDynamic->stateEdit,
+        ui->qslViaEdit
+    };
+}
+
+void NewContactWidget::setCallbookQueryField(QLineEdit *field,
+                                             const QString &value)
+{
+    if ( !operatorEditedCallbookFields.contains(field) )
+        field->setText(value);
+}
+
 void NewContactWidget::clearCallbookQueryFields()
 {
     FCT_IDENTIFICATION;
 
-    uiDynamic->nameEdit->clear();
-    uiDynamic->gridEdit->clear();
-    uiDynamic->qthEdit->clear();
-    uiDynamic->dokEdit->clear();
-    uiDynamic->iotaEdit->clear();
-    uiDynamic->emailEdit->clear();
-    uiDynamic->countyEdit->clear();
-    uiDynamic->urlEdit->clear();
-    uiDynamic->stateEdit->clear();
+    for ( QLineEdit *field : callbookQueryFields() )
+        setCallbookQueryField(field, QString());
 
-    ui->qslViaEdit->clear();
     ui->eqslLabel->setText(QString());
     ui->lotwLabel->setText(QString());
     emit callboolImageUrl("");
@@ -1199,6 +1356,8 @@ void NewContactWidget::clearMemberQueryFields()
 void NewContactWidget::resetContact()
 {
     FCT_IDENTIFICATION;
+
+    operatorEditedCallbookFields.clear();
 
     srxStringEditedByUser = false;
     ui->callsignEdit->clear();
@@ -1258,7 +1417,8 @@ void NewContactWidget::resetContact()
     emit contactReset();
 }
 
-void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &profile)
+void NewContactWidget::addAdditionalFields(QSqlRecord &record,
+                                           const StationProfile &profile)
 {
     FCT_IDENTIFICATION;
 
@@ -1380,7 +1540,7 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
         // because it might be missing from the log record.
         if ( record.value("sat_mode").toString().isEmpty()
              && !uiDynamic->satModeEdit->currentText().isEmpty()
-             && record.value("band").toString() == ui->bandTXLabel->text())
+             && record.value("band").toString() == bandTX.name)
         {
             record.setValue("sat_mode", Data::instance()->satModeTextToID(uiDynamic->satModeEdit->currentText()));
         }
@@ -1420,7 +1580,9 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
          && profile.dxcc != 0 )
     {
         record.setValue("my_dxcc", profile.dxcc);
-        record.setValue("my_country_intl", profile.country);
+
+        if ( record.value("my_country_intl").toString().isEmpty() )
+            record.setValue("my_country_intl", profile.country);
     }
 
     if ( record.value("my_cnty").toString().isEmpty()
@@ -1480,7 +1642,8 @@ void NewContactWidget::addAddlFields(QSqlRecord &record, const StationProfile &p
     {
         SOTAEntity sotaInfo = Data::instance()->lookupSOTA(record.value("my_sota_ref").toString());
         if ( sotaInfo.summitCode.toUpper() == record.value("my_sota_ref").toString().toUpper()
-             && !sotaInfo.summitName.isEmpty() )
+             && !sotaInfo.summitName.isEmpty()
+             && record.value("my_altitude").toString().isEmpty() )
         {
             record.setValue("my_altitude", sotaInfo.altm);
         }
@@ -1799,6 +1962,19 @@ void NewContactWidget::connectFieldChanged()
     connect(uiDynamic->gridEdit, &QLineEdit::textChanged,
             this, &NewContactWidget::formFieldChangedString);
 
+    // textEdited is emitted only for operator input, not by setText().
+    for ( QLineEdit *field : callbookQueryFields() )
+    {
+        connect(field, &QLineEdit::textEdited, this,
+                [this, field](const QString &text)
+                {
+                    if ( text.isEmpty() )
+                        operatorEditedCallbookFields.remove(field);
+                    else
+                        operatorEditedCallbookFields.insert(field);
+                });
+    }
+
     connect(uiDynamic->contestIDEdit, &QLineEdit::textChanged,
             this, &NewContactWidget::formFieldChangedString);
 
@@ -1852,6 +2028,25 @@ void NewContactWidget::saveContact()
     if ( callsign.isEmpty() )
         return;
 
+    const QString txBandName = bandTX.name;
+    const QString rxBandName = bandRX.name;
+    const bool txHasFrequency = ui->freqTXEdit->hasFrequency();
+    const bool rxHasFrequency = ui->freqRXEdit->hasFrequency();
+    if ( !txHasFrequency && txBandName.isEmpty() )
+    {
+        QMessageBox::critical(this, tr("QLog Error"),
+                              tr("TX Frequency or Band must be filled"));
+        ui->freqTXEdit->setFocus();
+        return;
+    }
+    if ( !rxHasFrequency && rxBandName.isEmpty() )
+    {
+        QMessageBox::critical(this, tr("QLog Error"),
+                              tr("RX Frequency or Band must be filled"));
+        ui->freqRXEdit->setFocus();
+        return;
+    }
+
     // Enter/F10 can reach saveContact() before QLineEdit::editingFinished.
     // In flexible mode SRX_STRING is the authoritative received exchange, so make
     // sure a valid typed value is reflected in the linked ADIF field first.
@@ -1903,16 +2098,27 @@ void NewContactWidget::saveContact()
         record.setValue("gridsquare", uiDynamic->gridEdit->text().toUpper());
     }
 
-    record.setValue("freq", ui->freqTXEdit->value());
-    record.setValue("band", ui->bandTXLabel->text());
+    record.setValue("freq", txHasFrequency
+                            ? QVariant(ui->freqTXEdit->value())
+                            : QVariant());
+    record.setValue("band", txBandName);
 
     // Based on ADIF 3.1.x FREQ_RX is defined as "in a split frequency QSO"
     // Also here https://groups.io/g/adifdev/message/228 is mentioned:
     //    "BAND_RX & FREQ_RX (Same than BAND and FREQ but for split/crossband/satellite QSOs)"
-    if ( MHz2Hz(ui->freqRXEdit->value()) != MHz2Hz(ui->freqTXEdit->value()) )
+    const bool frequencyTypeDiffers = rxHasFrequency != txHasFrequency;
+    const bool exactFrequenciesDiffer = rxHasFrequency
+                                        && txHasFrequency
+                                        && MHz2Hz(ui->freqRXEdit->value())
+                                           != MHz2Hz(ui->freqTXEdit->value());
+    if ( frequencyTypeDiffers
+         || exactFrequenciesDiffer
+         || rxBandName != txBandName )
     {
-        record.setValue("freq_rx", ui->freqRXEdit->value());
-        record.setValue("band_rx", ui->bandRXLabel->text());
+        record.setValue("freq_rx", rxHasFrequency
+                                   ? QVariant(ui->freqRXEdit->value())
+                                   : QVariant());
+        record.setValue("band_rx", rxBandName);
     }
 
     if ( ! ui->modeEdit->currentText().isEmpty() )
@@ -2066,7 +2272,7 @@ void NewContactWidget::saveContact()
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
 
-    addAddlFields(record, profile);
+    addAdditionalFields(record, profile);
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
 
@@ -2242,32 +2448,22 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
     record.setValue("my_gridsquare",
                     record.value("my_gridsquare").toString().trimmed());
 
-    if ( !record.value("gridsquare").toString().isEmpty()
-         && !record.value("my_gridsquare").toString().isEmpty() )
-    {
-        const Gridsquare stationGrid(record.value("my_gridsquare").toString());
-        double distance;
-        if ( stationGrid.distanceTo(
-                 Gridsquare(record.value("gridsquare").toString()), distance) )
-        {
-            record.setValue("distance", distance);
-        }
-    }
+    const StationProfile activeProfile = StationProfilesManager::instance()->getCurProfile1();
+    StationProfile qsoProfile = activeProfile;
+    QList<StationProfile> matchingProfiles;
 
-    const StationProfile profile =
-            StationProfilesManager::instance()->getCurProfile1();
-    const bool activeProfileAvailable = !profile.profileName.isEmpty();
-    const bool stationProfileConflict =
-            activeProfileAvailable
-            && externalQSOConflictsWithProfile(record, profile);
-    const bool useCurrentStationContext =
-            activeProfileAvailable
-            && !isManualEnterMode
-            && !stationProfileConflict;
+    if ( qsoProfile.profileName.isEmpty()
+         || externalQSOConflictsWithProfile(record, qsoProfile) )
+    {
+        matchingProfiles = StationProfilesManager::instance()->findMatchingProfiles(record.value("station_callsign").toString(),
+                                                                                    record.value("my_gridsquare").toString());
+
+        qsoProfile = matchingProfiles.size() == 1 ? matchingProfiles.constFirst() : StationProfile();
+    }
 
     // add information from callbook if it is a known callsign
     // based on the poll #420, QLog adds more information from callbook
-    if ( useCurrentStationContext
+    if ( !isManualEnterMode
          && savedCallsign == ui->callsignEdit->text() )
     {
         stopContactTimer();
@@ -2349,42 +2545,9 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
         }
     }
 
-    QString externalQSOWarning;
-
-    if ( isManualEnterMode )
-    {
-        externalQSOWarning =
-                tr("The external QSO was saved without current station data "
-                   "because Manual QSO Entry is active.");
-    }
-    else if ( !activeProfileAvailable )
-    {
-        externalQSOWarning =
-                tr("The external QSO was saved without current station data "
-                   "because no active Station Profile is available.");
-    }
-    else if ( stationProfileConflict )
-    {
-        const auto displayedValue = [](const QString &value)
-        {
-            return value.isEmpty() ? tr("not provided") : value;
-        };
-
-        externalQSOWarning =
-                tr("The external QSO was saved without current station data: "
-                   "received station %1 / %2 does not match active Station "
-                   "Profile \"%3\" (%4 / %5).")
-                        .arg(displayedValue(record.value("station_callsign").toString()),
-                             displayedValue(record.value("my_gridsquare").toString()),
-                             profile.profileName,
-                             displayedValue(profile.callsign.trimmed()),
-                             displayedValue(profile.locator.trimmed()));
-    }
-
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
 
-    if ( useCurrentStationContext )
-        addAddlFields(record, profile);
+    addAdditionalFields(record, qsoProfile);
 
     AdiFormat::preprocessINTLFields<QSqlRecord>(record);
 
@@ -2418,10 +2581,16 @@ void NewContactWidget::saveExternalContact(QSqlRecord record)
     updateNearestSpotDupe();
     setNearestSpotColor();
 
-    if ( !externalQSOWarning.isEmpty() )
+    if ( matchingProfiles.size() == 1 )
     {
-        qWarning() << externalQSOWarning;
-        showExternalQSOWarningOnce(externalQSOWarning, profile, record);
+        showMatchingStationProfileInfoOnce(qsoProfile, activeProfile);
+    }
+    else if ( qsoProfile.profileName.isEmpty() )
+    {
+        const QString warning = externalQSOStationWarningText(record,
+                                                              activeProfile,
+                                                              matchingProfiles);
+        showExternalQSOWarningOnce(warning, activeProfile, record);
     }
 
     emit contactAdded(record);
@@ -2463,16 +2632,22 @@ void NewContactWidget::markContact()
 {
     FCT_IDENTIFICATION;
 
-    if ( !ui->callsignEdit->text().isEmpty() )
-    {
-        DxSpot spot;
+    if ( ui->callsignEdit->text().isEmpty() )
+        return;
 
-        spot.dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
-        spot.freq = ui->freqRXEdit->value();
-        spot.band = BandPlan::freq2Band(spot.freq).name;
-        spot.callsign = ui->callsignEdit->text().toUpper();
-        emit markQSO(spot);
+    if ( !ui->freqRXEdit->hasFrequency() )
+    {
+        QMessageBox::warning(this, tr("QLog Warning"),
+                             tr("An exact RX frequency is required to add a Bandmap mark"));
+        return;
     }
+
+    DxSpot spot;
+    spot.dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
+    spot.freq = ui->freqRXEdit->value();
+    spot.band = bandRX.name;
+    spot.callsign = ui->callsignEdit->text().toUpper();
+    emit markQSO(spot);
 }
 
 void NewContactWidget::updateTime()
@@ -2588,33 +2763,45 @@ void NewContactWidget::updateDxccStatus()
         return;
     }
 
-    DxccStatus status = Data::instance()->dxccStatus(dxccEntity.dxcc, ui->bandRXLabel->text(), ui->modeEdit->currentText());
+    const bool satellite = isSatelliteQSO();
+    const DxccStatus status = satellite
+                              ? Data::instance()->satelliteDxccStatus(dxccEntity.dxcc)
+                              : Data::instance()->dxccStatus(dxccEntity.dxcc,
+                                                             bandTX.name,
+                                                             ui->modeEdit->currentText());
 
-    switch (status)
+    if ( satellite )
     {
-    case DxccStatus::NewEntity:
-        ui->dxccStatus->setText(tr("New Entity!"));
-        break;
-    case DxccStatus::NewBand:
-        ui->dxccStatus->setText(tr("New Band!"));
-        break;
-    case DxccStatus::NewMode:
-        ui->dxccStatus->setText(tr("New Mode!"));
-        break;
-    case DxccStatus::NewBandMode:
-        ui->dxccStatus->setText(tr("New Band & Mode!"));
-        break;
-    case DxccStatus::NewSlot:
-        ui->dxccStatus->setText(tr("New Slot!"));
-        break;
-    case DxccStatus::Worked:
-        ui->dxccStatus->setText(tr("Worked"));
-        break;
-    case DxccStatus::Confirmed:
-        ui->dxccStatus->setText(tr("Confirmed"));
-        break;
-    default:
-        ui->dxccStatus->clear();
+        ui->dxccStatus->setText(Data::satelliteDxccStatusToText(status));
+    }
+    else
+    {
+        switch (status)
+        {
+        case DxccStatus::NewEntity:
+            ui->dxccStatus->setText(tr("New Entity!"));
+            break;
+        case DxccStatus::NewBand:
+            ui->dxccStatus->setText(tr("New Band!"));
+            break;
+        case DxccStatus::NewMode:
+            ui->dxccStatus->setText(tr("New Mode!"));
+            break;
+        case DxccStatus::NewBandMode:
+            ui->dxccStatus->setText(tr("New Band & Mode!"));
+            break;
+        case DxccStatus::NewSlot:
+            ui->dxccStatus->setText(tr("New Slot!"));
+            break;
+        case DxccStatus::Worked:
+            ui->dxccStatus->setText(tr("Worked"));
+            break;
+        case DxccStatus::Confirmed:
+            ui->dxccStatus->setText(tr("Confirmed"));
+            break;
+        default:
+            ui->dxccStatus->clear();
+        }
     }
 
     const QColor statusColor = Data::statusToColor(status,
@@ -2821,9 +3008,9 @@ void NewContactWidget::showRXTXFreqs(bool enable)
     FCT_IDENTIFICATION;
 
     ui->freqTXEdit->setVisible(enable);
-    ui->bandTXLabel->setVisible(enable);
     ui->freqRXLabel->setVisible(enable);
     ui->freqTXLabel->setVisible(enable);
+    updateBandLabels();
 }
 
 /* Generic function to change freq */
@@ -2905,6 +3092,7 @@ void NewContactWidget::rigConnected()
     }
 
     rigOnline = true;
+    setBandSelectionEnabled();
 }
 
 /* disconnection slot */
@@ -2924,6 +3112,7 @@ void NewContactWidget::rigDisconnected()
     uiDynamic->powerEdit->setValue(RigProfilesManager::instance()->getCurProfile1().defaultPWR);
 
     rigOnline = false;
+    setBandSelectionEnabled();
 }
 
 void NewContactWidget::setNearestSpot(const DxSpot &spot)
@@ -2946,9 +3135,11 @@ void NewContactWidget::setNearestSpotColor()
     }
 
     const DxccEntity &spotEntity = Data::instance()->lookupDxcc(nearestSpot.callsign);
-    const DxccStatus &status = Data::instance()->dxccStatus(spotEntity.dxcc,
-                                                ui->bandRXLabel->text(),
-                                                ui->modeEdit->currentText());
+    const DxccStatus status = isSatelliteQSO()
+                              ? Data::instance()->satelliteDxccStatus(spotEntity.dxcc)
+                              : Data::instance()->dxccStatus(spotEntity.dxcc,
+                                                             bandTX.name,
+                                                             ui->modeEdit->currentText());
     const QColor statusColor = Data::statusToColor(status,
                                                    nearestSpot.dupeCount,
                                                    QColor());
@@ -2975,6 +3166,7 @@ void NewContactWidget::setManualMode(bool isEnabled)
         rigDisconnected();
 
     isManualEnterMode = isEnabled;
+    setBandSelectionEnabled();
 
     if ( isExitManualMode )
     {
@@ -3220,11 +3412,30 @@ void NewContactWidget::setupCustomUiRowsTabOrder(const QList<QWidget *> &customW
     setTabOrder(prevCustomWidget, ui->callsignEdit);
 }
 
-void NewContactWidget::setBandLabel(const QString &band)
+void NewContactWidget::setBandSelectionEnabled()
 {
     FCT_IDENTIFICATION;
 
-    ui->bandRXLabel->setText(band);
+    const bool editable = isManualEnterMode || !rigOnline;
+    ui->freqRXEdit->setBandSelectionEnabled(editable);
+    ui->freqTXEdit->setBandSelectionEnabled(editable);
+}
+
+void NewContactWidget::updateBandLabels()
+{
+    auto updateLabel = [](QLabel *label, const Band &band,
+                          bool rowVisible, bool bandMode)
+    {
+        QSizePolicy policy = label->sizePolicy();
+        policy.setRetainSizeWhenHidden(rowVisible);
+        label->setSizePolicy(policy);
+        label->setText(band.name.isEmpty() ? QStringLiteral("OOB!") : band.name);
+        label->setVisible(rowVisible && !bandMode);
+    };
+
+    updateLabel(ui->bandRXLabel, bandRX, true, ui->freqRXEdit->hasBand());
+    updateLabel(ui->bandTXLabel, bandTX, !ui->freqTXEdit->isHidden(),
+                ui->freqTXEdit->hasBand());
 }
 
 void NewContactWidget::updateSatMode()
@@ -3641,7 +3852,7 @@ QString NewContactWidget::getBand() const
 {
     FCT_IDENTIFICATION;
 
-    return ui->bandRXLabel->text();
+    return bandTX.name;
 }
 
 QString NewContactWidget::getMode() const
@@ -3703,7 +3914,10 @@ void NewContactWidget::propModeChanged(const QString &propModeText)
     FCT_IDENTIFICATION;
 
     qCDebug(runtime) << "propModeText: " << propModeText << " mode: "<< Data::instance()->propagationModeIDToText("SAT");
-    if ( propModeText == Data::instance()->propagationModeIDToText("SAT") )
+    const bool satellite = propModeText == Data::instance()->propagationModeIDToText("SAT");
+    Data::instance()->setSatelliteDxccContext(satellite);
+
+    if ( satellite )
     {
         uiDynamic->satNameEdit->setText(LogParam::getNewContactSatName());
         updateSatMode();
@@ -3717,6 +3931,9 @@ void NewContactWidget::propModeChanged(const QString &propModeText)
         uiDynamic->satModeEdit->setEnabled(false);
         uiDynamic->satNameEdit->setEnabled(false);
     }
+
+    refreshDXStatTables();
+    updateDxccStatus();
 }
 
 void NewContactWidget::stationProfileComboChanged(const QString &profileName)
@@ -3790,8 +4007,11 @@ void NewContactWidget::rigProfileComboChanged(const QString &profileName)
 
     RigProfilesManager::instance()->setCurProfile1(profileName);
 
-    ui->freqRXEdit->setValue(realRigFreq + RigProfilesManager::instance()->getCurProfile1().ritOffset);
-    ui->freqTXEdit->setValue(realRigFreq + RigProfilesManager::instance()->getCurProfile1().xitOffset);
+    if ( !ui->freqRXEdit->hasBand() && !ui->freqTXEdit->hasBand() )
+    {
+        ui->freqRXEdit->setValue(realRigFreq + RigProfilesManager::instance()->getCurProfile1().ritOffset);
+        ui->freqTXEdit->setValue(realRigFreq + RigProfilesManager::instance()->getCurProfile1().xitOffset);
+    }
 
     emit rigProfileChanged();
 
@@ -3819,11 +4039,11 @@ void NewContactWidget::sotaChanged(const QString &newSOTA)
                                                                 : nullptr);
 
     if ( uiDynamic->qthEdit->text() == lastSOTA.summitName )
-        uiDynamic->qthEdit->clear();
+        setCallbookQueryField(uiDynamic->qthEdit, QString());
 
     const Gridsquare SOTAGrid(lastSOTA.latitude, lastSOTA.longitude);
     if ( uiDynamic->gridEdit->text() == SOTAGrid.getGrid() )
-        uiDynamic->gridEdit->clear();
+        setCallbookQueryField(uiDynamic->gridEdit, QString());
 
     ui->AMLSInfo->clear();
 }
@@ -3849,10 +4069,10 @@ void NewContactWidget::sotaEditFinished()
 
     if ( isSOTAValid(&sotaInfo) )
     {
-        uiDynamic->qthEdit->setText(sotaInfo.summitName);
+        setCallbookQueryField(uiDynamic->qthEdit, sotaInfo.summitName);
         const Gridsquare SOTAGrid(sotaInfo.latitude, sotaInfo.longitude);
         if ( SOTAGrid.isValid() )
-            uiDynamic->gridEdit->setText(SOTAGrid.getGrid());
+            setCallbookQueryField(uiDynamic->gridEdit, SOTAGrid.getGrid());
         ui->AMLSInfo->setText(QString::number(sotaInfo.altm) + tr(" m"));
         lastSOTA = sotaInfo;
     }
@@ -3870,12 +4090,12 @@ void NewContactWidget::potaChanged(const QString &newPOTA)
                                                                  : nullptr);
 
     if ( uiDynamic->qthEdit->text() == lastPOTA.name )
-        uiDynamic->qthEdit->clear();
+        setCallbookQueryField(uiDynamic->qthEdit, QString());
 
     const Gridsquare POTAGrid(lastPOTA.grid);
 
     if ( uiDynamic->gridEdit->text() == POTAGrid.getGrid() )
-        uiDynamic->gridEdit->clear();
+        setCallbookQueryField(uiDynamic->gridEdit, QString());
 }
 
 bool NewContactWidget::isPOTAValid(POTAEntity *entity)
@@ -3907,10 +4127,10 @@ void NewContactWidget::potaEditFinished()
 
     if ( isPOTAValid(&potaInfo) )
     {
-        uiDynamic->qthEdit->setText(potaInfo.name);
+        setCallbookQueryField(uiDynamic->qthEdit, potaInfo.name);
         Gridsquare POTAGrid(potaInfo.grid);
         if ( POTAGrid.isValid() )
-            uiDynamic->gridEdit->setText(POTAGrid.getGrid());
+            setCallbookQueryField(uiDynamic->gridEdit, POTAGrid.getGrid());
         lastPOTA = potaInfo;
     }
     else if ( isSOTAValid(nullptr) )
@@ -3957,7 +4177,7 @@ void NewContactWidget::useNearestSpotInfo(const QString &in_callsign)
 
     if ( nearestSpot.containsIOTA )
     {
-        uiDynamic->iotaEdit->setText(nearestSpot.iotaRef);
+        setCallbookQueryField(uiDynamic->iotaEdit, nearestSpot.iotaRef);
     }
 
     if ( nearestSpot.containsWWFF )
@@ -3994,7 +4214,7 @@ void NewContactWidget::setSTXSeq()
 
     int seqnoType = LogParam::getContestSeqnoType();
     int seq = LogParam::getContestSeqno(( seqnoType == Data::SeqType::SINGLE ) ? QString()
-                                                                               : ui->bandTXLabel->text());
+                                                                               : bandTX.name);
     uiDynamic->stxEdit->setText(QString::number(seq).rightJustified(3, '0'));
 }
 
@@ -4007,7 +4227,7 @@ void NewContactWidget::setSTXSeq(int newValue)
     int seqnoType = LogParam::getContestSeqnoType();
 
     LogParam::setContestSeqno(newValue, (seqnoType == Data::SeqType::SINGLE) ? QString()
-                                                                             : ui->bandTXLabel->text());
+                                                                             : bandTX.name);
     uiDynamic->stxEdit->setText(QString::number(newValue).rightJustified(3, '0'));
 }
 
@@ -4016,7 +4236,7 @@ void NewContactWidget::updateNearestSpotDupe()
     FCT_IDENTIFICATION;
 
     nearestSpot.dupeCount = Data::countDupe(nearestSpot.callsign,
-                                            bandRX.name,
+                                            bandTX.name,
                                             ui->modeEdit->currentText());
 }
 
@@ -4207,7 +4427,7 @@ void NewContactWidget::checkDupe()
         return;
 
     ui->dupeLabel->setVisible(Data::countDupe(callsign,
-                                           bandRX.name,
+                                           bandTX.name,
                                            ui->modeEdit->currentText()));
 }
 
@@ -4219,13 +4439,15 @@ void NewContactWidget::wwffEditFinished()
 
     if ( isWWFFValid(&wwffInfo) )
     {
-        uiDynamic->qthEdit->setText(wwffInfo.name);
+        setCallbookQueryField(uiDynamic->qthEdit, wwffInfo.name);
         if ( ! wwffInfo.iota.isEmpty()
              && wwffInfo.iota != "-" )
         {
-            uiDynamic->iotaEdit->setText(wwffInfo.iota.toUpper());
+            setCallbookQueryField(uiDynamic->iotaEdit,
+                                  wwffInfo.iota.toUpper());
         }
-        uiDynamic->gridEdit->setText(QString()); // WWFF's Grid is unrealiable information
+        // WWFF's Grid is unreliable information.
+        setCallbookQueryField(uiDynamic->gridEdit, QString());
         lastWWFF = wwffInfo;
     }
     else if ( isSOTAValid(nullptr) )
@@ -4243,8 +4465,8 @@ void NewContactWidget::wwffChanged(const QString &newWWFF)
 
     if ( uiDynamic->qthEdit->text() == lastWWFF.name )
     {
-        uiDynamic->qthEdit->clear();
-        uiDynamic->gridEdit->clear();
+        setCallbookQueryField(uiDynamic->qthEdit, QString());
+        setCallbookQueryField(uiDynamic->gridEdit, QString());
     }
 }
 
@@ -4401,7 +4623,9 @@ void NewContactWidget::queryPota()
     if ( callsign.size() >= 3 )
     {
         // use copy constructor - POTA is updated from another thread and reference can be problem
-        const QString ref = PotaQE::instance()->findReferenceId(Callsign(callsign), ui->freqRXEdit->value()).reference;
+        const QString ref = PotaQE::instance()->findReferenceId(Callsign(callsign),
+                                                                ui->freqRXEdit->value(),
+                                                                bandRX.name).reference;
         uiDynamic->potaEdit->setText(ref);
         potaEditFinished();
     }

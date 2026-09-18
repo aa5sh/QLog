@@ -1,4 +1,5 @@
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QStackedWidget>
 #include <QTableView>
 #include <QDesktopServices>
@@ -29,6 +30,9 @@
 #include "awards/AwardUKD.h"
 #include "awards/AwardWAIP.h"
 #include "awards/AwardWAAC.h"
+#include "awards/AwardCanadaAward.h"
+#include "awards/AwardWANA.h"
+#include "awards/AwardWorkedAllRAC.h"
 
 MODULE_IDENTIFICATION("qlog.ui.awardsdialog");
 
@@ -89,6 +93,18 @@ void AwardsDialog::refreshTable(int)
     setNotWorkedEnabled(award->notWorkedEnabled());
     updateRulesButton(award);
 
+    if ( ui->eqslCheckBox->isEnabled() )
+        m_eqslConfirmationChecked = ui->eqslCheckBox->isChecked();
+
+    const bool acceptsEqsl = award->acceptsEqslConfirmation();
+    const QSignalBlocker eqslBlocker(ui->eqslCheckBox);
+    ui->eqslCheckBox->setChecked(acceptsEqsl && m_eqslConfirmationChecked);
+    ui->eqslCheckBox->setEnabled(acceptsEqsl);
+    ui->eqslCheckBox->setToolTip(acceptsEqsl
+                                 ? QString()
+                                 : tr("eQSL confirmations are not accepted for %1.")
+                                       .arg(award->displayName()));
+
     if ( !award->widget() )
     {
         QWidget *w = award->createWidget(ui->stackedWidget);
@@ -138,7 +154,11 @@ AwardFilterParams AwardsDialog::buildFilterParams() const
 
     params.confirmedConditions << "1=2 ";
     if ( ui->eqslCheckBox->isChecked() )
-        params.confirmedConditions << " eqsl_qsl_rcvd = 'Y' ";
+    {
+        params.confirmedConditions << ( currentAward()->requiresEqslAuthenticityGuaranteed()
+                                            ? " (eqsl_qsl_rcvd = 'Y' AND eqsl_ag = 'Y') "
+                                            : " eqsl_qsl_rcvd = 'Y' " );
+    }
     if ( ui->lotwCheckBox->isChecked() )
         params.confirmedConditions << " lotw_qsl_rcvd = 'Y' ";
     if ( ui->paperCheckBox->isChecked() )
@@ -236,5 +256,8 @@ QList<AwardDefinition*> AwardsDialog::createAwards()
         new AwardUKD(),
         new AwardWAIP(),
         new AwardWAAC(),
+        new AwardCanadaAward(),
+        new AwardWANA(),
+        new AwardWorkedAllRAC(),
     };
 }

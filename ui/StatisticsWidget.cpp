@@ -321,6 +321,10 @@ void StatisticsWidget::refreshGraph()
      {
          ui->stackedWidget->setCurrentIndex(1);
 
+         mapController->attach(ui->mapView,
+                               MapLayer::Grid
+                               | MapLayer::Path);
+
          QStringList confirmed("1=2 ");
 
          if ( ui->eqslCheckBox->isChecked() )
@@ -421,12 +425,12 @@ void StatisticsWidget::changeTheme(int theme, bool isDark)
 
 StatisticsWidget::StatisticsWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::StatisticsWidget),
-    mapController(new MapPageController(QStringLiteral("statistics"), this))
+    ui(new Ui::StatisticsWidget)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+    mapController = new MapPageController(QStringLiteral("statistics"), ui->mapView);
 
     ui->myCallCombo->setModel(new QStringListModel(this));
     ui->myGridCombo->setModel(new QStringListModel(this));
@@ -445,10 +449,6 @@ StatisticsWidget::StatisticsWidget(QWidget *parent) :
 
     ui->graphView->setRenderHint(QPainter::Antialiasing);
     ui->graphView->setChart(new QChart());
-
-    mapController->attach(ui->mapView,
-                          MapLayer::Grid
-                          | MapLayer::Path);
 }
 
 StatisticsWidget::~StatisticsWidget()

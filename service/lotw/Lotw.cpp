@@ -45,26 +45,6 @@ static QString lotwPlainResponseSummary(const QByteArray &data)
     return text.left(500);
 }
 
-QStringList LotwUploader::uploadedFields =
-{
-    "callsign",
-    "freq",
-    "band",
-    "freq_rx",
-    "mode",
-    "submode",
-    "start_time",
-    "prop_mode",
-    "sat_name",
-    "station_callsign",
-    "operator",
-    "rst_sent",
-    "rst_rcvd",
-    "my_state",
-    "my_cnty",
-    "my_vucc_grids"
-};
-
 const QString LotwBase::SECURE_STORAGE_KEY = "LoTW";
 REGISTRATION_SECURE_SERVICE(LotwBase);
 
@@ -314,7 +294,7 @@ QList<TQSLStationLocation> LotwBase::getTQSLStationLocations()
 }
 
 LotwUploader::LotwUploader(QObject *parent) :
-    GenericQSOUploader(uploadedFields, parent),
+    GenericQSOUploader(uploadedFields(), parent),
     LotwBase()
 {
     FCT_IDENTIFICATION;
@@ -340,7 +320,7 @@ void LotwUploader::uploadAdif(const QByteArray &data, const QString &location)
     if ( !location.trimmed().isEmpty() )
         args << "-l" << location.trimmed();
 
-    QProcess *tqslProcess = new QProcess();
+    QProcess *tqslProcess = new QProcess(this);
 
     connect(tqslProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this, tqslProcess](int exitCode, QProcess::ExitStatus exitStatus)
@@ -443,6 +423,19 @@ void LotwUploader::uploadQSOList(const QList<QSqlRecord> &qsos, const QVariantMa
     QByteArray data = generateADIF(qsos);
     const QString location = addlParams["tqsl_location"].toString();
     uploadAdif(data, location);
+}
+
+void LotwUploader::abortRequest()
+{
+    FCT_IDENTIFICATION;
+
+    QProcess *process = findChild<QProcess *>();
+    if ( !process )
+        return;
+
+    disconnect(process, nullptr, this, nullptr);
+    process->kill();
+    process->deleteLater();
 }
 
 LotwQSLDownloader::LotwQSLDownloader(QObject *parent) :

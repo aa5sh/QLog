@@ -8,6 +8,8 @@ SUBDIRS += CallsignTest \
            CredentialStoreTest \
            DataTest \
            FileCompressorTest \
+           CabrilloFormatTest \
+           FreqQSpinBoxTest \
            GridsquareTest \
            BandPlanTest \
            BandmapGuideTest \
@@ -18,4 +20,6 @@ SUBDIRS += CallsignTest \
            PasswordCipherTest \
            QuadKeyCacheTest \
            QTableQSOViewTest \
+           QSOFilterManagerTest \
+           QSOFilterDetailTest \
            RigctldManagerTest

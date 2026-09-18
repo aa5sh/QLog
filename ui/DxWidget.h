@@ -45,6 +45,9 @@ public:
     const DxSpot getSpot(const QModelIndex& index) const {return dxData.at(index.row());};
     void clear();
     void refreshStatusColors();
+    void recalculateDxccStatus();
+    void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
+    void updateSpotsDxccStatus(const QSet<uint> &entities);
 
 private:
     QList<DxSpot> dxData;
@@ -141,8 +144,11 @@ public slots:
     void adjusteServerSelectSize(QString);
     void serverSelectChanged(int);
     void setLastQSO(QSqlRecord);
+    void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
     void reloadSetting();
     void refreshStatusColors();
+    void recalculateDxccStatus();
+    void updateSpotsDxccStatus(const QSet<uint> &entities);
     void prepareQSOSpot(QSqlRecord);
     void setSearch(const QString &);
     void setSearchStatus(bool);

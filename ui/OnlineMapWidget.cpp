@@ -136,8 +136,11 @@ void OnlineMapWidget::auroraDataUpdate()
         {
             if ( point.value > 10 )
             {
+                const double wrappedLongitude = point.longitude < 0.0
+                                                ? point.longitude + 360.0
+                                                : point.longitude - 360.0;
                 mapPoints << MapHeatPoint(point.latitude, point.longitude, point.value)
-                          << MapHeatPoint(point.latitude, point.longitude - 360, point.value);
+                          << MapHeatPoint(point.latitude, wrappedLongitude, point.value);
             }
         }
     }
@@ -160,8 +163,11 @@ void OnlineMapWidget::mufDataUpdate()
         for ( const GenericValueMap<double>::MapPoint &point : points )
         {
             const QString label = QString::number(point.value, 'f', 0);
+            const double wrappedLongitude = point.longitude < 0.0
+                                            ? point.longitude + 360.0
+                                            : point.longitude - 360.0;
             mapPoints << MapPoint(label, point.latitude, point.longitude)
-                      << MapPoint(label, point.latitude, point.longitude - 360);
+                      << MapPoint(label, point.latitude, wrappedLongitude);
         }
     }
 
@@ -176,7 +182,14 @@ void OnlineMapWidget::setIBPBand(VFOID vfoid, double, double ritFreq, double)
     if ( vfoid == VFO2 )
         return;
 
-    mapController->setCurrentBand(BandPlan::freq2Band(ritFreq).name);
+    setCurrentBand(BandPlan::freq2Band(ritFreq).name);
+}
+
+void OnlineMapWidget::setCurrentBand(const QString &band)
+{
+    FCT_IDENTIFICATION;
+
+    mapController->setCurrentBand(band);
 }
 
 void OnlineMapWidget::antPositionChanged(double in_azimuth, double in_elevation)

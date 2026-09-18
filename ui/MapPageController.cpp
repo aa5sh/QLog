@@ -1,5 +1,6 @@
 #include "MapPageController.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QIODevice>
 #include <QJsonArray>
@@ -7,6 +8,7 @@
 #include <QJsonObject>
 #include <QTextStream>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QWebEngineView>
 #include <QtMath>
 
@@ -169,9 +171,6 @@ MapPageController::MapPageController(const QString &configID,
 
 MapPageController::~MapPageController()
 {
-    if ( attachedView && attachedView->page() == mainPage )
-        attachedView->setPage(nullptr);
-
     if ( mainPage )
         mainPage->setWebChannel(nullptr);
 
@@ -183,7 +182,7 @@ void MapPageController::attach(QWebEngineView *view,
 {
     FCT_IDENTIFICATION;
 
-    if ( !view )
+    if ( !view || (attachedView == view && mapLayers == layers) )
         return;
 
     if ( attachedView )
@@ -201,7 +200,12 @@ void MapPageController::attach(QWebEngineView *view,
     connect(view, &QWebEngineView::loadFinished,
             this, &MapPageController::finishLoading,
             Qt::UniqueConnection);
-    mainPage->load(QUrl(QStringLiteral("qrc:/res/map/onlinemap.html")));
+    QUrl mapUrl(QStringLiteral("qrc:/res/map/onlinemap.html"));
+    QUrlQuery mapQuery;
+    mapQuery.addQueryItem(QStringLiteral("language"),
+                          QCoreApplication::instance()->property("qlogLanguage").toString());
+    mapUrl.setQuery(mapQuery);
+    mainPage->load(mapUrl);
     view->setFocusPolicy(Qt::ClickFocus);
 }
 
