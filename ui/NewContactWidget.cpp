@@ -1298,7 +1298,7 @@ void NewContactWidget::gridChanged()
 {
     FCT_IDENTIFICATION;
 
-    Gridsquare newGrid(uiDynamic->gridEdit->text());
+    const Gridsquare newGrid = Gridsquare::mapDisplayGrid(uiDynamic->gridEdit->text());
 
     if (!newGrid.isValid())
     {
