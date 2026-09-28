@@ -94,6 +94,9 @@ MainWindow::MainWindow(QWidget* parent) :
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
+
+    setDockNestingEnabled(true);
+    
     ui->rigWidget->setConnectAction(ui->actionConnectRig);
     ui->rotatorWidget->setConnectAction(ui->actionConnectRotator);
     ui->cwconsoleWidget->setConnectAction(ui->actionConnectCWKeyer);
