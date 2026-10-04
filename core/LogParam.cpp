@@ -1785,6 +1785,26 @@ void LogParam::setAmplifierCurrentProfile(const QString &profileName)
     setParam("amplifier/currentprofile", profileName);
 }
 
+QString LogParam::getTunerProfiles()
+{
+    return getParam("tuner/profiles", "[]").toString();
+}
+
+void LogParam::setTunerProfiles(const QString &profilesJson)
+{
+    setParam("tuner/profiles", profilesJson);
+}
+
+QString LogParam::getTunerCurrentProfile()
+{
+    return getParam("tuner/currentprofile", "").toString();
+}
+
+void LogParam::setTunerCurrentProfile(const QString &profileName)
+{
+    setParam("tuner/currentprofile", profileName);
+}
+
 int LogParam::getQslLabelTemplate()
 {
     return getParam("qsllabel/template", 0).toInt();

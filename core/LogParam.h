@@ -485,6 +485,14 @@ public:
     static void setAmplifierCurrentProfile(const QString &profileName);
 
     /**********************
+     * Antenna Tuner
+     **********************/
+    static QString getTunerProfiles();
+    static void setTunerProfiles(const QString &profilesJson);
+    static QString getTunerCurrentProfile();
+    static void setTunerCurrentProfile(const QString &profileName);
+
+    /**********************
      * SteppIR Controller
      **********************/
     static QString getSteppirProfiles();

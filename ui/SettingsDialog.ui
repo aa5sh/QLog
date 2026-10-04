@@ -790,7 +790,7 @@
           <item>
            <widget class="QGroupBox" name="amplifierProfileGroup">
             <property name="title">
-             <string>Profiles</string>
+             <string>Amplifier Profiles</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_Amplifiers">
              <item row="0" column="0" rowspan="2" colspan="4">
@@ -924,6 +924,142 @@
              </item>
              <item row="1" column="5">
               <widget class="QPushButton" name="amplifierDelProfileButton">
+               <property name="text">
+                <string>Delete</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="tunerProfileGroup">
+            <property name="title">
+             <string>Tuner Profiles</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_Tuners">
+             <item row="0" column="0" rowspan="2" colspan="4">
+              <widget class="QListView" name="tunerProfilesListView">
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>List of all available Tuner profiles</string>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4" colspan="2">
+              <widget class="QGroupBox" name="tunerProfileEditGroup">
+               <property name="minimumSize">
+                <size>
+                 <width>400</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="title">
+                <string/>
+               </property>
+               <layout class="QFormLayout" name="formLayout_Tuner">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="tunerProfileNameLabel">
+                  <property name="text">
+                   <string>Profile Name</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="tunerProfileNameEdit">
+                  <property name="maxLength">
+                   <number>25</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="tunerModelLabel">
+                  <property name="text">
+                   <string>Model</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="tunerModelCombo"/>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="tunerConnectionTypeLabel">
+                  <property name="text">
+                   <string>Connection</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QComboBox" name="tunerConnectionTypeCombo"/>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="tunerSerialPortLabel">
+                  <property name="text">
+                   <string>Serial Port</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="SerialPortEditLine" name="tunerSerialPortEdit"/>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="tunerBaudRateLabel">
+                  <property name="text">
+                   <string>Baud Rate</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QComboBox" name="tunerBaudRateCombo"/>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="tunerHostLabel">
+                  <property name="text">
+                   <string>Host</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QLineEdit" name="tunerHostEdit"/>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="tunerPortLabel">
+                  <property name="text">
+                   <string>Port</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QSpinBox" name="tunerPortSpin">
+                  <property name="minimum"><number>1</number></property>
+                  <property name="maximum">
+                   <number>65535</number>
+                  </property>
+                  <property name="value">
+                   <number>5000</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="4">
+              <widget class="QPushButton" name="tunerAddProfileButton">
+               <property name="text">
+                <string>Add</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QPushButton" name="tunerDelProfileButton">
                <property name="text">
                 <string>Delete</string>
                </property>
