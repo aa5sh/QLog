@@ -4,6 +4,11 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSerialPortInfo>
+#include <QRegularExpression>
+
+#include <cmath>
+
+#include "rig/Rig.h"
 
 #include "core/LogParam.h"
 #include "core/debug.h"
@@ -19,6 +24,7 @@ namespace
     constexpr quint8 CMD_KEY_ON = 0x10;
     constexpr quint8 CMD_RCU_ON = 0x80;
     constexpr quint8 CMD_RCU_OFF = 0x81;
+    constexpr int CAT_RS232 = 6;
 
     constexpr quint8 KEY_OFF = 0x18;
     constexpr quint8 KEY_MODE = 0x1a;
@@ -210,6 +216,8 @@ namespace
             return KEY_BAND_MINUS;
         case AmplifierController::BandUp:
             return KEY_BAND_PLUS;
+        case AmplifierController::ClearFault:
+            return 0;
         }
         return KEY_OPERATE;
     }
@@ -304,12 +312,62 @@ AmplifierController::AmplifierController(QObject *parent) :
     QObject(parent),
     socket(new QTcpSocket(this)),
     serial(new QSerialPort(this)),
-    rcuRetryTimer(new QTimer(this))
+    rcuRetryTimer(new QTimer(this)),
+    kpaPollTimer(new QTimer(this))
 {
+    // Coalesce tuning updates so rapid dial movement does not flood the device.
+    QTimer *frequencyTimer = new QTimer(this);
+    frequencyTimer->setInterval(150);
+    frequencyTimer->setSingleShot(true);
+    connect(frequencyTimer, &QTimer::timeout, this, [this]() {
+        if (isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz > 0
+            && pendingFrequencyKHz != lastReportedFrequencyKHz)
+        {
+            setFrequencyKHz(pendingFrequencyKHz);
+            lastReportedFrequencyKHz = pendingFrequencyKHz;
+        }
+    });
+    const auto reportRigFrequency = [this, frequencyTimer](const Rig::Status &status) {
+        const double frequency = status.isConnected ? status.freq : 0.0;
+        const double frequencyKHz = frequency * 1000.0;
+        if (!std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 65535)
+        {
+            frequencyTimer->stop();
+            pendingFrequencyKHz = 0;
+            lastReportedFrequencyKHz = 0;
+            return;
+        }
+        pendingFrequencyKHz = static_cast<int>(frequencyKHz);
+        if (isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive())
+            frequencyTimer->start();
+    };
+    connect(Rig::instance(), &Rig::rigStatusChanged, this, reportRigFrequency);
+    connect(Rig::instance(), &Rig::rigStatusHeartBeat, this, reportRigFrequency);
+    connect(Rig::instance(), &Rig::rigDisconnected, this, [this, frequencyTimer]() {
+        frequencyTimer->stop();
+        pendingFrequencyKHz = 0;
+        lastReportedFrequencyKHz = 0;
+    });
+    connect(this, &AmplifierController::statusChanged, this, [this, frequencyTimer](const AmplifierStatus &) {
+        if (!frequencyReportingAllowed())
+        {
+            frequencyTimer->stop();
+            lastReportedFrequencyKHz = 0;
+            return;
+        }
+        // Send the latest rig frequency when CAT becomes RS-232 or input changes.
+        if (pendingFrequencyKHz > 0 && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive())
+            frequencyTimer->start();
+    });
+
     FCT_IDENTIFICATION;
 
     qRegisterMetaType<AmplifierStatus>("AmplifierStatus");
 
+    kpaPollTimer->setInterval(150);
+    connect(kpaPollTimer, &QTimer::timeout, this, &AmplifierController::pollKpa);
     rcuRetryTimer->setInterval(1000);
     connect(rcuRetryTimer, &QTimer::timeout, this, &AmplifierController::rcuRetry);
     connect(socket, &QTcpSocket::readyRead, this, &AmplifierController::readNetworkData);
@@ -349,6 +407,19 @@ AmplifierStatus AmplifierController::status() const
     return currentStatus;
 }
 
+AmplifierProfile::AmplifierModel AmplifierController::model() const
+{
+    return activeProfile.model;
+}
+
+bool AmplifierController::frequencyReportingAllowed() const
+{
+    if (model() == AmplifierProfile::ELECRAFT_KPA500)
+        return currentStatus.poweredOn && !currentStatus.tx
+               && currentStatus.radioInterface == 3 && !currentStatus.radioPolling;
+    return currentStatus.cat == CAT_RS232;
+}
+
 void AmplifierController::open()
 {
     openProfile(AmplifierProfiles::currentProfileName());
@@ -361,6 +432,8 @@ void AmplifierController::openProfile(const QString &profileName)
 
     close();
 
+    if (socket->state() != QAbstractSocket::UnconnectedState)
+        socket->abort();
     activeProfile = AmplifierProfiles::profile(profileName);
     qCDebug(runtime) << "Amplifier profile loaded:"
                      << "name" << activeProfile.profileName
@@ -379,8 +452,16 @@ void AmplifierController::openProfile(const QString &profileName)
         return;
     }
 
+    if (activeProfile.model != AmplifierProfile::SPE_EXPERT_1K
+        && activeProfile.model != AmplifierProfile::ELECRAFT_KPA500)
+    {
+        emit errorPresent(tr("Unsupported amplifier model"), activeProfile.profileName);
+        return;
+    }
+
     AmplifierProfiles::setCurrentProfileName(activeProfile.profileName);
     enabledState = true;
+    emit modelChanged();
     parseState = ParseState::WaitSyn1;
     packetBuffer.clear();
 
@@ -529,8 +610,9 @@ void AmplifierController::close()
 
     enabledState = false;
     rcuRetryTimer->stop();
+    kpaPollTimer->stop();
 
-    if (connectedState)
+    if (connectedState && model() == AmplifierProfile::SPE_EXPERT_1K)
         writeCommand(buildRcuCommand(false));
 
     if (serial->isOpen())
@@ -550,14 +632,64 @@ void AmplifierController::close()
 
 void AmplifierController::reloadSettings()
 {
-    if (connectedState && currentProfile() != AmplifierProfiles::currentProfileName())
+    if (connectedState && activeProfile != AmplifierProfiles::profile(AmplifierProfiles::currentProfileName()))
         open();
 }
 
 void AmplifierController::sendCommand(AmplifierController::Command command)
 {
-    qCDebug(runtime) << "Amplifier command requested" << command;
-    writeCommand(buildKeyCommand(keyCodeForCommand(command)));
+    if (!connectedState)
+        return;
+    if (model() == AmplifierProfile::ELECRAFT_KPA500)
+    {
+        if (!currentStatus.poweredOn)
+            return;
+        QByteArray frame;
+        if (command == Operate)
+            frame = "^OS1;^OS;";
+        else if (command == Standby)
+            frame = "^OS0;^OS;";
+        else if (command == ClearFault)
+            frame = "^FLC;^FL;";
+        else if ((command == BandDown || command == BandUp) && !currentStatus.tx && currentStatus.band >= 0)
+        {
+            const int nextBand = (currentStatus.band + (command == BandUp ? 1 : 10)) % 11;
+            frame = QStringLiteral("^BN%1;^BN;").arg(nextBand, 2, 10, QLatin1Char('0')).toLatin1();
+        }
+        if (!frame.isEmpty())
+            writeCommand(frame);
+        return;
+    }
+    if (command != ClearFault)
+        writeCommand(buildKeyCommand(keyCodeForCommand(command)));
+}
+
+void AmplifierController::setFrequencyKHz(int frequencyKHz)
+{
+    if (!connectedState || !frequencyReportingAllowed()
+        || frequencyKHz <= 0 || frequencyKHz > 65535)
+        return;
+
+    if (model() == AmplifierProfile::ELECRAFT_KPA500)
+    {
+        const int band = kpaBandForFrequency(frequencyKHz);
+        if (band >= 0 && band != lastReportedBand && !currentStatus.tx)
+        {
+            if (band != currentStatus.band)
+                writeCommand(QStringLiteral("^BN%1;^BN;").arg(band, 2, 10, QLatin1Char('0')).toLatin1());
+            lastReportedBand = band;
+        }
+        return;
+    }
+
+    // EXPERT protocol CAT_232: kHz, low byte first, additive checksum.
+    const quint8 low = frequencyKHz & 0xff;
+    const quint8 high = (frequencyKHz >> 8) & 0xff;
+    QByteArray command = QByteArray::fromHex("5555550382");
+    command.append(char(low));
+    command.append(char(high));
+    command.append(char((0x82 + low + high) & 0xff));
+    writeCommand(command);
 }
 
 void AmplifierController::readNetworkData()
@@ -620,6 +752,123 @@ void AmplifierController::rcuRetry()
         writeCommand(buildRcuCommand(true));
 }
 
+void AmplifierController::pollKpa()
+{
+    if (!connectedState || model() != AmplifierProfile::ELECRAFT_KPA500)
+        return;
+    static const char *const queries[] =
+    {
+        "^ON;", "^OS;", "^BN;", "^WS;", "^VI;", "^TM;", "^FL;", "^XI;"
+    };
+    if (!currentStatus.poweredOn)
+    {
+        writeCommand("^ON;");
+        kpaPollIndex = 1;
+        return;
+    }
+    writeCommand(queries[kpaPollIndex]);
+    kpaPollIndex = (kpaPollIndex + 1) % 8;
+}
+
+int AmplifierController::kpaBandForFrequency(int frequencyKHz)
+{
+    // KPA500 band codes include 60 m, unlike the SPE band numbering.
+    static const int ranges[][2] =
+    {
+        {1800, 2000}, {3500, 4000}, {5250, 5450}, {7000, 7300}, {10100, 10150},
+        {14000, 14350}, {18068, 18168}, {21000, 21450}, {24890, 24990},
+        {28000, 29700}, {50000, 54000}
+    };
+    for (int band = 0; band < 11; ++band)
+        if (frequencyKHz >= ranges[band][0] && frequencyKHz <= ranges[band][1])
+            return band;
+    return -1;
+}
+
+bool AmplifierController::parseKpaResponse(const QByteArray &response)
+{
+    // Validate complete responses before updating state; TCP/serial reads may split them.
+    static const QRegularExpression scalar(QStringLiteral("^\\^(ON|OS|BN|TM|FL)([0-9]+)$"));
+    static const QRegularExpression pair(QStringLiteral("^\\^(WS|VI)([0-9]{3}) +([0-9]{3})$"));
+    static const QRegularExpression radio(QStringLiteral("^\\^XI([0-3])([0-1])$"));
+    const QString text = QString::fromLatin1(response);
+    auto match = scalar.match(text);
+    if (match.hasMatch())
+    {
+        bool ok;
+        const int value = match.captured(2).toInt(&ok);
+        if (!ok)
+            return false;
+        const QString command = match.captured(1);
+        if (command == QLatin1String("ON") && value <= 1)
+        {
+            currentStatus.poweredOn = value == 1;
+            if (!currentStatus.poweredOn)
+            {
+                currentStatus = AmplifierStatus();
+                currentStatus.tempCelsius = true;
+                lastReportedBand = -1;
+            }
+        }
+        else if (command == QLatin1String("OS") && value <= 1)
+            currentStatus.operate = value == 1;
+        else if (command == QLatin1String("BN") && value <= 10)
+            currentStatus.band = value;
+        else if (command == QLatin1String("TM") && value <= 150)
+            currentStatus.temperature = value;
+        else if (command == QLatin1String("FL") && value <= 99)
+        {
+            currentStatus.faultCode = value;
+            currentStatus.alarm = value != 0;
+        }
+        else
+            return false;
+        return true;
+    }
+    match = pair.match(text);
+    if (match.hasMatch())
+    {
+        const int first = match.captured(2).toInt();
+        const int second = match.captured(3).toInt();
+        if (match.captured(1) == QLatin1String("WS"))
+        {
+            currentStatus.paOutW = first;
+            currentStatus.swr = second == 0 ? 0.0 : second / 10.0;
+            // The KPA500 protocol has no PTT flag; this means RF output is present.
+            currentStatus.tx = first > 0;
+        }
+        else
+        {
+            currentStatus.voltageV = first / 10.0;
+            currentStatus.currentA = second / 10.0;
+        }
+        return true;
+    }
+    match = radio.match(text);
+    if (match.hasMatch())
+    {
+        const int interface = match.captured(1).toInt();
+        const bool polling = match.captured(2) == QLatin1String("1");
+        if (interface != currentStatus.radioInterface || polling != currentStatus.radioPolling)
+        {
+            lastReportedFrequencyKHz = 0;
+            lastReportedBand = -1;
+        }
+        currentStatus.radioInterface = interface;
+        currentStatus.radioPolling = polling;
+        return true;
+    }
+    if (response == "^ON")
+    {
+        // Some bootloader versions answer without a value while powered off.
+        currentStatus = AmplifierStatus();
+        currentStatus.tempCelsius = true;
+        lastReportedBand = -1;
+        return true;
+    }
+    return false;
+}
+
 QByteArray AmplifierController::buildKeyCommand(quint8 keyCode) const
 {
     QByteArray command;
@@ -676,6 +925,23 @@ void AmplifierController::writeCommand(const QByteArray &command)
 
 void AmplifierController::processBytes(const QByteArray &data)
 {
+    if (model() == AmplifierProfile::ELECRAFT_KPA500)
+    {
+        packetBuffer.append(data);
+        int terminator;
+        while ((terminator = packetBuffer.indexOf(';')) >= 0)
+        {
+            QByteArray response = packetBuffer.left(terminator).trimmed();
+            packetBuffer.remove(0, terminator + 1);
+            const int start = response.lastIndexOf('^');
+            if (start >= 0 && parseKpaResponse(response.mid(start)))
+                emit statusChanged(currentStatus);
+        }
+        if (packetBuffer.size() > 4096)
+            packetBuffer.clear();
+        return;
+    }
+
     for (const char ch : data)
     {
         const quint8 byte = static_cast<quint8>(ch);
@@ -775,6 +1041,7 @@ bool AmplifierController::parseSpeStatus(const QByteArray &packet)
     }
 
     const quint8 flags = static_cast<quint8>(packet[5]);
+    currentStatus.poweredOn = true;
     currentStatus.tuning = (flags & FLAG_TUNE) != 0;
     currentStatus.operate = (flags & FLAG_OPERATE) != 0;
     currentStatus.tx = (flags & FLAG_TX) != 0;
@@ -782,11 +1049,16 @@ bool AmplifierController::parseSpeStatus(const QByteArray &packet)
     currentStatus.fullMode = (flags & FLAG_FULL_MODE) != 0;
     currentStatus.tempCelsius = (flags & FLAG_TEMP_CELSIUS) != 0;
 
+    const int previousInput = currentStatus.input;
+    const int previousCat = currentStatus.cat;
     const quint8 bandInput = static_cast<quint8>(packet[18]);
     currentStatus.band = (bandInput >> 4) & 0x0f;
     currentStatus.input = bandInput & 0x0f;
     currentStatus.freqKHz = quint16(static_cast<quint8>(packet[20])) | (quint16(static_cast<quint8>(packet[21])) << 8);
     currentStatus.antenna = static_cast<quint8>(packet[22]) & 0x0f;
+    currentStatus.cat = (static_cast<quint8>(packet[22]) >> 4) & 0x0f;
+    if (currentStatus.input != previousInput || currentStatus.cat != previousCat)
+        lastReportedFrequencyKHz = 0;
 
     const quint16 swrGain = quint16(static_cast<quint8>(packet[23])) | (quint16(static_cast<quint8>(packet[24])) << 8);
     currentStatus.swr = swrGain / 100.0;
@@ -814,16 +1086,30 @@ void AmplifierController::setConnected(bool state)
         return;
 
     qCDebug(runtime) << "Amplifier connection state changed" << connectedState << "->" << state;
+    lastReportedFrequencyKHz = 0;
+    lastReportedBand = -1;
+    packetBuffer.clear();
     connectedState = state;
     if (connectedState)
     {
-        writeCommand(buildRcuCommand(true));
-        rcuRetryTimer->start();
+        if (model() == AmplifierProfile::ELECRAFT_KPA500)
+        {
+            currentStatus.tempCelsius = true;
+            kpaPollIndex = 0;
+            pollKpa();
+            kpaPollTimer->start();
+        }
+        else
+        {
+            writeCommand(buildRcuCommand(true));
+            rcuRetryTimer->start();
+        }
         emit connected();
     }
     else
     {
         rcuRetryTimer->stop();
+        kpaPollTimer->stop();
         resetStatus();
         emit disconnected();
     }
@@ -832,5 +1118,6 @@ void AmplifierController::setConnected(bool state)
 void AmplifierController::resetStatus()
 {
     currentStatus = AmplifierStatus();
+    currentStatus.tempCelsius = model() == AmplifierProfile::ELECRAFT_KPA500;
     emit statusChanged(currentStatus);
 }

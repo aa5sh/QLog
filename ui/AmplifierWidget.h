@@ -38,7 +38,9 @@ private:
     static QString ledStyle(const QString &color);
     void updateControlsEnabled(bool enabled);
     void resetStatus();
+    void updateModelControls();
 
+    bool kpa500 = false;
     Ui::AmplifierWidget *ui;
 };
 
