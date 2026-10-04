@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QTcpSocket>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QQueue>
 
 struct TunerProfile
@@ -105,6 +106,9 @@ private:
     TunerStatus currentStatus;
     QSerialPort serial;
     QTcpSocket socket;
+    QElapsedTimer sessionElapsed;
+    QElapsedTimer requestElapsed;
+    QElapsedTimer receiveElapsed;
     QTimer pollTimer;
     QTimer replyTimer;
     QTimer frequencyTimer;
