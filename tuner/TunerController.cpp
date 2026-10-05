@@ -138,9 +138,8 @@ TunerController::TunerController(QObject *parent) : QObject(parent)
     FCT_IDENTIFICATION;
     pollTimer.setInterval(500);
     replyTimer.setSingleShot(true);
+    replyTimer.setTimerType(Qt::PreciseTimer);
     replyTimer.setInterval(1500);
-    frequencyTimer.setSingleShot(true);
-    frequencyTimer.setInterval(150);
     connect(&socket, &QTcpSocket::connected, this, &TunerController::transportReady);
     connect(&socket, &QTcpSocket::readyRead, this, [this]() { readData(socket.readAll()); });
     connect(&serial, &QSerialPort::readyRead, this, [this]() { readData(serial.readAll()); });
@@ -172,15 +171,15 @@ TunerController::TunerController(QObject *parent) : QObject(parent)
             write(";");
             replyTimer.start(100);
         }
-        else fail(tr("KAT500 did not respond. Check the connection and serial baud rate."));
-    });
-    connect(&frequencyTimer, &QTimer::timeout, this, [this]() {
-        if (connectedState && currentStatus.poweredOn && !currentStatus.tuning
-            && pendingFrequency > 0 && pendingFrequency != lastFrequency)
+        else if (connectedState && !expectedReply.isEmpty() && replyRetries < 2)
         {
-            enqueue("F " + QByteArray::number(pendingFrequency) + ";F;", "F");
-            lastFrequency = pendingFrequency;
+            ++replyRetries;
+            qCWarning(runtime) << "Retrying tuner query:" << expectedReply << "retry:" << replyRetries;
+            // Repeat only the GET, never the SET or action that preceded it.
+            write(expectedReply + ';');
+            replyTimer.start(1500);
         }
+        else fail(tr("KAT500 did not respond. Check the connection and serial baud rate."));
     });
 }
 
@@ -252,6 +251,7 @@ void TunerController::transportReady()
     // Wake sleeping firmware with single semicolons before identifying the device.
     expectedReply = ";";
     wakeAttempts = 0;
+    replyRetries = 0;
     write(";");
     replyTimer.start(100);
 }
@@ -267,11 +267,9 @@ void TunerController::close()
     connectedState = false;
     pollTimer.stop();
     replyTimer.stop();
-    frequencyTimer.stop();
     requests.clear();
     expectedReply.clear();
     buffer.clear();
-    lastFrequency = 0;
     socket.abort();
     serial.close();
     currentStatus = TunerStatus();
@@ -337,6 +335,7 @@ void TunerController::nextRequest()
     if (!expectedReply.isEmpty() || requests.isEmpty() || !connectedState) return;
     const Request request = requests.dequeue();
     expectedReply = request.reply;
+    replyRetries = 0;
     write(request.command);
     // Handshake retries change the timer interval; restore the normal reply timeout.
     replyTimer.start(1500);
@@ -480,7 +479,6 @@ bool TunerController::parseResponse(const QByteArray &response)
     if (valid)
     {
         emit statusChanged(currentStatus);
-        if (pendingFrequency > 0 && !frequencyTimer.isActive()) frequencyTimer.start();
     }
     return valid;
 }
@@ -529,19 +527,4 @@ void TunerController::setCapacitors(int value)
     qCDebug(function_parameters) << value;
     if (connectedState && currentStatus.poweredOn && !currentStatus.tuning && !currentStatus.bypass && value >= 0 && value <= 255)
         enqueue("C" + QByteArray::number(value, 16).rightJustified(2, '0').toUpper() + ";C;", "C");
-}
-
-void TunerController::setFrequencyKHz(int frequency)
-{
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << frequency;
-    if (frequency <= 0 || frequency > 54000)
-    {
-        frequencyTimer.stop();
-        pendingFrequency = 0;
-        lastFrequency = 0;
-        return;
-    }
-    pendingFrequency = frequency;
-    frequencyTimer.start();
 }

@@ -290,6 +290,12 @@
       <number>4</number>
      </property>
      <item>
+      <widget class="QPushButton" name="powerButton">
+       <property name="text"><string>Power On</string></property>
+       <property name="toolTip"><string>Turn the KPA500 on or off. The rear panel power switch must be on.</string></property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="standbyButton">
        <property name="text">
         <string>OPERATE</string>
