@@ -216,8 +216,6 @@ namespace
             return KEY_BAND_MINUS;
         case AmplifierController::BandUp:
             return KEY_BAND_PLUS;
-        case AmplifierController::PowerOn:
-        case AmplifierController::PowerOff:
         case AmplifierController::ClearFault:
             return 0;
         }
@@ -644,24 +642,8 @@ void AmplifierController::sendCommand(AmplifierController::Command command)
         return;
     if (model() == AmplifierProfile::ELECRAFT_KPA500)
     {
-        if (command == PowerOn)
-        {
-            // The bootloader accepts a single P, with no terminator or reply.
-            if (!currentStatus.poweredOn) writeCommand("P");
-            return;
-        }
         if (!currentStatus.poweredOn)
             return;
-        if (command == PowerOff)
-        {
-            writeCommand("^ON0;");
-            // Powered-off firmware normally sends no reply. Keep the transport
-            // open so the bootloader can receive the next power-on command.
-            parseKpaResponse("^ON0");
-            kpaPollIndex = 0;
-            emit statusChanged(currentStatus);
-            return;
-        }
         QByteArray frame;
         if (command == Operate)
             frame = "^OS1;^OS;";
@@ -678,7 +660,7 @@ void AmplifierController::sendCommand(AmplifierController::Command command)
             writeCommand(frame);
         return;
     }
-    if (command != ClearFault && command != PowerOn && command != PowerOff)
+    if (command != ClearFault)
         writeCommand(buildKeyCommand(keyCodeForCommand(command)));
 }
 

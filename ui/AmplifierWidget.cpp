@@ -42,11 +42,6 @@ AmplifierWidget::AmplifierWidget(QWidget *parent) :
     connect(AmplifierController::instance(), &AmplifierController::disconnected, this, &AmplifierWidget::amplifierDisconnected);
     connect(AmplifierController::instance(), &AmplifierController::statusChanged, this, &AmplifierWidget::statusChanged);
 
-    connect(ui->powerButton, &QPushButton::clicked, this, []() {
-        auto *controller = AmplifierController::instance();
-        controller->sendCommand(controller->status().poweredOn
-                                    ? AmplifierController::PowerOff : AmplifierController::PowerOn);
-    });
     connect(ui->standbyButton, &QPushButton::clicked, this, [this]() {
         AmplifierController *controller = AmplifierController::instance();
         controller->sendCommand(kpa500 && controller->status().operate
@@ -202,9 +197,6 @@ QString AmplifierWidget::ledStyle(const QString &color)
 
 void AmplifierWidget::updateControlsEnabled(bool enabled)
 {
-    auto *controller = AmplifierController::instance();
-    ui->powerButton->setEnabled(kpa500 && controller->isConnected());
-    ui->powerButton->setText(controller->status().poweredOn ? tr("Power Off") : tr("Power On"));
     const QList<QPushButton *> buttons =
     {
         ui->standbyButton,
@@ -237,7 +229,6 @@ void AmplifierWidget::updateModelControls()
     for (QWidget *control : speControls)
         control->setVisible(!kpa500);
     ui->clearFaultButton->setVisible(kpa500);
-    ui->powerButton->setVisible(kpa500);
     ui->powerBar->setMaximum(kpa500 ? 6000 : 10000);
     ui->voltsBar->setMaximum(kpa500 ? 1000 : 600);
     ui->ampsBar->setMaximum(kpa500 ? 200 : 600);

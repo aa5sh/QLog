@@ -101,9 +101,7 @@ public:
         Right,
         BandDown,
         BandUp,
-        ClearFault,
-        PowerOn,
-        PowerOff
+        ClearFault
     };
     Q_ENUM(Command)
 

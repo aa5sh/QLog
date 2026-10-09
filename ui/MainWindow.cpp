@@ -213,6 +213,11 @@ MainWindow::MainWindow(QWidget* parent) :
         QMessageBox::warning(this, tr("Antenna Tuner"), error + QStringLiteral("\n") + detail);
     });
     connect(this, &MainWindow::settingsChanged, tunerWidget, &TunerWidget::reloadSettings);
+    connect(Rig::instance(), &Rig::rigStatusChanged, this, [](const Rig::Status &status) {
+        const double frequencyKHz = status.freq * 1000.0;
+        TunerController::instance()->setFrequencyKHz(status.isConnected && std::isfinite(frequencyKHz)
+            && frequencyKHz >= 1 && frequencyKHz <= 54000 ? static_cast<int>(frequencyKHz) : 0);
+    });
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);

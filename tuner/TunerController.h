@@ -82,6 +82,7 @@ public slots:
     void setAntenna(int antenna);
     void setInductors(int value);
     void setCapacitors(int value);
+    void setFrequencyKHz(int frequency);
 signals:
     void connected();
     void disconnected();
@@ -110,11 +111,13 @@ private:
     QElapsedTimer receiveElapsed;
     QTimer pollTimer;
     QTimer replyTimer;
+    QTimer frequencyTimer;
     bool connectedState = false;
     bool enabledState = false;
     bool closing = false;
     int wakeAttempts = 0;
-    int replyRetries = 0;
+    int pendingFrequency = 0;
+    int lastFrequency = 0;
 };
 Q_DECLARE_METATYPE(TunerStatus)
 #endif
