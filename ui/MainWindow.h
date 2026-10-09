@@ -19,7 +19,6 @@ class QLabel;
 class QAction;
 class QDockWidget;
 class AmplifierWidget;
-class TunerWidget;
 class WsjtxUDPReceiver;
 class AdifRecoveryManager;
 class QDockWidget;
@@ -63,7 +62,6 @@ private slots:
     void rotConnect();
     void steppirConnect();
     void amplifierConnect();
-    void tunerConnect();
     void selectEquipmentProfilesForBand(const QString &bandName);
     void selectEffectiveRotatorProfile(const QString &antennaProfileName);
     void cwKeyerConnect();
@@ -147,9 +145,6 @@ private:
     QAction *actionAmplifierWindow = nullptr;
     QDockWidget *amplifierDockWidget = nullptr;
     AmplifierWidget *amplifierWidget = nullptr;
-    QAction *actionConnectTuner = nullptr;
-    QDockWidget *tunerDockWidget = nullptr;
-    TunerWidget *tunerWidget = nullptr;
     QMetaObject::Connection alertTextButtonConn;
     SpotAlert displayedAlert;
     bool hasDisplayedAlert = false;

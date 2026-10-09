@@ -20,7 +20,6 @@
 
 #include "antenna/SteppirController.h"
 #include "amplifier/AmplifierController.h"
-#include "tuner/TunerController.h"
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 #include "models/RigTypeModel.h"
@@ -487,7 +486,6 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     initProfileListView(ui->antProfilesListView);
     initProfileListView(ui->steppirProfilesListView);
     initProfileListView(ui->amplifierProfilesListView);
-    initProfileListView(ui->tunerProfilesListView);
     initProfileListView(ui->cwProfilesListView);
     initProfileListView(ui->cwShortcutListView);
     initProfileListView(ui->stationProfilesListView);
@@ -509,19 +507,6 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     connect(ui->amplifierDelProfileButton, &QPushButton::clicked, this, &SettingsDialog::delAmplifierProfile);
     connect(ui->amplifierProfilesListView, &QListView::doubleClicked, this, &SettingsDialog::doubleClickAmplifierProfile);
     amplifierConnectionTypeChanged(ui->amplifierConnectionTypeCombo->currentIndex());
-    ui->tunerModelCombo->addItem(tr("Elecraft KAT500"), TunerProfile::ELECRAFT_KAT500);
-    ui->tunerModelCombo->setToolTip(tr("Connect to the KAT500 PC DATA port. Network connections use a transparent TCP serial bridge."));
-    for (int baud : {4800, 9600, 19200, 38400})
-        ui->tunerBaudRateCombo->addItem(QString::number(baud), baud);
-    setComboByData(ui->tunerBaudRateCombo, 38400);
-    ui->tunerConnectionTypeCombo->addItem(tr("Serial"), TunerProfile::Serial);
-    ui->tunerConnectionTypeCombo->addItem(tr("Network"), TunerProfile::Network);
-    connect(ui->tunerConnectionTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &SettingsDialog::tunerConnectionTypeChanged);
-    connect(ui->tunerAddProfileButton, &QPushButton::clicked, this, &SettingsDialog::addTunerProfile);
-    connect(ui->tunerDelProfileButton, &QPushButton::clicked, this, &SettingsDialog::delTunerProfile);
-    connect(ui->tunerProfilesListView, &QListView::doubleClicked, this, &SettingsDialog::doubleClickTunerProfile);
-    tunerConnectionTypeChanged(ui->tunerConnectionTypeCombo->currentIndex());
 
     QStringListModel* cwKeysModel = new QStringListModel(ui->rigAssignedCWKeyCombo);
     ui->rigAssignedCWKeyCombo->setModel(cwKeysModel);
@@ -873,7 +858,6 @@ void SettingsDialog::save()
         {ui->antAddProfileButton,           1,  0},
         {ui->steppirAddProfileButton,       1,  0},
         {ui->amplifierAddProfileButton,     1,  1},
-        {ui->tunerAddProfileButton,         1,  1},
         {ui->cwAddProfileButton,            1,  2},
         {ui->cwShortcutAddProfileButton,    1,  2},
         {ui->rigAddProfileButton,           1,  3},
@@ -1898,97 +1882,6 @@ void SettingsDialog::amplifierConnectionTypeChanged(int)
     ui->amplifierHostEdit->setVisible(!serial);
     ui->amplifierPortLabel->setVisible(!serial);
     ui->amplifierPortSpin->setVisible(!serial);
-}
-
-void SettingsDialog::addTunerProfile()
-{
-    FCT_IDENTIFICATION;
-
-    if ( ui->tunerProfileNameEdit->text().trimmed().isEmpty() )
-    {
-        ui->tunerProfileNameEdit->setPlaceholderText(tr("Must not be empty"));
-        return;
-    }
-
-    if ( ui->tunerAddProfileButton->text() == tr("Modify") )
-        ui->tunerAddProfileButton->setText(tr("Add"));
-
-    TunerProfile profile;
-    profile.profileName = ui->tunerProfileNameEdit->text().trimmed();
-    profile.model = static_cast<TunerProfile::TunerModel>(ui->tunerModelCombo->currentData().toInt());
-    profile.connectionType = static_cast<TunerProfile::ConnectionType>(ui->tunerConnectionTypeCombo->currentData().toInt());
-    profile.serialPort = ui->tunerSerialPortEdit->text();
-    profile.baudRate = ui->tunerBaudRateCombo->currentData().toInt();
-    profile.host = ui->tunerHostEdit->text();
-    profile.port = ui->tunerPortSpin->value();
-
-    TunerProfiles::addOrReplace(profile);
-    TunerProfiles::setCurrentProfileName(profile.profileName);
-    refreshTunerProfilesView();
-    clearTunerProfileForm();
-}
-
-void SettingsDialog::delTunerProfile()
-{
-    FCT_IDENTIFICATION;
-    deleteSelectedProfiles(ui->tunerProfilesListView, [](const QString &name) {
-        TunerProfiles::remove(name);
-    });
-    clearTunerProfileForm();
-}
-
-void SettingsDialog::refreshTunerProfilesView()
-{
-    FCT_IDENTIFICATION;
-    refreshProfileView(ui->tunerProfilesListView, TunerProfiles::profileNames());
-}
-
-void SettingsDialog::doubleClickTunerProfile(QModelIndex i)
-{
-    FCT_IDENTIFICATION;
-
-    const TunerProfile profile = TunerProfiles::profile(ui->tunerProfilesListView->model()->data(i).toString());
-    ui->tunerProfileNameEdit->setText(profile.profileName);
-    setComboByData(ui->tunerModelCombo, profile.model);
-    setComboByData(ui->tunerConnectionTypeCombo, profile.connectionType);
-    ui->tunerSerialPortEdit->setText(profile.serialPort);
-    setComboByData(ui->tunerBaudRateCombo, profile.baudRate);
-    ui->tunerHostEdit->setText(profile.host);
-    ui->tunerPortSpin->setValue(profile.port);
-    tunerConnectionTypeChanged(ui->tunerConnectionTypeCombo->currentIndex());
-
-    ui->tunerAddProfileButton->setText(tr("Modify"));
-}
-
-void SettingsDialog::clearTunerProfileForm()
-{
-    FCT_IDENTIFICATION;
-
-    ui->tunerProfileNameEdit->setPlaceholderText(QString());
-    ui->tunerProfileNameEdit->clear();
-    ui->tunerModelCombo->setCurrentIndex(0);
-    ui->tunerConnectionTypeCombo->setCurrentIndex(0);
-    ui->tunerSerialPortEdit->clear();
-    setComboByData(ui->tunerBaudRateCombo, 38400);
-    ui->tunerHostEdit->clear();
-    ui->tunerPortSpin->setValue(5000);
-    ui->tunerAddProfileButton->setText(tr("Add"));
-    tunerConnectionTypeChanged(ui->tunerConnectionTypeCombo->currentIndex());
-}
-
-void SettingsDialog::tunerConnectionTypeChanged(int)
-{
-    FCT_IDENTIFICATION;
-
-    const bool serial = ui->tunerConnectionTypeCombo->currentData().toInt() == TunerProfile::Serial;
-    ui->tunerSerialPortLabel->setVisible(serial);
-    ui->tunerSerialPortEdit->setVisible(serial);
-    ui->tunerBaudRateLabel->setVisible(serial);
-    ui->tunerBaudRateCombo->setVisible(serial);
-    ui->tunerHostLabel->setVisible(!serial);
-    ui->tunerHostEdit->setVisible(!serial);
-    ui->tunerPortLabel->setVisible(!serial);
-    ui->tunerPortSpin->setVisible(!serial);
 }
 
 void SettingsDialog::addCWKeyProfile()
@@ -3282,7 +3175,6 @@ void SettingsDialog::readSettings()
     refreshAntProfilesView();
     refreshSteppirProfilesView();
     refreshAmplifierProfilesView();
-    refreshTunerProfilesView();
     refreshCWKeyProfilesView();
     refreshCWShortcutProfilesView();
     refreshRigAssignedCWKeyCombo();

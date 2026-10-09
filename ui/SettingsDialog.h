@@ -93,12 +93,6 @@ public slots:
     void doubleClickAmplifierProfile(QModelIndex);
     void clearAmplifierProfileForm();
     void amplifierConnectionTypeChanged(int);
-    void addTunerProfile();
-    void delTunerProfile();
-    void refreshTunerProfilesView();
-    void doubleClickTunerProfile(QModelIndex);
-    void clearTunerProfileForm();
-    void tunerConnectionTypeChanged(int);
 
     void addCWKeyProfile();
     void delCWKeyProfile();

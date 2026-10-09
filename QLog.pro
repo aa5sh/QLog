@@ -56,7 +56,6 @@ CONFIG *= link_pkgconfig
 
 SOURCES += \
         amplifier/AmplifierController.cpp \
-        tuner/TunerController.cpp \
         antenna/SteppirController.cpp \
         awards/AwardCanadaAward.cpp \
         awards/AwardDefinition.cpp \
@@ -190,7 +189,6 @@ SOURCES += \
         service/qslinfo/QSLInfo.cpp \
         ui/ActivityEditor.cpp \
         ui/AmplifierWidget.cpp \
-        ui/TunerWidget.cpp \
         ui/AdifRecoveryManager.cpp \
         ui/AlertRuleDetail.cpp \
         ui/AlertSettingDialog.cpp \
@@ -267,7 +265,6 @@ SOURCES += \
 
 HEADERS += \
         amplifier/AmplifierController.h \
-        tuner/TunerController.h \
         antenna/SteppirController.h \
         awards/AwardCanadaAward.h \
         awards/AwardDefinition.h \
@@ -423,7 +420,6 @@ HEADERS += \
         service/qslinfo/QSLInfo.h \
         ui/ActivityEditor.h \
         ui/AmplifierWidget.h \
-        ui/TunerWidget.h \
         ui/AdifRecoveryManager.h \
         ui/AlertRuleDetail.h \
         ui/AlertSettingDialog.h \

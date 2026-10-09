@@ -1,4 +1,3 @@
-#include <cmath>
 #include <QMessageBox>
 #include <QLabel>
 #include <QColor>
@@ -17,8 +16,6 @@
 #include "amplifier/AmplifierController.h"
 #include "ui_MainWindow.h"
 #include "ui/AmplifierWidget.h"
-#include "ui/TunerWidget.h"
-#include "tuner/TunerController.h"
 #include "ui/SettingsDialog.h"
 #include "ui/ImportDialog.h"
 #include "ui/ExportDialog.h"
@@ -117,8 +114,7 @@ MainWindow::MainWindow(QWidget* parent) :
     actionConnectSteppir->setCheckable(true);
     steppirWidget->setConnectAction(actionConnectSteppir);
 
-    actionSteppirWindow = new QAction(this);
-    connect(actionSteppirWindow, &QAction::triggered, steppirDockWidget, &QDockWidget::show);
+    actionSteppirWindow = steppirDockWidget->toggleViewAction();
     actionSteppirWindow->setText(tr("SteppIR"));
     ui->menuWindow->addAction(actionSteppirWindow);
 
@@ -184,40 +180,9 @@ MainWindow::MainWindow(QWidget* parent) :
     actionConnectAmplifier->setCheckable(true);
     amplifierWidget->setConnectAction(actionConnectAmplifier);
 
-    actionAmplifierWindow = new QAction(this);
-    connect(actionAmplifierWindow, &QAction::triggered, amplifierDockWidget, &QDockWidget::show);
+    actionAmplifierWindow = amplifierDockWidget->toggleViewAction();
     actionAmplifierWindow->setText(tr("Amplifier"));
     ui->menuWindow->addAction(actionAmplifierWindow);
-
-    tunerWidget = new TunerWidget(this);
-    tunerDockWidget = new QDockWidget(tr("Antenna Tuner"), this);
-    tunerDockWidget->setObjectName("tunerDockWidget");
-    tunerDockWidget->setWidget(tunerWidget);
-    addDockWidget(Qt::RightDockWidgetArea, tunerDockWidget);
-    tunerDockWidget->hide();
-    actionConnectTuner = new QAction(QIcon(":/icons/power.svg"), tr("Connect Antenna Tuner"), this);
-    actionConnectTuner->setCheckable(true);
-    tunerWidget->setConnectAction(actionConnectTuner);
-    QAction *tunerWindowAction = ui->menuWindow->addAction(tr("Antenna Tuner"));
-    connect(tunerWindowAction, &QAction::triggered, tunerDockWidget, &QDockWidget::show);
-    connect(actionConnectTuner, &QAction::triggered, this, &MainWindow::tunerConnect);
-    connect(tunerWidget, &TunerWidget::profileChanged, this, &MainWindow::tunerConnect);
-    connect(TunerController::instance(), &TunerController::connected, this, [this]() {
-        actionConnectTuner->setChecked(true);
-    });
-    connect(TunerController::instance(), &TunerController::disconnected, this, [this]() {
-        actionConnectTuner->setChecked(false);
-    });
-    connect(TunerController::instance(), &TunerController::errorPresent, this,
-            [this](const QString &error, const QString &detail) {
-        QMessageBox::warning(this, tr("Antenna Tuner"), error + QStringLiteral("\n") + detail);
-    });
-    connect(this, &MainWindow::settingsChanged, tunerWidget, &TunerWidget::reloadSettings);
-    connect(Rig::instance(), &Rig::rigStatusChanged, this, [](const Rig::Status &status) {
-        const double frequencyKHz = status.freq * 1000.0;
-        TunerController::instance()->setFrequencyKHz(status.isConnected && std::isfinite(frequencyKHz)
-            && frequencyKHz >= 1 && frequencyKHz <= 54000 ? static_cast<int>(frequencyKHz) : 0);
-    });
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
     ui->rotatorWidget->registerContactWidget(ui->newContactWidget);
@@ -229,8 +194,7 @@ MainWindow::MainWindow(QWidget* parent) :
     waveshareDockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
     waveshareDockWidget->setWidget(waveshareWidget);
     addDockWidget(Qt::RightDockWidgetArea, waveshareDockWidget);
-    QAction *waveshareWindowAction = ui->menuWindow->addAction(tr("Waveshare"));
-    connect(waveshareWindowAction, &QAction::triggered, waveshareDockWidget, &QDockWidget::show);
+    ui->menuWindow->addAction(waveshareDockWidget->toggleViewAction());
     waveshareDockWidget->hide();
 
     const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
@@ -2282,14 +2246,6 @@ void MainWindow::amplifierConnect()
         AmplifierController::instance()->close();
 }
 
-void MainWindow::tunerConnect()
-{
-    if (actionConnectTuner->isChecked())
-        TunerController::instance()->open();
-    else
-        TunerController::instance()->close();
-}
-
 void MainWindow::selectEquipmentProfilesForBand(const QString &bandName)
 {
     FCT_IDENTIFICATION;
@@ -2771,14 +2727,12 @@ MainWindow::~MainWindow()
     QObject::disconnect(Rotator::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(SteppirController::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(AmplifierController::instance(), nullptr, nullptr, nullptr);
-    QObject::disconnect(TunerController::instance(), nullptr, nullptr, nullptr);
     QObject::disconnect(Rig::instance(), nullptr, nullptr, nullptr);
 
     CWKeyer::instance()->shutdown();
     Rotator::instance()->shutdown();
     SteppirController::instance()->close();
     AmplifierController::instance()->close();
-    TunerController::instance()->close();
     Rig::instance()->shutdown();
 
     QSqlDatabase::database().close();
