@@ -109,12 +109,6 @@
    <item>
     <layout class="QHBoxLayout" name="summaryLayout">
      <item>
-      <widget class="QLabel" name="faultLabel">
-       <property name="text"><string/></property>
-       <property name="styleSheet"><string notr="true">color: #d50000; font-weight: bold;</string></property>
-      </widget>
-     </item>
-     <item>
       <widget class="QLabel" name="txLabel">
        <property name="text">
         <string>RX</string>
@@ -315,12 +309,6 @@
        <property name="text">
         <string>INPUT</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="clearFaultButton">
-       <property name="text"><string>Clear Fault</string></property>
-       <property name="toolTip"><string>Clear the amplifier fault. Operate mode must be selected separately.</string></property>
       </widget>
      </item>
     </layout>

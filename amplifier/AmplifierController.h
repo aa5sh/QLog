@@ -10,8 +10,7 @@ struct AmplifierProfile
 {
     enum AmplifierModel
     {
-        SPE_EXPERT_1K = 0,
-        ELECRAFT_KPA500 = 1
+        SPE_EXPERT_1K = 0
     };
 
     enum ConnectionType
@@ -45,7 +44,6 @@ struct AmplifierProfile
 struct AmplifierStatus
 {
     bool operate = false;
-    bool poweredOn = false;
     bool tuning = false;
     bool tx = false;
     bool alarm = false;
@@ -55,11 +53,6 @@ struct AmplifierStatus
     int band = -1;
     int input = 0;
     int antenna = 0;
-    // High nibble of status byte 22; 6 means RS-232, -1 means unknown.
-    int cat = -1;
-    int radioInterface = -1;
-    bool radioPolling = false;
-    int faultCode = 0;
     quint16 freqKHz = 0;
 
     double swr = 1.0;
@@ -100,8 +93,7 @@ public:
         Left,
         Right,
         BandDown,
-        BandUp,
-        ClearFault
+        BandUp
     };
     Q_ENUM(Command)
 
@@ -111,18 +103,15 @@ public:
     bool isEnabled() const;
     QString currentProfile() const;
     AmplifierStatus status() const;
-    AmplifierProfile::AmplifierModel model() const;
 
 public slots:
     void open();
     void openProfile(const QString &profileName);
     void close();
     void reloadSettings();
-    void setFrequencyKHz(int frequencyKHz);
     void sendCommand(AmplifierController::Command command);
 
 signals:
-    void modelChanged();
     void connected();
     void disconnected();
     void statusChanged(const AmplifierStatus &status);
@@ -135,7 +124,6 @@ private slots:
     void socketError();
     void serialError(QSerialPort::SerialPortError error);
     void rcuRetry();
-    void pollKpa();
 
 private:
     explicit AmplifierController(QObject *parent = nullptr);
@@ -151,14 +139,9 @@ private:
     bool parseSpeStatus(const QByteArray &packet);
     void setConnected(bool connected);
     void resetStatus();
-    bool frequencyReportingAllowed() const;
-    bool parseKpaResponse(const QByteArray &response);
-    static int kpaBandForFrequency(int frequencyKHz);
 
     AmplifierProfile activeProfile;
     AmplifierStatus currentStatus;
-    int pendingFrequencyKHz = 0;
-    int lastReportedFrequencyKHz = 0;
     bool connectedState = false;
     bool enabledState = false;
     bool openingSerialPort = false;
@@ -166,9 +149,6 @@ private:
     QTcpSocket *socket = nullptr;
     QSerialPort *serial = nullptr;
     QTimer *rcuRetryTimer = nullptr;
-    QTimer *kpaPollTimer = nullptr;
-    int kpaPollIndex = 0;
-    int lastReportedBand = -1;
 
     QByteArray packetBuffer;
     ParseState parseState = ParseState::WaitSyn1;

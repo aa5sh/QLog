@@ -7,10 +7,6 @@
 #include <QTcpSocket>
 #include <QTimer>
 
-#include <cmath>
-
-#include "rig/Rig.h"
-
 #include "core/LogParam.h"
 #include "core/debug.h"
 
@@ -131,7 +127,6 @@ SteppirController::SteppirController(QObject *parent) :
     socket(new QTcpSocket(this)),
     serial(new QSerialPort(this)),
     pollTimer(new QTimer(this)),
-    commandTimer(new QTimer(this)),
     hasActiveProfile(false),
     connectedState(false),
     frequencyKHz(0),
@@ -140,72 +135,11 @@ SteppirController::SteppirController(QObject *parent) :
     tuningState(false),
     reportingError(false)
 {
-    // Coalesce tuning updates so rapid dial movement does not flood the device.
-    QTimer *frequencyTimer = new QTimer(this);
-    frequencyTimer->setInterval(150);
-    frequencyTimer->setSingleShot(true);
-    connect(frequencyTimer, &QTimer::timeout, this, [this]() {
-        if (isConnected() && pendingFrequencyKHz > 0
-            && pendingFrequencyKHz != lastReportedFrequencyKHz)
-        {
-            setFrequencyKHz(pendingFrequencyKHz);
-            lastReportedFrequencyKHz = pendingFrequencyKHz;
-        }
-    });
-    const auto reportRigFrequency = [this, frequencyTimer](const Rig::Status &status) {
-        const double frequency = status.isConnected ? status.freq : 0.0;
-        const double frequencyKHz = frequency * 1000.0;
-        if (!std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 167772)
-        {
-            frequencyTimer->stop();
-            pendingFrequencyKHz = 0;
-            lastReportedFrequencyKHz = 0;
-            return;
-        }
-        pendingFrequencyKHz = static_cast<int>(frequencyKHz);
-        if (isConnected() && pendingFrequencyKHz != lastReportedFrequencyKHz
-            && !frequencyTimer->isActive())
-            frequencyTimer->start();
-    };
-    connect(Rig::instance(), &Rig::rigStatusChanged, this, reportRigFrequency);
-    connect(Rig::instance(), &Rig::rigStatusHeartBeat, this, reportRigFrequency);
-    connect(Rig::instance(), &Rig::rigDisconnected, this, [this, frequencyTimer]() {
-        frequencyTimer->stop();
-        pendingFrequencyKHz = 0;
-        lastReportedFrequencyKHz = 0;
-    });
-
-    // The Data Out protocol requires at least 100 ms between all commands.
-    commandTimer->setInterval(110);
-    connect(commandTimer, &QTimer::timeout, this, [this]() {
-        if (pendingCommands.isEmpty())
-        {
-            commandTimer->stop();
-            return;
-        }
-        const QByteArray command = pendingCommands.dequeue();
-        if (activeProfile.type == SteppirProfile::Network && socket->state() == QAbstractSocket::ConnectedState)
-            socket->write(command);
-        else if (activeProfile.type == SteppirProfile::Serial && serial->isOpen())
-            serial->write(command);
-    });
     pollTimer->setInterval(1000);
     connect(pollTimer, &QTimer::timeout, this, &SteppirController::poll);
     connect(socket, &QTcpSocket::readyRead, this, &SteppirController::readNetworkData);
     connect(socket, &QTcpSocket::connected, this, &SteppirController::socketConnected);
-    connect(socket, &QTcpSocket::disconnected, this, [this]() {
-        pollTimer->stop();
-        commandTimer->stop();
-        pendingCommands.clear();
-        buffer.clear();
-        lastReportedFrequencyKHz = 0;
-        if (connectedState)
-        {
-            connectedState = false;
-            emit disconnected();
-            emit stateChanged();
-        }
-    });
+    connect(socket, &QTcpSocket::disconnected, this, &SteppirController::disconnected);
     connect(socket, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::errorOccurred),
             this, &SteppirController::socketError);
     connect(serial, &QSerialPort::readyRead, this, &SteppirController::readSerialData);
@@ -302,10 +236,6 @@ void SteppirController::openProfile(const QString &profileName)
 
 void SteppirController::close()
 {
-    lastReportedFrequencyKHz = 0;
-    commandTimer->stop();
-    pendingCommands.clear();
-    buffer.clear();
     pollTimer->stop();
     if (socket->state() != QAbstractSocket::UnconnectedState)
         socket->disconnectFromHost();
@@ -321,23 +251,18 @@ void SteppirController::close()
 
 void SteppirController::setFrequencyHz(double frequencyHz)
 {
-    if (std::isfinite(frequencyHz) && frequencyHz >= 1000.0 && frequencyHz <= 167772000.0)
-        setFrequencyKHz(static_cast<int>(frequencyHz / 1000.0));
+    setFrequencyKHz(static_cast<int>(frequencyHz / 1000.0));
 }
 
 void SteppirController::setFrequencyKHz(int frequencyKHz)
 {
-    if (!connectedState || frequencyKHz <= 0 || frequencyKHz > 167772)
+    if (frequencyKHz <= 0)
         return;
 
-    pendingFrequencyKHz = frequencyKHz;
-    // A set frame must carry the requested frequency and current direction.
-    QByteArray frame = commandFrame(0x31);
-    const int encodedFrequency = frequencyKHz * 100;
-    frame[3] = char((encodedFrequency >> 16) & 0xff);
-    frame[4] = char((encodedFrequency >> 8) & 0xff);
-    frame[5] = char(encodedFrequency & 0xff);
-    writeCommand(frame);
+    this->frequencyKHz = frequencyKHz;
+    writeCommand(commandFrame(0x31));
+    emit tunedFrequencyChanged(this->frequencyKHz);
+    emit stateChanged();
 }
 
 void SteppirController::setDirection(SteppirController::Direction direction)
@@ -426,11 +351,12 @@ void SteppirController::reportError(const QString &error, const QString &detail,
 
 void SteppirController::writeCommand(const QByteArray &command)
 {
-    if (!connectedState || command.isEmpty())
+    if (command.isEmpty())
         return;
-    pendingCommands.enqueue(command);
-    if (!commandTimer->isActive())
-        commandTimer->start();
+    if (activeProfile.type == SteppirProfile::Network && socket->state() == QAbstractSocket::ConnectedState)
+        socket->write(command);
+    else if (activeProfile.type == SteppirProfile::Serial && serial->isOpen())
+        serial->write(command);
 }
 
 QByteArray SteppirController::commandFrame(quint8 command) const
@@ -438,10 +364,9 @@ QByteArray SteppirController::commandFrame(quint8 command) const
     QByteArray frame;
     frame.append(char(0x40));
     frame.append(char(0x41));
-    frame.append(char(0x00));
+    frame.append(command == 0x31 || command == 0x00 ? char(0x00) : char(0x40));
 
-    // Every set command also updates frequency, including direction changes.
-    int encodedFrequency = qMax(0, pendingFrequencyKHz > 0 ? pendingFrequencyKHz : frequencyKHz) * 100;
+    int encodedFrequency = qMax(0, frequencyKHz) * 100;
     frame.append(char((encodedFrequency >> 16) & 0xff));
     frame.append(char((encodedFrequency >> 8) & 0xff));
     frame.append(char(encodedFrequency & 0xff));
@@ -455,25 +380,13 @@ QByteArray SteppirController::commandFrame(quint8 command) const
 
 void SteppirController::processBuffer()
 {
-    // Responses are fixed-length binary frames; frequency bytes may contain CR.
-    while (!buffer.isEmpty())
+    int terminator = buffer.indexOf('\r');
+    while (terminator >= 0)
     {
-        const int start = buffer.indexOf("@A");
-        if (start < 0)
-        {
-            buffer = buffer.endsWith('@') ? QByteArray("@") : QByteArray();
-            return;
-        }
-        buffer.remove(0, start);
-        if (buffer.size() < 11)
-            return;
-        if (buffer.at(10) != '\r')
-        {
-            buffer.remove(0, 1);
-            continue;
-        }
-        processResponse(buffer.left(11));
-        buffer.remove(0, 11);
+        const QByteArray frame = buffer.left(terminator + 1);
+        buffer.remove(0, terminator + 1);
+        processResponse(frame);
+        terminator = buffer.indexOf('\r');
     }
 }
 
@@ -538,7 +451,7 @@ SteppirController::Direction SteppirController::directionFromBits(quint8 value) 
         return OneEighty;
     case 4:
         return BiDir;
-    case 1:
+    case 3:
         return ThreeQuarter;
     case 0:
     default:

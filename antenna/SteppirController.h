@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QHash>
-#include <QQueue>
 
 class QSerialPort;
 class QTcpSocket;
@@ -106,13 +105,9 @@ private:
     QTcpSocket *socket;
     QSerialPort *serial;
     QTimer *pollTimer;
-    QTimer *commandTimer;
-    QQueue<QByteArray> pendingCommands;
     QByteArray buffer;
     SteppirProfile activeProfile;
     bool hasActiveProfile;
-    int pendingFrequencyKHz = 0;
-    int lastReportedFrequencyKHz = 0;
     bool connectedState;
     int frequencyKHz;
     Direction currentDirection;

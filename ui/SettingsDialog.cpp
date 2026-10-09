@@ -491,14 +491,6 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
     initProfileListView(ui->stationProfilesListView);
 
     ui->amplifierModelCombo->addItem(tr("SPE Expert 1K-FA"), AmplifierProfile::SPE_EXPERT_1K);
-    ui->amplifierModelCombo->addItem(tr("Elecraft KPA500"), AmplifierProfile::ELECRAFT_KPA500);
-    connect(ui->amplifierModelCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
-        const bool kpa500 = ui->amplifierModelCombo->currentData().toInt() == AmplifierProfile::ELECRAFT_KPA500;
-        ui->amplifierBaudRateSpin->setValue(kpa500 ? 38400 : 9600);
-        ui->amplifierModelCombo->setToolTip(kpa500
-            ? tr("Connect to RS232 (PC). For QLog band following, select RADIO=SERIAL and SER POLL=OFF.")
-            : tr("Frequency updates require RS-232 CAT on the active amplifier input."));
-    });
     ui->amplifierConnectionTypeCombo->addItem(tr("Serial"), AmplifierProfile::Serial);
     ui->amplifierConnectionTypeCombo->addItem(tr("Network"), AmplifierProfile::Network);
     connect(ui->amplifierConnectionTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),

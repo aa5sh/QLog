@@ -340,6 +340,7 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::frequencyChanged, ui->bandmapWidget , &BandmapWidget::updateTunedFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->newContactWidget, &NewContactWidget::changeFrequency);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->rigWidget, &RigWidget::updateFrequency);
+    connect(Rig::instance(), &Rig::frequencyChanged, SteppirController::instance(), &SteppirController::setFrequencyHz);
     connect(Rig::instance(), &Rig::frequencyChanged, ui->dxWidget , &DxWidget::setTunedFrequency);
     connect(Rig::instance(), &Rig::modeChanged, ui->bandmapWidget, &BandmapWidget::updateMode);
     connect(Rig::instance(), &Rig::modeChanged, ui->newContactWidget, &NewContactWidget::changeModefromRig);
