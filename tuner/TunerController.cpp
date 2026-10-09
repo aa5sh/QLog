@@ -1,13 +1,9 @@
-#include "core/debug.h"
 #include "tuner/TunerController.h"
 #include "core/LogParam.h"
-#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <cmath>
-
-MODULE_IDENTIFICATION("qlog.tuner.tunercontroller");
 
 namespace {
     QJsonObject toJson(const TunerProfile &profile)
@@ -40,7 +36,6 @@ namespace {
 
 QList<TunerProfile> TunerProfiles::profiles()
 {
-    FCT_IDENTIFICATION;
     QList<TunerProfile> ret;
     const QJsonDocument doc = QJsonDocument::fromJson(LogParam::getTunerProfiles().toUtf8());
     for (const QJsonValue &value : doc.array())
@@ -54,7 +49,6 @@ QList<TunerProfile> TunerProfiles::profiles()
 
 QStringList TunerProfiles::profileNames()
 {
-    FCT_IDENTIFICATION;
     QStringList ret;
     for (const TunerProfile &profile : profiles())
         ret << profile.profileName;
@@ -63,7 +57,6 @@ QStringList TunerProfiles::profileNames()
 
 TunerProfile TunerProfiles::profile(const QString &profileName)
 {
-    FCT_IDENTIFICATION;
     for (const TunerProfile &profile : profiles())
     {
         if (profile.profileName == profileName)
@@ -74,7 +67,6 @@ TunerProfile TunerProfiles::profile(const QString &profileName)
 
 void TunerProfiles::saveProfiles(const QList<TunerProfile> &profiles)
 {
-    FCT_IDENTIFICATION;
     QJsonArray array;
     for (const TunerProfile &profile : profiles)
         array.append(toJson(profile));
@@ -84,7 +76,6 @@ void TunerProfiles::saveProfiles(const QList<TunerProfile> &profiles)
 
 void TunerProfiles::addOrReplace(const TunerProfile &profile)
 {
-    FCT_IDENTIFICATION;
     QList<TunerProfile> all = profiles();
     bool replaced = false;
     for (TunerProfile &existing : all)
@@ -103,7 +94,6 @@ void TunerProfiles::addOrReplace(const TunerProfile &profile)
 
 void TunerProfiles::remove(const QString &profileName)
 {
-    FCT_IDENTIFICATION;
     QList<TunerProfile> remaining;
     for (const TunerProfile &profile : profiles())
     {
@@ -116,26 +106,22 @@ void TunerProfiles::remove(const QString &profileName)
 
 QString TunerProfiles::currentProfileName()
 {
-    FCT_IDENTIFICATION;
     return LogParam::getTunerCurrentProfile();
 }
 
 void TunerProfiles::setCurrentProfileName(const QString &profileName)
 {
-    FCT_IDENTIFICATION;
     LogParam::setTunerCurrentProfile(profileName);
 }
 
 TunerController *TunerController::instance()
 {
-    FCT_IDENTIFICATION;
     static TunerController controller;
     return &controller;
 }
 
 TunerController::TunerController(QObject *parent) : QObject(parent)
 {
-    FCT_IDENTIFICATION;
     pollTimer.setInterval(500);
     replyTimer.setSingleShot(true);
     replyTimer.setInterval(1500);
@@ -144,29 +130,16 @@ TunerController::TunerController(QObject *parent) : QObject(parent)
     connect(&socket, &QTcpSocket::connected, this, &TunerController::transportReady);
     connect(&socket, &QTcpSocket::readyRead, this, [this]() { readData(socket.readAll()); });
     connect(&serial, &QSerialPort::readyRead, this, [this]() { readData(serial.readAll()); });
-    connect(&socket, &QTcpSocket::stateChanged, this, [this](QAbstractSocket::SocketState state) {
-        qCDebug(runtime) << "Socket state changed:" << state << "closing:" << closing
-                         << "enabled:" << enabledState << "expected reply:" << expectedReply;
-    });
     connect(&socket, &QTcpSocket::disconnected, this, [this]() {
-        qCDebug(runtime) << "Network transport disconnected; closing:" << closing;
         if (enabledState && !closing) fail(tr("Tuner network connection closed"));
     });
     connect(&socket, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::errorOccurred),
-            this, [this](QAbstractSocket::SocketError error) {
-        qCDebug(runtime) << "Socket error:" << error << socket.errorString() << "closing:" << closing;
-        if (!closing && enabledState) fail(socket.errorString());
-    });
+            this, [this]() { if (!closing && enabledState) fail(socket.errorString()); });
     connect(&serial, &QSerialPort::errorOccurred, this, [this](QSerialPort::SerialPortError error) {
-        qCDebug(runtime) << "Serial error:" << error << serial.errorString() << "closing:" << closing;
         if (error != QSerialPort::NoError && !closing && enabledState) fail(serial.errorString());
     });
     connect(&pollTimer, &QTimer::timeout, this, &TunerController::poll);
     connect(&replyTimer, &QTimer::timeout, this, [this]() {
-        qCDebug(runtime) << "Reply timeout; expected:" << expectedReply << "interval ms:" << replyTimer.interval()
-                         << "request elapsed ms:" << (requestElapsed.isValid() ? requestElapsed.elapsed() : -1)
-                         << "wake attempts:" << wakeAttempts << "queued:" << requests.size()
-                         << "partial RX:" << buffer;
         if (!connectedState && expectedReply == ";" && ++wakeAttempts < 30)
         {
             write(";");
@@ -186,28 +159,18 @@ TunerController::TunerController(QObject *parent) : QObject(parent)
 
 void TunerController::open()
 {
-    FCT_IDENTIFICATION;
     openProfile(TunerProfiles::currentProfileName());
 }
 
 void TunerController::openProfile(const QString &name)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << name;
     close();
-    sessionElapsed.start();
-    receiveElapsed.invalidate();
-    requestElapsed.invalidate();
     activeProfile = TunerProfiles::profile(name);
     if (activeProfile.profileName.isEmpty())
     {
         fail(tr("Select a tuner profile in Settings → Equipment → Amplifiers → Tuner Profiles."));
         return;
     }
-    qCDebug(runtime) << "Opening profile:" << activeProfile.profileName << "model:" << activeProfile.model
-                     << "transport:" << activeProfile.connectionType << "host:" << activeProfile.host
-                     << "port:" << activeProfile.port << "serial port:" << activeProfile.serialPort
-                     << "baud:" << activeProfile.baudRate;
     enabledState = true;
     if (activeProfile.connectionType == TunerProfile::Network)
     {
@@ -246,9 +209,6 @@ void TunerController::openProfile(const QString &name)
 
 void TunerController::transportReady()
 {
-    FCT_IDENTIFICATION;
-    qCDebug(runtime) << "Transport ready; local:" << socket.localAddress() << socket.localPort()
-                     << "peer:" << socket.peerAddress() << socket.peerPort();
     // Wake sleeping firmware with single semicolons before identifying the device.
     expectedReply = ";";
     wakeAttempts = 0;
@@ -258,10 +218,6 @@ void TunerController::transportReady()
 
 void TunerController::close()
 {
-    FCT_IDENTIFICATION;
-    qCDebug(runtime) << "Closing tuner; enabled:" << enabledState << "connected:" << connectedState
-                     << "session elapsed ms:" << (sessionElapsed.isValid() ? sessionElapsed.elapsed() : -1)
-                     << "expected:" << expectedReply << "queued:" << requests.size();
     closing = true;
     enabledState = false;
     connectedState = false;
@@ -282,69 +238,44 @@ void TunerController::close()
 
 void TunerController::reloadSettings()
 {
-    FCT_IDENTIFICATION;
-    qCDebug(runtime) << "Reload settings; enabled:" << enabledState << "current profile:" << TunerProfiles::currentProfileName();
     if (enabledState && activeProfile != TunerProfiles::profile(TunerProfiles::currentProfileName()))
         open();
 }
 
 void TunerController::fail(const QString &message)
 {
-    FCT_IDENTIFICATION;
-    qCWarning(runtime) << "Tuner failure:" << message << "profile:" << activeProfile.profileName
-                       << "transport:" << activeProfile.connectionType << "socket state:" << socket.state()
-                       << "socket error:" << socket.error() << socket.errorString()
-                       << "expected:" << expectedReply << "queued:" << requests.size() << "partial RX:" << buffer
-                       << "session elapsed ms:" << (sessionElapsed.isValid() ? sessionElapsed.elapsed() : -1)
-                       << "last RX ms ago:" << (receiveElapsed.isValid() ? receiveElapsed.elapsed() : -1);
     close();
     emit errorPresent(tr("KAT500 connection error"), message);
 }
 
 void TunerController::write(const QByteArray &data)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(runtime) << "TX:" << data << "hex:" << data.toHex() << "expected:" << expectedReply;
-    requestElapsed.start();
-    qint64 written = -1;
     if (activeProfile.connectionType == TunerProfile::Network)
-        written = socket.write(data);
+        socket.write(data);
     else if (serial.isOpen())
-        written = serial.write(data);
-    qCDebug(runtime) << "Write accepted bytes:" << written << "requested:" << data.size()
-                     << "pending bytes:" << (activeProfile.connectionType == TunerProfile::Network
-                                              ? socket.bytesToWrite() : serial.bytesToWrite());
+        serial.write(data);
 }
 
 void TunerController::enqueue(const QByteArray &command, const QByteArray &reply)
 {
-    FCT_IDENTIFICATION;
     if (!connectedState) return;
     // Keep a stalled peer from accumulating an unbounded queue.
-    if (requests.size() >= 32)
-    {
-        qCWarning(runtime) << "Request queue full; dropping:" << command << "expected:" << expectedReply;
-        return;
-    }
-    qCDebug(runtime) << "Queue request:" << command << "reply:" << reply << "queued:" << requests.size();
+    if (requests.size() >= 32) return;
     requests.enqueue({command, reply});
     nextRequest();
 }
 
 void TunerController::nextRequest()
 {
-    FCT_IDENTIFICATION;
     if (!expectedReply.isEmpty() || requests.isEmpty() || !connectedState) return;
     const Request request = requests.dequeue();
     expectedReply = request.reply;
     write(request.command);
-    // Handshake retries change the timer interval; restore the normal reply timeout.
-    replyTimer.start(1500);
+    replyTimer.start();
 }
 
 void TunerController::poll()
 {
-    FCT_IDENTIFICATION;
     if (!connectedState || !requests.isEmpty() || !expectedReply.isEmpty()) return;
     static const QList<QByteArray> queries = {
         "PS", "TP", "AN", "MD", "F", "BN", "VSWR", "VSWRB", "BYP", "AMPI", "ATTN", "FLT", "L", "C", "SIDE"
@@ -354,10 +285,6 @@ void TunerController::poll()
 
 void TunerController::readData(const QByteArray &data)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(runtime) << "RX:" << data << "hex:" << data.toHex() << "expected:" << expectedReply
-                     << "request elapsed ms:" << (requestElapsed.isValid() ? requestElapsed.elapsed() : -1);
-    receiveElapsed.start();
     buffer += data;
     if (buffer.size() > 4096)
     {
@@ -383,13 +310,11 @@ void TunerController::readData(const QByteArray &data)
                 replyTimer.stop();
                 expectedReply.clear();
                 connectedState = true;
-                qCDebug(runtime) << "KAT500 identified; starting polling";
                 emit connected();
                 enqueue("RV;", "RV");
                 enqueue("SN;", "SN");
                 pollTimer.start();
             }
-            qCDebug(runtime) << "Handshake response:" << response << "now expecting:" << expectedReply;
             continue;
         }
         const bool valid = parseResponse(response);
@@ -401,8 +326,6 @@ void TunerController::readData(const QByteArray &data)
         suffix.trimmed().toInt(&numericFrequency);
         const bool boundary = (expectedReply != "VSWR" || !suffix.startsWith('B'))
             && (expectedReply != "F" || numericFrequency);
-        qCDebug(runtime) << "Response:" << response << "valid:" << valid << "expected:" << expectedReply
-                         << "matches:" << (valid && !expectedReply.isEmpty() && key == expectedReply && boundary);
         if (valid && !expectedReply.isEmpty() && key == expectedReply && boundary)
         {
             replyTimer.stop();
@@ -414,7 +337,6 @@ void TunerController::readData(const QByteArray &data)
 
 bool TunerController::parseResponse(const QByteArray &response)
 {
-    FCT_IDENTIFICATION;
     bool ok = false;
     auto integer = [&](const QByteArray &key, int minimum, int maximum, int &target, int base = 10) {
         if (!response.startsWith(key)) return false;
@@ -487,8 +409,6 @@ bool TunerController::parseResponse(const QByteArray &response)
 
 void TunerController::sendCommand(Command command)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << command;
     if (!connectedState || (!currentStatus.poweredOn && command != PowerOn)) return;
     switch (command)
     {
@@ -509,32 +429,24 @@ void TunerController::sendCommand(Command command)
 
 void TunerController::setAntenna(int antenna)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << antenna;
     if (connectedState && currentStatus.poweredOn && !currentStatus.tuning && antenna >= 1 && antenna <= 3)
         enqueue("AN" + QByteArray::number(antenna) + ";AN;", "AN");
 }
 
 void TunerController::setInductors(int value)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << value;
     if (connectedState && currentStatus.poweredOn && !currentStatus.tuning && !currentStatus.bypass && value >= 0 && value <= 255)
         enqueue("L" + QByteArray::number(value, 16).rightJustified(2, '0').toUpper() + ";L;", "L");
 }
 
 void TunerController::setCapacitors(int value)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << value;
     if (connectedState && currentStatus.poweredOn && !currentStatus.tuning && !currentStatus.bypass && value >= 0 && value <= 255)
         enqueue("C" + QByteArray::number(value, 16).rightJustified(2, '0').toUpper() + ";C;", "C");
 }
 
 void TunerController::setFrequencyKHz(int frequency)
 {
-    FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << frequency;
     if (frequency <= 0 || frequency > 54000)
     {
         frequencyTimer.stop();

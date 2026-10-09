@@ -1,4 +1,3 @@
-#include "core/debug.h"
 #include "ui/TunerWidget.h"
 #include <QAction>
 #include <QComboBox>
@@ -13,11 +12,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-MODULE_IDENTIFICATION("qlog.ui.tunerwidget");
-
 TunerWidget::TunerWidget(QWidget *parent) : QWidget(parent)
 {
-    FCT_IDENTIFICATION;
     setMaximumWidth(560);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     auto *layout = new QVBoxLayout(this);
@@ -156,7 +152,6 @@ TunerWidget::TunerWidget(QWidget *parent) : QWidget(parent)
     refreshProfiles();
     updateStatus(controller->status());
     connect(profiles, &QComboBox::currentTextChanged, this, [this](const QString &name) {
-        qCDebug(runtime) << "Selected tuner profile:" << name;
         TunerProfiles::setCurrentProfileName(name);
         emit profileChanged();
     });
@@ -166,13 +161,11 @@ TunerWidget::TunerWidget(QWidget *parent) : QWidget(parent)
 
 void TunerWidget::setConnectAction(QAction *action)
 {
-    FCT_IDENTIFICATION;
     connectButton->setDefaultAction(action);
 }
 
 void TunerWidget::refreshProfiles()
 {
-    FCT_IDENTIFICATION;
     const QSignalBlocker blocker(profiles);
     profiles->clear();
     profiles->addItems(TunerProfiles::profileNames());
@@ -181,19 +174,15 @@ void TunerWidget::refreshProfiles()
 
 void TunerWidget::reloadSettings()
 {
-    FCT_IDENTIFICATION;
     refreshProfiles();
     TunerController::instance()->reloadSettings();
 }
 
 void TunerWidget::updateStatus(const TunerStatus &status)
 {
-    FCT_IDENTIFICATION;
     const bool connected = TunerController::instance()->isConnected();
     connectButton->setStyleSheet(connected
         ? QStringLiteral("QToolButton {background-color: green}") : QString());
-    if (connectionLabel->text() != (connected ? tr("Connected") : tr("Disconnected")))
-        qCDebug(runtime) << "Widget connection state:" << connected;
     const bool active = connected && status.poweredOn;
     connectionLabel->setText(connected ? tr("Connected") : tr("Disconnected"));
     identityLabel->setText(connected ? tr("S/N: %1   Firmware: %2").arg(status.serialNumber, status.firmware) : QString());
