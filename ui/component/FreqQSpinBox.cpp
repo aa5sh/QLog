@@ -7,8 +7,15 @@
 #include <QPalette>
 #include <QSignalBlocker>
 #include <QStyle>
+#include <QTextLayout>
+#include <QToolButton>
+#include <QWidgetAction>
+#include <QtMath>
 #include "data/BandPlan.h"
 #include "rig/macros.h"
+#include "core/debug.h"
+
+MODULE_IDENTIFICATION("qlog.ui.component.freqqspinbox");
 
 FreqQSpinBox::FreqQSpinBox(QWidget *parent) :
     BaseDoubleSpinBox(parent),
@@ -44,13 +51,30 @@ void FreqQSpinBox::setDebounceEnabled(bool enabled)
     }
 }
 
+void FreqQSpinBox::setMousePositionStepEnabled(bool enabled)
+{
+    FCT_IDENTIFICATION;
+
+    mousePositionStepEnabled = enabled;
+}
+
 void FreqQSpinBox::setDebounceIntervalMs(int ms)
 {
     debounceMs = qMax(0, ms);
 }
 
+void FreqQSpinBox::cancelPendingValueChange()
+{
+    FCT_IDENTIFICATION;
+
+    debounceTimer.stop();
+    hasPending = false;
+}
+
 void FreqQSpinBox::enableBandSelection()
 {
+    FCT_IDENTIFICATION;
+
     if ( bandMenuButton )
         return;
 
@@ -58,8 +82,16 @@ void FreqQSpinBox::enableBandSelection()
     connect(bandMenu, &QMenu::triggered,
             this, &FreqQSpinBox::bandMenuTriggered);
 
-    bandMenuButton = lineEdit()->addAction(style()->standardIcon(QStyle::SP_ArrowDown),
-                                           QLineEdit::TrailingPosition);
+    // Let the style paint the arrow using the current palette instead of a fixed icon.
+    bandMenuButton = new QWidgetAction(lineEdit());
+    QToolButton *button = new QToolButton(lineEdit());
+    button->setArrowType(Qt::DownArrow);
+    button->setAutoRaise(true);
+    button->setFocusPolicy(Qt::NoFocus);
+    button->setCursor(Qt::ArrowCursor);
+    button->setDefaultAction(bandMenuButton);
+    bandMenuButton->setDefaultWidget(button);
+    lineEdit()->addAction(bandMenuButton, QLineEdit::TrailingPosition);
     bandMenuButton->setText(tr("Select Band or Frequency"));
     bandMenuButton->setToolTip(tr("Select Band or Frequency"));
     connect(bandMenuButton, &QAction::triggered,
@@ -136,6 +168,22 @@ bool FreqQSpinBox::hasBand() const
 bool FreqQSpinBox::hasFrequency() const
 {
     return !hasBand() && value() > minimum();
+}
+
+double FreqQSpinBox::displayedFrequency() const
+{
+    FCT_IDENTIFICATION;
+
+    // No-focus actions can read the editor before Qt commits keyboard input.
+    QString input = text();
+    if ( hasBand() && input == selectedBand() )
+        return 0.0;
+
+    int position = lineEdit()->cursorPosition();
+    if ( validate(input, position) != QValidator::Acceptable )
+        return 0.0;
+
+    return valueFromText(input);
 }
 
 QString FreqQSpinBox::selectedBand() const
@@ -236,6 +284,12 @@ void FreqQSpinBox::wheelEvent(QWheelEvent *event)
 
     if ( event->modifiers() & Qt::ControlModifier )
     {
+        if ( event->angleDelta().y() == 0 )
+        {
+            event->ignore();
+            return;
+        }
+
         const int direction = event->angleDelta().y() > 0 ? 1 : -1;
         if ( bandIndex >= 0 )
             stepBand(direction);
@@ -246,7 +300,73 @@ void FreqQSpinBox::wheelEvent(QWheelEvent *event)
         event->accept();
         return;
     }
+    const double originalStep = singleStep();
+    double wheelStep = 0.0;
+    if ( mousePositionStepEnabled && bandIndex < 0 )
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        wheelStep = frequencyStepAt(event->position().toPoint());
+#else
+        wheelStep = frequencyStepAt(event->pos());
+#endif
+    }
+    if ( wheelStep > 0.0 )
+        setSingleStep(wheelStep);
+
     BaseDoubleSpinBox::wheelEvent(event);
+
+    if ( wheelStep > 0.0 )
+        setSingleStep(originalStep);
+}
+
+double FreqQSpinBox::frequencyStepAt(const QPoint &position) const
+{
+    FCT_IDENTIFICATION;
+
+    const QLineEdit *editor = lineEdit();
+    const QPoint editorPosition = editor->mapFrom(this, position);
+    if ( !editor->contentsRect().marginsRemoved(editor->textMargins()).contains(editorPosition) )
+        return 0.0;
+
+    const QString text = editor->displayText();
+    QTextLayout layout(text, editor->font(), editor);
+    QTextOption option;
+    option.setTextDirection(editor->layoutDirection());
+    option.setFlags(QTextOption::IncludeTrailingSpaces);
+    layout.setTextOption(option);
+    layout.beginLayout();
+    QTextLine line = layout.createLine();
+    line.setNumColumns(text.size());
+    layout.endLayout();
+
+    // The input-method caret rectangle follows the editor's actual alignment and scrolling.
+    const QRectF caret = editor->inputMethodQuery(Qt::ImCursorRectangle).toRectF();
+    const int caretWidth = editor->style()->pixelMetric(QStyle::PM_TextCursorWidth, nullptr, editor);
+    const qreal originX = caret.center().x() - (caretWidth - 1) / 2.0
+                         - qRound(line.cursorToX(editor->cursorPosition()));
+    if ( !QRectF(originX, caret.top(), line.naturalTextWidth(), line.height()).contains(editorPosition) )
+        return 0.0;
+
+    const int index = line.xToCursor(editorPosition.x() - originX, QTextLine::CursorOnCharacter);
+    const int numberEnd = text.size() - suffix().size();
+    if ( index < prefix().size() || index >= numberEnd || !text.at(index).isDigit() )
+        return 0.0;
+
+    // Pasted text may contain fewer fractional digits than decimals().
+    const int decimalIndex = text.indexOf(locale().decimalPoint(), prefix().size());
+    int exponent = 0;
+    for ( int i = prefix().size(); i < numberEnd; ++i )
+    {
+        if ( !text.at(i).isDigit() )
+            continue;
+
+        if ( i > index )
+            ++exponent;
+        if ( decimalIndex >= 0 && i > decimalIndex )
+            --exponent;
+    }
+
+    return qPow(10.0, exponent);
 }
 
 void FreqQSpinBox::stepBy(int steps)

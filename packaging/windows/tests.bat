@@ -122,6 +122,10 @@ echo === Running qmake (tests, release) ===
   "OPENSSLLIBPATH=%OPENSSLROOT%/lib"
 
 if errorlevel 1 exit /b 10
+
+echo === Generating test makefiles ===
+"%MAKE%" qmake_all
+if errorlevel 1 exit /b 11
 exit /b 0
 
 :doBuild
@@ -143,8 +147,8 @@ for /r "%BUILDROOT%" %%F in (tst_*.exe) do (
   set /a COUNT+=1
   echo --- %%~nxF ---
   "%%F"
-  if errorlevel 1 (
-    echo FAILED: %%~nxF
+  if not "!errorlevel!"=="0" (
+    echo FAILED: %%~nxF [exit code: !errorlevel!]
     set "FAILED=1"
     goto :run_done
   )

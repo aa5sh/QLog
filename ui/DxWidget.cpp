@@ -3,6 +3,8 @@
 #include <QMessageBox>
 #include <QFontMetrics>
 #include <QActionGroup>
+#include <QAbstractItemView>
+#include <QToolTip>
 
 #ifdef Q_OS_WIN
 #include <Ws2tcpip.h>
@@ -29,10 +31,12 @@
 #include "ui/ColumnSettingDialog.h"
 #include "core/CredentialStore.h"
 #include "ui/InputPasswordDialog.h"
+#include "ui/SpotCommentDialog.h"
 #include "data/BandPlan.h"
 #include "rig/macros.h"
 #include "data/Callsign.h"
 #include "core/LogParam.h"
+#include "core/MacroExpander.h"
 #include "core/PotaQE.h"
 
 #define CONSOLE_VIEW 4
@@ -585,24 +589,6 @@ void ToAllTableModel::clear()
     endResetModel();
 }
 
-bool DeleteHighlightedDXServerWhenDelPressedEventFilter::eventFilter(QObject *obj, QEvent *event)
-{
-    if ( event->type() == QEvent::KeyPress )
-    {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key::Key_Delete && keyEvent->modifiers() == Qt::ControlModifier)
-        {
-            if ( dynamic_cast<QComboBox *>(obj) )
-            {
-                emit deleteServerItem();
-                return true;
-            }
-        }
-    }
-
-    // standard event processing
-    return QObject::eventFilter(obj, event);
-}
 /****************************************************/
 DxWidget::DxWidget(QWidget *parent) :
     QWidget(parent),
@@ -621,9 +607,17 @@ DxWidget::DxWidget(QWidget *parent) :
 
     ui->setupUi(this);
 
+    ui->commandEdit->addAction(ui->actionCommandWarning, QLineEdit::LeadingPosition);
+    ui->actionCommandWarning->setVisible(false);
+    connect(ui->commandEdit, &QLineEdit::textChanged, this, [this](const QString &text)
+    {
+        if ( text.isEmpty() && ui->actionCommandWarning->isVisible() )
+            setCommandWarning(QString());
+    });
+
     setSearchClosed();
 
-    ui->serverSelect->setStyleSheet(QStringLiteral("QComboBox {color: red}"));
+    ui->serverSelect->setStyleSheet(QStringLiteral("QLineEdit {color: red}"));
 
     wcyTableModel = new WCYTableModel(this);
     wwvTableModel = new WWVTableModel(this);
@@ -678,19 +672,24 @@ DxWidget::DxWidget(QWidget *parent) :
     bandregexp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     reloadSetting();
-    serverComboSetup();
+    serverSelectSetup();
 
     commandsMenu->addAction(ui->actionSpotQSO);
+    commandsMenu->addAction(ui->actionSpotComment);
     commandsMenu->addSeparator();
     commandsMenu->addAction(ui->actionShowWCY);
     commandsMenu->addAction(ui->actionShowWWV);
     ui->commandButton->setMenu(commandsMenu);
     ui->commandButton->setDefaultAction(ui->actionSpotQSO);
     ui->commandButton->setEnabled(false);
+    ui->commandButton->installEventFilter(this);
+    connect(commandsMenu, &QMenu::aboutToShow, this, &DxWidget::updateSpotAction);
+    updateSpotAction();
 
     QMenu *mainWidgetMenu = new QMenu(this);
     mainWidgetMenu->addAction(ui->actionDeleteServer);
     mainWidgetMenu->addAction(ui->actionForgetPassword);
+    mainWidgetMenu->addAction(ui->actionSpotComment);
     mainWidgetMenu->addSeparator();
     mainWidgetMenu->addAction(ui->actionConnectOnStartup);
     QMenu *trendContinentMenu = new QMenu(tr("My Continent"), mainWidgetMenu);
@@ -746,7 +745,7 @@ void DxWidget::toggleConnect()
     }
     else
     {
-        if ( !DxServerString::isValidServerString(ui->serverSelect->currentText()) )
+        if ( !DxServerString::isValidServerString(ui->serverSelect->text()) )
         {
             QMessageBox::warning(nullptr, QMessageBox::tr("DXC Server Name Error"),
                                           QMessageBox::tr("DXC Server address must be in format<p><b>[username@]hostname:port</b> (ex. hamqth.com:7300)</p>"));
@@ -761,7 +760,7 @@ void DxWidget::connectCluster()
     FCT_IDENTIFICATION;
 
     const Callsign connectCallsign(StationProfilesManager::instance()->getCurProfile1().callsign);
-    connectedServerString = new DxServerString(ui->serverSelect->currentText(),
+    connectedServerString = new DxServerString(ui->serverSelect->text(),
                                                connectCallsign.isValid() ? connectCallsign.getBase().toLower()
                                                                          : QString());
 
@@ -777,9 +776,14 @@ void DxWidget::connectCluster()
         return;
     }
 
+    ui->serverSelect->setText(connectedServerString->getConnectString());
+
     qCDebug(runtime) << "username:" << connectedServerString->getUsername()
                      << "host:" << connectedServerString->getHostname()
                      << "port:" << connectedServerString->getPort();
+
+    ui->commandEdit->setServer(QStringLiteral("%1:%2").arg(connectedServerString->getHostname().toLower())
+                                                    .arg(connectedServerString->getPort()));
 
     socket = new QTcpSocket(this);
 
@@ -819,6 +823,7 @@ void DxWidget::disconnectCluster(bool tryReconnect)
     FCT_IDENTIFICATION;
 
     reconnectTimer.stop();
+    setCommandWarning(QString());
     ui->commandEdit->clear();
     ui->commandEdit->setEnabled(false);
     ui->commandButton->setEnabled(false);
@@ -845,10 +850,12 @@ void DxWidget::disconnectCluster(bool tryReconnect)
         reconnectAttempts = 0;
         ui->commandEdit->setPlaceholderText("");
         ui->connectButton->setText(tr("Connect"));
-        ui->serverSelect->setStyleSheet(QStringLiteral("QComboBox {color: red}"));
+        ui->serverSelect->setStyleSheet(QStringLiteral("QLineEdit {color: red}"));
     }
     connectionState = DISCONNECTED;
-    dxcType = UNKNOWN;
+    dxcType = DXCType::UNKNOWN;
+    ui->commandEdit->setClusterType(dxcType);
+    ui->commandEdit->setServer(QString());
     if ( connectedServerString )
     {
         delete connectedServerString;
@@ -858,27 +865,19 @@ void DxWidget::disconnectCluster(bool tryReconnect)
     clearAllPasswordIcons();
 }
 
-void DxWidget::saveDXCServers()
+void DxWidget::saveDXCServers(const QString &server)
 {
     FCT_IDENTIFICATION;
 
-    QStringList serversItems = getDXCServerList();
-    const QString &curr_server = ui->serverSelect->currentText();
-
-    if ( DxServerString::isValidServerString(ui->serverSelect->currentText())
-         && !serversItems.contains(curr_server)
-         && !curr_server.isEmpty() )
+    QStringList servers = ui->serverSelect->userValues();
+    if ( !server.isEmpty() && !servers.contains(server) )
     {
-        ui->serverSelect->insertItem(0, ui->serverSelect->currentText());
-        serversItems.prepend(ui->serverSelect->currentText()); // insert policy is InsertAtTop
-        ui->serverSelect->setCurrentIndex(0);
+        servers.prepend(server);
+        ui->serverSelect->setUserValues(servers);
     }
-
-    LogParam::setDXCServerlist(serversItems);
-    LogParam::setDXCLastServer(ui->serverSelect->currentText());
-
-    DxClusterCredentials::refreshDescriptorCache(serversItems,
-                                                 dxClusterDefaultUsername());
+    LogParam::setDXCServerlist(servers);
+    LogParam::setDXCLastServer(server.isEmpty() ? ui->serverSelect->text() : server);
+    DxClusterCredentials::refreshDescriptorCache(servers, dxClusterDefaultUsername());
 }
 
 QString DxWidget::modeFilterRegExp()
@@ -913,16 +912,9 @@ QString DxWidget::bandFilterRegExp()
 
     for ( const Band &band : bands )
         if ( !exludedBandFilter.contains(band.name) )
-            regexp.append("|^" + band.name);
+            regexp.append("|^" + QRegularExpression::escape(band.name) + "$");
 
     return regexp;
-}
-
-uint DxWidget::dxccStatusFilterValue()
-{
-    FCT_IDENTIFICATION;
-
-    return LogParam::getDXCFilterDxccStatus();
 }
 
 int DxWidget::getDedupTimeValue()
@@ -981,19 +973,22 @@ void DxWidget::saveKeepQSOs(bool state)
     LogParam::setDXCKeepQSOs(state);
 }
 
-void DxWidget::sendCommand(const QString & command,
+bool DxWidget::sendCommand(const QString & command,
                            bool switchToConsole)
 {
     FCT_IDENTIFICATION;
 
-    if ( socket && socket->isOpen() )
-        socket->write((command + QLatin1String("\r\n")).toLatin1());
+    const QByteArray payload = (command + QLatin1String("\r\n")).toLatin1();
+    const bool sent = socket && socket->isOpen() && socket->write(payload) == payload.size();
+    if ( !sent )
+        qCWarning(runtime) << "Cannot send DX cluster command";
 
     // switch to raw mode to see a response
     if ( switchToConsole )
     {
         ui->viewModeCombo->setCurrentIndex(CONSOLE_VIEW);
     }
+    return sent;
 }
 
 void DxWidget::saveWidgetSetting()
@@ -1033,7 +1028,12 @@ void DxWidget::send()
 {
     FCT_IDENTIFICATION;
 
-    sendCommand(ui->commandEdit->text());
+    const QString command = ui->commandEdit->text();
+    if ( !sendCommand(command) )
+        return;
+    if ( connectionState == OPERATION )
+        ui->commandEdit->rememberCommand(command);
+    setCommandWarning(QString());
     ui->commandEdit->clear();
 }
 
@@ -1102,6 +1102,24 @@ void DxWidget::receive()
         // Skip empty lines
         if ( line.isEmpty() ) continue;
 
+        // Banners may arrive before login or after the first spot, but spot/chat text is not a banner.
+        if ( dxcType == DXCType::UNKNOWN
+             && !line.startsWith(QLatin1String("DX de "), Qt::CaseInsensitive)
+             && !line.startsWith(QLatin1String("To "), Qt::CaseInsensitive)
+             && !line.startsWith(wcyPrefix, Qt::CaseInsensitive)
+             && !line.startsWith(wwvPrefix, Qt::CaseInsensitive) )
+        {
+            if ( line.contains(dxSpiderStr, Qt::CaseInsensitive) )
+                dxcType = DXCType::DXSPIDER;
+            else if ( line.contains(ccClusterStr, Qt::CaseInsensitive) )
+                dxcType = DXCType::CC_CLUSTER;
+            if ( dxcType != DXCType::UNKNOWN )
+            {
+                qCDebug(runtime) << "DX cluster type detected" << dxcType;
+                updateCommandsMenu();
+            }
+        }
+
         if ( connectionState == CONNECTED )
         {
             if ( line.startsWith(loginStr, Qt::CaseInsensitive) || line.contains(loginRE) )
@@ -1112,23 +1130,16 @@ void DxWidget::receive()
                 qCDebug(runtime) << "Login sent";
                 continue;
             }
-
-            if ( line.contains(ccClusterStr, Qt::CaseInsensitive) )
-            {
-                dxcType = CCCluster;
-                qCDebug(runtime) << "CC Cluster Detected";
-                updateCommandsMenu();
-                continue;
-            }
         }
 
         if ( connectionState == LOGIN_SENT && line.contains(invalidCallsign) )
         {
             // invalid login
+            disconnectCluster();
             QMessageBox::warning(nullptr,
                                  tr("DXC Server Error"),
                                  tr("An invalid callsign"));
-            continue;
+            return;
         }
 
         if ( connectionState == LOGIN_SENT && line.startsWith(passwordStr, Qt::CaseInsensitive) )
@@ -1169,31 +1180,19 @@ void DxWidget::receive()
         {
             // invalid password
             DxClusterCredentials::removePasswd(*connectedServerString);
+            disconnectCluster();
             QMessageBox::warning(nullptr,
                                  QMessageBox::tr("DX Cluster Password"),
                                  QMessageBox::tr("Invalid Password"));
-            continue;
+            return;
         }
 
-        if ( connectionState == LOGIN_SENT || connectionState == PASSWORD_SENT )
+        if ( (connectionState == LOGIN_SENT || connectionState == PASSWORD_SENT)
+             && (dxcType == DXCType::CC_CLUSTER || line.contains(dxSpiderStr, Qt::CaseInsensitive)) )
         {
-
-            if ( line.contains(dxSpiderStr, Qt::CaseInsensitive) )
-            {
-                connectionState = OPERATION;
-                dxcType = DXSPIDER;
-                qCDebug(runtime) << "dxspider Detected";
-                updateCommandsMenu();
-                ui->commandButton->setEnabled(true);
-                continue;
-            }
-            // the difference compared to DXSpider is that CC Cluster type
-            // is detected before login, but DXSpider type is detected after login
-            if ( dxcType == CCCluster )
-            {
-                connectionState = OPERATION;
-                ui->commandButton->setEnabled(true);
-            }
+            connectionState = OPERATION;
+            ui->commandButton->setEnabled(true);
+            saveDXCServers(connectedServerString->getConnectString());
         }
 
         /********************/
@@ -1202,7 +1201,11 @@ void DxWidget::receive()
         if ( line.startsWith(dxPrefix) )
         {
             if ( connectionState == LOGIN_SENT || connectionState == PASSWORD_SENT )
+            {
                 connectionState = OPERATION;
+                ui->commandButton->setEnabled(true);
+                saveDXCServers(connectedServerString->getConnectString());
+            }
 
             const QRegularExpressionMatch dxSpotMatch = dxSpotRE.match(line);
 
@@ -1420,9 +1423,8 @@ void DxWidget::connected()
     ui->connectButton->setEnabled(true);
     ui->connectButton->setText(tr("Disconnect"));
     ui->commandEdit->setPlaceholderText(tr("DX Cluster Command"));
-    ui->serverSelect->setStyleSheet("QComboBox {color: green}");
+    ui->serverSelect->setStyleSheet("QLineEdit {color: green}");
     connectionState = CONNECTED;
-    saveDXCServers();
 }
 
 void DxWidget::viewModeChanged(int index)
@@ -1454,31 +1456,26 @@ void DxWidget::adjusteServerSelectSize(QString input)
 {
     FCT_IDENTIFICATION;
 
-    qDebug(function_parameters)<< input << input.length();
+    qCDebug(function_parameters) << input;
 
-    QFont f;
-    QFontMetrics met(f);
+    const QFontMetrics met(ui->serverSelect->font());
 
-    ui->serverSelect->setMinimumWidth(met.boundingRect(input).width() + 35);
+    ui->serverSelect->setMinimumWidth(met.horizontalAdvance(input) + 35);
     ui->serverSelect->update();
     ui->serverSelect->repaint();
 }
 
-void DxWidget::serverSelectChanged(int index)
+void DxWidget::serverSelectChanged()
 {
     FCT_IDENTIFICATION;
 
-    qDebug(function_parameters) << index;
-
-    if ( (socket && socket->isOpen())
-         || reconnectAttempts )
+    if ( connectedServerString && ui->serverSelect->text() == connectedServerString->getConnectString() )
+        return;
+    if ( (socket && socket->isOpen()) || reconnectAttempts )
     {
-        /* reconnect DXC Server */
-        if ( index >= 0 )
-        {
-            disconnectCluster();
-            connectCluster();
-        }
+        disconnectCluster();
+        if ( !ui->serverSelect->text().isEmpty() )
+            toggleConnect();
     }
 }
 
@@ -1488,6 +1485,7 @@ void DxWidget::setLastQSO(QSqlRecord qsoRecord)
 
     lastQSO = qsoRecord;
     dxTableModel->updateWorkedStation(qsoRecord);
+    updateSpotAction();
 }
 
 void DxTableModel::updateWorkedStation(QSqlRecord qsoRecord)
@@ -1533,7 +1531,9 @@ void DxWidget::reloadSetting()
     contregexp.setPattern(contFilterRegExp());
     spottercontregexp.setPattern(spotterContFilterRegExp());
     bandregexp.setPattern(bandFilterRegExp());
-    dxccStatusFilter = dxccStatusFilterValue();
+    logStatusFilter = LogParam::getDXCFilterLogStatus();
+    if ( logStatusFilter.isInvalid() )
+        qCWarning(runtime) << "Invalid DX Cluster Log Status filter";
     deduplicateSpots = spotDedupValue();
     deduplicatetime = getDedupTimeValue();
     deduplicatefreq = getDedupFreqValue();
@@ -1574,30 +1574,134 @@ void DxWidget::prepareQSOSpot(QSqlRecord qso)
 
     qCDebug(runtime) << "QSO" << qso;
 
+    if ( !qso.contains(QStringLiteral("start_time"))
+         || !qso.contains(QStringLiteral("freq"))
+         || !qso.contains(QStringLiteral("callsign")) )
+        return;
+
+    const double frequency = qso.value("freq_rx").toDouble() != 0.0 ? qso.value("freq_rx").toDouble()
+                                                                    : qso.value("freq").toDouble();
+    prepareSpot(frequency, MacroExpander::fromQSO(qso));
+}
+
+void DxWidget::prepareSpot(double frequency, const MacroExpander::Context &context)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << frequency;
+
     if ( !ui->commandEdit->isEnabled() )
         return;
 
-    if ( qso.contains(QStringLiteral("start_time")) )
+    const QString callsign = context.value(QStringLiteral("callsign")).trimmed();
+    if ( callsign.isEmpty() )
     {
-        //qso is valid record
-        if ( qso.contains(QStringLiteral("freq"))
-             && qso.contains(QStringLiteral("callsign")) )
+        setCommandWarning(tr("A callsign is required to spot a QSO."));
+        return;
+    }
+
+    if ( !qIsFinite(frequency) || frequency <= 0.0 )
+    {
+        setCommandWarning(tr("An exact frequency is required to spot a QSO"));
+        return;
+    }
+
+    // kHz values also work reliably on SHF bands, unlike DX Spider's MHz shorthand.
+    QString command = QStringLiteral("dx %1 %2 ").arg(QString::number(Hz2kHz(MHz2Hz(frequency)), 'f', 1), callsign);
+    const MacroExpander::Result result = MacroExpander::expandSpotComment(LogParam::getDXCSpotCommentTemplate(), context);
+    if ( result.missingMacros.isEmpty() )
+        command += result.text;
+
+    ui->commandEdit->setText(command);
+    ui->commandEdit->setFocus();
+
+    setCommandWarning(result.missingMacros.isEmpty() ? QString()
+                      : tr("Comment not added: missing %1.")
+                        .arg(result.missingMacros.join(QStringLiteral(", "))));
+}
+
+void DxWidget::setCommandWarning(const QString &warning)
+{
+    FCT_IDENTIFICATION;
+
+    if ( QToolTip::text() == ui->actionCommandWarning->toolTip() )
+        QToolTip::hideText();
+    const QString tooltip = warning.isEmpty() ? QString()
+                            : QStringLiteral("<qt>%1</qt>").arg(warning.toHtmlEscaped());
+    ui->actionCommandWarning->setToolTip(tooltip);
+    ui->actionCommandWarning->setVisible(!warning.isEmpty());
+    if ( !warning.isEmpty() )
+        QToolTip::showText(ui->commandEdit->mapToGlobal(QPoint(0, ui->commandEdit->height())),
+                          tooltip, ui->commandEdit, QRect(), 5000);
+}
+
+void DxWidget::actionSpotComment()
+{
+    FCT_IDENTIFICATION;
+
+    const bool currentQSO = hasCurrentQSO();
+    const MacroExpander::Context context = currentQSO ? newContactWidget->getMacroContext()
+                                                    : MacroExpander::fromQSO(lastQSO);
+    SpotCommentDialog dialog(context, currentQSO, this);
+    dialog.exec();
+}
+
+bool DxWidget::hasCurrentQSO() const
+{
+    FCT_IDENTIFICATION;
+
+    // Band-only must not switch the spot to another station from the logbook.
+    return newContactWidget && !newContactWidget->getCallsign().trimmed().isEmpty();
+}
+
+void DxWidget::updateSpotAction()
+{
+    FCT_IDENTIFICATION;
+
+    const bool currentQSO = hasCurrentQSO();
+    QString tooltip;
+    if ( !currentQSO && !lastQSO.contains(QStringLiteral("start_time")) )
+        tooltip = tr("No last QSO is available. Log a QSO first.");
+    else
+    {
+        const QString callsign = currentQSO ? newContactWidget->getCallsign().trimmed()
+                                           : lastQSO.value(QStringLiteral("callsign")).toString().trimmed();
+        const double frequency = currentQSO ? newContactWidget->getRXFrequency()
+                                           : (lastQSO.value(QStringLiteral("freq_rx")).toDouble() != 0.0
+                                              ? lastQSO.value(QStringLiteral("freq_rx")).toDouble()
+                                              : lastQSO.value(QStringLiteral("freq")).toDouble());
+        tooltip = qIsFinite(frequency) && frequency > 0.0
+                  ? tr("Prepare a spot for %1 at %2 kHz.")
+                    .arg(callsign, QString::number(Hz2kHz(MHz2Hz(frequency)), 'f', 1))
+                  : tr("Prepare a spot for %1. An exact frequency is required.").arg(callsign);
+    }
+
+    // QAction changes also copy its enabled state to the default tool button.
+    const bool buttonEnabled = ui->commandButton->isEnabledTo(this);
+    ui->actionSpotQSO->setText(currentQSO ? tr("Spot QSO") : tr("Last QSO"));
+    ui->actionSpotQSO->setToolTip(tooltip);
+    ui->commandButton->setEnabled(buttonEnabled);
+}
+
+bool DxWidget::eventFilter(QObject *object, QEvent *event)
+{
+    FCT_IDENTIFICATION;
+
+    if ( (object == ui->serverSelect || object == ui->serverSelect->popup())
+         && event->type() == QEvent::KeyPress )
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if ( keyEvent->key() == Qt::Key_Delete && keyEvent->modifiers() == Qt::ControlModifier )
         {
-            double spotFreq = ( qso.contains("freq_rx")
-                                && qso.value("freq_rx").toDouble() != 0.0 ) ? qso.value("freq_rx").toDouble()
-                                                                            : qso.value("freq").toDouble();
-
-            if ( spotFreq <= 0.0 )
-                QMessageBox::warning(this, tr("QLog Warning"),
-                                     tr("An exact frequency is required to spot a QSO"));
-
-            // DX Spider allow to enter QSO freq in MHz but it is not reliable for SHF bands.
-            // a more reliable way is to send a spot with kHz value
-            ui->commandEdit->setText(QString("dx %1 %2 ").arg(QString::number(Hz2kHz(MHz2Hz(spotFreq)), 'f', 1),
-                                                              qso.value("callsign").toString()));
-            ui->commandEdit->setFocus();
+            actionDeleteServer();
+            return true;
         }
     }
+
+    // Read pending frequency input just before Qt displays the tooltip.
+    if ( event->type() == QEvent::ToolTip && object == ui->commandButton )
+        updateSpotAction();
+
+    return QWidget::eventFilter(object, event);
 }
 
 void DxWidget::setSearch(const QString &text)
@@ -1667,6 +1771,12 @@ void DxWidget::registerContactWidget(const NewContactWidget *contactWidget)
     FCT_IDENTIFICATION;
 
     newContactWidget = contactWidget;
+    if ( newContactWidget )
+    {
+        connect(newContactWidget, &NewContactWidget::callsignChanged, this, &DxWidget::updateSpotAction);
+        connect(newContactWidget, &NewContactWidget::contactReset, this, &DxWidget::updateSpotAction);
+    }
+    updateSpotAction();
 }
 
 void DxWidget::setDxTrend(QHash<QString, QHash<QString, QHash<QString, int>>> trend)
@@ -1697,9 +1807,7 @@ bool DxWidget::isFilterEnabled() const
 {
     FCT_IDENTIFICATION;
 
-    return dxccStatusFilter != (DxccStatus::NewEntity | DxccStatus::NewBand |
-                                DxccStatus::NewMode   | DxccStatus::NewSlot |
-                                DxccStatus::Worked    | DxccStatus::Confirmed)
+    return logStatusFilter.isFiltered()
         || contregexp.pattern().count("|") != 7
         || !dxMemberFilter.isEmpty()
         // || deduplicateSpots  // deduplication does not mean filtring.
@@ -1802,9 +1910,12 @@ void DxWidget::actionCommandSpotQSO()
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(runtime) << "Last QSO" << lastQSO;
-
-    prepareQSOSpot(lastQSO);
+    if ( hasCurrentQSO() )
+        prepareSpot(newContactWidget->getRXFrequency(), newContactWidget->getMacroContext());
+    else if ( !lastQSO.contains(QStringLiteral("start_time")) )
+        setCommandWarning(tr("No last QSO is available. Log a QSO first."));
+    else
+        prepareQSOSpot(lastQSO);
     ui->commandButton->setDefaultAction(ui->actionSpotQSO);
 }
 
@@ -1857,17 +1968,35 @@ void DxWidget::actionDeleteServer()
 {
     FCT_IDENTIFICATION;
 
-    actionForgetPassword();
-    ui->serverSelect->removeItem(ui->serverSelect->currentIndex());
-    ui->serverSelect->setMinimumWidth(0);
+    QAbstractItemView *popup = ui->serverSelect->popup();
+    const QModelIndex selected = popup->isVisible() ? popup->currentIndex() : QModelIndex();
+    if ( popup->isVisible() && !(selected.flags() & Qt::ItemIsSelectable) )
+        return;
+    const QString server = selected.flags() & Qt::ItemIsSelectable
+                           ? selected.data(Qt::UserRole).toString() : ui->serverSelect->text();
+    QStringList servers = ui->serverSelect->userValues();
+    const int index = servers.indexOf(server);
+    if ( index < 0 )
+        return;
+    const bool currentServer = server == ui->serverSelect->text();
+    DxClusterCredentials::removePasswd(DxServerString(server, dxClusterDefaultUsername()));
+    servers.removeAt(index);
+    ui->serverSelect->setUserValues(servers);
+    if ( currentServer )
+    {
+        ui->serverSelect->setText(servers.isEmpty() ? QString() : servers.at(qMin<int>(index, servers.size() - 1)));
+        ui->serverSelect->setMinimumWidth(0);
+    }
     saveDXCServers();
+    if ( currentServer )
+        serverSelectChanged();
 }
 
 void DxWidget::actionForgetPassword()
 {
     FCT_IDENTIFICATION;
 
-    DxServerString serverName(ui->serverSelect->currentText(),
+    DxServerString serverName(ui->serverSelect->text(),
                               StationProfilesManager::instance()->getCurProfile1().callsign.toLower());
 
     if ( serverName.isValid() )
@@ -1877,9 +2006,11 @@ void DxWidget::actionForgetPassword()
     else
     {
         qCDebug(runtime) << "Cannot remove record from Secure Store, server name is not valid"
-                         << ui->serverSelect->currentText();
+                         << ui->serverSelect->text();
     }
-    ui->serverSelect->setItemIcon(ui->serverSelect->currentIndex(), QIcon());
+    if ( !connectedServerString
+         || ui->serverSelect->text() == connectedServerString->getConnectString() )
+        clearAllPasswordIcons();
 }
 
 void DxWidget::actionKeepSpots()
@@ -1935,66 +2066,46 @@ void DxWidget::displayedColumns()
     }
 }
 
-QStringList DxWidget::getDXCServerList()
+void DxWidget::serverSelectSetup()
 {
     FCT_IDENTIFICATION;
 
-    QStringList ret;
+    ui->serverSelect->setUserValues(LogParam::getDXCServerlist());
+    ui->serverSelect->installEventFilter(this);
+    ui->serverSelect->popup()->installEventFilter(this);
+    ui->serverSelect->addAction(ui->actionServerPassword, QLineEdit::LeadingPosition);
+    ui->actionServerPassword->setVisible(false);
+    connect(ui->serverSelect, &SuggestionEdit::suggestionSelected, this, &DxWidget::serverSelectChanged);
 
-    for ( int index = 0; index < ui->serverSelect->count(); index++ )
-    {
-        ret << ui->serverSelect->itemText(index);
-    }
-    return ret;
-}
-
-void DxWidget::serverComboSetup()
-{
-    FCT_IDENTIFICATION;
-
-    DeleteHighlightedDXServerWhenDelPressedEventFilter *deleteHandled = new DeleteHighlightedDXServerWhenDelPressedEventFilter(this);
-
-    ui->serverSelect->addItems(LogParam::getDXCServerlist());
-    ui->serverSelect->installEventFilter(deleteHandled);
-    connect(deleteHandled, &DeleteHighlightedDXServerWhenDelPressedEventFilter::deleteServerItem,
-            this, &DxWidget::actionDeleteServer);
-
-    int index = ui->serverSelect->findText(LogParam::getDXCLastServer());
-
-    // if last server still exists then set it otherwise use the first one
-    if ( index >= 0 )
-    {
-        ui->serverSelect->setCurrentIndex(index);
-    }
-
-    DxClusterCredentials::refreshDescriptorCache(getDXCServerList(),
-                                                 dxClusterDefaultUsername());
+    const QStringList servers = ui->serverSelect->userValues();
+    const QString lastServer = LogParam::getDXCLastServer();
+    ui->serverSelect->setText(servers.contains(lastServer) ? lastServer : servers.value(0));
+    DxClusterCredentials::refreshDescriptorCache(servers, dxClusterDefaultUsername());
 }
 
 void DxWidget::clearAllPasswordIcons()
 {
     FCT_IDENTIFICATION;
 
-    for (int i = 0; i < ui->serverSelect->count(); i++)
-    {
-        ui->serverSelect->setItemIcon(i, QIcon());
-    }
+    ui->actionServerPassword->setVisible(false);
 }
 
 void DxWidget::activateCurrPasswordIcon()
 {
     FCT_IDENTIFICATION;
 
-    ui->serverSelect->setItemIcon(ui->serverSelect->currentIndex(), QIcon(":/icons/password.png"));
+    ui->actionServerPassword->setVisible(true);
 }
 
 void DxWidget::updateCommandsMenu()
 {
     FCT_IDENTIFICATION;
 
+    ui->commandEdit->setClusterType(dxcType);
+
     switch (dxcType)
     {
-    case CCCluster:
+    case DXCType::CC_CLUSTER:
         if ( ui->commandButton->defaultAction() == ui->actionShowHFStats
              || ui->commandButton->defaultAction() == ui->actionShowVHFStats )
             ui->commandButton->setDefaultAction(ui->actionSpotQSO);
@@ -2003,7 +2114,7 @@ void DxWidget::updateCommandsMenu()
         commandsMenu->removeAction(ui->actionShowVHFStats);
         break;
 
-    case DXSPIDER:
+    case DXCType::DXSPIDER:
         commandsMenu->addAction(ui->actionShowHFStats);
         commandsMenu->addAction(ui->actionShowVHFStats);
         break;
@@ -2077,10 +2188,10 @@ void DxWidget::processDxSpot(const QString &spotter,
          && spot.dxcc.cont.contains(contregexp)
          && spot.dxcc_spotter.cont.contains(spottercontregexp)
          && spot.band.contains(bandregexp)
-         && ( spot.status & dxccStatusFilter)
          && ( dxMemberFilter.size() == 0
             || (dxMemberFilter.size() && spot.memberList2Set().intersects(dxMemberFilter)) )
          && spot.dupeCount == 0
+         && Data::instance()->matchesDxccLogStatus(spot, logStatusFilter)
         )
     {
         if ( dxTableModel->addEntry(spot, deduplicateSpots, deduplicatetime, deduplicatefreq) )

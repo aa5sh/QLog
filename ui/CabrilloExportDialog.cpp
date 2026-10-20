@@ -6,6 +6,7 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QSaveFile>
 #include <QDir>
 #include <QProgressDialog>
 #include <QSettings>
@@ -23,10 +24,7 @@ MODULE_IDENTIFICATION("qlog.ui.cabrilloexportdialog");
 
 CabrilloExportDialog::CabrilloExportDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CabrilloExportDialog),
-    bandStartFreq(0.0),
-    bandEndFreq(0.0),
-    bandFilterActive(false)
+    ui(new Ui::CabrilloExportDialog)
 {
     FCT_IDENTIFICATION;
 
@@ -218,7 +216,7 @@ void CabrilloExportDialog::refreshCallsigns()
         if ( ui->dateRangeCheckBox->isChecked() )
         {
             query.bindValue(":start_date", ui->startDateEdit->dateTime().toUTC());
-            query.bindValue(":end_date", ui->endDateEdit->dateTime().toUTC());
+            query.bindValue(":end_date", ui->endDateEdit->dateTime().toUTC().addSecs(59));
         }
 
         if ( query.exec() )
@@ -261,6 +259,11 @@ void CabrilloExportDialog::scheduleQsoCountUpdate()
 {
     FCT_IDENTIFICATION;
 
+    const bool fmOnly = ui->catBandCombo->currentData().toString() == CabrilloFormat::BAND_VHF_FM_ONLY;
+    ui->catModeCombo->setEnabled(!fmOnly);
+    if ( fmOnly )
+        ui->catModeCombo->setCurrentIndex(ui->catModeCombo->findData(CabrilloFormat::MODE_FM));
+
     countDebounceTimer->start();
 }
 
@@ -299,35 +302,30 @@ void CabrilloExportDialog::resolveBandFilter()
 {
     FCT_IDENTIFICATION;
 
-    bandFilterActive = false;
-    bandFilterName.clear();
+    bandFilterBands.clear();
     const QString selectedBand = ui->catBandCombo->currentData().toString();
 
-    if ( selectedBand == CabrilloFormat::BAND_ALL
-         || selectedBand == CabrilloFormat::BAND_VHF_3_BAND
-         || selectedBand == CabrilloFormat::BAND_VHF_FM_ONLY
-         || selectedBand == CabrilloFormat::BAND_LIGHT )
-    {
+    if ( selectedBand == CabrilloFormat::BAND_ALL )
         return;
-    }
 
     // Cabrillo VHF/UHF designators use different naming than QLog bands table
-    static const QMap<QString, QString> cabrilloToBandName =
+    static const QMap<QString, QStringList> cabrilloToBandNames =
     {
-        {CabrilloFormat::BAND_222,  "1.25m"},
-        {CabrilloFormat::BAND_432,  "70cm"},
-        {CabrilloFormat::BAND_902,  "33cm"},
-        {CabrilloFormat::BAND_1_2G, "23cm"}
+        {CabrilloFormat::BAND_222,         {"1.25m"}},
+        {CabrilloFormat::BAND_432,         {"70cm"}},
+        {CabrilloFormat::BAND_902,         {"33cm"}},
+        {CabrilloFormat::BAND_1_2G,        {"23cm"}},
+        {CabrilloFormat::BAND_LIGHT,       {"submm"}},
+        {CabrilloFormat::BAND_VHF_3_BAND,  {"6m", "2m", "70cm"}},
+        {CabrilloFormat::BAND_VHF_FM_ONLY, {"6m", "2m", "1.25m", "70cm", "33cm", "23cm"}}
     };
 
-    bandFilterName = cabrilloToBandName.value(selectedBand, selectedBand);
-    const Band band = BandPlan::bandName2Band(bandFilterName);
-
-    if ( !band.name.isEmpty() )
+    const QStringList bandNames = cabrilloToBandNames.value(selectedBand, QStringList(selectedBand));
+    const QList<Band> bands = BandPlan::bandsList();
+    for ( const Band &band : bands )
     {
-        bandStartFreq = band.start;
-        bandEndFreq = band.end;
-        bandFilterActive = true;
+        if ( bandNames.contains(band.name, Qt::CaseInsensitive) )
+            bandFilterBands.append(band);
     }
 }
 
@@ -399,10 +397,24 @@ QString CabrilloExportDialog::buildWhereClause() const
         conditions << QSOFilterManager::getWhereClause(ui->userFilterCombo->currentText());
     }
 
-    if ( bandFilterActive )
-        conditions << "((freq > 0 AND CAST(ROUND(freq * 1000000.0) AS INTEGER) "
-                      "BETWEEN :band_start_freq_hz AND :band_end_freq_hz) "
-                      "OR ((freq IS NULL OR freq <= 0) AND band = :band_name COLLATE NOCASE))";
+    if ( ui->catBandCombo->currentData().toString() != CabrilloFormat::BAND_ALL )
+    {
+        QStringList frequencyConditions;
+        QStringList bandParameters;
+        for ( int index = 0; index < bandFilterBands.size(); ++index )
+        {
+            frequencyConditions << QString("CAST(ROUND(freq * 1000000.0) AS INTEGER) "
+                                           "BETWEEN :band_start_freq_hz_%1 AND :band_end_freq_hz_%1").arg(index);
+            bandParameters << QString(":band_name_%1").arg(index);
+        }
+
+        if ( frequencyConditions.isEmpty() )
+            conditions << QStringLiteral("0");
+        else
+            conditions << QString("((freq > 0 AND (%1)) OR ((freq IS NULL OR freq <= 0) "
+                                  "AND band COLLATE NOCASE IN (%2)))")
+                          .arg(frequencyConditions.join(" OR "), bandParameters.join(", "));
+    }
 
     const QString selectedMode = ui->catModeCombo->currentData().toString();
     if ( selectedMode != CabrilloFormat::MODE_MIXED )
@@ -425,14 +437,15 @@ void CabrilloExportDialog::bindWhereClause(QSqlQuery &query) const
     if ( ui->dateRangeCheckBox->isChecked() )
     {
         query.bindValue(":export_start_date", ui->startDateEdit->dateTime().toUTC());
-        query.bindValue(":export_end_date", ui->endDateEdit->dateTime().toUTC());
+        query.bindValue(":export_end_date", ui->endDateEdit->dateTime().toUTC().addSecs(59));
     }
 
-    if ( bandFilterActive )
+    for ( int index = 0; index < bandFilterBands.size(); ++index )
     {
-        query.bindValue(":band_start_freq_hz", MHz2Hz(bandStartFreq));
-        query.bindValue(":band_end_freq_hz", MHz2Hz(bandEndFreq));
-        query.bindValue(":band_name", bandFilterName);
+        const Band &band = bandFilterBands.at(index);
+        query.bindValue(QString(":band_start_freq_hz_%1").arg(index), MHz2Hz(band.start));
+        query.bindValue(QString(":band_end_freq_hz_%1").arg(index), MHz2Hz(band.end));
+        query.bindValue(QString(":band_name_%1").arg(index), band.name);
     }
 
     const QString selectedMode = ui->catModeCombo->currentData().toString();
@@ -463,6 +476,16 @@ void CabrilloExportDialog::accept()
     {
         QMessageBox::warning(this, tr("QLog Warning"),
                              tr("No callsign available. Check your filters."));
+        return;
+    }
+
+    const CabrilloFormat::HeaderData headerData = buildHeaderData();
+    if ( !CabrilloFormat::isValidOfftime(headerData.offtime) )
+    {
+        QMessageBox::warning(this, tr("QLog Warning"),
+                             tr("Off-Time must contain one UTC interval in the format "
+                                "yyyy-mm-dd hhmm yyyy-mm-dd hhmm. Use valid dates and times, "
+                                "with the end at or after the start."));
         return;
     }
 
@@ -529,7 +552,7 @@ void CabrilloExportDialog::accept()
         return;
     }
 
-    QFile file(ui->fileEdit->text());
+    QSaveFile file(ui->fileEdit->text());
     if ( !file.open(QIODevice::WriteOnly | QIODevice::Text) )
     {
         QMessageBox::critical(this, tr("QLog Error"),
@@ -540,7 +563,7 @@ void CabrilloExportDialog::accept()
     QTextStream stream(&file);
     CabrilloFormat format(stream);
     format.setTemplateId(ui->templateCombo->currentData().toInt());
-    format.setHeaderData(buildHeaderData());
+    format.setHeaderData(headerData);
     format.setTransmitterId(ui->transmitterIdSpin->value());
 
     QProgressDialog progress(tr("Exporting Cabrillo..."), QString(), 0, 100, this);
@@ -554,8 +577,16 @@ void CabrilloExportDialog::accept()
 
     long count = format.runExport(records);
 
-    file.close();
+    stream.flush();
     progress.close();
+
+    if ( stream.status() != QTextStream::Ok || !file.commit() )
+    {
+        qCWarning(runtime) << "Failed to write Cabrillo export:" << file.fileName() << file.errorString();
+        QMessageBox::critical(this, tr("QLog Error"),
+                              tr("Failed to write Cabrillo file %1.").arg(ui->fileEdit->text()));
+        return;
+    }
 
     QMessageBox::information(this, tr("QLog Information"),
                              tr("Exported %n QSO(s) to Cabrillo file.", "", count));

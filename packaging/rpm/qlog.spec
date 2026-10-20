@@ -7,11 +7,11 @@ Release: 1%{?dist}
 
 
 # QLog is generally GPL 3+, with the following exceptions:
-# core/csv.hpp (MIT)
-# core/zonedetect.c (BSD 3 clause)
-# core/zonedetect.h (BSD 3 clause)
-# devtools/timezones/builder/builder.cpp (BSD 3 clause)
-# devtools/timezones/timezone_DATA_LICENSE (ODbL)
+# 3rdparty/vincentlaucsb/csv-parser/csv.hpp (MIT)
+# 3rdparty/bertoldvdb/zonedetect/library/zonedetect.c (BSD 3 clause)
+# 3rdparty/bertoldvdb/zonedetect/library/zonedetect.h (BSD 3 clause)
+# 3rdparty/bertoldvdb/zonedetect/database/builder/builder.cpp (BSD 3 clause)
+# 3rdparty/bertoldvdb/zonedetect/database/timezone_DATA_LICENSE (ODbL)
 # res/data/cty.csv (MIT)
 License: GPL-3.0-or-later AND BSD-3-Clause AND MIT AND ODbL-1.0
 Group: Productivity/Hamradio/Logging
@@ -57,7 +57,7 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %license LICENSE.BSD-3-Clause
 %license LICENSE.MIT
 %license LICENSE.CTY
-%license devtools/timezones/timezone_DATA_LICENSE
+%license 3rdparty/bertoldvdb/zonedetect/database/timezone_DATA_LICENSE
 %doc README.md Changelog
 %{_datadir}/applications/qlog.desktop
 %{_datadir}//icons/hicolor/256x256/apps/qlog.png
@@ -65,6 +65,46 @@ INSTALL_ROOT=%{buildroot} make -f Makefile install
 %{_mandir}/man1/*
 
 %changelog
+* Tue Oct 20 2026 Ladislav Foldyna - 0.54.0-1
+- [NEW] - QSL Printing - Added QSL ordering, QSL Manager and QSL DXCC (issue #1145)
+- [NEW] - Awards - Added WAJA, Polish PGA
+- [NEW] - Awards - Remember dialog filter selection
+- [NEW] - Settings - Rig - Added Winkeyer multi-output support (issue #1034)
+- [NEW] - Settings - Backup - Added new option for alternative folder (issue #678)
+- [NEW] - Alerts - Added OS Native Notifications
+- [NEW] - ADIF 3.1.8 - Added new mode JTTY
+- [NEW] - ADIF 3.1.8 - Added new Contest IDs
+- [NEW] - WSJTX - Added support for multiple WSJT-X instances (issue #1184)
+- [NEW] - DXC - Added Command History and Help (issue #1168)
+- [NEW] - DXC - Added Editable DX Comment Template (issue #1168)
+- [NEW] - MCP Bridge - Added read-only bridge between QLog-MCP and QLog
+- [NEW] - MCP Bridge - Added Rig, Rotator, Antenna, Station and Activity information
+- [CHANGED] - Rig Widget - The mouse wheel adjusts the frequency digit under the pointer
+- [CHANGED] - Rig Widget - Changed tunning step from 1kHz to 10Hz
+- [CHANGED] - New Contact - Changed tunning step from 1kHz to 10Hz
+- [CHANGED] - Alerts - Alerts Rule: Reworked DXCC Status setting
+- [CHANGED] - WSJTX - Replaced "Last Activity" with "Activity Bars"
+- [CHANGED] - DXC - Send Last QSO dynamically switches to Spot QSO
+- [CHANGED] - Autobackup - Backup is performed in the background using a copy of DB.
+- [CHANGED] - List of Values - Prepare updates in the background and apply them at startup (issue #949)
+- Fixed QSO Filter does not accept filtering by Country in selected language (issue #731)
+- Fixed Limit Grid input field to 8 characters (issue #1028)
+- Fixed CI DEB artifact path assumes the repository is named QLog (issue #1182)
+- Fixed link to Awards Japanese Cities
+- Fixed AppImage not possible to run on older distros
+- Fixed missing ADIF Modes - ARDOP, JT44, OPERA, PAC
+- Fixed Removed incorrect JTMSK mode entry (issue #1190)
+- Fixed TCI rig profile saved without Host Name gets stuck (issue #1197)
+- Fixed Cabrillo VHF frequency and band-only QSO export and filtering
+- Fixed Cabrillo missing LOCATION Header
+- Fixed Cabrillo ending minute filter
+- Fixed Disabled foreign keys during migration process
+- Fixed Normalization ADIF fields before matching and import (issue #1208)
+- Fixed Rig control frequency disappear (issue #1204 - QT issue workaround)
+- Hamlib - Improved Split Disable
+- Hamlib - Adjusted the checkChanges sequence
+- Pack and Unpack DB and Setting Cleanup and hardening
+
 * Fri Sep 18 2026 Ladislav Foldyna - 0.53.0-1
 - [NEW] - Online Map - Added Maps localization (issue #873)
 - [NEW] - QSO Filter - Added Clone Profile button (PR #1151 issue #1144 @aa5sh)

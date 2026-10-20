@@ -50,6 +50,8 @@ private slots:
     void reqGET_TX_FREQ();
 
 private:
+    friend class RigReportingTest;
+
     enum XmlRpcCommandType
     {
         ControlCommand,
@@ -104,6 +106,7 @@ private:
     double currFreq;
     double currTxFreq;
     bool currSplitEnabled;
+    bool splitKnown;
     QString currVFO;
     QString currRawMode;
     qint32 currBW;

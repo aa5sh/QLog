@@ -2,6 +2,7 @@
 #define QLOG_LOGFORMAT_CABRILLOFORMAT_H
 
 #include "LogFormat.h"
+#include "data/BandPlan.h"
 #include <QList>
 #include <QMap>
 
@@ -36,6 +37,7 @@ public:
     void setTemplateId(int id);
     void setHeaderData(const HeaderData &data);
     void setTransmitterId(int id);
+    static bool isValidOfftime(const QString &offtime);
 
     void exportStart() override;
     void exportContact(const QSqlRecord &record,
@@ -74,7 +76,8 @@ public:
     static QString bandToFrequencyField(const QString &band);
     static QString formatFrequencyOrBand(const QString &frequency,
                                          const QString &band,
-                                         int width);
+                                         int width,
+                                         const QList<Band> &frequencyBands = BandPlan::bandsList());
 
     static QList<CategoryItem> bandCategories();
     static QList<CategoryItem> modeCategories();
@@ -187,6 +190,7 @@ private:
     int transmitterId;
     HeaderData headerData;
     QList<ColumnDef> columns;
+    QList<Band> frequencyBands;
     QString contestName;
     bool multiOpEnabled;
 
@@ -197,7 +201,7 @@ private:
         "CATEGORY-MODE", "CATEGORY-ASSISTED",
         "CATEGORY-STATION", "CATEGORY-TRANSMITTER",
         "CATEGORY-TIME", "CATEGORY-OVERLAY",
-        "CLUB", "OFFTIME", "SOAPBOX"
+        "LOCATION", "CLUB", "OFFTIME", "SOAPBOX"
     };
 };
 

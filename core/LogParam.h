@@ -9,15 +9,18 @@
 #include <QVariant>
 #include <QMutex>
 #include <QList>
+#include "data/DxccLogStatusCondition.h"
 
 struct AdifRecoveryConfig;
 struct AdifRecoveryState;
+struct BackupConfig;
 
 class LogParam : public QObject
 {
     Q_OBJECT
 public:
     explicit LogParam(QObject *parent = nullptr);
+    static void clearCache();
 
     /*********
      * LOV
@@ -30,6 +33,10 @@ public:
      ********/
     static bool setLastBackupDate(const QDate date);
     static QDate getLastBackupDate();
+    static BackupConfig getBackupConfig();
+    static bool setBackupConfig(const BackupConfig &config);
+    static QString getBackupError();
+    static bool setBackupError(const QString &error);
 
     /*********
      * LogID
@@ -94,6 +101,22 @@ public:
     static QString getBandmapGuideCurrentProfile();
     static bool setBandmapGuideEnabled(bool state);
     static bool getBandmapGuideEnabled();
+
+    /*****************
+     * Awards Dialog
+     *****************/
+    static QString getAwardsLastAward();
+    static void setAwardsLastAward(const QString &award);
+    static QString getAwardsLastMyEntity();
+    static void setAwardsLastMyEntity(const QString &entity);
+    static QString getAwardsLastUserFilter();
+    static void setAwardsLastUserFilter(const QString &filter);
+    static bool getAwardsConfirmedByState(const QString &name);
+    static void setAwardsConfirmedByState(const QString &name, bool state);
+    static bool getAwardsModeState(const QString &name);
+    static void setAwardsModeState(const QString &name, bool state);
+    static bool getAwardsShowState(const QString &name);
+    static void setAwardsShowState(const QString &name, bool state);
 
     /*******************
      * UploadQSO Dialog
@@ -246,7 +269,7 @@ public:
     static QString getLoTWCallbookUsername();
     static void setLoTWCallbookUsername(const QString& username);
     static QString getLoTWTQSLPath(const QString &defaultPath);
-    static void setLoTWTQSLPath(const QString& path);
+    static bool setLoTWTQSLPath(const QString& path);
     static bool isLoTWTQSLPathKey(const QString &key);
 
     /*******************
@@ -371,6 +394,8 @@ public:
      ***************/
     static uint getWsjtxFilterDxccStatus();
     static void setWsjtxFilterDxccStatus(uint mask);
+    static DxccLogStatusCondition getWsjtxFilterLogStatus();
+    static bool setWsjtxFilterLogStatus(const DxccLogStatusCondition &condition);
     static QString getWsjtxFilterContRE();
     static void setWsjtxFilterContRE(const QString &re);
     static int getWsjtxFilterDistance();
@@ -389,6 +414,8 @@ public:
      ******************/
     static uint getDXCFilterDxccStatus();
     static void setDXCFilterDxccStatus(uint mask);
+    static DxccLogStatusCondition getDXCFilterLogStatus();
+    static bool setDXCFilterLogStatus(const DxccLogStatusCondition &condition);
     static QString getDXCFilterContRE();
     static void setDXCFilterContRE(const QString &re);
     static QString getDXCFilterSpotterContRE();
@@ -426,6 +453,12 @@ public:
     static bool setDXCTrendContinent(const QString &cont);
     static QString getDXCTrendContinent(const QString &def);
     static void removeDXCTrendContinent();
+    static QByteArray getDXCCommandHistory(const QString &server);
+    static bool setDXCCommandHistory(const QString &server, const QByteArray &history);
+    static QString getDXCSpotCommentTemplate();
+    static QStringList getDXCSpotCommentTemplateHistory();
+    static bool setDXCSpotCommentTemplateHistory(const QStringList &history);
+    static bool setDXCSpotCommentTemplate(const QString &text);
 
     /**************
      * Export ADIF
@@ -455,17 +488,17 @@ public:
      * Encrypted Passwords
      ************************/
     static QByteArray getEncryptedPasswords();
-    static void setEncryptedPasswords(const QByteArray &data);
-    static void removeEncryptedPasswords();
+    static bool setEncryptedPasswords(const QByteArray &data);
+    static bool removeEncryptedPasswords();
     static QString getSourcePlatform();
-    static void setSourcePlatform(const QString &platform);
-    static void removeSourcePlatform();
+    static bool setSourcePlatform(const QString &platform);
+    static bool removeSourcePlatform();
 
     /**************
      * Main Window
      *************/
-    static bool getMainWindowAlertBeep();
-    static void setMainWindowAlertBeep(bool state);
+    static bool getAlertNotificationEnabled();
+    static void setAlertNotificationEnabled(bool enabled);
     static int getMainWindowDarkMode();
     static void setMainWindowDarkMode(int state);
     static bool getShowDxccFlags();
@@ -521,8 +554,6 @@ public:
     static void setQslLabelCustomPageHeight(double height);
     static QString getQslLabelImageExportPath(const QString &defaultPath);
     static void setQslLabelImageExportPath(const QString &path);
-    static int getQslLabelCustomPageSize();
-    static void setQslLabelCustomPageSize(int pageSizeIndex);
     static int getQslLabelCustomCols();
     static void setQslLabelCustomCols(int cols);
     static int getQslLabelCustomRows();
@@ -561,6 +592,12 @@ public:
     static void setQslLabelCardBackgroundImage(const QImage &image);
     static bool getQslLabelPrintBorders();
     static void setQslLabelPrintBorders(bool enabled);
+    static int getQslLabelOrder();
+    static void setQslLabelOrder(int order);
+    static bool getQslLabelPrintQslManager();
+    static void setQslLabelPrintQslManager(bool enabled);
+    static bool getQslLabelPrintRoutePrefix();
+    static void setQslLabelPrintRoutePrefix(bool enabled);
     static QString getQslLabelDateFormat();
     static void setQslLabelDateFormat(const QString &format);
     static QString getQslLabelSansFont();
@@ -604,7 +641,7 @@ private:
     static bool setParam(const QString&, const QStringList &);
     static QVariant getParam(const QString&, const QVariant &defaultValue = QVariant());
     static QStringList getParamStringList(const QString&, const QStringList &defaultValue = QStringList());
-    static void removeParamGroup(const QString&);
+    static bool removeParamGroup(const QString&);
     static QStringList getKeys(const QString &);
     static QString escapeString(const QString &input, QChar escapeChar = '\\', QChar delimiter = ',');
     static QString unescapeString(const QString &input, QChar escapeChar = '\\');

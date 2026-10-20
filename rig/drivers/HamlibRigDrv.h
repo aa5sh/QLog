@@ -47,6 +47,8 @@ private slots:
     void checkErrorCounter();
 
 private:
+    friend class RigReportingTest;
+
 
 // https://github.com/Hamlib/Hamlib/issues/1647
 // use a newer HAMLIB API rig_list_foreach_model from 4.2
@@ -104,6 +106,10 @@ private:
     unsigned int currPWR;
     double currRIT;
     double currXIT;
+    // A successful first zero must be emitted even after the initial read failed.
+    bool powerKnown;
+    bool ritKnown;
+    bool xitKnown;
     unsigned int keySpeed;
     bool morseOverCatSupported;
     bool currSplitEnabled;

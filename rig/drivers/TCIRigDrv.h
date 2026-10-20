@@ -43,6 +43,8 @@ private slots:
     void onTextMessageReceived(const QString& message);
     void onSocketError(QAbstractSocket::SocketError socker_error);
 private:
+    friend class RigReportingTest;
+
 
     typedef void (TCIRigDrv::*parseFce)(const QStringList&);
 
@@ -91,7 +93,13 @@ private:
     double currXIT;
     bool RITEnabled;
     bool XITEnabled;
+    // TCI delivers enable and offset separately; an enabled offset needs both.
+    bool ritEnabledKnown;
+    bool xitEnabledKnown;
+    bool ritOffsetKnown;
+    bool xitOffsetKnown;
     bool currSplitEnabled;
+    bool splitKnown;
 
     const int READY_TIMEOUT_MS = 10000;
 

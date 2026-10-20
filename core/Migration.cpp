@@ -6,12 +6,12 @@
 #include "core/Migration.h"
 #include "debug.h"
 #include "data/Data.h"
+#include "data/BandPlan.h"
+#include "data/DxSpot.h"
 #include "LogParam.h"
-#include "LOVDownloader.h"
 #include "service/clublog/ClubLog.h"
 #include "service/hrdlog/HRDLog.h"
-#include "logformat/AdxFormat.h"
-#include "ui/DxWidget.h"
+#include "core/DatabaseBackup.h"
 #include "core/LogDatabase.h"
 
 MODULE_IDENTIFICATION("qlog.core.migration");
@@ -20,7 +20,7 @@ MODULE_IDENTIFICATION("qlog.core.migration");
  * Migrate the database to the latest schema version.
  * Returns true on success.
  */
-bool DBSchemaMigration::run(bool force)
+bool DBSchemaMigration::run(QString *backupSnapshot)
 {
     FCT_IDENTIFICATION;
 
@@ -32,185 +32,112 @@ bool DBSchemaMigration::run(bool force)
         return false;
     }
 
-    qCDebug(runtime) << "Backup before migration";
-    backupAllQSOsToADX(true);
+    int currentMyFeaturesVersion = getMyFeaturesVersion();
+    if (currentMyFeaturesVersion > latestMyFeaturesVersion)
+        return false;
+
+    if (currentVersion == latestVersion && currentMyFeaturesVersion == latestMyFeaturesVersion) {
+        qCDebug(runtime) << "Database schema already up to date";
+        // temporarily added to create a trigger without calling db migration
+        //refreshUploadStatusTrigger();
+        return true;
+    }
+
+    // A schema upgrade always requires its own snapshot, regardless of recent backups.
+    if ( !DatabaseBackup::prepare(true, backupSnapshot) )
+        return false;
 
     qCDebug(runtime) << "Starting database migration";
 
-    QProgressDialog progress("Migrating the database...", nullptr, currentVersion, latestVersion);
+    QProgressDialog progress(tr("Migrating the database..."), nullptr, currentVersion, latestVersion);
     progress.setWindowTitle(tr("Database Migration"));
     progress.show();
 
-    while ((currentVersion = getVersion()) < latestVersion)
+    // Historical migrations rebuild tables and may temporarily violate current
+    // foreign keys. Validate the final schema before committing its last step.
+    bool result = setForeignKeysEnabled(false);
+    while ( result && currentVersion < latestVersion )
     {
-        qCDebug(runtime) << "Backup before migration";
-        backupAllQSOsToADX(true);
-
-        qCDebug(runtime) << "Starting database migration";
-
-        QProgressDialog progress("Migrating the database...", nullptr, currentVersion, latestVersion);
-        progress.show();
-
-        while ((currentVersion = getVersion()) < latestVersion)
+        if ( !migrate(currentVersion+1) )
         {
-            bool res = migrate(currentVersion+1);
-            if ( !res || getVersion() == currentVersion )
-            {
-                progress.close();
-                return false;
-            }
-            // sometimes (especially when DROP INDEX is called), it is needed to
-            // reopen database. (issue occurs between DB versions 15 and 16)
-            QSqlDatabase::database().close();
-
-            if ( !QSqlDatabase::database().open() )
-            {
-                progress.close();
-                qCritical() << QSqlDatabase::database().lastError();
-                return false;
-            }
-            // Re-register custom SQL functions after connection reopen
-            // (sqlite3_create_function bindings are lost on close/open)
-            LogDatabase::instance()->createSQLFunctions();
-            progress.setValue(currentVersion);
+            result = false;
+            break;
         }
-
-        if ( !refreshUploadStatusTrigger() )
-        {
-            qCritical() << "Cannot refresh Upload Status Trigger";
-            progress.close();
-            return false;
-        }
-
-        progress.close();
-
-        qCDebug(runtime) << "Database migration successful";
-    }
-
-    int currentMyFeaturesVersion = getMyFeaturesVersion();
-    if ( currentMyFeaturesVersion > latestMyFeaturesVersion )
-    {
-        qCritical() << "MyFeatures database schema from the future" << currentMyFeaturesVersion;
-        return false;
-    }
-
-    while ((currentMyFeaturesVersion = getMyFeaturesVersion()) < latestMyFeaturesVersion)
-    {
-        bool res = migrateMyFeatures(currentMyFeaturesVersion+1);
-        if ( !res || getMyFeaturesVersion() == currentMyFeaturesVersion )
-            return false;
-
+        ++currentVersion;
+        // sometimes (especially when DROP INDEX is called), it is needed to
+        // reopen database. (issue occurs between DB versions 15 and 16)
         QSqlDatabase::database().close();
+
         if ( !QSqlDatabase::database().open() )
         {
             qCritical() << QSqlDatabase::database().lastError();
-            return false;
+            result = false;
+            break;
         }
-        LogDatabase::instance()->createSQLFunctions();
+
+        // Connection-local settings and SQL functions are lost on close/open.
+        result = setForeignKeysEnabled(false)
+                 && LogDatabase::instance()->createSQLFunctions();
+        progress.setValue(currentVersion);
     }
 
-    updateExternalResource(force);
+    if ( result )
+    {
+        QSqlDatabase db = QSqlDatabase::database();
+        if ( !db.transaction() )
+        {
+            qCCritical(runtime) << "Cannot start upload status trigger refresh transaction:" << db.lastError();
+            result = false;
+        }
+        else if ( !refreshUploadStatusTrigger() || !db.commit() )
+        {
+            qCCritical(runtime) << "Cannot refresh Upload Status Trigger:" << db.lastError();
+            if ( !db.rollback() )
+                qCCritical(runtime) << "Cannot roll back upload status trigger refresh:" << db.lastError();
+            result = false;
+        }
+    }
+
+    // Restore enforcement even after a failed migration and rollback.
+    const bool foreignKeysRestored = setForeignKeysEnabled(true);
+    progress.close();
+    if ( !result || !foreignKeysRestored )
+        return false;
+
+    while ((currentMyFeaturesVersion = getMyFeaturesVersion()) < latestMyFeaturesVersion)
+    {
+        if (!migrateMyFeatures(currentMyFeaturesVersion + 1)
+            || getMyFeaturesVersion() == currentMyFeaturesVersion)
+            return false;
+    }
+
+    qCDebug(runtime) << "Database migration successful";
 
     return true;
 }
 
-bool DBSchemaMigration::backupAllQSOsToADX(bool force)
+bool DBSchemaMigration::setForeignKeysEnabled(bool enabled)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << enabled;
 
-    const int backupCount = 10;
-    const int backupIntervalDays = 7;
-
-    const QDate &lastBackupDate = LogParam::getLastBackupDate();
-    const QDate &now = QDate::currentDate();
-
-    qCDebug(runtime) << "The last backup date" << lastBackupDate
-                     << "Force" << force;
-
-    if ( !force
-         && lastBackupDate.isValid()
-         && lastBackupDate.addDays(backupIntervalDays) > now )
+    const QSqlDatabase db = QSqlDatabase::database(QSqlDatabase::defaultConnection, false);
+    if ( !db.isOpen() )
     {
-        qCDebug(runtime) << "Backup skipped";
-        return true;
-    }
-
-    const QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
-    const QString todayBackupName = "qlog_backup_" + QDateTime::currentDateTime().toString("yyyyMMdd") + ".adx";
-    const QString todayBackupPath = dir.filePath(todayBackupName);
-
-    // old backup file had a timestamp YYYYMMDDHHmmSS
-    // new backup file has only YYYYMMDD
-    // to be able to clean new and old backup files, following regexp is needed
-    const QRegularExpression regex("^qlog_backup_\\d{8}(\\d{6})?\\.adx$");
-
-    const QFileInfoList &fileList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-    QFileInfoList filteredList;
-
-    for ( const QFileInfo &fileInfo : fileList )
-    {
-        if ( regex.match(fileInfo.fileName()).hasMatch() ) // clazy:exclude=use-static-qregularexpression
-        {
-            filteredList.append(fileInfo);
-        }
-    }
-
-    qCDebug(runtime) << filteredList;
-
-    // does today backup exists ?
-    if ( !force )
-    {
-        for ( const QFileInfo &fileInfo : filteredList )
-        {
-            if ( fileInfo.fileName() == todayBackupName )
-            {
-                qCDebug(runtime) << "Backup for today already exists: " << todayBackupName;
-                return true;
-            }
-        }
-    }
-
-    /* Keep the minimum number of backups */
-    /* If a number of backups is greater than backupCount, remove oldest files */
-    if ( filteredList.size() >= backupCount )
-    {
-        std::sort(filteredList.begin(), filteredList.end(), [](const QFileInfo &a, const QFileInfo &b) {
-            return a.fileName() < b.fileName();
-        });
-
-        // remove old files
-        while ( filteredList.size() > backupCount )
-        {
-            QFileInfo oldestFile = filteredList.takeFirst();
-            const QString &filepath = oldestFile.absoluteFilePath();
-            if ( QFile::remove(filepath) )
-                qCDebug(runtime) << "Removing old backup file: " << filepath;
-            else
-                qWarning() << "Failed to remove old backup file: " << filepath;
-        }
-    }
-
-    /* Make a backup file */
-    QFile backupFile(todayBackupPath);
-
-    if ( !backupFile.open(QFile::ReadWrite | QIODevice::Text) )
-    {
-        qWarning() << "Cannot open backup file " << todayBackupPath << " for writing";
+        qCWarning(runtime) << "Cannot set foreign-key enforcement on a closed database:" << db.lastError();
         return false;
     }
 
-    qCDebug(runtime) << "Exporting a Database backup to " << todayBackupPath;
+    QSqlQuery query(db);
+    if ( !query.exec(enabled ? "PRAGMA foreign_keys = ON" : "PRAGMA foreign_keys = OFF")
+         || !query.exec("PRAGMA foreign_keys")
+         || !query.next()
+         || query.value(0).toInt() != int(enabled) )
+    {
+        qCWarning(runtime) << "Cannot set foreign-key enforcement:" << enabled << query.lastError();
+        return false;
+    }
 
-    QTextStream stream(&backupFile);
-    AdxFormat adx(stream);
-
-    adx.runExport();
-    stream.flush();
-    backupFile.close();
-
-    LogParam::setLastBackupDate(now);
-
-    qCDebug(runtime) << "Database backup finished";
     return true;
 }
 
@@ -277,6 +204,14 @@ bool DBSchemaMigration::migrate(int toVersion)
     bool result = runSqlFile(migration_file);
 
     result = result && functionMigration(toVersion);
+
+    if ( result && toVersion == latestVersion )
+    {
+        QSqlQuery query;
+        result = query.exec("PRAGMA foreign_key_check") && !query.next() && !query.lastError().isValid();
+        if ( !result )
+            qCWarning(runtime) << "Foreign-key check failed after migration:" << query.lastError() << query.record();
+    }
 
     if (result && setVersion(toVersion) && db.commit()) {
         return true;
@@ -369,7 +304,11 @@ bool DBSchemaMigration::runSqlFile(QString filename)
     qCDebug(function_parameters) << filename;
 
     QFile sqlFile(filename);
-    sqlFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if ( !sqlFile.open(QIODevice::ReadOnly | QIODevice::Text) )
+    {
+        qCWarning(runtime) << "Cannot open migration SQL file:" << filename << sqlFile.errorString();
+        return false;
+    }
 
     const QStringList &sqlQueries = QTextStream(&sqlFile).readAll().split('\n').join(" ").split(';');
     qCDebug(runtime) << sqlQueries;
@@ -383,7 +322,7 @@ bool DBSchemaMigration::runSqlFile(QString filename)
         QSqlQuery query;
         if (!query.exec(sqlQuery))
         {
-            qCDebug(runtime) << query.lastError();
+            qCWarning(runtime) << "Migration SQL failed:" << query.lastError();
             return false;
         }
         query.finish();
@@ -432,6 +371,9 @@ bool DBSchemaMigration::functionMigration(int version)
     case 40:
         ret = emailQSLSettings2DB();
         break;
+    case 44:
+        ret = refreshUploadStatusTrigger();
+        break;
     default:
         ret = true;
     }
@@ -448,99 +390,6 @@ int DBSchemaMigration::tableRows(const QString &name)
     i = query.first() ? query.value(0).toInt() : 0;
     qCDebug(runtime) << i;
     return i;
-}
-
-bool DBSchemaMigration::updateExternalResource(bool force)
-{
-    FCT_IDENTIFICATION;
-
-    LOVDownloader downloader;
-
-    QProgressDialog progress;
-    progress.setWindowTitle(tr("Updating External Resources"));
-    progress.setAutoClose(false);
-    progress.setAutoReset(false);
-
-    connect(&downloader, &LOVDownloader::processingSize,
-            &progress, &QProgressDialog::setMaximum);
-    connect(&downloader, &LOVDownloader::progress,
-            &progress, &QProgressDialog::setValue);
-    connect(&downloader, &LOVDownloader::finished,
-            &progress, &QProgressDialog::done);
-    connect(&downloader, &LOVDownloader::noUpdate,
-            &progress, &QProgressDialog::cancel);
-    connect(&progress, &QProgressDialog::canceled,
-            &downloader, &LOVDownloader::abortRequest);
-
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::CTY, "(1/8)", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::CLUBLOGCTY, "2/8", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::SATLIST, "(3/8)", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::SOTASUMMITS, "(4/8)", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::WWFFDIRECTORY, "(5/8)", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::IOTALIST, "(6/8)", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::POTADIRECTORY, "(7/8)", force);
-    updateExternalResourceProgress(progress, downloader, LOVDownloader::MEMBERSHIPCONTENTLIST, "(8/8)", force);
-
-    return true;
-}
-
-void DBSchemaMigration::updateExternalResourceProgress(QProgressDialog& progress,
-                                               LOVDownloader& downloader,
-                                               const LOVDownloader::SourceType & sourceType,
-                                               const QString &counter,
-                                               bool force)
-{
-    FCT_IDENTIFICATION;
-
-    QString stringInfo;
-
-    progress.reset();
-    switch ( sourceType )
-    {
-    case LOVDownloader::SourceType::CTY:
-        stringInfo = tr("DXCC Entities");
-        break;
-    case LOVDownloader::SourceType::SATLIST:
-        stringInfo = tr("Sats Info");
-        break;
-    case LOVDownloader::SourceType::SOTASUMMITS:
-        stringInfo = tr("SOTA Summits");
-        break;
-    case LOVDownloader::SourceType::WWFFDIRECTORY:
-        stringInfo = tr("WWFF Records");
-        break;
-    case LOVDownloader::SourceType::IOTALIST:
-        stringInfo = tr("IOTA Records");
-        break;
-    case LOVDownloader::SourceType::POTADIRECTORY:
-        stringInfo = tr("POTA Records");
-        break;
-    case LOVDownloader::SourceType::MEMBERSHIPCONTENTLIST:
-        stringInfo = tr("Membership Directory Records");
-        break;
-    case LOVDownloader::SourceType::CLUBLOGCTY:
-        stringInfo = tr("Clublog CTY.XML");
-        break;
-    default:
-        stringInfo = tr("List of Values");
-    }
-
-    progress.setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
-    progress.setLabelText(tr("Updating ") + stringInfo + " " + counter +" ...");
-    progress.setMinimum(0);
-    progress.setModal(true);
-    progress.show();
-
-    downloader.update(sourceType, force);
-
-    if ( progress.wasCanceled() )
-        qCDebug(runtime) << "Update was canceled";
-    else
-    {
-        if ( !progress.exec() )
-            QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
-                                 stringInfo + tr(" Update Failed"));
-    }
 }
 
 /* Fixing error when QLog stored UTF characters to non-Intl field of ADIF (contact) table */
@@ -1265,7 +1114,7 @@ bool DBSchemaMigration::settings2DB()
         LogParam::setLogbookFilterClub(settings.value("logbook/filters/member").toString());
 
     if (settings.contains("alertbeep"))
-        LogParam::setMainWindowAlertBeep(settings.value("alertbeep").toBool());
+        LogParam::setAlertNotificationEnabled(settings.value("alertbeep").toBool());
     if (settings.contains("darkmode"))
         LogParam::setMainWindowDarkMode(settings.value("darkmode").toBool());
     if (settings.contains("geometry"))
@@ -1356,7 +1205,7 @@ bool DBSchemaMigration::refreshUploadStatusTrigger()
     {
         const QString &columnName = query.value(0).toString();
         afterUpdateClause << QString("\"" + columnName + "\"");
-        whenClause << QString("old.\"%1\" != new.\"%2\"").arg(columnName, columnName);
+        whenClause << QString("old.\"%1\" IS NOT new.\"%2\"").arg(columnName, columnName);
     }
 
     QSqlQuery stmt;
@@ -1371,7 +1220,7 @@ bool DBSchemaMigration::refreshUploadStatusTrigger()
     {
         QStringList result;
         for (const QString &col : columns)
-            result << QString("old.\"%1\" != new.\"%2\"").arg(col, col);
+            result << QString("old.\"%1\" IS NOT new.\"%2\"").arg(col, col);
         return result.join(" OR ");
     };
 

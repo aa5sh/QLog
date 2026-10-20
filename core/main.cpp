@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QResource>
 #include <QDebug>
 #include <QTime>
@@ -11,21 +12,31 @@
 #include <QTemporaryDir>
 #include <QStyleFactory>
 #include <QThread>
+#include <QTimer>
+#include <QEventLoop>
+#include <QProgressDialog>
 
 #include "debug.h"
-#include "Migration.h"
 #include "ui/MainWindow.h"
 #include "rig/Rig.h"
 #include "rotator/Rotator.h"
 #include "cwkey/CWKeyer.h"
 #include "AppGuard.h"
-#include "core/zonedetect.h"
+#include "3rdparty/bertoldvdb/zonedetect/library/zonedetect.h"
 #include "ui/SplashScreen.h"
 #include "core/MembershipQE.h"
 #include "service/kstchat/KSTChat.h"
 #include "data/Data.h"
+#include "data/StationProfile.h"
+#include "data/AntProfile.h"
+#include "data/ActivityProfile.h"
 #include "service/GenericCallbook.h"
 #include "core/LogDatabase.h"
+#include "core/LOVDatabase.h"
+#include "core/DatabaseBackup.h"
+#include "core/LogParam.h"
+#include "mcpbridge/RuntimeContext.h"
+#include "mcpbridge/RuntimeServer.h"
 
 MODULE_IDENTIFICATION("qlog.core.main");
 
@@ -163,23 +174,72 @@ static void createDataDirectory() {
     }
 }
 
-static void startRigThread() {
+static void startRigThread(RuntimeContext &runtimeContext)
+{
     FCT_IDENTIFICATION;
 
     rigThreadHandle = new QThread;
     Rig* rig = Rig::instance();
     rig->moveToThread(rigThreadHandle);
+    if ( !runtimeContext.addProvider(QStringLiteral("rig"),
+            QStringLiteral("Latest state of the transceiver controlled by QLog: whether the radio "
+                           "driver has a ready connection, active radio-control profile and "
+                           "backend (Hamlib, OmniRig, FLRig or TCI), configured Hamlib radio "
+                           "model/driver label when known, main VFO frequency and label, adjusted "
+                           "RX/TX frequencies, manual RX/TX profile offsets, "
+                           "operating mode, receiver filter width, RF power setting, CAT CW keying "
+                           "speed, CAT RIT/XIT offsets and split state. Use for questions about "
+                           "the connected radio, tuned "
+                           "amateur band, mode, power, tuning offsets or split operation. "
+                           "Frequencies, offsets and filter width are in hertz, power in watts "
+                           "and CW speed in WPM; read the field schema for precise meanings. "
+                           "Values are the latest held by QLog and can change at any time; each "
+                           "current-state question needs a new read, without hardware polling. "
+                           "Readings depend on the backend, radio model and enabled profile "
+                           "settings. Null means disconnected, unsupported, disabled or not yet "
+                           "reported; profile offsets are configuration values, where zero means "
+                           "no offset. Profile offsets are distinct from CAT RIT/XIT, although "
+                           "QLog may label them RIT/XIT in its rig panel. Power is a setting "
+                           "(estimated for TCI), not an RF meter reading. RX/TX values already "
+                           "include the driver's adjustments; do not add offsets again. During "
+                           "split, TX is the separate VFO report; with unknown split state, TX "
+                           "is QLog's main-VFO value and does not verify actual radio split. "
+                           "This source "
+                           "does not report PTT, antenna, external keyer state, historical QSOs "
+                           "or logging-station identity."),
+            rig->getRuntimeProvider()) )
+        qCWarning(runtime) << "Cannot register radio runtime provider";
     QObject::connect(rigThreadHandle, SIGNAL(started()), rig, SLOT(start()));
     rigThreadHandle->start();
 }
 
-static void startRotThread() {
+static void startRotThread(RuntimeContext &runtimeContext)
+{
     FCT_IDENTIFICATION;
 
     rotThreadHandle = new QThread;
     Rotator* rot = Rotator::instance();
     rot->moveToThread(rotThreadHandle);
-    QObject::connect(rotThreadHandle, SIGNAL(started()), rot, SLOT(start()));
+    if ( !runtimeContext.addProvider(QStringLiteral("rotator"),
+            QStringLiteral("Latest state of the antenna rotator controlled by QLog: ready driver "
+                           "connection, rotator-control profile, backend (Hamlib or PSTRotator), "
+                           "configured Hamlib model/driver label when known, and reported antenna "
+                           "azimuth and elevation in degrees. Use for questions about where the "
+                           "antenna is pointing, its elevation, or the rotator connection. "
+                           "Azimuth is clockwise from north in [0, 360), with the antenna-profile "
+                           "offset already applied; do not add it again. These are last reported "
+                           "positions, not requested targets, movement status, or proof that a "
+                           "target has been reached. PSTRotator connection means the UDP interface "
+                           "is open, not verified physical hardware readiness. Axes can arrive "
+                           "separately; null means disconnected, unsupported, not yet reported "
+                           "or invalid, while zero can be a valid reading. Values can change at "
+                           "any time; make a new read for each current-state question. Reading "
+                           "this source does not poll or move the hardware. This source does "
+                           "not provide antenna identity, radio state or historical QSO bearings; "
+                           "read its field schema for exact meanings and limitations."),
+            rot->getRuntimeProvider()) )
+        qCWarning(runtime) << "Cannot register rotator runtime provider";
+    QObject::connect(rotThreadHandle, &QThread::started, rot, &Rotator::start);
     rotThreadHandle->start();
 }
 
@@ -306,8 +366,113 @@ void wayland_hacks()
 }
 #endif
 
+static QString lovName(LOVDownloader::SourceType type)
+{
+    FCT_IDENTIFICATION;
+
+    switch ( type )
+    {
+    case LOVDownloader::CTY: return QObject::tr("DXCC Entities");
+    case LOVDownloader::CLUBLOGCTY: return QObject::tr("ClubLog DXCC");
+    case LOVDownloader::SATLIST: return QObject::tr("Sats Info");
+    case LOVDownloader::SOTASUMMITS: return QObject::tr("SOTA Summits");
+    case LOVDownloader::WWFFDIRECTORY: return QObject::tr("WWFF Records");
+    case LOVDownloader::IOTALIST: return QObject::tr("IOTA Records");
+    case LOVDownloader::POTADIRECTORY: return QObject::tr("POTA Records");
+    case LOVDownloader::MEMBERSHIPCONTENTLIST: return QObject::tr("Membership Directory Records");
+    default: return QObject::tr("List of Values");
+    }
+}
+
+static bool initializeLOV(LOVDownloader &downloader, SplashScreen &splash, bool force)
+{
+    FCT_IDENTIFICATION;
+
+    const QDir directory(LogDatabase::dbDirectory());
+    QStringList failed;
+
+    for ( const LOVDownloader::SourceType type : LOVDownloader::sources() )
+    {
+        const LOVDownloader::SourceDefinition source = LOVDownloader::sourceDefinition(type);
+        const QString pending = directory.filePath(source.packageStem + QStringLiteral(".pending.db"));
+
+        for ( const QString &suffix : {QString(), QStringLiteral("-journal"), QStringLiteral("-wal"), QStringLiteral("-shm")} )
+        {
+            if ( QFile::exists(pending + suffix) && !QFile::remove(pending + suffix) )
+                qCWarning(runtime) << "Cannot remove unfinished reference list" << pending + suffix;
+        }
+
+        splash.showMessage(QObject::tr("Updating %1").arg(lovName(type)), Qt::AlignBottom|Qt::AlignCenter);
+
+        QString error;
+        LOVDatabase::ApplyResult adopted = LOVDatabase::applyReady(source, directory.path(), &error);
+
+        if ( adopted == LOVDatabase::ApplyResult::DATABASE_ERROR )
+            return false;
+
+        if ( adopted == LOVDatabase::ApplyResult::INVALID )
+        {
+            qCWarning(runtime) << "Invalid reference-list package" << source.type << error;
+            if ( !QFile::remove(directory.filePath(source.packageStem + QStringLiteral(".ready.db"))) )
+                qCWarning(runtime) << "Cannot remove invalid reference-list package" << source.type;
+        }
+
+        if ( adopted == LOVDatabase::ApplyResult::RETRY )
+        {
+            failed << lovName(type);
+            continue;
+        }
+
+        if ( !force && downloader.isSourceAvailable(type) )
+            continue;
+
+        QProgressDialog progress;
+        progress.setWindowTitle(QObject::tr("Updating External Resources"));
+        progress.setLabelText(QObject::tr("Updating %1…").arg(lovName(type)));
+        progress.setAutoClose(false);
+        progress.setAutoReset(false);
+        progress.setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+        progress.setModal(true);
+        progress.setRange(0, 0);
+        progress.show();
+        QEventLoop wait;
+        bool prepared = false;
+        QObject::connect(&downloader, &LOVDownloader::processingSize, &progress, &QProgressDialog::setMaximum);
+        QObject::connect(&downloader, &LOVDownloader::progress, &progress, &QProgressDialog::setValue);
+        QObject::connect(&downloader, &LOVDownloader::finished, &wait, [&](bool success)
+        {
+            prepared = success;
+            wait.quit();
+        });
+        QObject::connect(&downloader, &LOVDownloader::noUpdate, &wait, [&]()
+        {
+            prepared = true;
+            wait.quit();
+        });
+        QObject::connect(&progress, &QProgressDialog::canceled, &downloader, &LOVDownloader::abortRequest);
+
+        QTimer::singleShot(0, &downloader, [&downloader, type, force]() { downloader.update(type, force); });
+        // Startup needs an event loop for networking. Unlike dialog.exec(), cancellation
+        // must wait for the worker's terminal result before the next source or shared Data.
+        wait.exec();
+        progress.close();
+        adopted = prepared ? LOVDatabase::applyReady(source, directory.path(), &error) : LOVDatabase::ApplyResult::RETRY;
+
+        if ( adopted == LOVDatabase::ApplyResult::DATABASE_ERROR )
+            return false;
+
+        if ( adopted != LOVDatabase::ApplyResult::APPLIED && adopted != LOVDatabase::ApplyResult::NO_PACKAGE )
+            failed << lovName(type);
+    }
+    if ( !failed.isEmpty() )
+        QMessageBox::warning(nullptr, QObject::tr("QLog Warning"),
+                             QObject::tr("Could not update these reference lists: %1. Existing data have been kept.").arg(failed.join(QStringLiteral(", "))));
+    return true;
+}
+
 int main(int argc, char* argv[])
 {
+    FCT_IDENTIFICATION;
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
@@ -329,6 +494,18 @@ int main(int argc, char* argv[])
     }
 
     QApplication app(argc, argv);
+
+    // During Rig Widget testing on XCB, the first wheel detent after tuning on
+    // the radio or in New Contact sometimes had no effect. The next detent arrived
+    // as a single QWheelEvent with angleDelta().y() == 240 and applied two steps.
+    // The same workflow was reported to work reliably with QT_XCB_NO_XI2=1,
+    // implicating the XInput2 path. XCB compression can discard scroll-bearing
+    // XI_Motion events, leaving their delta to accumulate until the next scroll.
+    // Disable compression while keeping XInput2 enabled, preserving smooth
+    // scrolling and native touch/tablet input.
+    if ( QGuiApplication::platformName() == QLatin1String("xcb") )
+        QCoreApplication::setAttribute(Qt::AA_CompressHighFrequencyEvents, false);
+
     app.setApplicationVersion(VERSION);
 
     QCommandLineParser parser;
@@ -381,14 +558,6 @@ int main(int argc, char* argv[])
     bool isImportPending = parser.isSet(importPending);
     bool isForceLOVUpdate = parser.isSet(forceLOVUpdate);
 
-    // If started with --import-pending, wait a bit for the previous instance to fully terminate
-    if ( isImportPending )
-    {
-        qCDebug(runtime) << "Start postponed";
-        QCoreApplication::processEvents();
-        QThread::msleep(1000);
-    }
-
     app.setOrganizationName("hamradio");
     app.setApplicationName("QLog" + ((environment.isEmpty()) ? "" : environment.prepend("-")));
 
@@ -429,10 +598,11 @@ int main(int argc, char* argv[])
      * there is a port conflict.
      */
     AppGuard guard( "QLog" );
-    if ( !guard.tryToRun() )
+    if ( !guard.tryToRun(isImportPending ? 20000 : 0) )
     {
+        const QString guardError = guard.errorString();
         QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                              QMessageBox::tr("QLog is already running"));
+                              guardError.isEmpty() ? QMessageBox::tr("QLog is already running") : guardError);
         return 1;
     }
 
@@ -443,75 +613,149 @@ int main(int argc, char* argv[])
     splash.ensureFirstPaint();
 
     createDataDirectory();
+    QString backupSnapshot;
 
-    // Process pending database import if exists
-    if ( LogDatabase::hasPendingImport() )
+    splash.showMessage(LogDatabase::hasPendingImport() ? QObject::tr("Importing Database")
+                                                       : QObject::tr("Opening Database"), Qt::AlignBottom|Qt::AlignCenter);
+    QCoreApplication::processEvents();
+
+    LogDatabase::ImportResult result = LogDatabase::instance()->initialize(&backupSnapshot);
+    while ( result != LogDatabase::ImportResult::COMPLETE )
     {
-        splash.showMessage(QObject::tr("Importing Database"), Qt::AlignBottom|Qt::AlignCenter);
-        QCoreApplication::processEvents();
-
-        if ( !LogDatabase::instance()->processPendingImport() )
+        if ( result == LogDatabase::ImportResult::FAILED )
         {
-            QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                                  QMessageBox::tr("Failed to process pending database import."));
-            return 1;
+            if ( !LogDatabase::instance()->canCancelPendingImport() )
+            {
+                QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
+                                      LogDatabase::instance()->pendingImportError());
+                return 1;
+            }
+            QMessageBox message(QMessageBox::Warning, QObject::tr("Unpack Data & Settings"),
+                                LogDatabase::instance()->pendingImportError(), QMessageBox::NoButton);
+            message.setInformativeText(QObject::tr("The import has not been completed. You can retry it, or cancel it and start QLog without importing the prepared database."));
+            QPushButton *retryButton = message.addButton(QObject::tr("Retry"), QMessageBox::ActionRole);
+            QPushButton *cancelButton = message.addButton(QObject::tr("Cancel Import and Start QLog"), QMessageBox::DestructiveRole);
+            QPushButton *exitButton = message.addButton(QObject::tr("Exit QLog"), QMessageBox::RejectRole);
+            message.setDefaultButton(retryButton);
+            message.setEscapeButton(exitButton);
+            message.exec();
+            if ( message.clickedButton() == exitButton || !message.clickedButton() )
+                return 0;
+            if ( message.clickedButton() == cancelButton && !LogDatabase::instance()->cancelPendingImport() )
+            {
+                QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
+                                      LogDatabase::instance()->pendingImportError());
+                return 1;
+            }
+            result = LogDatabase::instance()->initialize(&backupSnapshot);
+            continue;
         }
 
-        if ( LogDatabase::instance()->hadPasswordImportWarning() )
-        {
-            QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
-                                 QMessageBox::tr("The database was imported successfully, but the stored passwords "
-                                                 "could not be restored (decryption failed or the data is corrupted). "
-                                                 "All service passwords have been cleared and must be re-entered in Settings."));
-        }
+        QMessageBox message(QMessageBox::Warning, QObject::tr("Unpack Data & Settings"),
+                            LogDatabase::instance()->pendingImportError(), QMessageBox::NoButton);
+        message.setInformativeText(QObject::tr("You can continue logging and decide again at the next startup. "
+                                               "Packing or unpacking data and settings remains unavailable until recovery is finished or stopped.\n\n"
+                                               "Retrying recovery may overwrite passwords changed manually. Stopping recovery keeps the current passwords; "
+                                               "missing passwords must be entered manually, and old passwords may remain stored."));
+        message.addButton(QObject::tr("Retry"), QMessageBox::ActionRole);
+        QPushButton *continueButton = message.addButton(QObject::tr("Continue Logging"), QMessageBox::AcceptRole);
+        QPushButton *finishButton = message.addButton(QObject::tr("Stop Password Recovery"), QMessageBox::DestructiveRole);
+        QPushButton *exitButton = message.addButton(QObject::tr("Exit QLog"), QMessageBox::RejectRole);
+        message.setDefaultButton(continueButton);
+        message.setEscapeButton(exitButton);
+        message.exec();
+        if ( message.clickedButton() == continueButton )
+            break;
+        if ( message.clickedButton() == exitButton || !message.clickedButton() )
+            return 0;
+        const LogDatabase::ImportAction action = message.clickedButton() == finishButton ? LogDatabase::ImportAction::FINISH_WITHOUT_PASSWORDS
+                                                                                       : LogDatabase::ImportAction::RETRY_PASSWORDS;
+        result = LogDatabase::instance()->recoverImportPasswords(action);
     }
-    else
+
+    LOVDownloader lovDownloader;
+    if ( !initializeLOV(lovDownloader, splash, isForceLOVUpdate) )
     {
-        splash.showMessage(QObject::tr("Opening Database"), Qt::AlignBottom|Qt::AlignCenter);
-
-        QCoreApplication::processEvents();
-
-        if ( ! LogDatabase::instance()->openDatabase() )
-        {
-            QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                                  QMessageBox::tr("Could not connect to database."));
-            return 1;
-        }
-
-        splash.showMessage(QObject::tr("Backuping Database"), Qt::AlignBottom|Qt::AlignCenter);
-
-        QCoreApplication::processEvents();
-
-        /* a migration can break a database therefore a backup is call before it */
-        if (!DBSchemaMigration::backupAllQSOsToADX())
-        {
-            QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                                  QMessageBox::tr("Could not export a QLog database to ADIF as a backup.<p>Try to export your log to ADIF manually"));
-        }
-
-        splash.showMessage(QObject::tr("Migrating Database"), Qt::AlignBottom|Qt::AlignCenter);
-
-        QCoreApplication::processEvents();
-
-        if ( ! LogDatabase::instance()->schemaVersionUpgrade(isForceLOVUpdate) )
-        {
-            QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
-                                  QMessageBox::tr("Database migration failed."));
-            return 1;
-        }
+        QMessageBox::critical(nullptr, QObject::tr("QLog Error"), QObject::tr("Could not complete reference-list initialization."));
+        return 1;
     }
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, &lovDownloader, &LOVDownloader::stopUpdates);
 
     splash.showMessage(QObject::tr("Starting Application"), Qt::AlignBottom|Qt::AlignCenter);
 
     QCoreApplication::processEvents();
 
-    startRigThread();
-    startRotThread();
-    startCWKeyerThread();
-
     int rc = 0;
-
+    DatabaseBackup backup(LogParam::getBackupConfig(), backupSnapshot, &app);
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, &backup, &QThread::requestInterruption);
     {
+        RuntimeContext runtimeContext;
+        if ( !runtimeContext.addProvider(QStringLiteral("station"),
+                                         QStringLiteral("Currently selected local logging-station profile: "
+                                                        "station callsign, Maidenhead locator, operator name "
+                                                        "and callsign, QTH, country, county, DXCC entity, CQ/ITU "
+                                                        "zones, IOTA/POTA/SOTA/WWFF references, special-interest "
+                                                        "activity, VUCC boundary grids and DARC DOK. Use for "
+                                                        "questions about my station, who I am operating as, "
+                                                        "my configured location or activation references. "
+                                                        "These are profile settings, not GPS observations, "
+                                                        "contact data, or proof of an activation. Historical "
+                                                        "QSOs may use different station information. Profile "
+                                                        "selection and contents can change while QLog runs; "
+                                                        "read anew for each current-state question. Unset "
+                                                        "values or no selected profile produce null fields."),
+                                         StationProfilesManager::instance()->getRuntimeProvider()) )
+            qCWarning(runtime) << "Cannot register station runtime provider";
+        if ( !runtimeContext.addProvider(QStringLiteral("antenna"),
+                                         QStringLiteral("Currently selected local antenna profile: name, "
+                                                        "user description, configured bands, horizontal "
+                                                        "beamwidth, signed azimuth offset and assigned "
+                                                        "rotator-control profile. Use for questions about "
+                                                        "my selected antenna, its settings or why antenna "
+                                                        "bearing differs from the raw rotator display. "
+                                                        "Read antenna and rotator together for their relation: "
+                                                        "rotator_azimuth already includes the antenna offset "
+                                                        "applied when the last position report arrived; never "
+                                                        "apply it again. Assignment is configuration; an "
+                                                        "Activity Rotator Override can choose a different "
+                                                        "rotator. rotator_profile and rotator_connected report "
+                                                        "the actual connection. Selecting an antenna does not "
+                                                        "verify physical connection, RF switching or tuning. "
+                                                        "Profiles and settings can change while QLog runs; "
+                                                        "read anew for each current-state question. Antenna "
+                                                        "settings and rotator reports are collected from "
+                                                        "different owners, not one atomic hardware snapshot."),
+                                         AntProfilesManager::instance()->getRuntimeProvider()) )
+            qCWarning(runtime) << "Cannot register antenna runtime provider";
+        if ( !runtimeContext.addProvider(QStringLiteral("activity"),
+                                         QStringLiteral("Currently selected Activity preset: its name, "
+                                                        "requested station, rig and antenna profiles, "
+                                                        "Rotator Override and rig/rotator connection "
+                                                        "requests. Use to understand my operating setup "
+                                                        "and why QLog selects particular equipment. These "
+                                                        "are preset instructions applied on activation, "
+                                                        "not confirmation of actual connection or an "
+                                                        "ongoing contact. Compare with station, antenna, "
+                                                        "rig and rotator for actual state; manual changes "
+                                                        "or asynchronous setup can make them differ. A "
+                                                        "Rotator Override takes priority over the antenna's "
+                                                        "assigned rotator. Empty profile names explicitly "
+                                                        "select None; null means unspecified or no Activity. "
+                                                        "The antenna's offset still corrects rotator_azimuth; "
+                                                        "never apply it twice. Selection and preset contents "
+                                                        "can change while QLog runs; read anew for each "
+                                                        "current-state question. Sources are collected in "
+                                                        "their owners' threads, not one atomic snapshot."),
+                                         ActivityProfilesManager::instance()->getRuntimeProvider()) )
+            qCWarning(runtime) << "Cannot register activity runtime provider";
+
+        startRigThread(runtimeContext);
+        startRotThread(runtimeContext);
+        startCWKeyerThread();
+
+        RuntimeServer runtimeServer(runtimeContext);
+        runtimeServer.listen();
+
         MainWindow w;
         QIcon icon(":/res/qlog.png");
 
@@ -521,6 +765,10 @@ int main(int argc, char* argv[])
         w.show();
 
         w.setLayoutGeometry();
+
+        QObject::connect(&backup, &QThread::finished, &w, &MainWindow::updateBackupStatus);
+        backup.start();
+        QTimer::singleShot(0, &lovDownloader, &LOVDownloader::startUpdates);
 
         // check version only for Windows and MacOS. Linux has own distribution points
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)

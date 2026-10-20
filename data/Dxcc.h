@@ -15,6 +15,37 @@ enum DxccStatus {
     All           = 0b1111111
 };
 
+enum class AlertDxccGoal
+{
+    Worked = 0,
+    Confirmed = 1
+};
+
+enum class AlertDxccContext
+{
+    Anywhere = 0,
+    Band = 1,
+    Mode = 2,
+    BandMode = 3
+};
+
+enum class DxccConfirmationResult
+{
+    Error,
+    NotConfirmed,
+    Confirmed
+};
+
+enum DxccConfirmationSource
+{
+    NoConfirmationSource = 0,
+    LotwConfirmation = 1,
+    PaperConfirmation = 2,
+    EqslConfirmation = 4
+};
+Q_DECLARE_FLAGS(DxccConfirmationSources, DxccConfirmationSource)
+Q_DECLARE_OPERATORS_FOR_FLAGS(DxccConfirmationSources)
+
 class DxccEntity {
 public:
     QString country;

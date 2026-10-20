@@ -5,8 +5,15 @@ SUBDIRS += CallsignTest \
            AdiImportBenchmark \
            AdxFormatTest \
            AdifRecoveryTest \
+           AppGuardTest \
            CredentialStoreTest \
+           CredentialStoreImportTest \
            DataTest \
+           DatabaseBackupTest \
+           DatabaseImportTest \
+           LOVDatabaseTest \
+           DxccConfirmationTest \
+           DxccLogStatusTest \
            FileCompressorTest \
            CabrilloFormatTest \
            FreqQSpinBoxTest \
@@ -17,11 +24,17 @@ SUBDIRS += CallsignTest \
            DxServerStringTest \
            HostsPortStringTest \
            MigrationTest \
+           PGAHunterTest \
+           MacroExpanderTest \
            PasswordCipherTest \
            QuadKeyCacheTest \
            QTableQSOViewTest \
-           RigctldManagerTest \
-           StationProfileTest
+           StationProfileTest \
            QSOFilterManagerTest \
            QSOFilterDetailTest \
-           RigctldManagerTest
+           RigctldManagerTest \
+           RigReportingTest \
+           RotatorReportingTest \
+           RuntimeContextTest \
+           RuntimeServerTest \
+           WsjtxActivityTest

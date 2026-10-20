@@ -6,8 +6,10 @@
 #include <QActionGroup>
 #include <QSet>
 #include "ui/StatisticsWidget.h"
-#include "core/NetworkNotification.h"
 #include "core/AlertEvaluator.h"
+#include "notification/DesktopNotification.h"
+#include "notification/NetworkNotification.h"
+#include "notification/AlertNotification.h"
 #include "core/PropConditions.h"
 #include "service/clublog/ClubLog.h"
 
@@ -56,16 +58,18 @@ public slots:
     void setLayoutGeometry();
     void setSimplyLayoutGeometry();
     void checkNewVersion();
+    void updateBackupStatus();
 
 private slots:
     void rigConnect();
+    void updateCWKeyOutputForRigProfile();
     void rotConnect();
     void steppirConnect();
     void amplifierConnect();
     void selectEquipmentProfilesForBand(const QString &bandName);
     void selectEffectiveRotatorProfile(const QString &antennaProfileName);
     void cwKeyerConnect();
-    void cwKeyerConnectProfile(QString);
+    void cwKeyerConnectProfile(QString, qint32);
     void cwKeyerDisconnectProfile(QString);
     void showSettings();
     void showStatistics();
@@ -85,7 +89,8 @@ private slots:
     void alertRuleSetting();
     void processSpotAlert(SpotAlert alert);
     void clearAlertEvent();
-    void beepSettingAlerts();
+    void notificationSettingAlerts();
+    void showNotification(DesktopNotificationCategory category);
     void shortcutALTBackslash();
     void setManualContact(bool);
     void showEditLayout();
@@ -132,6 +137,7 @@ private:
     StatisticsWidget* stats;
     NetworkNotification networknotification;
     AlertEvaluator alertEvaluator;
+    AlertNotification alertNotification;
     PropConditions *conditions;
     bool isFusionStyle;
     ClubLogUploader* clublogRT;
@@ -165,6 +171,7 @@ private:
 
     QString stationCallsignStatus(const StationProfile &profile) const;
     void applyRotatorProfile(const QString &profileName, bool connectRotator);
+    qint32 currentRigCWKeyOutput() const;
 
     void openNonVfoBandmaps(const QList<QPair<QString, QString>> &list);
     void clearNonVfoBandmaps();

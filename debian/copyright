@@ -22,12 +22,13 @@ Copyright: 2023-2026, Ladislav Foldyna <ok1mlg@gmail.com>
            2023-2025, AsciiWolf <https://asciiwolf.com>
 License: CC0-1.0
 
-Files: core/zonedetect.*
+Files: 3rdparty/bertoldvdb/zonedetect/LICENSE
+       3rdparty/bertoldvdb/zonedetect/library/*
 Copyright: 2018, Bertold Van den Bergh <vandenbergh@bertold.org>
 	   2022-2023, Ladislav Foldyna <ok1mlg@gmail.com>
 License: BSD-3-Clause
 
-Files: devtools/timezones/*
+Files: 3rdparty/bertoldvdb/zonedetect/database/*
 Copyright: 2018, Bertold Van den Bergh <vandenbergh@bertold.org>
 	   2022-2024, Ladislav Foldyna <ok1mlg@gmail.com>
 License: ODbL-1.0
@@ -40,8 +41,8 @@ Copyright:
 	   2025, Ladislav Foldyna <ok1mlg@gmail.com>
 License: GPL-3+
 
-Files: core/csv.hpp
-Copyright: 2017-2024 Vincent Lau
+Files: 3rdparty/vincentlaucsb/csv-parser/*
+Copyright: 2017-2026 Vincent Lau
            2017-2019 Martin Moene (string-view lite, embedded)
 License: Expat
 
@@ -49,7 +50,7 @@ Files: res/data/cty.csv
 Copyright: 1994-, Jim Reisert AD1C
 License: Expat
 
-Files: devtools/timezones/builder/builder.cpp
+Files: 3rdparty/bertoldvdb/zonedetect/database/builder/builder.cpp
 Copyright: 
 	   2018, Bertold Van den Bergh <vandenbergh@bertold.org>
 	   2022-2024, Ladislav Foldyna <ok1mlg@gmail.com>
@@ -655,4 +656,3 @@ License: Expat
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-

@@ -11,6 +11,7 @@
 
 #include "LogParam.h"
 #include "AdifRecovery.h"
+#include "DatabaseBackup.h"
 #include "debug.h"
 #include "data/Data.h"
 #include "models/LogbookModel.h"
@@ -46,6 +47,43 @@ bool LogParam::setLastBackupDate(const QDate date)
 QDate LogParam::getLastBackupDate()
 {
     return getParam("last_backup").toDate();
+}
+
+BackupConfig LogParam::getBackupConfig()
+{
+    FCT_IDENTIFICATION;
+
+    const QJsonObject values = QJsonDocument::fromJson(getParam("backup/config").toByteArray()).object();
+    BackupConfig config;
+    config.enabled = values.value("enabled").toBool();
+    config.directory = values.value("directory").toString(QDir::home().filePath("QLog/Backups"));
+    config.copies = qBound(1, values.value("copies").toInt(10), 1000);
+    return config;
+}
+
+bool LogParam::setBackupConfig(const BackupConfig &config)
+{
+    FCT_IDENTIFICATION;
+
+    if ( config.copies < 1 || config.copies > 1000 || (config.enabled && config.directory.isEmpty()) )
+        return false;
+    QJsonObject values;
+    values.insert("enabled", config.enabled);
+    values.insert("directory", config.directory);
+    values.insert("copies", config.copies);
+    return setParam("backup/config", QString::fromUtf8(QJsonDocument(values).toJson(QJsonDocument::Compact)));
+}
+
+QString LogParam::getBackupError()
+{
+    FCT_IDENTIFICATION;
+    return getParam("backup/error").toString();
+}
+
+bool LogParam::setBackupError(const QString &error)
+{
+    FCT_IDENTIFICATION;
+    return setParam("backup/error", error);
 }
 
 bool LogParam::setLogID(const QString &id)
@@ -305,6 +343,98 @@ bool LogParam::setBandmapGuideEnabled(bool state)
 bool LogParam::getBandmapGuideEnabled()
 {
     return getParam("bandmap/guide/enabled", false).toBool();
+}
+
+QString LogParam::getAwardsLastAward()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("awards/lastaward").toString();
+}
+
+void LogParam::setAwardsLastAward(const QString &award)
+{
+    FCT_IDENTIFICATION;
+
+    setParam("awards/lastaward", award);
+}
+
+QString LogParam::getAwardsLastMyEntity()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("awards/lastmyentity").toString();
+}
+
+void LogParam::setAwardsLastMyEntity(const QString &entity)
+{
+    FCT_IDENTIFICATION;
+
+    setParam("awards/lastmyentity", entity);
+}
+
+QString LogParam::getAwardsLastUserFilter()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("awards/lastuserfilter").toString();
+}
+
+void LogParam::setAwardsLastUserFilter(const QString &filter)
+{
+    FCT_IDENTIFICATION;
+
+    setParam("awards/lastuserfilter", filter);
+}
+
+bool LogParam::getAwardsConfirmedByState(const QString &name)
+{
+    FCT_IDENTIFICATION;
+
+    bool defaultState = false;
+    if ( name == "lotw" )
+        defaultState = getDxccConfirmedByLotwState();
+    else if ( name == "paper" )
+        defaultState = getDxccConfirmedByPaperState();
+    else if ( name == "eqsl" )
+        defaultState = getDxccConfirmedByEqslState();
+
+    return getParam("awards/confirmedby/" + name, defaultState).toBool();
+}
+
+void LogParam::setAwardsConfirmedByState(const QString &name, bool state)
+{
+    FCT_IDENTIFICATION;
+
+    setParam("awards/confirmedby/" + name, state);
+}
+
+bool LogParam::getAwardsModeState(const QString &name)
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("awards/mode/" + name, true).toBool();
+}
+
+void LogParam::setAwardsModeState(const QString &name, bool state)
+{
+    FCT_IDENTIFICATION;
+
+    setParam("awards/mode/" + name, state);
+}
+
+bool LogParam::getAwardsShowState(const QString &name)
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("awards/show/" + name, false).toBool();
+}
+
+void LogParam::setAwardsShowState(const QString &name, bool state)
+{
+    FCT_IDENTIFICATION;
+
+    setParam("awards/show/" + name, state);
 }
 
 QString LogParam::getUploadQSOLastCall()
@@ -869,9 +999,10 @@ QString LogParam::getLoTWTQSLPath(const QString &defaultPath)
     return getParam("services/lotw/callbook/tqsl", defaultPath).toString().trimmed();
 }
 
-void LogParam::setLoTWTQSLPath(const QString &path)
+bool LogParam::setLoTWTQSLPath(const QString &path)
 {
-    setParam("services/lotw/callbook/tqsl", path);
+    FCT_IDENTIFICATION;
+    return setParam("services/lotw/callbook/tqsl", path);
 }
 
 bool LogParam::isLoTWTQSLPathKey(const QString &key)
@@ -1280,6 +1411,22 @@ void LogParam::setWsjtxFilterDxccStatus(uint mask)
     setParam("wsjtx/filter/dxccstatus", mask);
 }
 
+DxccLogStatusCondition LogParam::getWsjtxFilterLogStatus()
+{
+    FCT_IDENTIFICATION;
+
+    const QVariant value = getParam("wsjtx/filter/logstatus");
+    return value.isValid() ? DxccLogStatusCondition::fromJson(value.toString())
+                           : DxccLogStatusCondition(getWsjtxFilterDxccStatus());
+}
+
+bool LogParam::setWsjtxFilterLogStatus(const DxccLogStatusCondition &condition)
+{
+    FCT_IDENTIFICATION;
+
+    return setParam("wsjtx/filter/logstatus", condition.toJson());
+}
+
 QString LogParam::getWsjtxFilterContRE()
 {
     return getParam("wsjtx/filter/contregexp", "NOTHING|AF|AN|AS|EU|NA|OC|SA").toString();
@@ -1350,6 +1497,22 @@ uint LogParam::getDXCFilterDxccStatus()
 void LogParam::setDXCFilterDxccStatus(uint mask)
 {
     setParam("dxc/filter/dx/dxccstatus", mask);
+}
+
+DxccLogStatusCondition LogParam::getDXCFilterLogStatus()
+{
+    FCT_IDENTIFICATION;
+
+    const QVariant value = getParam("dxc/filter/dx/logstatus");
+    return value.isValid() ? DxccLogStatusCondition::fromJson(value.toString())
+                           : DxccLogStatusCondition(getDXCFilterDxccStatus());
+}
+
+bool LogParam::setDXCFilterLogStatus(const DxccLogStatusCondition &condition)
+{
+    FCT_IDENTIFICATION;
+
+    return setParam("dxc/filter/dx/logstatus", condition.toJson());
 }
 
 QString LogParam::getDXCFilterContRE()
@@ -1502,6 +1665,48 @@ void LogParam::setDXCLastServer(const QString &server)
     setParam("dxc/lastserver", server);
 }
 
+QByteArray LogParam::getDXCCommandHistory(const QString &server)
+{
+    FCT_IDENTIFICATION;
+
+    return getParam(QStringLiteral("dxc/commandhistory/%1").arg(server)).toByteArray();
+}
+
+bool LogParam::setDXCCommandHistory(const QString &server, const QByteArray &history)
+{
+    FCT_IDENTIFICATION;
+
+    return setParam(QStringLiteral("dxc/commandhistory/%1").arg(server), history);
+}
+
+QString LogParam::getDXCSpotCommentTemplate()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam(QStringLiteral("dxc/spotcommenttemplate")).toString();
+}
+
+QStringList LogParam::getDXCSpotCommentTemplateHistory()
+{
+    FCT_IDENTIFICATION;
+
+    return getParamStringList(QStringLiteral("dxc/spotcommenttemplatehistory"), {getDXCSpotCommentTemplate()});
+}
+
+bool LogParam::setDXCSpotCommentTemplateHistory(const QStringList &history)
+{
+    FCT_IDENTIFICATION;
+
+    return setParam(QStringLiteral("dxc/spotcommenttemplatehistory"), history);
+}
+
+bool LogParam::setDXCSpotCommentTemplate(const QString &text)
+{
+    FCT_IDENTIFICATION;
+
+    return setParam(QStringLiteral("dxc/spotcommenttemplate"), text);
+}
+
 QString LogParam::getDXCFilterModeRE()
 {
     QString defaultValue = "NOTHING|"
@@ -1628,14 +1833,17 @@ QByteArray LogParam::getEncryptedPasswords()
     return QByteArray::fromBase64(getParam("security/encryptedpasswords").toByteArray());
 }
 
-void LogParam::setEncryptedPasswords(const QByteArray &data)
+bool LogParam::setEncryptedPasswords(const QByteArray &data)
 {
-    setParam("security/encryptedpasswords", data.toBase64());
+    FCT_IDENTIFICATION;
+
+    return setParam("security/encryptedpasswords", data.toBase64());
 }
 
-void LogParam::removeEncryptedPasswords()
+bool LogParam::removeEncryptedPasswords()
 {
-    removeParamGroup("security/encryptedpasswords");
+    FCT_IDENTIFICATION;
+    return removeParamGroup("security/encryptedpasswords");
 }
 
 QString LogParam::getSourcePlatform()
@@ -1643,24 +1851,31 @@ QString LogParam::getSourcePlatform()
     return getParam("sourceplatform").toString();
 }
 
-void LogParam::setSourcePlatform(const QString &platform)
+bool LogParam::setSourcePlatform(const QString &platform)
 {
-    setParam("sourceplatform", platform);
+    FCT_IDENTIFICATION;
+
+    return setParam("sourceplatform", platform);
 }
 
-void LogParam::removeSourcePlatform()
+bool LogParam::removeSourcePlatform()
 {
-    removeParamGroup("sourceplatform");
+    FCT_IDENTIFICATION;
+    return removeParamGroup("sourceplatform");
 }
 
-bool LogParam::getMainWindowAlertBeep()
+bool LogParam::getAlertNotificationEnabled()
 {
-    return getParam("mainwindow/alertbeep", false).toBool();
+    FCT_IDENTIFICATION;
+
+    return getParam("alert/notification/enabled", true).toBool();
 }
 
-void LogParam::setMainWindowAlertBeep(bool state)
+void LogParam::setAlertNotificationEnabled(bool enabled)
 {
-    setParam("mainwindow/alertbeep", state);
+    FCT_IDENTIFICATION;
+
+    setParam("alert/notification/enabled", enabled);
 }
 
 int LogParam::getMainWindowDarkMode()
@@ -1888,16 +2103,6 @@ void LogParam::setQslLabelImageExportPath(const QString &path)
     setParam("qsllabel/image_export_path", path);
 }
 
-int LogParam::getQslLabelCustomPageSize()
-{
-    return getParam("qsllabel/custom_pagesize", 0).toInt();
-}
-
-void LogParam::setQslLabelCustomPageSize(int pageSizeIndex)
-{
-    setParam("qsllabel/custom_pagesize", pageSizeIndex);
-}
-
 int LogParam::getQslLabelCustomCols()
 {
     return getParam("qsllabel/custom_cols", 3).toInt();
@@ -2107,6 +2312,36 @@ bool LogParam::getQslLabelPrintBorders()
 void LogParam::setQslLabelPrintBorders(bool enabled)
 {
     setParam("qsllabel/print_borders", enabled);
+}
+
+int LogParam::getQslLabelOrder()
+{
+    return getParam("qsllabel/order", 0).toInt();
+}
+
+void LogParam::setQslLabelOrder(int order)
+{
+    setParam("qsllabel/order", order);
+}
+
+bool LogParam::getQslLabelPrintQslManager()
+{
+    return getParam("qsllabel/qsl_manager", false).toBool();
+}
+
+void LogParam::setQslLabelPrintQslManager(bool enabled)
+{
+    setParam("qsllabel/qsl_manager", enabled);
+}
+
+bool LogParam::getQslLabelPrintRoutePrefix()
+{
+    return getParam("qsllabel/route_prefix", false).toBool();
+}
+
+void LogParam::setQslLabelPrintRoutePrefix(bool enabled)
+{
+    setParam("qsllabel/route_prefix", enabled);
 }
 
 QString LogParam::getQslLabelDateFormat()
@@ -2382,7 +2617,14 @@ QStringList LogParam::getParamStringList(const QString &name, const QStringList 
     return deserializeStringList(getParam(name, serializeStringList(defaultValue)).toString());
 }
 
-void LogParam::removeParamGroup(const QString &paramGroup)
+void LogParam::clearCache()
+{
+    FCT_IDENTIFICATION;
+    QMutexLocker locker(&cacheMutex);
+    localCache.clear();
+}
+
+bool LogParam::removeParamGroup(const QString &paramGroup)
 {
     FCT_IDENTIFICATION;
 
@@ -2399,16 +2641,18 @@ void LogParam::removeParamGroup(const QString &paramGroup)
 
     if ( ! query.prepare("DELETE FROM log_param WHERE name LIKE :group ") )
     {
-        qWarning()<< "Cannot prepare delete parameter statement for" << paramGroup;
-        return;
+        qCWarning(runtime) << "Cannot prepare delete parameter statement:" << paramGroup << query.lastError();
+        return false;
     }
 
     query.bindValue(":group", paramGroup + "%");
 
     if ( ! query.exec() )
-        qWarning() << "Cannot execute removeParamGroup statement for" << paramGroup;
-
-    return;
+    {
+        qCWarning(runtime) << "Cannot remove parameter group:" << paramGroup << query.lastError();
+        return false;
+    }
+    return true;
 }
 
 QStringList LogParam::getKeys(const QString &group)

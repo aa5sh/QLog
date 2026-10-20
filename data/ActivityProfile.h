@@ -4,6 +4,8 @@
 #include <QHash>
 #include "data/ProfileManager.h"
 
+class RuntimeProvider;
+
 class ActivityProfile
 {
 public:
@@ -87,8 +89,10 @@ public:
         return &instance;
     };
     void save();
+    RuntimeProvider *getRuntimeProvider() const;
 
 private:
+    RuntimeProvider *statusProvider;
     void applyBandmapGuideProfile(const QString &profileId);
 };
 

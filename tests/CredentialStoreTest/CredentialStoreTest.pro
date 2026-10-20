@@ -1,4 +1,4 @@
-QT += testlib core widgets sql
+QT += testlib core widgets sql network
 CONFIG += console testcase c++11
 TEMPLATE = app
 TARGET = tst_credentialstore
@@ -11,7 +11,8 @@ SOURCES += \
     ../../core/CredentialStore.cpp \
     ../../core/PasswordCipher.cpp \
     ../../core/AdifRecovery.cpp \
-    ../../core/LogParam.cpp
+    ../../core/LogParam.cpp \
+    ../../data/DxccLogStatusCondition.cpp
 
 HEADERS += \
     ../../core/CredentialStore.h \
@@ -38,9 +39,15 @@ equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
 !isEmpty(OPENSSLLIBPATH) {
     LIBS += -L$$OPENSSLLIBPATH
 }
+INCLUDEPATH += /usr/local/include /opt/homebrew/include /opt/local/include
 
 win32 {
     LIBS += -llibcrypto
 } else {
     LIBS += -lcrypto
+}
+
+macx: {
+    INCLUDEPATH += /usr/local/include /opt/homebrew/include /opt/local/include
+    LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3 -lz -L/opt/local/lib -lssl -lcrypto
 }

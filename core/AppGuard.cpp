@@ -1,5 +1,7 @@
 #include <QCryptographicHash>
 #include <QLoggingCategory>
+#include <QElapsedTimer>
+#include <QThread>
 #if QT_VERSION >= QT_VERSION_CHECK(6,6,0)
 #include <QNativeIpcKey>
 #endif
@@ -43,89 +45,115 @@ AppGuard::AppGuard( const QString& key )
      1 )
 {
     FCT_IDENTIFICATION;
-
-    memLock.acquire();
-    {
-        // linux / unix shared memory is not freed when the application terminates abnormally,
-        // so you need to get rid of the garbage
-
-        QSharedMemory fix(
-#if QT_VERSION >= QT_VERSION_CHECK(6,6,0)
-            QSharedMemory::legacyNativeKey(sharedmemKey)
-#else
-            sharedmemKey
-#endif
-                         );
-        if ( fix.attach() )
-        {
-            fix.detach();
-        }
-    }
-    memLock.release();
 }
 
 AppGuard::~AppGuard()
 {
+    FCT_IDENTIFICATION;
+
     release();
 }
 
-bool AppGuard::isAnotherRunning(void)
+bool AppGuard::tryToRun(int timeoutMs)
 {
     FCT_IDENTIFICATION;
 
+    qCDebug(function_parameters) << timeoutMs;
+
+    // An IPC failure requires cleanup before another attempt, even if still attached.
+    if ( !lastError.isEmpty() )
+        return false;
     if ( sharedMem.isAttached() )
-        return false;
+        return true;
 
-    memLock.acquire();
-    const bool isRunning = sharedMem.attach();
-
-    if ( isRunning )
+    QElapsedTimer timer;
+    timer.start();
+    do
     {
-        sharedMem.detach();
+        if ( !memLock.acquire() )
+        {
+            setError(QObject::tr("Cannot acquire the QLog instance semaphore: %1").arg(memLock.errorString()));
+            return false;
+        }
+        semaphoreAcquired = true;
+
+        // Removes stale Unix memory; attach() before create() is also required on macOS (#257).
+        if ( sharedMem.attach() )
+        {
+            if ( !sharedMem.detach() )
+                setError(QObject::tr("Cannot detach QLog instance shared memory: %1").arg(sharedMem.errorString()));
+        }
+        // Qt6 can retain AlreadyExists while cleaning a segment removed since the previous create().
+        else if ( sharedMem.error() != QSharedMemory::NotFound
+                  && sharedMem.error() != QSharedMemory::AlreadyExists )
+            setError(QObject::tr("Cannot attach QLog instance shared memory: %1").arg(sharedMem.errorString()));
+
+        bool acquired = false;
+        if ( lastError.isEmpty() )
+        {
+            acquired = sharedMem.create(sizeof(quint64));
+            if ( !acquired && sharedMem.error() != QSharedMemory::AlreadyExists )
+                setError(QObject::tr("Cannot create QLog instance shared memory: %1").arg(sharedMem.errorString()));
+        }
+
+        semaphoreAcquired = !memLock.release();
+        if ( semaphoreAcquired )
+            setError(QObject::tr("Cannot release the QLog instance semaphore: %1").arg(memLock.errorString()));
+        if ( !lastError.isEmpty() )
+            return false;
+        if ( acquired )
+            return true;
+
+        // The timeout bounds busy-instance retries, not blocking Qt IPC operations.
+        const qint64 remaining = timeoutMs - timer.elapsed();
+        if ( remaining > 0 )
+            QThread::msleep(static_cast<unsigned long>(qMin<qint64>(BUSY_WAIT_TIME, remaining)));
     }
+    while ( timer.elapsed() < timeoutMs );
 
-    memLock.release();
-
-    return isRunning;
-}
-
-bool AppGuard::tryToRun(void)
-{
-    FCT_IDENTIFICATION;
-
-    if ( isAnotherRunning() )   // Extra check
-    {
-        return false;
-    }
-
-    memLock.acquire();
-
-    // The following 'attach' call is a workaround required for 'create' to run properly under QT 6.6 and MacOS.
-    // See more details about it in issue #257.
-    // It has no impact on other platforms and versions of Qt, therefore there is no compilation condition.
-    sharedMem.attach();
-
-    const bool result = sharedMem.create( sizeof( quint64 ) );
-    memLock.release();
-    if ( !result )
-    {
-        release();
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 void AppGuard::release(void)
 {
     FCT_IDENTIFICATION;
 
-    memLock.acquire();
-
-    if ( sharedMem.isAttached() )
+    if ( !sharedMem.isAttached() && !semaphoreAcquired )
     {
-        sharedMem.detach();
+        lastError.clear();
+        return;
     }
+    // A failed release leaves the semaphore held; cleanup must not acquire it again.
+    if ( !semaphoreAcquired && !memLock.acquire() )
+    {
+        setError(QObject::tr("Cannot acquire the QLog instance semaphore: %1").arg(memLock.errorString()));
+        return;
+    }
+    semaphoreAcquired = true;
 
-    memLock.release();
+    const bool detached = !sharedMem.isAttached() || sharedMem.detach();
+    if ( !detached )
+        setError(QObject::tr("Cannot detach QLog instance shared memory: %1").arg(sharedMem.errorString()));
+
+    semaphoreAcquired = !memLock.release();
+    if ( semaphoreAcquired )
+        setError(QObject::tr("Cannot release the QLog instance semaphore: %1").arg(memLock.errorString()));
+    if ( detached && !semaphoreAcquired )
+        lastError.clear();
+}
+
+QString AppGuard::errorString() const
+{
+    FCT_IDENTIFICATION;
+
+    return lastError;
+}
+
+void AppGuard::setError(const QString &message)
+{
+    FCT_IDENTIFICATION;
+
+    if ( lastError.isEmpty() )
+        lastError = message;
+    qCWarning(runtime) << message;
 }

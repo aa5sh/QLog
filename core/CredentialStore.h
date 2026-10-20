@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QJsonArray>
 
 // - Central registry of all services that use the CredentialStore.
 // - Each service registers its credential descriptor statically at load time
@@ -33,7 +34,7 @@ public:
              const std::function<QList<CredentialDescriptor>()> &fn);
 
     // Returns all known credential descriptors (collected from all services).
-    QList<CredentialDescriptor> allDescriptors() const;
+    const QList<CredentialDescriptor> allDescriptors() const;
 };
 
 // Macro used in each service to force the presence of registerCredentials()
@@ -65,6 +66,7 @@ class CredentialStore : public QObject
 
     template <typename Derived>
     friend class SecureServiceBase;
+    friend class LogDatabase;
 
 public:
 
@@ -76,21 +78,26 @@ public:
 
     bool exportPasswords(const QString &passphrase);
     bool importPasswords(const QString &passphrase);
-    void deleteAllPasswords();
+    bool deleteAllPasswords();
 
     // Methods for storing import passphrase in SecureStore during application restart
-    void saveImportPassphrase(const QString &passphrase);
+    bool saveImportPassphrase(const QString &passphrase);
     QString getImportPassphrase();
-    void deleteImportPassphrase();
+    bool deleteImportPassphrase();
 
 private:
+    static const QString IMPORT_PASSPHRASE_STORAGE_KEY;
+    static const QString IMPORT_PASSPHRASE_USERNAME;
+
     explicit CredentialStore(QObject *parent = nullptr);
 
     // Protected methods — accessible only from derived service classes.
     // Direct use elsewhere is discouraged by design.
     int savePassword(const QString &storage_key, const QString &user, const QString &pass);
-    QString getPassword(const QString &storage_key, const QString &user);
-    void deletePassword(const QString &storage_key, const QString &user);
+    QString getPassword(const QString &storage_key, const QString &user, bool *success = nullptr);
+    bool deletePassword(const QString &storage_key, const QString &user);
+    bool decodePasswords(const QString &passphrase, QJsonArray &credentials);
+    bool restorePasswords(const QJsonArray &credentials);
 
 private:
     // Verifies that the given service (storage_key) is registered.

@@ -11,6 +11,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDockWidget>
+#include <QSignalBlocker>
+#include <QStyle>
+#include <QFileInfo>
 
 #include "MainWindow.h"
 #include "amplifier/AmplifierController.h"
@@ -92,6 +95,12 @@ MainWindow::MainWindow(QWidget* parent) :
     adifRecoveryManager(new AdifRecoveryManager(this))
 {
     FCT_IDENTIFICATION;
+
+    alertEvaluator.setDxccConfirmationResolver(
+        [](int dxcc, const QString &band, const QString &mode, AlertDxccContext context)
+        {
+            return Data::instance()->dxccConfirmationStatus(dxcc, band, mode, context);
+        });
 
     ui->setupUi(this);
 
@@ -238,8 +247,9 @@ MainWindow::MainWindow(QWidget* parent) :
     menuAlert->addAction(ui->actionClearAlerts);
     menuAlert->addSeparator();
     menuAlert->addAction(ui->actionEditAlertRules);
-    menuAlert->addAction(ui->actionBeepSettingAlert);
-    ui->actionBeepSettingAlert->setChecked(LogParam::getMainWindowAlertBeep());
+    menuAlert->addAction(ui->actionNotification);
+    ui->actionNotification->setChecked(LogParam::getAlertNotificationEnabled());
+    alertNotification.setEnabled(ui->actionNotification->isChecked());
     alertButton->setMenu(menuAlert);
 
     alertTextButton = new QPushButton(" ", ui->statusBar);
@@ -256,6 +266,9 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->statusBar->addWidget(contestLabel);
     ui->statusBar->addWidget(conditionsLabel);
 
+    ui->backupWarningButton->setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
+    ui->backupWarningButton->hide();
+    ui->statusBar->addPermanentWidget(ui->backupWarningButton);
     ui->statusBar->addPermanentWidget(alertTextButton);
     ui->statusBar->addPermanentWidget(alertButton);
     ui->statusBar->addPermanentWidget(themeButton);
@@ -293,6 +306,8 @@ MainWindow::MainWindow(QWidget* parent) :
             ui->newContactWidget, &NewContactWidget::refreshRigProfileCombo);
     connect(RigProfilesManager::instance(), &RigProfilesManager::profileChanged,
             ui->rigWidget, &RigWidget::refreshRigProfileCombo);
+    connect(RigProfilesManager::instance(), &RigProfilesManager::profileChanged,
+            this, &MainWindow::updateCWKeyOutputForRigProfile);
 
     ui->newContactWidget->reportTXBand();
     ui->newContactWidget->reportRXBand();
@@ -425,6 +440,8 @@ MainWindow::MainWindow(QWidget* parent) :
     wsjtx = new WsjtxUDPReceiver(this);
     connect(wsjtx, &WsjtxUDPReceiver::statusReceived, ui->wsjtxWidget, &WsjtxWidget::statusReceived);
     connect(wsjtx, &WsjtxUDPReceiver::decodeReceived, ui->wsjtxWidget, &WsjtxWidget::decodeReceived);
+    connect(wsjtx, &WsjtxUDPReceiver::decodesCleared, ui->wsjtxWidget, &WsjtxWidget::clearSpots);
+    connect(wsjtx, &WsjtxUDPReceiver::clientClosed, ui->wsjtxWidget, &WsjtxWidget::clientClosed);
     connect(wsjtx, &WsjtxUDPReceiver::addContact, ui->newContactWidget, &NewContactWidget::saveExternalContact);
     connect(ui->wsjtxWidget, &WsjtxWidget::CQSpot, &networknotification, &NetworkNotification::WSJTXCQSpot);
     connect(ui->wsjtxWidget, &WsjtxWidget::CQSpot, &alertEvaluator, &AlertEvaluator::WSJTXCQSpot);
@@ -561,6 +578,10 @@ MainWindow::MainWindow(QWidget* parent) :
 
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, this, &MainWindow::processSpotAlert);
     connect(&alertEvaluator, &AlertEvaluator::spotAlert, &networknotification, &NetworkNotification::spotAlert);
+    connect(&alertEvaluator, &AlertEvaluator::spotAlert, &alertNotification, &AlertNotification::processSpotAlert);
+    DesktopNotification *const desktopNotification = DesktopNotification::instance();
+    connect(&alertNotification, &AlertNotification::notificationRequested, desktopNotification, &DesktopNotification::show);
+    connect(desktopNotification, &DesktopNotification::activated, this, &MainWindow::showNotification);
 
     connect(ui->bandmapWidget, &BandmapWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
     connect(ui->bandmapWidget, &BandmapWidget::nearestSpotFound, ui->newContactWidget, &NewContactWidget::setNearestSpot);
@@ -592,6 +613,8 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->onlineMapWidget->setHeardMeMode(ui->newContactWidget->getMode());
 
     connect(ui->alertsWidget, &AlertWidget::rulesChanged, &alertEvaluator, &AlertEvaluator::loadRules);
+    connect(ui->alertsWidget, &AlertWidget::rulesChanged, &alertNotification, &AlertNotification::loadAlertRules);
+    connect(ui->alertsWidget, &AlertWidget::alertsManuallyCleared, &alertNotification, &AlertNotification::clearAlertHistory);
     connect(ui->alertsWidget, &AlertWidget::alertsCleared, this, &MainWindow::clearAlertEvent);
     connect(ui->alertsWidget, &AlertWidget::tuneDx, ui->newContactWidget, &NewContactWidget::tuneDx);
     connect(ui->alertsWidget, &AlertWidget::tuneWsjtx, wsjtx, &WsjtxUDPReceiver::sendReply);
@@ -723,11 +746,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
     LogParam::setMainWindowState(saveState());
 
     if ( stats )
-    {
         stats->close();
-        stats->deleteLater();
-        stats = nullptr;
-    }
 
      const QList<QDockWidget*> docks = findChildren<QDockWidget*>();
      for (QDockWidget* dock : docks)
@@ -827,6 +846,25 @@ void MainWindow::rigConnect()
             ui->newContactWidget->reportTXBand();
         Rig::instance()->close();
     }
+}
+
+void MainWindow::updateCWKeyOutputForRigProfile()
+{
+    FCT_IDENTIFICATION;
+
+    if ( ui->actionConnectRig->isChecked()
+         || !ui->actionConnectCWKeyer->isChecked() )
+    {
+        qCDebug(runtime) << "Skipping CW key output update; rig connected"
+                         << ui->actionConnectRig->isChecked()
+                         << "keyer connected" << ui->actionConnectCWKeyer->isChecked();
+        return;
+    }
+
+    const qint32 output = currentRigCWKeyOutput();
+    qCDebug(runtime) << "Updating connected CW keyer output after rig profile change to"
+                     << CWKey::outputName(CWKey::intToOutputID(output));
+    CWKeyer::instance()->open(output);
 }
 
 void MainWindow::rigErrorHandler(const QString &error, const QString &errorDetail)
@@ -1077,6 +1115,12 @@ void MainWindow::showUpdateDialog(const QString &newVersion, const QString &repo
     QMessageBox msgBox;
     QSettings settings;
 
+#if defined(Q_OS_MACOS) && QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    // Native NSAlert can terminate QLog with NSInternalInconsistencyException
+    // while rasterizing a symbol with an invalid size when this startup dialog opens.
+    msgBox.setOption(QMessageBox::Option::DontUseNativeDialog);
+#endif
+
     msgBox.setWindowTitle(tr("A New Version"));
     msgBox.setText(tr("A new version %1 is available.").arg(newVersion));
     msgBox.setIcon(QMessageBox::Information);
@@ -1248,8 +1292,6 @@ void MainWindow::processSpotAlert(SpotAlert alert)
         else
             ui->newContactWidget->tuneDx(alert.getDxSpot());
     });
-
-    if ( ui->actionBeepSettingAlert->isChecked() ) QApplication::beep();
 }
 
 void MainWindow::clearAlertEvent()
@@ -1269,13 +1311,30 @@ void MainWindow::clearAlertEvent()
     }
 }
 
-void MainWindow::beepSettingAlerts()
+void MainWindow::notificationSettingAlerts()
 {
     FCT_IDENTIFICATION;
 
-    LogParam::setMainWindowAlertBeep(ui->actionBeepSettingAlert->isChecked());
+    const bool enabled = ui->actionNotification->isChecked();
+    LogParam::setAlertNotificationEnabled(enabled);
+    alertNotification.setEnabled(enabled);
+}
 
-    if ( ui->actionBeepSettingAlert->isChecked() ) QApplication::beep();
+void MainWindow::showNotification(DesktopNotificationCategory category)
+{
+    FCT_IDENTIFICATION;
+
+    switch ( category )
+    {
+        case DesktopNotificationCategory::ALERT:
+            if ( isMinimized() )
+                setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+            show();
+            raise();
+            activateWindow();
+            showAlerts();
+            break;
+    }
 }
 
 void MainWindow::shortcutALTBackslash()
@@ -1468,6 +1527,14 @@ void MainWindow::showDumpDB()
 {
     FCT_IDENTIFICATION;
 
+    if ( LogDatabase::hasPendingImport() )
+    {
+        QMessageBox::warning(this, tr("Pack Data & Settings"),
+                             tr("Data and settings cannot be packed because an import is unfinished.\n\n"
+                                "Restart QLog and complete password recovery or choose \"Stop Password Recovery\"."));
+        return;
+    }
+
     ExportPasswordDialog passDialog(this);
     if ( passDialog.exec() != QDialog::Accepted )
         return;
@@ -1477,7 +1544,7 @@ void MainWindow::showDumpDB()
 
     if ( !CredentialStore::instance()->exportPasswords(password) )
     {
-        QMessageBox::warning(this, tr("Pack Data && Settings"),
+        QMessageBox::warning(this, tr("Pack Data & Settings"),
                              tr("Failed to encrypt credentials."));
         return;
     }
@@ -1485,7 +1552,7 @@ void MainWindow::showDumpDB()
     const QString documentsPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 
     QString filename = QFileDialog::getSaveFileName(this,
-                                                    tr("Pack Data && Settings"),
+                                                    tr("Pack Data & Settings"),
                                                     documentsPath,
                                                     tr("Database files (*.dbe);;All files (*)"));
 
@@ -1498,7 +1565,28 @@ void MainWindow::showDumpDB()
 
     // Add .dbe suffix if not present
     if ( !filename.endsWith(".dbe", Qt::CaseInsensitive) )
+    {
         filename.append(".dbe");
+        if ( QFile::exists(filename)
+             && QMessageBox::question(this, tr("Pack Data & Settings"),
+                                      tr("The file %1 already exists. Replace it?").arg(filename),
+                                      QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes )
+        {
+            LogParam::removeEncryptedPasswords();
+            LogParam::removeSourcePlatform();
+            return;
+        }
+    }
+
+    const QString destinationPath = QFileInfo(filename).canonicalFilePath();
+    if ( !destinationPath.isEmpty() && destinationPath == QFileInfo(LogDatabase::dbFilename()).canonicalFilePath() )
+    {
+        LogParam::removeEncryptedPasswords();
+        LogParam::removeSourcePlatform();
+        QMessageBox::warning(this, tr("Pack Data & Settings"),
+                             tr("Choose a different file. The export destination points to the open database."));
+        return;
+    }
 
     // Create temporary file for uncompressed database
     QTemporaryFile tempFile;
@@ -1506,7 +1594,7 @@ void MainWindow::showDumpDB()
     {
         LogParam::removeEncryptedPasswords();
         LogParam::removeSourcePlatform();
-        QMessageBox::warning(this, tr("Pack Data && Settings"),
+        QMessageBox::warning(this, tr("Pack Data & Settings"),
                              tr("Failed to create temporary file."));
         return;
     }
@@ -1521,28 +1609,32 @@ void MainWindow::showDumpDB()
 
     if ( !ok )
     {
-        QFile::remove(tempPath);
-        QMessageBox::warning(this, tr("Pack Data && Settings"),
+        tempFile.remove();
+        QMessageBox::warning(this, tr("Pack Data & Settings"),
                              tr("Failed to dump the database."));
         return;
     }
 
     // Compress temporary file to destination (with progress dialog)
     ok = FileCompressor::gzipFileWithProgress(tempPath, filename, this, tr("Compressing database..."));
-    QFile::remove(tempPath);
+    tempFile.remove();
 
     if ( ok )
     {
-        if ( deletePasswords )
-            CredentialStore::instance()->deleteAllPasswords();
+        if ( deletePasswords && !CredentialStore::instance()->deleteAllPasswords() )
+        {
+            QMessageBox::warning(this, tr("Pack Data & Settings"),
+                                 tr("Database successfully dumped to\n%1\n"
+                                    "Some credentials could not be removed.").arg(filename));
+            return;
+        }
 
-        QMessageBox::information(this, tr("Pack Data && Settings"),
+        QMessageBox::information(this, tr("Pack Data & Settings"),
                                  tr("Database successfully dumped to\n%1").arg(filename));
     }
     else
     {
-        QFile::remove(filename);
-        QMessageBox::warning(this, tr("Pack Data && Settings"),
+        QMessageBox::warning(this, tr("Pack Data & Settings"),
                              tr("Failed to compress the database."));
     }
 }
@@ -1550,6 +1642,14 @@ void MainWindow::showDumpDB()
 void MainWindow::showLoadDB()
 {
     FCT_IDENTIFICATION;
+
+    if ( LogDatabase::hasPendingImport() )
+    {
+        QMessageBox::warning(this, tr("Unpack Data & Settings"),
+                             tr("Data and settings cannot be unpacked because an import is unfinished.\n\n"
+                                "Restart QLog and complete password recovery or choose \"Stop Password Recovery\"."));
+        return;
+    }
 
     LoadDatabaseDialog loadDialog(this);
     if ( loadDialog.exec() != QDialog::Accepted )
@@ -1560,6 +1660,9 @@ void MainWindow::showLoadDB()
 
     // Take ownership of decompressed file (we must delete it)
     const QString decompressedFile = loadDialog.takeDecompressedFile();
+
+    QList<PlatformParameter> modifiedParams;
+    QList<ProfileParameter> modifiedProfileParams;
 
     // Handle cross-platform settings if needed
     if ( crossPlatform )
@@ -1579,44 +1682,23 @@ void MainWindow::showLoadDB()
                 return;
             }
 
-            // Save modified parameters to a JSON file for later application
-            QList<PlatformParameter> modifiedParams = settingsDialog.getParameters();
-            QList<ProfileParameter> modifiedProfileParams = settingsDialog.getProfilePortParameters();
-            PlatformParameterManager::saveParametersToFile(modifiedParams, modifiedProfileParams,
-                PlatformParameterManager::pendingParametersPath());
+            modifiedParams = settingsDialog.getParameters();
+            modifiedProfileParams = settingsDialog.getProfilePortParameters();
         }
     }
 
-    // Save import passphrase to SecureStore
-    if ( !password.isEmpty() )
-        CredentialStore::instance()->saveImportPassphrase(password);
-
-    // Move decompressed file to pending import location
-    const QString pendingPath = LogDatabase::pendingImportPath();
-
-    qCDebug(runtime) << "Decompressed file:" << decompressedFile << "exists:" << QFile::exists(decompressedFile);
-    qCDebug(runtime) << "Pending path:" << pendingPath;
-
-    // Remove existing pending file if any
-    if ( QFile::exists(pendingPath) )
-        QFile::remove(pendingPath);
-
-    if ( !QFile::rename(decompressedFile, pendingPath) )
+    // Keychain jobs run a nested event loop; prevent another import/settings action during preparation.
+    setEnabled(false);
+    const bool prepared = LogDatabase::instance()->preparePendingImport(decompressedFile, modifiedParams,
+                                                                       modifiedProfileParams, password);
+    setEnabled(true);
+    if ( !prepared )
     {
-        qCDebug(runtime) << "Rename failed, trying copy";
-        // rename failed, try copy + remove
-        if ( !QFile::copy(decompressedFile, pendingPath) )
-        {
-            qWarning() << "Copy also failed from" << decompressedFile << "to" << pendingPath;
-            QFile::remove(PlatformParameterManager::pendingParametersPath());
-            QMessageBox::warning(this, tr("Unpack Data && Settings"),
-                                 tr("Failed to prepare database for import."));
-            CredentialStore::instance()->deleteImportPassphrase();
-            QFile::remove(decompressedFile);
-            return;
-        }
         QFile::remove(decompressedFile);
+        QMessageBox::warning(this, tr("Unpack Data & Settings"), LogDatabase::instance()->pendingImportError());
+        return;
     }
+    QFile::remove(decompressedFile);
 
     // Restart the application
     restartApplication();
@@ -1628,9 +1710,6 @@ void MainWindow::restartApplication()
 
     qCDebug(runtime) << "Restarting application for database import";
 
-    // Wait a bit before starting new instance to ensure clean shutdown
-    QThread::msleep(500);
-
     // Get original arguments (first one is app path)
     QStringList args = QCoreApplication::arguments();
     args.removeFirst();  // Remove app path
@@ -1641,7 +1720,14 @@ void MainWindow::restartApplication()
     // Add import-pending argument
     args << "--import-pending";
 
-    QProcess::startDetached(QCoreApplication::applicationFilePath(), args);
+    if ( !QProcess::startDetached(QCoreApplication::applicationFilePath(), args) )
+    {
+        const bool cancelled = LogDatabase::instance()->cancelPendingImport();
+        QMessageBox::warning(this, tr("Unpack Data & Settings"),
+                             cancelled ? tr("QLog could not be restarted. The prepared import was cancelled.")
+                                       : tr("QLog could not be restarted.\n%1").arg(LogDatabase::instance()->pendingImportError()));
+        return;
+    }
 
     // Quit current instance
     qApp->quit();
@@ -2378,17 +2464,25 @@ void MainWindow::cwKeyerConnect()
 
     if ( ui->actionConnectCWKeyer->isChecked() )
     {
-        CWKeyer::instance()->open();
+        const qint32 output = currentRigCWKeyOutput();
+        qCDebug(runtime) << "Manually opening CW keyer profile"
+                         << CWKeyProfilesManager::instance()->getCurProfile1().profileName
+                         << "with output" << CWKey::outputName(CWKey::intToOutputID(output));
+        CWKeyer::instance()->open(output);
     }
     else
     {
+        qCDebug(runtime) << "Manually closing CW keyer profile"
+                         << CWKeyProfilesManager::instance()->getCurProfile1().profileName;
         CWKeyer::instance()->close();
     }
 }
 
-void MainWindow::cwKeyerConnectProfile(QString requestedProfile)
+void MainWindow::cwKeyerConnectProfile(QString requestedProfile,
+                                       qint32 cwKeyOutput)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << requestedProfile << cwKeyOutput;
 
     // it is a hack, maybe it will be improved in the future
     if ( requestedProfile == EMPTY_PROFILE_NAME || requestedProfile.isEmpty() )
@@ -2403,15 +2497,21 @@ void MainWindow::cwKeyerConnectProfile(QString requestedProfile)
         qWarning() << "Rig request unknown CW Key Profile";
         return;
     }
-    ui->actionConnectCWKeyer->setChecked(true);
     CWKeyProfilesManager::instance()->setCurProfile1(requestedProfile);
 
-    cwKeyerConnect();
+    const QSignalBlocker blocker(ui->actionConnectCWKeyer);
+    ui->actionConnectCWKeyer->setChecked(true);
+
+    qCDebug(runtime) << "Rig requests opening CW keyer profile" << requestedProfile
+                     << "with output"
+                     << CWKey::outputName(CWKey::intToOutputID(cwKeyOutput));
+    CWKeyer::instance()->open(cwKeyOutput);
 }
 
 void MainWindow::cwKeyerDisconnectProfile(QString requestedProfile)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << requestedProfile;
 
     // it is a hack, maybe it will be improved in the future
     if ( requestedProfile == EMPTY_PROFILE_NAME || requestedProfile.isEmpty() )
@@ -2432,9 +2532,38 @@ void MainWindow::cwKeyerDisconnectProfile(QString requestedProfile)
     {
         return;
     }
+    const QSignalBlocker blocker(ui->actionConnectCWKeyer);
     ui->actionConnectCWKeyer->setChecked(false);
 
-    cwKeyerConnect();
+    qCDebug(runtime) << "Rig requests closing CW keyer profile" << requestedProfile;
+    CWKeyer::instance()->close();
+}
+
+qint32 MainWindow::currentRigCWKeyOutput() const
+{
+    FCT_IDENTIFICATION;
+
+    const RigProfile &rigProfile = RigProfilesManager::instance()->getCurProfile1();
+
+    if ( !rigProfile.profileName.isEmpty() )
+    {
+        qCDebug(runtime) << "Resolved CW key output from selected rig profile"
+                         << rigProfile.profileName << "as"
+                         << CWKey::outputName(CWKey::intToOutputID(rigProfile.cwKeyOutput));
+        return rigProfile.cwKeyOutput;
+    }
+
+    qCDebug(runtime) << "Using default CW key output because no rig profile is selected";
+    return CWKey::CWKEY_OUTPUT_DEFAULT;
+}
+
+void MainWindow::updateBackupStatus()
+{
+    FCT_IDENTIFICATION;
+
+    const QString error = LogParam::getBackupError();
+    ui->backupWarningButton->setToolTip(tr("Backup could not be completed. Check Settings → Backup.\n\n%1").arg(error));
+    ui->backupWarningButton->setVisible(!error.isEmpty());
 }
 
 void MainWindow::showSettings()
@@ -2734,6 +2863,8 @@ MainWindow::~MainWindow()
     SteppirController::instance()->close();
     AmplifierController::instance()->close();
     Rig::instance()->shutdown();
+
+    delete stats;
 
     QSqlDatabase::database().close();
 

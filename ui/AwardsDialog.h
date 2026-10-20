@@ -26,16 +26,21 @@ signals:
 
 private:
     Ui::AwardsDialog *ui;
-    QList<AwardDefinition*> m_awards;
+    QList<AwardDefinition*> awardDefinitions;
     SqlListModel* entityCallsignModel;
-    bool m_eqslConfirmationChecked = true;
+    bool eqslConfirmationChecked = true;
+    bool notWorkedChecked = false;
+    bool notConfirmedChecked = false;
+    bool refreshTableEnabled = false;
 
     AwardDefinition* currentAward() const;
     AwardFilterParams buildFilterParams() const;
     QString getSelectedEntity() const;
+    void loadDialogState();
+    void saveDialogState() const;
     void openRulesUrl() const;
     void setEntityInputEnabled(bool);
-    void setNotWorkedEnabled(bool);
+    void setNotWorkedEnabled(bool enabled, bool confirmationEnabled);
     void updateRulesButton(const AwardDefinition *award);
 
     static QList<AwardDefinition*> createAwards();

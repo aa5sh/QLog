@@ -1,4 +1,5 @@
 #include "RigWidget.h"
+#include <QSignalBlocker>
 #include "ui_RigWidget.h"
 #include "rig/macros.h"
 #include "core/debug.h"
@@ -29,11 +30,24 @@ RigWidget::RigWidget(QWidget *parent) :
             this, [this]() { updateFrequencyInfoLabels(lastSeenFreq); });
 
     ui->freqLabel->setSelectionModeEnabled(false);
+    ui->freqLabel->setMousePositionStepEnabled(true);
     ui->freqLabel->setDebounceEnabled(true);
     ui->freqLabel->setDebounceIntervalMs(250);
     ui->freqLabel->setLocale(QLocale::c());
     connect(ui->freqLabel, &FreqQSpinBox::debouncedValueChanged,
             this, &RigWidget::freqChanged);
+
+    // Keep incoming reports from undoing local steps while the operator is tuning.
+    frequencyEditTimer.setSingleShot(true);
+    frequencyEditTimer.setInterval(1000);
+    connect(ui->freqLabel, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            &frequencyEditTimer, QOverload<>::of(&QTimer::start));
+    connect(&frequencyEditTimer, &QTimer::timeout, this, [this]()
+    {
+        // Request a new report instead of replaying a possibly stale frequency.
+        if ( rigOnline && ui->freqLabel->value() != lastSeenFreq )
+            Rig::instance()->sendState();
+    });
 
     ui->txFreqLabel->setVisible(false);
     ui->txFreqLabel->setSelectionModeEnabled(false);
@@ -101,9 +115,11 @@ void RigWidget::updateFrequency(VFOID vfoid, double vfoFreq, double ritFreq, dou
     }
 
     // VFO1 — RX frequency
-    ui->freqLabel->blockSignals(true);
-    ui->freqLabel->setValue(vfoFreq);
-    ui->freqLabel->blockSignals(false);
+    if ( !frequencyEditTimer.isActive() )
+    {
+        const QSignalBlocker blocker(ui->freqLabel);
+        ui->freqLabel->setValue(vfoFreq);
+    }
     const QString &bandName = BandPlan::freq2Band(vfoFreq).name;
 
     if ( bandName != ui->bandComboBox->currentText() )
@@ -228,6 +244,8 @@ void RigWidget::bandComboChanged(const QString &newBand)
 
     qCDebug(runtime) << "new Band:" << newBand;
 
+    frequencyEditTimer.stop();
+    ui->freqLabel->cancelPendingValueChange();
     saveLastSeenFreq();
 
     QSqlTableModel* bandComboModel = dynamic_cast<QSqlTableModel*>(ui->bandComboBox->model());
@@ -430,13 +448,13 @@ void RigWidget::sendOnAirState()
     }
 }
 
-void RigWidget::freqChanged(double)
+void RigWidget::freqChanged(double frequency)
 {
     FCT_IDENTIFICATION;
 
     if ( !rigOnline ) return;
 
-    Rig::instance()->setFrequency(MHz2Hz(ui->freqLabel->value()));
+    Rig::instance()->setFrequency(MHz2Hz(frequency));
 }
 
 void RigWidget::txFreqChanged(double)
@@ -450,6 +468,11 @@ void RigWidget::txFreqChanged(double)
 
 void RigWidget::resetRigInfo()
 {
+    FCT_IDENTIFICATION;
+
+    frequencyEditTimer.stop();
+    ui->freqLabel->cancelPendingValueChange();
+
     QString empty;
 
     updateMode(VFO1, empty, empty, empty, 0);

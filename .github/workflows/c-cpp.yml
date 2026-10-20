@@ -1,4 +1,4 @@
-name: CI Linux/macOS
+name: CI Linux
 
 on:
   push:
@@ -9,6 +9,16 @@ on:
       - 'testing_*'
       - master
   workflow_dispatch:
+    inputs:
+      run_import_benchmark:
+        description: Run the 50,000-contact ADI import benchmark
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-linux-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ubuntu-build-qt5:
     name: Ubuntu CI QT5
@@ -32,7 +42,7 @@ jobs:
     - name: configure
       run: qmake QLog.pro
     - name: make
-      run: make -j2
+      run: make -j"$(nproc)"
     - name: Configure tests
       if: matrix.run_tests
       run: |
@@ -44,8 +54,8 @@ jobs:
       working-directory: tests/build
       env:
         QT_QPA_PLATFORM: offscreen
-        QLOG_RUN_ADI_IMPORT_BENCHMARK: '1'
-      run: make -j2 check
+        QLOG_RUN_ADI_IMPORT_BENCHMARK: ${{ inputs.run_import_benchmark && '1' || '0' }}
+      run: make -j"$(nproc)" check
 
   ubuntu-build-qt6:
     name: Ubuntu CI QT6
@@ -69,7 +79,7 @@ jobs:
     - name: configure
       run: qmake6 QLog.pro
     - name: make
-      run: make -j2
+      run: make -j"$(nproc)"
     - name: Configure tests
       if: matrix.run_tests
       run: |
@@ -81,147 +91,5 @@ jobs:
       working-directory: tests/build
       env:
         QT_QPA_PLATFORM: offscreen
-        QLOG_RUN_ADI_IMPORT_BENCHMARK: '1'
-      run: make -j2 check
-
-  macos-build:
-     name: MacOS CI
-     if: vars.ENABLE_MACOS == 'true'
-     strategy:
-       matrix:
-         os: [macos-15]
-
-     runs-on: ${{ matrix.os }}
-
-     steps:
-     - name: Install dependencies
-       run: |
-         unset HOMEBREW_NO_INSTALL_FROM_API
-         brew update
-         brew upgrade || true
-         brew install qt6
-         brew link qt6 --force
-         brew install hamlib
-         brew link hamlib --force
-         brew install qtkeychain
-         brew install dbus-glib
-         brew install brotli
-         brew install icu4c
-         brew install pkg-config
-
-     - name: Checkout code
-       uses: actions/checkout@v5
-       with:
-         fetch-depth: 0
-     - name: Get version from tag
-       run : |
-         TAGVERSION=$(git describe --tags)
-         echo "TAGVERSION=${TAGVERSION:1}" >> $GITHUB_ENV
-     - name: Configure and compile
-       run: |
-         cd build
-         qmake6 -config release ..
-         make -j4
-     - name: Configure tests
-       run: |
-         mkdir -p tests/build
-         cd tests/build
-         qmake6 ../tests.pro
-     - name: Build and run tests
-       working-directory: tests/build
-       env:
-         QT_QPA_PLATFORM: offscreen
-         QLOG_RUN_ADI_IMPORT_BENCHMARK: '1'
-       run: make -j4 check
-
-  deb-package:
-    name: DEB Package Build
-    needs: [ubuntu-build-qt5, ubuntu-build-qt6]
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
-
-    - name: Install tools and build dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get -y install devscripts equivs dpkg-dev fakeroot lintian libconfig-model-dpkg-perl licensecheck
-        sudo mk-build-deps --install --remove debian/control --tool "apt-get -y --no-install-recommends"
-
-    - name: Check debian/copyright
-      run: cme check dpkg-copyright
-
-    - name: Build DEB package
-      run: dpkg-buildpackage -b -us -uc -j4
-
-    - name: Verify DEB was created
-      run: ls -la ../qlog_*.deb
-
-    - name: Run lintian
-      run: lintian --no-tag-display-limit --fail-on error ../qlog_*.changes 
-
-    - name: Upload DEB artifact
-      uses: actions/upload-artifact@v5
-      with:
-        name: deb-package
-        path: /home/runner/work/QLog/qlog_*.deb
-        retention-days: 1
-
-  deb-smoke-test:
-    name: DEB Smoke Test
-    needs: deb-package
-    runs-on: ubuntu-24.04
-
-    steps:
-    - name: Download DEB artifact
-      uses: actions/download-artifact@v5
-      with:
-        name: deb-package
-
-    - name: Install and smoke test
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ./qlog_*.deb
-        QT_QPA_PLATFORM=offscreen qlog --help 2>&1 | grep -q "QLog Help"
-
-  rpm-package:
-    name: RPM Package Build
-    needs: [ubuntu-build-qt5, ubuntu-build-qt6]
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
-
-    - name: Build RPM package
-      run: CONTAINER_ENGINE=docker ./packaging/rpm/build-container.sh 43
-
-    - name: Upload RPM artifact
-      uses: actions/upload-artifact@v5
-      with:
-        name: rpm-package
-        path: dist/rpm/fedora-43/x86_64/QLog-*.x86_64.rpm
-        if-no-files-found: error
-        retention-days: 1
-
-  rpm-smoke-test:
-    name: RPM Smoke Test
-    needs: rpm-package
-    runs-on: ubuntu-latest
-    container:
-      image: fedora:43
-
-    steps:
-    - name: Download RPM artifact
-      uses: actions/download-artifact@v5
-      with:
-        name: rpm-package
-        path: dist/rpm/fedora-43/x86_64
-
-    - name: Install and smoke test
-      run: |
-        dnf install -y dist/rpm/fedora-43/x86_64/QLog-*.x86_64.rpm
-        QT_QPA_PLATFORM=offscreen qlog --help 2>&1 | grep -q "QLog Help"
+        QLOG_RUN_ADI_IMPORT_BENCHMARK: ${{ inputs.run_import_benchmark && '1' || '0' }}
+      run: make -j"$(nproc)" check

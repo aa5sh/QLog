@@ -8,8 +8,10 @@
 #include "SOTAEntity.h"
 #include "WWFFEntity.h"
 #include "POTAEntity.h"
-#include "core/zonedetect.h"
+#include "3rdparty/bertoldvdb/zonedetect/library/zonedetect.h"
 #include "core/QuadKeyCache.h"
+#include "data/DxccConfirmation.h"
+#include "data/DxccLogStatusCondition.h"
 
 class QCompleter;
 
@@ -159,6 +161,11 @@ public:
 
     static QString safeQueryString(const QUrlQuery &query);
     DxccStatus dxccStatus(int dxcc, const QString &band, const QString &mode);
+    bool matchesDxccLogStatus(const DxSpot &spot, const DxccLogStatusCondition &condition);
+    DxccConfirmationResult dxccConfirmationStatus(int dxcc,
+                                                  const QString &band,
+                                                  const QString &mode,
+                                                  AlertDxccContext context);
     // Live views follow the propagation mode selected in New Contact.
     // Record-specific calculations must use dxccStatus() or satelliteDxccStatus().
     DxccStatus currentDxccStatus(int dxcc, const QString &band, const QString &mode);
@@ -224,6 +231,7 @@ public slots:
     void clearDXCCStatusCache();
 
 private:
+    DxccConfirmationSources dxccConfirmationSources();
     void loadContests();
     void loadPropagationModes();
     void loadLegacyModes();
@@ -260,7 +268,10 @@ private:
     bool isPOTAQueryValid;
     bool isDXCCIDAD1CQueryValid;
     bool isDXCCIDClublogQueryValid;
-    QuadKeyCache<DxccStatus> dxccStatusCache;
+    QuadKeyCache<DxccStatus> dxccStatusCache {2048};
+    DxccConfirmation dxccConfirmation;
+    DxccConfirmationSources currentDxccConfirmationSources;
+    bool dxccConfirmationSourcesValid = false;
     QCache<QPair<int, int>, DxccStatus> satelliteDxccStatusCache;
     bool satelliteDxccContext = false;
 

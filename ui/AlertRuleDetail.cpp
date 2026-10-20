@@ -7,6 +7,7 @@
 #include "AlertRuleDetail.h"
 #include "ui_AlertRuleDetail.h"
 #include "core/debug.h"
+#include "notification/DesktopNotification.h"
 #include "../models/SqlListModel.h"
 #include "data/Data.h"
 #include "data/SpotAlert.h"
@@ -145,6 +146,13 @@ void AlertRuleDetail::save()
      ***********/
     rule.enabled = ui->ruleEnabledCheckBox->isChecked();
 
+    /****************
+     * Notification *
+     ****************/
+    rule.notificationEnabled = ui->notificationCheckBox->isChecked();
+    rule.notificationSoundEnabled = ui->notificationSoundCheckBox->isChecked();
+    rule.notificationRepeatMinutes = ui->notificationRepeatSpinBox->value();
+
     /**********
      * Source *
      **********/
@@ -184,15 +192,7 @@ void AlertRuleDetail::save()
     /*****************
      * DX Log Status *
      *****************/
-    int status = 0;
-    if ( ui->newEntityCheckbox->isChecked() ) status |=  DxccStatus::NewEntity;
-    if ( ui->newBandCheckbox->isChecked() )   status |=  DxccStatus::NewBand;
-    if ( ui->newModeCheckbox->isChecked() )   status |=  DxccStatus::NewMode;
-    if ( ui->newSlotCheckbox->isChecked() )   status |=  DxccStatus::NewSlot;
-    if ( ui->workedCheckbox->isChecked() )    status |=  DxccStatus::Worked;
-    if ( ui->confirmedCheckbox->isChecked() ) status |=  DxccStatus::Confirmed;
-    if ( ui->allCheckbox->isChecked() )       status = DxccStatus::All;
-    rule.dxLogStatusMap = status;
+    rule.setLogStatusCondition(ui->logStatusWidget->condition());
 
     /****************
      * DX Continent *
@@ -368,33 +368,29 @@ void AlertRuleDetail::spotCommentChanged(const QString &enteredRE)
     ui->spotCommentEdit->setPalette(p);
 }
 
-void AlertRuleDetail::enabledLogStatusAll(bool enabled)
+void AlertRuleDetail::testNotification()
 {
     FCT_IDENTIFICATION;
 
-    if ( enabled )
-    {
-        ui->newEntityCheckbox->setChecked(enabled);
-        ui->newBandCheckbox->setChecked(enabled);
-        ui->newModeCheckbox->setChecked(enabled);
-        ui->newSlotCheckbox->setChecked(enabled);
-        ui->workedCheckbox->setChecked(enabled);
-        ui->confirmedCheckbox->setChecked(enabled);
-    }
+    DesktopNotification *const notification = DesktopNotification::instance();
+    if ( notification->show(DesktopNotificationCategory::ALERT,
+                            tr("QLog Test Notification"),
+                            tr("This is a test notification from QLog."),
+                            ui->notificationSoundCheckBox->isChecked()) )
+        return;
 
-    ui->newEntityCheckbox->setEnabled(!enabled);
-    ui->newBandCheckbox->setEnabled(!enabled);
-    ui->newModeCheckbox->setEnabled(!enabled);
-    ui->newSlotCheckbox->setEnabled(!enabled);
-    ui->workedCheckbox->setEnabled(!enabled);
-    ui->confirmedCheckbox->setEnabled(!enabled);
+    QMessageBox::warning(this, tr("QLog Info"),
+                         tr("The notification could not be sent. Check notification settings in your operating system."));
 }
 
 void AlertRuleDetail::setDefaultValues()
 {
     FCT_IDENTIFICATION;
 
-    ui->allCheckbox->setChecked(true);
+    ui->notificationCheckBox->setChecked(true);
+    ui->notificationSoundCheckBox->setChecked(true);
+    ui->notificationRepeatSpinBox->setValue(AlertRule::DEFAULT_NOTIFICATION_REPEAT_MINUTES);
+    ui->logStatusWidget->setCondition(DxccLogStatusCondition());
     ui->countryCombo->setCurrentValue(ALLCOUNTRYIDX, 1);
 }
 
@@ -444,6 +440,13 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
          ***********/
         ui->ruleEnabledCheckBox->setChecked(rule.enabled);
 
+        /****************
+         * Notification *
+         ****************/
+        ui->notificationCheckBox->setChecked(rule.notificationEnabled);
+        ui->notificationSoundCheckBox->setChecked(rule.notificationSoundEnabled);
+        ui->notificationRepeatSpinBox->setValue(rule.notificationRepeatMinutes);
+
         /**********
          * Source *
          **********/
@@ -470,14 +473,7 @@ void AlertRuleDetail::loadRule(const QString &ruleName)
         /*****************
          * DX Log Status *
          *****************/
-        uint statusSetting = rule.dxLogStatusMap;
-        ui->allCheckbox->setChecked(statusSetting == DxccStatus::All);
-        ui->newEntityCheckbox->setChecked(statusSetting & DxccStatus::NewEntity);
-        ui->newBandCheckbox->setChecked(statusSetting & DxccStatus::NewBand);
-        ui->newModeCheckbox->setChecked(statusSetting & DxccStatus::NewMode);
-        ui->newSlotCheckbox->setChecked(statusSetting & DxccStatus::NewSlot);
-        ui->workedCheckbox->setChecked(statusSetting & DxccStatus::Worked);
-        ui->confirmedCheckbox->setChecked(statusSetting & DxccStatus::Confirmed);
+        ui->logStatusWidget->setCondition(rule.logStatusCondition());
 
         /*************
          * Continent *

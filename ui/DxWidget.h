@@ -9,6 +9,7 @@
 #include <QLabel>
 
 #include "data/DxSpot.h"
+#include "data/DxccLogStatusCondition.h"
 #include "data/WCYSpot.h"
 #include "data/WWVSpot.h"
 #include "data/ToAllSpot.h"
@@ -16,13 +17,11 @@
 #include "data/DxServerString.h"
 #include "models/SearchFilterProxyModel.h"
 #include "component/ShutdownAwareWidget.h"
+#include "component/DxCommandEdit.h"
 #include "NewContactWidget.h"
 
 // in sec
 #define DEDUPLICATION_TIME 3
-
-// in kHz
-#define DEDUPLICATION_FREQ_TOLERANCE 5
 
 namespace Ui {
 class DxWidget;
@@ -109,20 +108,6 @@ private:
     LogLocale locale;
 };
 
-class DeleteHighlightedDXServerWhenDelPressedEventFilter : public QObject
-{
-     Q_OBJECT
-signals:
-    void deleteServerItem();
-
-public:
-    DeleteHighlightedDXServerWhenDelPressedEventFilter(QObject *parent) :
-        QObject(parent) {};
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-};
-
 class DxWidget : public QWidget, public ShutdownAwareWidget
 {
     Q_OBJECT
@@ -143,7 +128,7 @@ public slots:
     void entryDoubleClicked(QModelIndex);
     void actionFilter();
     void adjusteServerSelectSize(QString);
-    void serverSelectChanged(int);
+    void serverSelectChanged();
     void setLastQSO(QSqlRecord);
     void updateSpotsStatusWhenQSOAdded(const QSqlRecord &record);
     void reloadSetting();
@@ -161,6 +146,7 @@ public slots:
 
 private slots:
     void actionCommandSpotQSO();
+    void actionSpotComment();
     void actionCommandShowHFStats();
     void actionCommandShowVHFStats();
     void actionCommandShowWCY();
@@ -170,6 +156,7 @@ private slots:
     void actionForgetPassword();
     void actionKeepSpots();
     void actionClear();
+    void updateSpotAction();
 
     void displayedColumns();
     void trendDoubleClicked(int row, int column);
@@ -183,6 +170,9 @@ signals:
     void newToAllSpot(ToAllSpot);
     void newFilteredSpot(DxSpot);
 
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
+
 private:
     enum DXCConnectionState
     {
@@ -194,12 +184,7 @@ private:
         OPERATION = 5
     };
 
-    enum DXCType
-    {
-        UNKNOWN = 0,
-        DXSPIDER = 1,
-        CCCluster = 2
-    };
+    using DXCType = DxCommandEdit::ClusterType;
 
     DxTableModel* dxTableModel;
     WCYTableModel* wcyTableModel;
@@ -212,11 +197,11 @@ private:
     QRegularExpression contregexp;
     QRegularExpression spottercontregexp;
     QRegularExpression bandregexp;
-    uint dxccStatusFilter;
+    DxccLogStatusCondition logStatusFilter;
     bool deduplicateSpots;
     int deduplicatetime;
     int deduplicatefreq;
-    DXCType dxcType = UNKNOWN;
+    DXCType dxcType = DXCType::UNKNOWN;
     QMenu *commandsMenu;
     QSet<QString> dxMemberFilter;
     QSqlRecord lastQSO;
@@ -232,13 +217,15 @@ private:
     const NewContactWidget *newContactWidget;
 
     void connectCluster();
+    void prepareSpot(double frequency, const MacroExpander::Context &context);
+    void setCommandWarning(const QString &warning);
+    bool hasCurrentQSO() const;
     void disconnectCluster(bool tryReconnect = false);
-    void saveDXCServers();
+    void saveDXCServers(const QString &server = QString());
     QString modeFilterRegExp();
     QString contFilterRegExp();
     QString spotterContFilterRegExp();
     QString bandFilterRegExp();
-    uint dxccStatusFilterValue();
     bool spotDedupValue();
     int getDedupTimeValue();
     int getDedupFreqValue();
@@ -247,13 +234,12 @@ private:
     void saveAutoconnectServer(bool);
     bool getKeepQSOs();
     void saveKeepQSOs(bool);
-    void sendCommand(const QString&,
+    bool sendCommand(const QString&,
                      bool switchToConsole = false);
     void saveWidgetSetting();
     void restoreWidgetSetting();
 
-    QStringList getDXCServerList(void);
-    void serverComboSetup();
+    void serverSelectSetup();
     void clearAllPasswordIcons();
     void activateCurrPasswordIcon();
     void updateCommandsMenu();

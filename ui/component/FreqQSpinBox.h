@@ -6,6 +6,7 @@
 
 class QAction;
 class QMenu;
+class QWidgetAction;
 
 class FreqQSpinBox : public BaseDoubleSpinBox
 {
@@ -15,14 +16,17 @@ public:
     FreqQSpinBox(QWidget *parent = nullptr);
     virtual ~FreqQSpinBox() {};
     void setSelectionModeEnabled(bool enabled);
+    void setMousePositionStepEnabled(bool enabled);
     void setDebounceEnabled(bool enabled);
     void setDebounceIntervalMs(int ms);
+    void cancelPendingValueChange();
     void enableBandSelection();
     void setBandSelectionEnabled(bool enabled);
     bool setBand(const QString &bandName);
     void setValue(double value);
     bool hasBand() const;
     bool hasFrequency() const;
+    double displayedFrequency() const;
     QString selectedBand() const;
 
 public slots:
@@ -47,6 +51,7 @@ private slots:
     void bandMenuTriggered(QAction *action);
 
 private:
+    double frequencyStepAt(const QPoint &position) const;
     void increaseByBand();
     void decreaseByBand();
     void stepBand(int steps);
@@ -60,13 +65,14 @@ private:
 
     QList<Band> enabledBands;
     bool selectionModeEnabled;
+    bool mousePositionStepEnabled = false;
     bool bandSelectionEnabled = true;
     QTimer debounceTimer;
     int    debounceMs = 150;
     bool   debounceEnabled = false;
     double pendingValue = 0.0;
     bool   hasPending = false;
-    QAction *bandMenuButton = nullptr;
+    QWidgetAction *bandMenuButton = nullptr;
     QMenu *bandMenu = nullptr;
     int bandIndex = -1;
     double lastFrequency = 0.0;

@@ -1,10 +1,12 @@
 #include "Rig.h"
 #include "RigctldManager.h"
+#include "RigRuntimeProvider.h"
 #include "core/debug.h"
 
 #include <QSemaphore>
 #include <QSharedPointer>
 #include <QThread>
+#include <limits>
 
 #include "rig/drivers/HamlibRigDrv.h"
 #ifdef Q_OS_WIN
@@ -29,6 +31,8 @@ Rig::Rig(QObject *parent)
     heartBeatTimer(new QTimer(this))
 {
     FCT_IDENTIFICATION;
+
+    statusProvider = createRigRuntimeProvider(this, rigStatus);
 
     drvMapping[HAMLIB_DRIVER] = DrvParams(HAMLIB_DRIVER,
                                           "Hamlib",
@@ -61,6 +65,13 @@ Rig::Rig(QObject *parent)
                                          nullptr);
 
     connect(heartBeatTimer, &QTimer::timeout, this, &Rig::sendHeartBeat);
+}
+
+RuntimeProvider *Rig::getRuntimeProvider() const
+{
+    FCT_IDENTIFICATION;
+
+    return statusProvider;
 }
 
 qint32 Rig::getNormalBandwidth(const QString &mode, const QString &)
@@ -227,10 +238,19 @@ void Rig::__openRig()
 {
     FCT_IDENTIFICATION;
 
-    // if rig is active then close it
-    __closeRig();
-
     RigProfile newRigProfile = RigProfilesManager::instance()->getCurProfile1();
+
+    bool cwKeyPreserved = false;
+    if ( rigDriver )
+    {
+        const QString connectedCWKey = rigDriver->getCurrRigProfile().assignedCWKey;
+        cwKeyPreserved = !connectedCWKey.isEmpty()
+                         && connectedCWKey != " "
+                         && connectedCWKey == newRigProfile.assignedCWKey;
+    }
+
+    // if rig is active then close it
+    __closeRig(newRigProfile.assignedCWKey);
 
     if ( newRigProfile == RigProfile() )
     {
@@ -261,7 +281,11 @@ void Rig::__openRig()
         }
 
         if ( !rigctldManager->start(newRigProfile) )
+        {
+            if ( cwKeyPreserved )
+                emit rigCWKeyCloseRequest(newRigProfile.assignedCWKey);
             return;
+        }
 
         // Modify profile to connect via network to rigctld
         newRigProfile.hostname = rigctldManager->getConnectHost();
@@ -279,26 +303,38 @@ void Rig::__openRig()
         // initialization failed
         emit rigErrorPresent(tr("Initialization Error"),
                              tr("Internal Error"));
+        if ( cwKeyPreserved )
+            emit rigCWKeyCloseRequest(newRigProfile.assignedCWKey);
         return;
     }
 
-    connect( rigDriver, &GenericRigDrv::frequencyChanged, this, [this](double a, double b, double c)
+    connect( rigDriver, &GenericRigDrv::frequencyChanged, this, [this](double vfoFreq, double rxFreq, double txFreq)
     {
-        rigStatus.freq = a;
-        emit frequencyChanged(VFO1, a, b, c);
+        rigStatus.freq = vfoFreq;
+        rigStatus.rxFreq = rxFreq;
+        rigStatus.mainTxFreq = txFreq;
+        emit frequencyChanged(VFO1, vfoFreq, rxFreq, txFreq);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::txFrequencyChanged, this, [this](double txFreq)
+    const RigCaps caps = getRigCaps(static_cast<DriverID>(newRigProfile.driver), controlledRigModel);
+    const bool readSplit = newRigProfile.getSplitInfo && caps.canGetSplit;
+    connect( rigDriver, &GenericRigDrv::txFrequencyChanged, this, [this, readSplit](double txFreq)
     {
         rigStatus.txFreq = txFreq;
+        rigStatus.txFrequencyKnown = readSplit && rigStatus.splitKnown && rigStatus.splitEnabled;
         emit frequencyChanged(VFO2, txFreq, txFreq, txFreq);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::splitChanged, this, [this](bool enabled)
+    connect( rigDriver, &GenericRigDrv::splitChanged, this, [this, readSplit](bool enabled)
     {
+        // TX VFO values belong to this split session; an old frequency must not
+        // reappear when split is enabled again before its new TX report arrives.
+        if ( !enabled || enabled != rigStatus.splitEnabled )
+            rigStatus.txFrequencyKnown = false;
         rigStatus.splitEnabled = enabled;
+        rigStatus.splitKnown = readSplit;
         emit splitChanged(VFO1, enabled);
         emitRigStatusChanged();
     });
@@ -310,7 +346,8 @@ void Rig::__openRig()
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::modeChanged, this, [this](const QString &a,
+    const bool readBandwidth = newRigProfile.getModeInfo && caps.canGetMode;
+    connect( rigDriver, &GenericRigDrv::modeChanged, this, [this, readBandwidth](const QString &a,
                                                                   const QString &b,
                                                                   const QString &c,
                                                                   qint32 d)
@@ -319,41 +356,54 @@ void Rig::__openRig()
         rigStatus.mode = b;
         rigStatus.submode = c;
         rigStatus.bandwidth = d;
+        rigStatus.bandwidthKnown = readBandwidth;
         emit modeChanged(VFO1, a, b, c, d);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::vfoChanged, this, [this](const QString &a)
+    const bool readVfo = newRigProfile.getVFOInfo && caps.canGetVFO;
+    connect( rigDriver, &GenericRigDrv::vfoChanged, this, [this, readVfo](const QString &a)
     {
         rigStatus.vfo = a;
+        rigStatus.vfoKnown = readVfo;
         emit vfoChanged(VFO1, a);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::powerChanged, this, [this](double a)
+    const bool readPower = newRigProfile.getPWRInfo && caps.canGetPWR;
+    connect( rigDriver, &GenericRigDrv::powerChanged, this, [this, readPower](double a)
     {
         rigStatus.power = a;
+        rigStatus.powerKnown = readPower;
         emit powerChanged(VFO1, a);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::ritChanged, this, [this](double a)
+    const bool readRit = newRigProfile.getRITInfo && caps.canGetRIT;
+    connect( rigDriver, &GenericRigDrv::ritChanged, this, [this, readRit](double a)
     {
         rigStatus.rit = a;
+        rigStatus.ritKnown = readRit;
         emit ritChanged(VFO1, a);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::xitChanged, this, [this](double a)
+    const bool readXit = newRigProfile.getXITInfo && caps.canGetXIT;
+    connect( rigDriver, &GenericRigDrv::xitChanged, this, [this, readXit](double a)
     {
         rigStatus.xit = a;
+        rigStatus.xitKnown = readXit;
         emit xitChanged(VFO1, a);
         emitRigStatusChanged();
     });
 
-    connect( rigDriver, &GenericRigDrv::keySpeedChanged, this, [this](unsigned int a)
+    const bool readKeySpeed = newRigProfile.getKeySpeed && caps.canGetKeySpeed;
+    connect( rigDriver, &GenericRigDrv::keySpeedChanged, this, [this, readKeySpeed](unsigned int a)
     {
+        if ( a == 0 || a > std::numeric_limits<quint16>::max() )
+            return;
         rigStatus.keySpeed = a;
+        rigStatus.keySpeedKnown = readKeySpeed;
         emit keySpeedChanged(VFO1, a);
         emitRigStatusChanged();
     });
@@ -365,18 +415,39 @@ void Rig::__openRig()
         emit rigErrorPresent(a, b);
     });
 
-    connect( rigDriver, &GenericRigDrv::rigIsReady, this, [this, newRigProfile]()
+    connect( rigDriver, &GenericRigDrv::rigIsReady, this, [this, newRigProfile, controlledRigModel]()
     {
         connected = true;
 
         // Change Assigned CW Key
         if ( !newRigProfile.assignedCWKey.isEmpty()
-             || newRigProfile.assignedCWKey != " ")
+             && newRigProfile.assignedCWKey != " ")
         {
-            emit rigCWKeyOpenRequest(newRigProfile.assignedCWKey);
+            qCDebug(runtime) << "Rig profile" << newRigProfile.profileName
+                             << "requests CW keyer profile" << newRigProfile.assignedCWKey
+                             << "output"
+                             << CWKey::outputName(CWKey::intToOutputID(newRigProfile.cwKeyOutput));
+            emit rigCWKeyOpenRequest(newRigProfile.assignedCWKey,
+                                     newRigProfile.cwKeyOutput);
         }
 
         rigStatus.profile = newRigProfile.profileName;
+        rigStatus.rxOffset = newRigProfile.ritOffset;
+        rigStatus.txOffset = newRigProfile.xitOffset;
+        rigStatus.backend = drvMapping.value(newRigProfile.driver).driverName;
+        if ( newRigProfile.driver == HAMLIB_DRIVER
+             && controlledRigModel != HamlibRigDrv::RIGCTLD_MODEL )
+        {
+            // Use the original model when local rig sharing substitutes NET rigctl.
+            for ( const QPair<int, QString> &model : getModelList(HAMLIB_DRIVER) )
+            {
+                if ( model.first == controlledRigModel )
+                {
+                    rigStatus.modelName = model.second;
+                    break;
+                }
+            }
+        }
         rigStatus.isConnected = true;
         heartBeatTimer->start(HEARTBEATPERIOD);
         emit rigConnected();
@@ -417,9 +488,10 @@ void Rig::shutdownImpl()
     stopTimerImplt();
 }
 
-void Rig::__closeRig()
+void Rig::__closeRig(const QString &preservedCWKeyProfile)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << preservedCWKeyProfile;
 
     if ( !rigDriver )
     {
@@ -431,9 +503,23 @@ void Rig::__closeRig()
 
     // Change Assigned CW Key
     if ( !connectedRigProfile.assignedCWKey.isEmpty()
-         || connectedRigProfile.assignedCWKey != " ")
+         && connectedRigProfile.assignedCWKey != " ")
     {
-        emit rigCWKeyCloseRequest(connectedRigProfile.assignedCWKey);
+        if ( connectedRigProfile.assignedCWKey == preservedCWKeyProfile )
+        {
+            qCDebug(runtime) << "Keeping CW keyer profile"
+                             << connectedRigProfile.assignedCWKey
+                             << "connected while switching rig profile from"
+                             << connectedRigProfile.profileName << "to"
+                             << RigProfilesManager::instance()->getCurProfile1().profileName;
+        }
+        else
+        {
+            qCDebug(runtime) << "Rig profile" << connectedRigProfile.profileName
+                             << "requests closing CW keyer profile"
+                             << connectedRigProfile.assignedCWKey;
+            emit rigCWKeyCloseRequest(connectedRigProfile.assignedCWKey);
+        }
     }
 
     rigStatus.isConnected = false;

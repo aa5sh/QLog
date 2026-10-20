@@ -23,6 +23,7 @@ public slots:
     void ruleNameChanged(const QString&);
     void callsignChanged(const QString&);
     void spotCommentChanged(const QString&);
+    void testNotification();
 
 private:
     Ui::AlertRuleDetail *ui;
@@ -30,9 +31,6 @@ private:
     QStringList ruleNamesList;
     QList<QCheckBox*> memberListCheckBoxes;
 
-
-private slots:
-    void enabledLogStatusAll(bool enabled);
 
 private:
     void setDefaultValues();

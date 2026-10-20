@@ -8,6 +8,7 @@
 #include "ui_AwardsDialog.h"
 #include "models/SqlListModel.h"
 #include "core/debug.h"
+#include "core/LogParam.h"
 #include "core/QSOFilterManager.h"
 
 #include "awards/AwardDXCC.h"
@@ -18,6 +19,7 @@
 #include "awards/AwardWPX.h"
 #include "awards/AwardIOTA.h"
 #include "awards/AwardPOTAHunter.h"
+#include "awards/AwardPGAHunter.h"
 #include "awards/AwardPOTAActivator.h"
 #include "awards/AwardSOTA.h"
 #include "awards/AwardWWFF.h"
@@ -25,6 +27,7 @@
 #include "awards/AwardUSCounty.h"
 #include "awards/AwardRDA.h"
 #include "awards/AwardJapan.h"
+#include "awards/AwardWAJA.h"
 #include "awards/AwardNZ.h"
 #include "awards/AwardSpanishDME.h"
 #include "awards/AwardUKD.h"
@@ -57,10 +60,11 @@ AwardsDialog::AwardsDialog(QWidget *parent) :
     ui->myEntityComboBox->setModelColumn(1);
     ui->myEntityComboBox->blockSignals(false);
 
-    m_awards = createAwards();
+    awardDefinitions = createAwards();
 
     ui->awardComboBox->blockSignals(true);
-    for ( const AwardDefinition *award : static_cast<const QList<AwardDefinition*>>(m_awards) )
+    const QList<AwardDefinition*> &definitions = awardDefinitions;
+    for ( const AwardDefinition *award : definitions )
         ui->awardComboBox->addItem(award->displayName(), award->key());
     ui->awardComboBox->blockSignals(false);
 
@@ -69,8 +73,12 @@ AwardsDialog::AwardsDialog(QWidget *parent) :
                                                                       ui->userFilterComboBox));
     ui->userFilterComboBox->blockSignals(false);
 
-    connect(ui->rulesPushButton, &QPushButton::clicked, this, &AwardsDialog::openRulesUrl);
+    loadDialogState();
 
+    connect(ui->rulesPushButton, &QPushButton::clicked, this, &AwardsDialog::openRulesUrl);
+    connect(this, &QDialog::finished, this, &AwardsDialog::saveDialogState);
+
+    refreshTableEnabled = true;
     refreshTable(0);
 }
 
@@ -78,7 +86,7 @@ AwardsDialog::~AwardsDialog()
 {
     FCT_IDENTIFICATION;
 
-    qDeleteAll(m_awards);
+    qDeleteAll(awardDefinitions);
     delete ui;
 }
 
@@ -86,20 +94,33 @@ void AwardsDialog::refreshTable(int)
 {
     FCT_IDENTIFICATION;
 
+    if ( !refreshTableEnabled )
+        return;
+
     AwardDefinition *award = currentAward();
     if ( !award )
         return;
 
+    if ( !ui->notWorkedCheckBox->isHidden() )
+        notWorkedChecked = ui->notWorkedCheckBox->isChecked();
+    if ( !ui->notConfirmedCheckBox->isHidden() )
+        notConfirmedChecked = ui->notConfirmedCheckBox->isChecked();
+
     setEntityInputEnabled(award->entityInputEnabled());
-    setNotWorkedEnabled(award->notWorkedEnabled());
+    const bool confirmationEnabled = award->confirmationInputEnabled();
+    setNotWorkedEnabled(award->notWorkedEnabled(), confirmationEnabled);
+    ui->confirmedLabel->setVisible(confirmationEnabled);
+    ui->lotwCheckBox->setVisible(confirmationEnabled);
+    ui->eqslCheckBox->setVisible(confirmationEnabled);
+    ui->paperCheckBox->setVisible(confirmationEnabled);
     updateRulesButton(award);
 
     if ( ui->eqslCheckBox->isEnabled() )
-        m_eqslConfirmationChecked = ui->eqslCheckBox->isChecked();
+        eqslConfirmationChecked = ui->eqslCheckBox->isChecked();
 
     const bool acceptsEqsl = award->acceptsEqslConfirmation();
     const QSignalBlocker eqslBlocker(ui->eqslCheckBox);
-    ui->eqslCheckBox->setChecked(acceptsEqsl && m_eqslConfirmationChecked);
+    ui->eqslCheckBox->setChecked(acceptsEqsl && eqslConfirmationChecked);
     ui->eqslCheckBox->setEnabled(acceptsEqsl);
     ui->eqslCheckBox->setToolTip(acceptsEqsl
                                  ? QString()
@@ -132,8 +153,8 @@ AwardDefinition* AwardsDialog::currentAward() const
     FCT_IDENTIFICATION;
 
     int idx = ui->awardComboBox->currentIndex();
-    if ( idx >= 0 && idx < m_awards.size() )
-        return m_awards.at(idx);
+    if ( idx >= 0 && idx < awardDefinitions.size() )
+        return awardDefinitions.at(idx);
     return nullptr;
 }
 
@@ -187,6 +208,58 @@ QString AwardsDialog::getSelectedEntity() const
     return comboData;
 }
 
+void AwardsDialog::loadDialogState()
+{
+    FCT_IDENTIFICATION;
+
+    const int awardIndex = ui->awardComboBox->findData(LogParam::getAwardsLastAward());
+    ui->awardComboBox->setCurrentIndex(awardIndex >= 0 ? awardIndex : 0);
+
+    const QString myEntity = LogParam::getAwardsLastMyEntity();
+    for ( int row = 0; row < entityCallsignModel->rowCount(); row++ )
+    {
+        if ( entityCallsignModel->data(entityCallsignModel->index(row, 0)).toString() == myEntity )
+        {
+            ui->myEntityComboBox->setCurrentIndex(row);
+            break;
+        }
+    }
+
+    const int userFilterIndex = ui->userFilterComboBox->findText(LogParam::getAwardsLastUserFilter());
+    ui->userFilterComboBox->setCurrentIndex(userFilterIndex >= 0 ? userFilterIndex : 0);
+
+    ui->lotwCheckBox->setChecked(LogParam::getAwardsConfirmedByState("lotw"));
+    eqslConfirmationChecked = LogParam::getAwardsConfirmedByState("eqsl");
+    ui->eqslCheckBox->setChecked(eqslConfirmationChecked);
+    ui->paperCheckBox->setChecked(LogParam::getAwardsConfirmedByState("paper"));
+    ui->cwCheckBox->setChecked(LogParam::getAwardsModeState("cw"));
+    ui->phoneCheckBox->setChecked(LogParam::getAwardsModeState("phone"));
+    ui->digiCheckBox->setChecked(LogParam::getAwardsModeState("digital"));
+    notWorkedChecked = LogParam::getAwardsShowState("notworked");
+    ui->notWorkedCheckBox->setChecked(notWorkedChecked);
+    notConfirmedChecked = LogParam::getAwardsShowState("notconfirmed");
+    ui->notConfirmedCheckBox->setChecked(notConfirmedChecked);
+}
+
+void AwardsDialog::saveDialogState() const
+{
+    FCT_IDENTIFICATION;
+
+    LogParam::setAwardsLastAward(ui->awardComboBox->currentData().toString());
+    LogParam::setAwardsLastMyEntity(getSelectedEntity());
+    LogParam::setAwardsLastUserFilter(ui->userFilterComboBox->currentIndex() > 0
+                                         ? ui->userFilterComboBox->currentText()
+                                         : QString());
+    LogParam::setAwardsConfirmedByState("lotw", ui->lotwCheckBox->isChecked());
+    LogParam::setAwardsConfirmedByState("eqsl", eqslConfirmationChecked);
+    LogParam::setAwardsConfirmedByState("paper", ui->paperCheckBox->isChecked());
+    LogParam::setAwardsModeState("cw", ui->cwCheckBox->isChecked());
+    LogParam::setAwardsModeState("phone", ui->phoneCheckBox->isChecked());
+    LogParam::setAwardsModeState("digital", ui->digiCheckBox->isChecked());
+    LogParam::setAwardsShowState("notworked", notWorkedChecked);
+    LogParam::setAwardsShowState("notconfirmed", notConfirmedChecked);
+}
+
 void AwardsDialog::openRulesUrl() const
 {
     FCT_IDENTIFICATION;
@@ -208,18 +281,18 @@ void AwardsDialog::setEntityInputEnabled(bool enabled)
     ui->myEntityLabel->setVisible(enabled);
 }
 
-void AwardsDialog::setNotWorkedEnabled(bool enabled)
+void AwardsDialog::setNotWorkedEnabled(bool enabled, bool confirmationEnabled)
 {
     FCT_IDENTIFICATION;
 
     ui->notWorkedCheckBox->blockSignals(true);
     ui->notWorkedCheckBox->setVisible(enabled);
     ui->notWorkedLabel->setVisible(enabled);
-    ui->notWorkedCheckBox->setChecked(enabled && ui->notWorkedCheckBox->isChecked());
+    ui->notWorkedCheckBox->setChecked(enabled && notWorkedChecked);
     ui->notWorkedCheckBox->blockSignals(false);
     ui->notConfirmedCheckBox->blockSignals(true);
-    ui->notConfirmedCheckBox->setVisible(enabled);
-    ui->notConfirmedCheckBox->setChecked(enabled && ui->notConfirmedCheckBox->isChecked());
+    ui->notConfirmedCheckBox->setVisible(enabled && confirmationEnabled);
+    ui->notConfirmedCheckBox->setChecked(enabled && confirmationEnabled && notConfirmedChecked);
     ui->notConfirmedCheckBox->blockSignals(false);
 }
 
@@ -234,6 +307,8 @@ void AwardsDialog::updateRulesButton(const AwardDefinition *award)
 
 QList<AwardDefinition*> AwardsDialog::createAwards()
 {
+    FCT_IDENTIFICATION;
+
     return {
         new AwardDXCC(),
         new AwardDXMarathon(),
@@ -253,6 +328,7 @@ QList<AwardDefinition*> AwardsDialog::createAwards()
         new AwardUSCounty(),
         new AwardRDA(),
         new AwardJapan(),
+        new AwardWAJA(),
         new AwardNZ(),
         new AwardSpanishDME(),
         new AwardUKD(),
@@ -261,5 +337,6 @@ QList<AwardDefinition*> AwardsDialog::createAwards()
         new AwardCanadaAward(),
         new AwardWANA(),
         new AwardWorkedAllRAC(),
+        new AwardPGAHunter(),
     };
 }

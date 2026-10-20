@@ -163,6 +163,9 @@ HamlibRigDrv::HamlibRigDrv(const RigProfile &profile,
       currPWR(0),
       currRIT(0.0),
       currXIT(0.0),
+      powerKnown(false),
+      ritKnown(false),
+      xitKnown(false),
       keySpeed(0),
       morseOverCatSupported(false),
       currSplitEnabled(false),
@@ -441,21 +444,26 @@ void HamlibRigDrv::setSplit(bool enabled)
         return;
     }
 
-    // Force RX to A/MAIN before enabling split — this guarantees
-    // a known VFO state regardless of rig's get_vfo support.
-    // Same strategy as WSJT-X (HamlibTransceiver::do_start).
+    vfo_t rxVfo = QLOG_HAMLIB_STATE(rig)->current_vfo;
+
     if ( enabled )
     {
-        vfo_t rxVfo = (QLOG_HAMLIB_STATE(rig)->vfo_list & RIG_VFO_A) ? RIG_VFO_A : RIG_VFO_MAIN;
+        // Force RX to A/MAIN before enabling split — this guarantees
+        // a known VFO state regardless of rig's get_vfo support.
+        // Same strategy as WSJT-X (HamlibTransceiver::do_start).
+        rxVfo = (QLOG_HAMLIB_STATE(rig)->vfo_list & RIG_VFO_A) ? RIG_VFO_A
+                                                               : RIG_VFO_MAIN;
         int rcVfo = rig_set_vfo(rig, rxVfo);
         qCDebug(runtime) << "Forced RX VFO to" << hamlibVFO2String(rxVfo)
                          << "result:" << rcVfo;
         commandSleep();
     }
+    else if ( rxVfo == RIG_VFO_NONE )
+        rxVfo = RIG_VFO_CURR;
 
-    vfo_t txVfo = getTxVfo();
+    vfo_t txVfo = enabled ? getTxVfo() : rxVfo;
     split_t splitVal = enabled ? RIG_SPLIT_ON : RIG_SPLIT_OFF;
-    int status = rig_set_split_vfo(rig, RIG_VFO_TX, splitVal, txVfo);
+    int status = rig_set_split_vfo(rig, rxVfo, splitVal, txVfo);
     isRigRespOK(status, tr("Set Split Error"), false);
     futureSplit = (status == RIG_OK && enabled);
 
@@ -710,6 +718,8 @@ void HamlibRigDrv::checkChanges()
 {
     FCT_IDENTIFICATION;
 
+    checkVFOChange();
+
     if ( !checkFreqChange() )
         return;
 
@@ -718,7 +728,6 @@ void HamlibRigDrv::checkChanges()
     if ( !checkModeChange() )
         return;
 
-    checkVFOChange();
     checkSplitChange();
     checkPWRChange();
     checkRITChange();
@@ -958,8 +967,9 @@ void HamlibRigDrv::checkPWRChange()
                 qCDebug(runtime) << "Rig PWR: "<< rigPower;
                 qCDebug(runtime) << "Object PWR: "<< currPWR;
 
-                if ( rigPower != currPWR || forceSendState )
+                if ( !powerKnown || rigPower != currPWR || forceSendState )
                 {
+                    powerKnown = true;
                     currPWR = rigPower;
 
                     qCDebug(runtime) << "emitting PWR changed " << mW2W(currPWR);
@@ -998,7 +1008,7 @@ void HamlibRigDrv::checkRITChange()
                 /* RIT is on */
                 status = rig_get_rit(rig, RIG_VFO_CURR, &rit);
                 if ( !isRigRespOK(status, tr("Get RIT Error"), false) )
-                    rit = s_Hz(0);
+                    return;
             }
             else
             {
@@ -1009,8 +1019,9 @@ void HamlibRigDrv::checkRITChange()
             qCDebug(runtime) << "Rig RIT:"<< rit << "Rig RIT Status:" << ritStatus;
             qCDebug(runtime) << "Object RIT: "<< currRIT;
 
-            if ( static_cast<double>(rit) != currRIT || forceSendState )
+            if ( !ritKnown || static_cast<double>(rit) != currRIT || forceSendState )
             {
+                ritKnown = true;
                 currRIT = static_cast<double>(rit);
 
                 qCDebug(runtime) << "emitting RIT changed" << QSTRING_FREQ(Hz2MHz(currRIT));
@@ -1055,7 +1066,7 @@ void HamlibRigDrv::checkXITChange()
                 /* XIT is on */
                 status = rig_get_xit(rig, RIG_VFO_CURR, &xit);
                 if ( !isRigRespOK(status, tr("Get XIT Error"), false) )
-                    xit = s_Hz(0);
+                    return;
             }
             else
             {
@@ -1066,8 +1077,9 @@ void HamlibRigDrv::checkXITChange()
             qCDebug(runtime) << "RIG XIT: "<< xit << "Rig XIT Status:" << xitStatus;;
             qCDebug(runtime) << "Object XIT: "<< currXIT;
 
-            if ( static_cast<double>(xit) != currXIT || forceSendState )
+            if ( !xitKnown || static_cast<double>(xit) != currXIT || forceSendState )
             {
+                xitKnown = true;
                 currXIT = static_cast<double>(xit);
 
                 qCDebug(runtime) << "emitting XIT changed" << QSTRING_FREQ(Hz2MHz(currXIT));

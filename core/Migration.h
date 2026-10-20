@@ -1,9 +1,9 @@
 #ifndef QLOG_CORE_MIGRATION_H
 #define QLOG_CORE_MIGRATION_H
 
-#include "core/LOVDownloader.h"
+#include <QObject>
 
-class QProgressDialog;
+class QSqlQuery;
 
 class DBSchemaMigration : public QObject
 {
@@ -11,10 +11,9 @@ class DBSchemaMigration : public QObject
 
 public:
     DBSchemaMigration(QObject *parent = nullptr) : QObject(parent) {}
-    bool run(bool force = false);
-    static bool backupAllQSOsToADX(bool force = false);
+    bool run(QString *backupSnapshot = nullptr);
 
-    static constexpr int latestVersion = 41;
+    static constexpr int latestVersion = 44;
 
     // Fork-private schema track for MyFeatures-only changes. Kept separate
     // from latestVersion/migration_0NN.sql so upstream syncs never collide
@@ -22,6 +21,7 @@ public:
     static constexpr int latestMyFeaturesVersion = 1;
 
 private:
+    bool setForeignKeysEnabled(bool enabled);
     bool functionMigration(int version);
     bool migrate(int toVersion);
     int getVersion();
@@ -31,12 +31,6 @@ private:
     bool setMyFeaturesVersion(int version);
     bool runSqlFile(QString filename);
     int tableRows(const QString &name);
-    bool updateExternalResource(bool force = false);
-    void updateExternalResourceProgress(QProgressDialog&,
-                                        LOVDownloader&,
-                                        const LOVDownloader::SourceType & sourceType,
-                                        const QString &counter,
-                                        bool force = false);
     bool fixIntlFields();
     bool insertUUID();
     bool fillMyDXCC();

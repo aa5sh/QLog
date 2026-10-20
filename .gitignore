@@ -9,13 +9,15 @@
 *.dll
 *.dylib
 *.patch
-devtools/timezones/builder/builder
-devtools/timezones/builder/db.zip
-devtools/timezones/builder/out/
-devtools/timezones/builder/out_v1/
+3rdparty/bertoldvdb/zonedetect/database/builder/builder
+3rdparty/bertoldvdb/zonedetect/database/builder/db.zip
+3rdparty/bertoldvdb/zonedetect/database/builder/out/
+3rdparty/bertoldvdb/zonedetect/database/builder/out_v1/
 .claude/
-AGENT.md
 CLAUDE.md
+.superpowers/
+devtools/translator/__pycache__/
+devtools/deployment/create_github_release.sh
 
 # Qt-es
 object_script.*.Release
@@ -58,3 +60,5 @@ compile_commands.json
 /build
 /build-appimage/
 /dist/
+tests/build/
+

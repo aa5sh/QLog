@@ -5,6 +5,8 @@
 #include "data/DxSpot.h"
 #include "data/WsjtxEntry.h"
 #include "data/SpotAlert.h"
+#include "data/DxccLogStatusCondition.h"
+#include <QHash>
 #include <QRegularExpression>
 
 class AlertRule : public QObject
@@ -12,22 +14,42 @@ class AlertRule : public QObject
     Q_OBJECT
 
 public:
+    enum
+    {
+        MIN_NOTIFICATION_REPEAT_MINUTES = 1,
+        DEFAULT_NOTIFICATION_REPEAT_MINUTES = 5,
+        MAX_NOTIFICATION_REPEAT_MINUTES = 1440
+    };
+
     explicit AlertRule(QObject *parent = nullptr);
     ~AlertRule() {};
 
     bool save();
     bool load(const QString &);
-    bool match(const WsjtxEntry &wsjtx) const;
-    bool match(const DxSpot & spot) const;
+    bool match(const WsjtxEntry &wsjtx,
+               const DxccConfirmationResolver &confirmationResolver = DxccConfirmationResolver()) const;
+    bool match(const DxSpot &spot,
+               const DxccConfirmationResolver &confirmationResolver = DxccConfirmationResolver()) const;
     bool isValid() const;
+    bool hasDxAlertCondition() const;
+    bool hasInvalidDxAlertCondition() const;
+    DxccLogStatusCondition logStatusCondition() const;
+    void setLogStatusCondition(const DxccLogStatusCondition &condition);
     operator QString() const;
 public:
     QString ruleName;
     bool enabled;
+    bool notificationEnabled;
+    bool notificationSoundEnabled;
+    int notificationRepeatMinutes;
     int sourceMap;
     QString dxCallsign;
     int dxCountry;
     int dxLogStatusMap;
+    int dxAlertGoal;
+    int dxAlertContext;
+    bool dxAlertGoalSet;
+    bool dxAlertContextSet;
     QString dxContinent;
     QString dxComment;
     QStringList dxMember;
@@ -60,6 +82,7 @@ public:
     ~AlertEvaluator() {clearRules();}
 
     void clearRules();
+    void setDxccConfirmationResolver(const DxccConfirmationResolver &resolver);
 
 public slots:
     void dxSpot(const DxSpot&);
@@ -70,7 +93,9 @@ signals:
     void spotAlert(SpotAlert alert);
 
 private:
+    DxccConfirmationResolver confirmationResolverForSpot(QHash<int, DxccConfirmationResult> &results) const;
     QList<AlertRule *>ruleList;
+    DxccConfirmationResolver confirmationResolver;
 };
 
 #endif // QLOG_CORE_ALERTEVALUATOR_H

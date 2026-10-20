@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>577</width>
-    <height>604</height>
+    <width>705</width>
+    <height>672</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -121,23 +121,118 @@
          </item>
         </layout>
        </item>
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="notificationLayout">
+         <item>
+          <widget class="QCheckBox" name="notificationCheckBox">
+           <property name="toolTip">
+            <string>Show an operating system notification when this rule matches.</string>
+           </property>
+           <property name="text">
+            <string>Enable</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="notificationSoundCheckBox">
+           <property name="toolTip">
+            <string>Request the operating system notification sound. The operating system controls the actual sound, volume, and Do Not Disturb.</string>
+           </property>
+           <property name="text">
+            <string>Sound</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Maximum</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="testNotificationButton">
+           <property name="text">
+            <string>Test</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Notification Popup</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="notificationRepeatLabel">
+         <property name="toolTip">
+          <string>Repeated spots for this callsign on the same band and mode are ignored for this time. A spot on another band or mode notifies immediately.</string>
+         </property>
+         <property name="text">
+          <string>Notification Dedup</string>
+         </property>
+         <property name="buddy">
+          <cstring>notificationRepeatSpinBox</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSpinBox" name="notificationRepeatSpinBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Repeated spots for this callsign on the same band and mode are ignored for this time. A spot on another band or mode notifies immediately.</string>
+         </property>
+         <property name="suffix">
+          <string> min</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>1440</number>
+         </property>
+         <property name="value">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
       </layout>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Preferred</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -162,68 +257,8 @@
          <property name="verticalSpacing">
           <number>2</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="logStatusLabel">
-           <property name="text">
-            <string>Log Status</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <layout class="QGridLayout" name="gridLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item row="1" column="2">
-            <widget class="QCheckBox" name="workedCheckbox">
-             <property name="text">
-              <string>Worked</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="newSlotCheckbox">
-             <property name="text">
-              <string>New Slot</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QCheckBox" name="confirmedCheckbox">
-             <property name="text">
-              <string>Confirmed</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QCheckBox" name="newEntityCheckbox">
-             <property name="text">
-              <string>New Entity</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QCheckBox" name="newModeCheckbox">
-             <property name="text">
-              <string>New Mode</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QCheckBox" name="newBandCheckbox">
-             <property name="text">
-              <string>New Band</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="allCheckbox">
-             <property name="text">
-              <string>All</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+         <item row="0" column="0" colspan="2">
+          <widget class="DxccLogStatusWidget" name="logStatusWidget" native="true"/>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="dxCallsignLabel">
@@ -884,20 +919,22 @@
    <extends>QComboBox</extends>
    <header>ui/component/SmartSearchBox.h</header>
   </customwidget>
+  <customwidget>
+   <class>DxccLogStatusWidget</class>
+   <extends>QWidget</extends>
+   <header>ui/component/DxccLogStatusWidget.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>ruleNameEdit</tabstop>
   <tabstop>ruleEnabledCheckBox</tabstop>
   <tabstop>dxcCheckBox</tabstop>
   <tabstop>wsjtxCheckBox</tabstop>
+  <tabstop>notificationCheckBox</tabstop>
+  <tabstop>notificationSoundCheckBox</tabstop>
+  <tabstop>testNotificationButton</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>allCheckbox</tabstop>
-  <tabstop>newEntityCheckbox</tabstop>
-  <tabstop>newBandCheckbox</tabstop>
-  <tabstop>newModeCheckbox</tabstop>
-  <tabstop>newSlotCheckbox</tabstop>
-  <tabstop>workedCheckbox</tabstop>
-  <tabstop>confirmedCheckbox</tabstop>
+  <tabstop>logStatusWidget</tabstop>
   <tabstop>dxCallsignEdit</tabstop>
   <tabstop>countryCombo</tabstop>
   <tabstop>ituEdit</tabstop>
@@ -934,6 +971,86 @@
  </tabstops>
  <resources/>
  <connections>
+  <connection>
+   <sender>notificationCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>notificationSoundCheckBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>notificationCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>testNotificationButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>notificationCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>notificationRepeatLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>notificationCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>notificationRepeatSpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>testNotificationButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AlertRuleDetail</receiver>
+   <slot>testNotification()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
@@ -1014,28 +1131,12 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>allCheckbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AlertRuleDetail</receiver>
-   <slot>enabledLogStatusAll(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>203</x>
-     <y>132</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>288</x>
-     <y>301</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>save()</slot>
   <slot>ruleNameChanged(QString)</slot>
   <slot>callsignChanged(QString)</slot>
   <slot>spotCommentChanged(QString)</slot>
-  <slot>enabledLogStatusAll(bool)</slot>
+  <slot>testNotification()</slot>
  </slots>
 </ui>
