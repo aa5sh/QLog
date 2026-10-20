@@ -5,6 +5,10 @@
 #include <QJsonObject>
 #include <QSerialPortInfo>
 
+#include <cmath>
+
+#include "rig/Rig.h"
+
 #include "core/LogParam.h"
 #include "core/debug.h"
 
@@ -19,6 +23,7 @@ namespace
     constexpr quint8 CMD_KEY_ON = 0x10;
     constexpr quint8 CMD_RCU_ON = 0x80;
     constexpr quint8 CMD_RCU_OFF = 0x81;
+    constexpr int CAT_RS232 = 6;
 
     constexpr quint8 KEY_OFF = 0x18;
     constexpr quint8 KEY_MODE = 0x1a;
@@ -306,6 +311,53 @@ AmplifierController::AmplifierController(QObject *parent) :
     serial(new QSerialPort(this)),
     rcuRetryTimer(new QTimer(this))
 {
+    // Coalesce tuning updates so rapid dial movement does not flood the device.
+    QTimer *frequencyTimer = new QTimer(this);
+    frequencyTimer->setInterval(150);
+    frequencyTimer->setSingleShot(true);
+    connect(frequencyTimer, &QTimer::timeout, this, [this]() {
+        if (isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz > 0
+            && pendingFrequencyKHz != lastReportedFrequencyKHz)
+        {
+            setFrequencyKHz(pendingFrequencyKHz);
+            lastReportedFrequencyKHz = pendingFrequencyKHz;
+        }
+    });
+    const auto reportRigFrequency = [this, frequencyTimer](const Rig::Status &status) {
+        const double frequency = status.isConnected ? status.freq : 0.0;
+        const double frequencyKHz = frequency * 1000.0;
+        if (!std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 65535)
+        {
+            frequencyTimer->stop();
+            pendingFrequencyKHz = 0;
+            lastReportedFrequencyKHz = 0;
+            return;
+        }
+        pendingFrequencyKHz = static_cast<int>(frequencyKHz);
+        if (isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive())
+            frequencyTimer->start();
+    };
+    connect(Rig::instance(), &Rig::rigStatusChanged, this, reportRigFrequency);
+    connect(Rig::instance(), &Rig::rigStatusHeartBeat, this, reportRigFrequency);
+    connect(Rig::instance(), &Rig::rigDisconnected, this, [this, frequencyTimer]() {
+        frequencyTimer->stop();
+        pendingFrequencyKHz = 0;
+        lastReportedFrequencyKHz = 0;
+    });
+    connect(this, &AmplifierController::statusChanged, this, [this, frequencyTimer](const AmplifierStatus &) {
+        if (!frequencyReportingAllowed())
+        {
+            frequencyTimer->stop();
+            lastReportedFrequencyKHz = 0;
+            return;
+        }
+        // Send the latest rig frequency when CAT becomes RS-232 or input changes.
+        if (pendingFrequencyKHz > 0 && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive())
+            frequencyTimer->start();
+    });
+
     FCT_IDENTIFICATION;
 
     qRegisterMetaType<AmplifierStatus>("AmplifierStatus");
@@ -347,6 +399,11 @@ QString AmplifierController::currentProfile() const
 AmplifierStatus AmplifierController::status() const
 {
     return currentStatus;
+}
+
+bool AmplifierController::frequencyReportingAllowed() const
+{
+    return currentStatus.cat == CAT_RS232;
 }
 
 void AmplifierController::open()
@@ -558,6 +615,22 @@ void AmplifierController::sendCommand(AmplifierController::Command command)
 {
     qCDebug(runtime) << "Amplifier command requested" << command;
     writeCommand(buildKeyCommand(keyCodeForCommand(command)));
+}
+
+void AmplifierController::setFrequencyKHz(int frequencyKHz)
+{
+    if (!connectedState || !frequencyReportingAllowed()
+        || frequencyKHz <= 0 || frequencyKHz > 65535)
+        return;
+
+    // EXPERT protocol CAT_232: kHz, low byte first, additive checksum.
+    const quint8 low = frequencyKHz & 0xff;
+    const quint8 high = (frequencyKHz >> 8) & 0xff;
+    QByteArray command = QByteArray::fromHex("5555550382");
+    command.append(char(low));
+    command.append(char(high));
+    command.append(char((0x82 + low + high) & 0xff));
+    writeCommand(command);
 }
 
 void AmplifierController::readNetworkData()
@@ -782,11 +855,16 @@ bool AmplifierController::parseSpeStatus(const QByteArray &packet)
     currentStatus.fullMode = (flags & FLAG_FULL_MODE) != 0;
     currentStatus.tempCelsius = (flags & FLAG_TEMP_CELSIUS) != 0;
 
+    const int previousInput = currentStatus.input;
+    const int previousCat = currentStatus.cat;
     const quint8 bandInput = static_cast<quint8>(packet[18]);
     currentStatus.band = (bandInput >> 4) & 0x0f;
     currentStatus.input = bandInput & 0x0f;
     currentStatus.freqKHz = quint16(static_cast<quint8>(packet[20])) | (quint16(static_cast<quint8>(packet[21])) << 8);
     currentStatus.antenna = static_cast<quint8>(packet[22]) & 0x0f;
+    currentStatus.cat = (static_cast<quint8>(packet[22]) >> 4) & 0x0f;
+    if (currentStatus.input != previousInput || currentStatus.cat != previousCat)
+        lastReportedFrequencyKHz = 0;
 
     const quint16 swrGain = quint16(static_cast<quint8>(packet[23])) | (quint16(static_cast<quint8>(packet[24])) << 8);
     currentStatus.swr = swrGain / 100.0;
@@ -814,6 +892,7 @@ void AmplifierController::setConnected(bool state)
         return;
 
     qCDebug(runtime) << "Amplifier connection state changed" << connectedState << "->" << state;
+    lastReportedFrequencyKHz = 0;
     connectedState = state;
     if (connectedState)
     {

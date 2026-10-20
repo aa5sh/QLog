@@ -53,6 +53,8 @@ struct AmplifierStatus
     int band = -1;
     int input = 0;
     int antenna = 0;
+    // High nibble of status byte 22; 6 means RS-232, -1 means unknown.
+    int cat = -1;
     quint16 freqKHz = 0;
 
     double swr = 1.0;
@@ -109,6 +111,7 @@ public slots:
     void openProfile(const QString &profileName);
     void close();
     void reloadSettings();
+    void setFrequencyKHz(int frequencyKHz);
     void sendCommand(AmplifierController::Command command);
 
 signals:
@@ -139,9 +142,12 @@ private:
     bool parseSpeStatus(const QByteArray &packet);
     void setConnected(bool connected);
     void resetStatus();
+    bool frequencyReportingAllowed() const;
 
     AmplifierProfile activeProfile;
     AmplifierStatus currentStatus;
+    int pendingFrequencyKHz = 0;
+    int lastReportedFrequencyKHz = 0;
     bool connectedState = false;
     bool enabledState = false;
     bool openingSerialPort = false;
