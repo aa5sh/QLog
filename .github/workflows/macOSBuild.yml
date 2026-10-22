@@ -17,6 +17,7 @@ jobs:
       APP_NAME: QLog
       BUNDLE_BIN: qlog
       QT_PREFIX: /opt/homebrew
+      MACOSX_DEPLOYMENT_TARGET: "26.0"
 
     steps:
       - name: Checkout Code
@@ -81,7 +82,9 @@ jobs:
           set -euo pipefail
           mkdir -p build
           cd build
-          qmake CONFIG+=release ..
+          qmake CONFIG+=release \
+            QMAKE_MACOSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET" \
+            ..
           make -j"$(sysctl -n hw.ncpu)"
 
       - name: Run macdeployqt
