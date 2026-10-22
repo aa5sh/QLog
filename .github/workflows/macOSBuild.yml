@@ -11,7 +11,7 @@ on:
 jobs:
   macos-build:
     name: macOS Build
-    runs-on: macos-latest
+    runs-on: macos-26
 
     env:
       APP_NAME: QLog
@@ -29,8 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           unset HOMEBREW_NO_INSTALL_FROM_API
-          brew update
-          brew upgrade || true
+          export HOMEBREW_NO_AUTO_UPDATE=1
           brew install \
             qt6 \
             hamlib \
