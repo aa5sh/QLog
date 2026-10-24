@@ -88,7 +88,7 @@ bool DatabaseBackup::prepare(bool force, QString *snapshotName)
             }
         }
 #ifndef QLOG_FORCE_AUTO_BACKUP
-        if ( lastBackupDate.isValid() && lastBackupDate.addDays(7) > today )
+        if ( lastBackupDate.isValid() && lastBackupDate.addDays(0) > today )
             return true;
 
         const QString todayPrefix = QStringLiteral("qlog_backup_") + QDate::currentDate().toString("yyyyMMdd");
