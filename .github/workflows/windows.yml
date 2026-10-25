@@ -16,7 +16,7 @@ name: Windows Build
 
 on:
   push:
-    branches: [master]
+    branches: [master,MyFeatures]
     tags: ['v*']
     paths-ignore:
       - '*.md'
