@@ -81,6 +81,8 @@ public slots:
 private:
     QNetworkReply *currentReply;
     QSLStorage *qslStorage;
+    QString downloadCallsign;
+    bool aborted = false;
     const QString DOWNLOAD_1ST_PAGE = "https://www.eQSL.cc/qslcard/DownloadInBox.cfm";
     const QString DOWNLOAD_2ND_PAGE = "https://www.eQSL.cc/downloadedfiles/";
     const QString QSL_IMAGE_FILENAME_PAGE = "https://www.eQSL.cc/qslcard/GeteQSL.cfm";

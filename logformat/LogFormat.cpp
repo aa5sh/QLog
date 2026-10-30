@@ -534,7 +534,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
         if ( recordDXCCId != 0 )
         {
             // get additional DXCC info
-            entity = Data::instance()->lookupDxccIDAD1C(recordDXCCId);
+            entity = Data::instance()->lookupDxccID(recordDXCCId, call.toString());
 
             // if DXCC is not present on AD1C list, try Clublog, no CQZ and ITUZ info here
             if ( entity.dxcc == 0 )
@@ -666,7 +666,7 @@ unsigned long LogFormat::runImport(QTextStream& importLogStream,
             }
             else
             {
-                const DxccEntity &myEntity = ( recordMyDXCCId != 0 ) ? Data::instance()->lookupDxccID(recordMyDXCCId)
+                const DxccEntity &myEntity = ( recordMyDXCCId != 0 ) ? Data::instance()->lookupDxccID(recordMyDXCCId, myCallString)
                                                                      : Data::instance()->lookupDxcc(myCallString);
 
                 if ( myEntity.dxcc == 0 )  // My DXCC not found
@@ -1171,12 +1171,13 @@ void LogFormat::runDXCCCreditImport()
     emit QSLMergeFinished(stats);
 }
 
-void LogFormat::runQSLImport(QSLFrom fromService)
+void LogFormat::runQSLImport(QSLFrom fromService, const bool *canceled)
 {
     FCT_IDENTIFICATION;
 
     auto reportFormatter = [&](const QDateTime &qsoTime,
                                const QString &callsign,
+                               const QString &band,
                                const QString &mode,
                                QStringList addInfo = QStringList(),
                                const QString &stationCallsign = QString())
@@ -1184,11 +1185,16 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         if ( !stationCallsign.isEmpty() )
             addInfo.prepend(tr("Station Callsign:") + " " + stationCallsign);
 
-        return QString("%0; %1; %2%3 %4").arg(qsoTime.isValid() ? qsoTime.toString(locale.formatDateShortWithYYYY()) : "-",
-                                            callsign,
-                                            mode,
-                                            (addInfo.size() > 0 ) ? ";" : "",
-                                            addInfo.join(", "));
+        const QString time = qsoTime.isValid()
+                ? qsoTime.toTimeZone(QTimeZone::utc()).toString(locale.formatDateShortWithYYYY()
+                                                               + " HH:mm:ss 'UTC'")
+                : "-";
+        return QString("%1; %2; %3; %4%5 %6").arg(time,
+                                                callsign,
+                                                band,
+                                                mode,
+                                                (addInfo.size() > 0 ) ? ";" : "",
+                                                addInfo.join(", "));
     };
 
     auto dxccStateDetails = [&](const QSqlRecord &record,
@@ -1196,7 +1202,6 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                                 const QString &mode)
     {
         Data *data = Data::instance();
-        data->invalidateDXCCStatusCache(record);
 
         const bool satellite = record.value("prop_mode").toString().compare(
                                    QLatin1String("SAT"), Qt::CaseInsensitive) == 0;
@@ -1245,6 +1250,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
 
     while ( true )
     {
+        if ( canceled && *canceled )
+        {
+            failImport(tr("QSL import canceled"));
+            return;
+        }
+
         QSLRecord.clearValues();
 
         if ( !this->importNext(QSLRecord) ) break;
@@ -1262,20 +1273,23 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         const QVariant &mode = QSLRecord.value("mode");
         const QVariant &start_time = QSLRecord.value("start_time");
         const QVariant &satName = QSLRecord.value("sat_name");
-        const QString stationCallsign = QSLRecord.value("station_callsign").toString().trimmed();
+        const QString stationCallsign = ( fromService == EQSL
+                                        ? filterMyCallsign
+                                        : QSLRecord.value("station_callsign").toString() ).trimmed();
 
         /* checking matching fields if they are not empty */
         if ( !start_time.toDateTime().isValid()
              || call.toString().isEmpty()
              || band.toString().isEmpty()
              || mode.toString().isEmpty()
-             || ( fromService == LOTW && stationCallsign.isEmpty() ) )
+             || ( ( fromService == LOTW || fromService == EQSL ) && stationCallsign.isEmpty() ) )
         {
             qWarning() << "QSL import does not contain all required matching fields";
             qCDebug(runtime) << QSLRecord;
             stats.errorQSLs.append(
                         reportFormatter(start_time.toDateTime(),
                                         call.toString(),
+                                        band.toString(),
                                         mode.toString(),
                                         QStringList(),
                                         fromService == LOTW ? stationCallsign : QString()));
@@ -1296,7 +1310,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
               startTimeStr,
               QString::number(fromService == EQSL ? 3600 : 1800));
 
-        if ( fromService == LOTW )
+        if ( fromService == LOTW || fromService == EQSL )
         {
             QString escapedStationCallsign = stationCallsign;
             escapedStationCallsign.replace('\'', QStringLiteral("''"));
@@ -1307,7 +1321,14 @@ void LogFormat::runQSLImport(QSLFrom fromService)
         }
 
         // First attempt: exact mode match (used for eQSL; also the fast path for LoTW)
-        model.setFilter(baseFilter + QString(" AND upper(mode)=upper('%1')").arg(mode.toString()));
+        QString modeFilter = baseFilter + QString(" AND upper(mode)=upper('%1')").arg(mode.toString());
+        if ( fromService == EQSL )
+        {
+            const QString submode = database.driver()->formatValue(QSLRecord.field("submode"));
+            modeFilter += QString(" AND upper(COALESCE(submode, '')) = upper(COALESCE(%1, ''))")
+                    .arg(submode);
+        }
+        model.setFilter(modeFilter);
         model.select();
 
         // LoTW fallback: LoTW confirms QSOs when both sides specify modes in the same
@@ -1366,6 +1387,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
             stats.unmatchedQSLs.append(
                         reportFormatter(start_time.toDateTime(),
                                         call.toString(),
+                                        band.toString(),
                                         mode.toString(),
                                         {unmatchedReason},
                                         fromService == LOTW ? stationCallsign : QString()));
@@ -1384,6 +1406,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
             // always try to update contact from received QSL
             if ( QSLRecord.value("qsl_rcvd").toString() == 'Y' ) // qsl_rcvd is OK because LoTW sends lotw_qsl_rcvd value in qsl_rcvd
             {
+                const uint previousDxcc = originalRecord.value("dxcc").toUInt();
                 QStringList updatedFields;
                 bool callUpdate = false;
                 bool newlyReceived = (QSLRecord.value("qsl_rcvd").toString() != originalRecord.value("lotw_qsl_rcvd").toString());
@@ -1531,11 +1554,14 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                                    + model.lastError().text());
                         return;
                     }
+                    Data::instance()->invalidateSetOfDXCCStatusCache(
+                                {previousDxcc, originalRecord.value("dxcc").toUInt()});
                     if ( newlyReceived )
                     {
                         stats.newQSLs.append(
                                     reportFormatter(start_time.toDateTime(),
                                                     call.toString(),
+                                                    band.toString(),
                                                     mode.toString(),
                                                     dxccStateDetails(originalRecord,
                                                                      band.toString(),
@@ -1546,6 +1572,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                         stats.updatedQSOs.append(
                                     reportFormatter(start_time.toDateTime(),
                                                     call.toString(),
+                                                    band.toString(),
                                                     mode.toString(),
                                                     updatedFields,
                                                     stationCallsign));
@@ -1642,10 +1669,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                 return;
             }
 
+            Data::instance()->invalidateDXCCStatusCache(originalRecord);
             if ( newlyReceived )
             {
                 stats.newQSLs.append(reportFormatter(start_time.toDateTime(),
                                                      call.toString(),
+                                                     band.toString(),
                                                      mode.toString(),
                                                      dxccStateDetails(originalRecord,
                                                                       band.toString(),
@@ -1656,6 +1685,7 @@ void LogFormat::runQSLImport(QSLFrom fromService)
                 stats.updatedQSOs.append(
                             reportFormatter(start_time.toDateTime(),
                                             call.toString(),
+                                            band.toString(),
                                             mode.toString(),
                                             {QStringLiteral("EQSL_AG: ") + eqslAg}));
             }
@@ -1669,6 +1699,12 @@ void LogFormat::runQSLImport(QSLFrom fromService)
     }
 
     emit importPosition(stream.pos());
+
+    if ( canceled && *canceled )
+    {
+        failImport(tr("QSL import canceled"));
+        return;
+    }
 
     if ( !database.commit() )
     {
