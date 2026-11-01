@@ -258,7 +258,7 @@ jobs:
               kind = subprocess.check_output(['file', '-b', str(path)], text=True)
               if 'Mach-O' not in kind:
                   continue
-              subprocess.run(['lipo', '-verify_arch', 'arm64', str(path)], check=True)
+              subprocess.run(['lipo', str(path), '-verify_arch', 'arm64'], check=True)
               load = subprocess.check_output(['otool', '-arch', 'arm64', '-l', str(path)], text=True)
               versions = re.findall(r'\bminos\s+(\d+(?:\.\d+)+)', load)
               versions += re.findall(r'LC_VERSION_MIN_MACOSX\s+cmdsize\s+\d+\s+version\s+(\d+(?:\.\d+)+)', load)
