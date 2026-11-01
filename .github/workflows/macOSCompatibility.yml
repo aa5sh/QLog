@@ -180,6 +180,11 @@ jobs:
             -executable="$MACOS_DIR/$BUNDLE_BIN" \
             -executable="$MACOS_DIR/rigctld" -libpath="$DEPS_PREFIX/lib"
 
+          # macdeployqt copies unused SQL drivers with external database dependencies.
+          # QLog only opens QSQLITE connections.
+          test -f "$APP/Contents/PlugIns/sqldrivers/libqsqlite.dylib"
+          find "$APP/Contents/PlugIns/sqldrivers" -type f ! -name libqsqlite.dylib -delete
+
           bundle_deps() {
             local target="$1" dep base
             while IFS= read -r dep; do
