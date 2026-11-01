@@ -1,0 +1,480 @@
+name: macOS 13 compatibility (Apple Silicon)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-compatibility-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos-compatibility:
+    name: macOS 13+ ARM64 build
+    runs-on: macos-15
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      APP_NAME: qlog
+      BUNDLE_BIN: qlog
+      MACOSX_DEPLOYMENT_TARGET: '13.0'
+      QT_VERSION: '6.11.3'
+      DEPS_PREFIX: ${{ github.workspace }}/build/macos-compatibility/deps
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/build/macos-compatibility/deps
+      PKG_CONFIG_LIBDIR: ${{ github.workspace }}/build/macos-compatibility/deps/lib/pkgconfig
+      PKG_CONFIG_PATH: ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      # Official Qt binaries retain an older deployment target than Homebrew bottles.
+      - name: Install pinned Qt
+        id: qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: mac
+          target: desktop
+          arch: clang_64
+          modules: qtcharts qtwebengine qtwebchannel qtpositioning qtserialport qtwebsockets qtshadertools qtmultimedia
+          source: true
+          src-archives: qtbase
+          cache: true
+
+      - name: Build dependencies for macOS 13
+        env:
+          QT_ROOT_DIR: ${{ steps.qt.outputs.qt-root-dir }}
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = arm64
+          WORK="$GITHUB_WORKSPACE/build/macos-compatibility"
+          mkdir -p "$WORK/sources" "$DEPS_PREFIX"
+          cd "$WORK/sources"
+          JOBS="$(sysctl -n hw.ncpu)"
+          export CC=clang CXX=clang++
+          export CFLAGS="-arch arm64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+          export CXXFLAGS="$CFLAGS"
+          export CPPFLAGS="-I$DEPS_PREFIX/include"
+          export LDFLAGS="-arch arm64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET -L$DEPS_PREFIX/lib"
+
+          download() {
+            local url="$1" archive="$2" checksum="$3"
+            curl --fail --location --retry 3 "$url" -o "$archive"
+            echo "$checksum  $archive" | shasum -a 256 --check
+          }
+
+          download https://github.com/libusb/libusb/releases/download/v1.0.29/libusb-1.0.29.tar.bz2 \
+            libusb.tar.bz2 5977fc950f8d1395ccea9bd48c06b3f808fd3c2c961b44b0c2e6e29fc3a70a85
+          tar -xjf libusb.tar.bz2
+          (
+            cd libusb-1.0.29
+            ./configure --prefix="$DEPS_PREFIX" --enable-shared --disable-static
+            make -j"$JOBS"
+            make install
+          )
+
+          download https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz \
+            openssl.tar.gz 603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a
+          tar -xzf openssl.tar.gz
+          (
+            cd openssl-3.5.9
+            ./Configure darwin64-arm64-cc --prefix="$DEPS_PREFIX" --libdir=lib shared no-tests
+            make -j"$JOBS"
+            make install_sw
+          )
+
+          download https://github.com/Hamlib/Hamlib/releases/download/4.7.2/hamlib-4.7.2.tar.gz \
+            hamlib.tar.gz ae1fcf2dbc80ea0786ea8f047b09399c3f7737d1930442f61a031708ed33e88f
+          tar -xzf hamlib.tar.gz
+          (
+            cd hamlib-4.7.2
+            # rigctld does not need readline; retain USB rig support through our libusb.
+            ./configure --prefix="$DEPS_PREFIX" --enable-shared --disable-static --without-readline
+            make -j"$JOBS"
+            make install
+          )
+          pkg-config --exists libusb-1.0 hamlib
+          test -x "$DEPS_PREFIX/bin/rigctld"
+
+          download https://github.com/frankosterfeld/qtkeychain/archive/refs/tags/0.17.0.tar.gz \
+            qtkeychain.tar.gz 3b85c3929034b0a99da777130c34d99f006fcd3a9d56564159399a33fee0e504
+          tar -xzf qtkeychain.tar.gz
+          cmake -S qtkeychain-0.17.0 -B "$WORK/qtkeychain-build" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" \
+            -DCMAKE_INSTALL_PREFIX="$DEPS_PREFIX" \
+            -DCMAKE_INSTALL_LIBDIR=lib \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET" \
+            -DBUILD_WITH_QT5=OFF -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_TRANSLATIONS=ON -DBUILD_TRANSLATIONS_AS_RESOURCES=ON \
+            -DBUILD_TESTING=OFF -DBUILD_TEST_APPLICATION=OFF -DBUILD_QTQUICK_DEMO=OFF
+          cmake --build "$WORK/qtkeychain-build" --parallel "$JOBS"
+          cmake --install "$WORK/qtkeychain-build"
+
+      - name: Build SQLite driver against the system SQLite
+        env:
+          QT_ROOT_DIR: ${{ steps.qt.outputs.qt-root-dir }}
+        run: |
+          set -euo pipefail
+          WORK="$GITHUB_WORKSPACE/build/macos-compatibility"
+          SDK="$(xcrun --show-sdk-path)"
+          # QLog passes Qt's native SQLite handles to sqlite3_* directly. Both must
+          # use the same SQLite library, rather than Qt's bundled SQLite copy.
+          # Override Qt's Intel-only default for system-library plugins in universal kits.
+          "$QT_ROOT_DIR/bin/qt-cmake" \
+            -S "$QT_ROOT_DIR/../Src/qtbase/src/plugins/sqldrivers" \
+            -B "$WORK/sqlite-build" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET" \
+            -DQT_FORCE_MACOS_ALL_ARCHES_QSQLiteDriverPlugin=ON \
+            -DFEATURE_sql_sqlite=ON -DFEATURE_system_sqlite=ON \
+            -DFEATURE_sql_mysql=OFF -DFEATURE_sql_psql=OFF -DFEATURE_sql_odbc=OFF \
+            -DFEATURE_sql_oci=OFF -DFEATURE_sql_db2=OFF -DFEATURE_sql_ibase=OFF \
+            -DFEATURE_sql_mimer=OFF \
+            -DSQLite3_INCLUDE_DIR="$SDK/usr/include" \
+            -DSQLite3_LIBRARY="$SDK/usr/lib/libsqlite3.tbd"
+          cmake --build "$WORK/sqlite-build" --target QSQLiteDriverPlugin \
+            --parallel "$(sysctl -n hw.ncpu)"
+          cp "$WORK/sqlite-build/plugins/sqldrivers/libqsqlite.dylib" \
+            "$QT_ROOT_DIR/plugins/sqldrivers/libqsqlite.dylib"
+          otool -L "$QT_ROOT_DIR/plugins/sqldrivers/libqsqlite.dylib" | grep '/usr/lib/libsqlite3'
+
+      - name: Configure and compile QLog
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/build"
+          qmake ../QLog.pro CONFIG+=release QT+=svg \
+            QMAKE_APPLE_DEVICE_ARCHS=arm64 \
+            QMAKE_MACOSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET" \
+            HAMLIBINCLUDEPATH="$DEPS_PREFIX/include" HAMLIBLIBPATH="$DEPS_PREFIX/lib" \
+            QTKEYCHAININCLUDEPATH="$DEPS_PREFIX/include" QTKEYCHAINLIBPATH="$DEPS_PREFIX/lib" \
+            OPENSSLINCLUDEPATH="$DEPS_PREFIX/include" OPENSSLLIBPATH="$DEPS_PREFIX/lib" \
+            "QMAKE_RPATHDIR+=$DEPS_PREFIX/lib"
+          make -j"$(sysctl -n hw.ncpu)"
+          VERSION="$(sed -n 's/^VERSION[[:space:]]*=[[:space:]]*//p' ../QLog.pro)"
+          echo "TAGVERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Bundle dependencies
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/build"
+          APP="$APP_NAME.app"
+          MACOS_DIR="$APP/Contents/MacOS"
+          FRAMEWORKS_DIR="$APP/Contents/Frameworks"
+          mkdir -p "$FRAMEWORKS_DIR"
+          cp "$DEPS_PREFIX/bin/rigctld" "$MACOS_DIR/rigctld"
+          install_name_tool -add_rpath '@executable_path/../Frameworks' "$MACOS_DIR/rigctld"
+          macdeployqt "$APP" -always-overwrite -verbose=2 \
+            -executable="$MACOS_DIR/$BUNDLE_BIN" \
+            -executable="$MACOS_DIR/rigctld" -libpath="$DEPS_PREFIX/lib"
+
+          bundle_deps() {
+            local target="$1" dep base
+            while IFS= read -r dep; do
+              case "$dep" in
+                "$DEPS_PREFIX"/*)
+                  base="$(basename "$dep")"
+                  if [ ! -f "$FRAMEWORKS_DIR/$base" ]; then
+                    cp "$dep" "$FRAMEWORKS_DIR/$base"
+                    chmod u+w "$FRAMEWORKS_DIR/$base"
+                    install_name_tool -id "@rpath/$base" "$FRAMEWORKS_DIR/$base"
+                    bundle_deps "$FRAMEWORKS_DIR/$base"
+                  fi
+                  install_name_tool -change "$dep" "@rpath/$base" "$target"
+                  ;;
+              esac
+            done < <(otool -L "$target" | awk 'NR>1 {print $1}')
+          }
+
+          # Qt's TLS backend loads OpenSSL at runtime, so retain both libraries
+          # even if the linker omits an unused direct dependency from QLog.
+          for name in libssl.3.dylib libcrypto.3.dylib; do
+            cp "$DEPS_PREFIX/lib/$name" "$FRAMEWORKS_DIR/$name"
+            chmod u+w "$FRAMEWORKS_DIR/$name"
+            install_name_tool -id "@rpath/$name" "$FRAMEWORKS_DIR/$name"
+          done
+          while IFS= read -r -d '' binary; do
+            if file -b "$binary" | grep -q 'Mach-O'; then
+              bundle_deps "$binary"
+            fi
+          done < <(find "$APP" -type f -print0)
+
+          # Prevent the smoke test from loading libraries from the build machine.
+          while IFS= read -r -d '' binary; do
+            if file -b "$binary" | grep -q 'Mach-O'; then
+              while IFS= read -r rpath; do
+                case "$rpath" in
+                  /*) install_name_tool -delete_rpath "$rpath" "$binary" ;;
+                esac
+              done < <(otool -arch arm64 -l "$binary" | awk '
+                $1 == "cmd" { is_rpath = ($2 == "LC_RPATH") }
+                is_rpath && $1 == "path" { print $2 }
+              ')
+            fi
+          done < <(find "$APP" -type f -print0)
+
+      - name: Check bundled architecture, minimum OS, and linkage
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/build"
+          python3 - <<'PY'
+          import os
+          import pathlib
+          import plistlib
+          import re
+          import subprocess
+
+          app = pathlib.Path(os.environ['APP_NAME'] + '.app')
+          target = tuple(map(int, os.environ['MACOSX_DEPLOYMENT_TARGET'].split('.')))
+
+          def check_version(version, path):
+              actual = tuple(map(int, version.split('.')))
+              if actual + (0,) * (3 - len(actual)) > target + (0,) * (3 - len(target)):
+                  raise SystemExit(f'{path} requires macOS {version}, above the requested target')
+
+          count = 0
+          for path in app.rglob('*'):
+              if not path.is_file() or path.is_symlink():
+                  continue
+              if path.name == 'Info.plist':
+                  with path.open('rb') as stream:
+                      info = plistlib.load(stream)
+                  for version in (info.get('LSMinimumSystemVersion'),
+                                  info.get('LSMinimumSystemVersionByArchitecture', {}).get('arm64')):
+                      if version:
+                          check_version(version, path)
+              kind = subprocess.check_output(['file', '-b', str(path)], text=True)
+              if 'Mach-O' not in kind:
+                  continue
+              subprocess.run(['lipo', '-verify_arch', 'arm64', str(path)], check=True)
+              load = subprocess.check_output(['otool', '-arch', 'arm64', '-l', str(path)], text=True)
+              versions = re.findall(r'\bminos\s+(\d+(?:\.\d+)+)', load)
+              versions += re.findall(r'LC_VERSION_MIN_MACOSX\s+cmdsize\s+\d+\s+version\s+(\d+(?:\.\d+)+)', load)
+              if not versions:
+                  raise SystemExit(f'No macOS deployment target found in {path}')
+              for version in versions:
+                  check_version(version, path)
+              for rpath in re.findall(r'LC_RPATH\s+cmdsize\s+\d+\s+path\s+(\S+)', load):
+                  if rpath.startswith('/'):
+                      raise SystemExit(f'Absolute runtime search path in {path}: {rpath}')
+              links = subprocess.check_output(['otool', '-arch', 'arm64', '-L', str(path)], text=True)
+              for line in links.splitlines()[1:]:
+                  dependency = line.strip().split(' (compatibility version', 1)[0]
+                  if not dependency.startswith(('@rpath/', '@loader_path/', '@executable_path/',
+                                                '/System/Library/', '/usr/lib/')):
+                      raise SystemExit(f'Unbundled dependency in {path}: {dependency}')
+              count += 1
+          if not count:
+              raise SystemExit('No Mach-O binaries found')
+          print(f'Checked {count} Mach-O files for ARM64 and macOS 13 compatibility metadata')
+          PY
+
+      - name: Codesign app bundle
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
+          MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
+          MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+        run: |
+          set -euo pipefail
+          APP="$GITHUB_WORKSPACE/build/$APP_NAME.app"
+          ENT="$GITHUB_WORKSPACE/entitlements.xml"
+          KEYCHAIN="$RUNNER_TEMP/compatibility.keychain-db"
+
+          test -f "$ENT" || { echo "Missing entitlements.xml at $ENT"; exit 1; }
+
+          security create-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+          security default-keychain -d user -s "$KEYCHAIN"
+
+          echo "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/compatibility-cert.p12"
+          security import "$RUNNER_TEMP/compatibility-cert.p12" -k "$KEYCHAIN" \
+            -P "$MACOS_CERTIFICATE_PWD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: \
+            -s -k "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+
+          security find-identity -v -p codesigning "$KEYCHAIN" || true
+
+          # 1) Sign every Mach-O inside the bundle (no entitlements), skipping
+          #    QtWebEngineProcess which we sign with entitlements below.
+          while IFS= read -r -d '' F; do
+            if file "$F" | grep -q "Mach-O"; then
+              if [[ "$F" == *"/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess" ]]; then
+                continue
+              fi
+              /usr/bin/codesign --force --timestamp --options runtime \
+                -s "$MACOS_CERTIFICATE_NAME" "$F"
+            fi
+          done < <(find "$APP" -type f -print0)
+
+          # 2) Sign QtWebEngineProcess binaries WITH entitlements
+          while IFS= read -r -d '' BIN; do
+            echo "Signing WebEngine helper: $BIN"
+            /usr/bin/codesign --force --timestamp --options runtime \
+              --entitlements "$ENT" \
+              -s "$MACOS_CERTIFICATE_NAME" "$BIN"
+          done < <(find "$APP" -path "*QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess" -type f -print0)
+
+          # 3) Sign QtWebEngineProcess.app bundles WITH entitlements
+          while IFS= read -r -d '' HAPP; do
+            echo "Signing WebEngine helper app: $HAPP"
+            /usr/bin/codesign --force --timestamp --options runtime \
+              --entitlements "$ENT" \
+              -s "$MACOS_CERTIFICATE_NAME" "$HAPP"
+          done < <(find "$APP" -path "*QtWebEngineProcess.app" -type d -print0)
+
+          # 4) Re-seal every framework so the framework's seal includes any
+          #    nested helper apps we just re-signed. Without this, signing the
+          #    outer app fails with "nested code is modified or invalid".
+          while IFS= read -r -d '' FW; do
+            echo "Re-signing framework: $FW"
+            /usr/bin/codesign --force --timestamp --options runtime \
+              -s "$MACOS_CERTIFICATE_NAME" "$FW"
+          done < <(find "$APP/Contents/Frameworks" -maxdepth 1 -type d -name "*.framework" -print0)
+
+          # 5) Sign the outer app bundle WITH entitlements
+          /usr/bin/codesign --force --timestamp --options runtime \
+            --entitlements "$ENT" \
+            -s "$MACOS_CERTIFICATE_NAME" "$APP"
+
+          /usr/bin/codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: Smoke test signed executables on the build runner
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/build"
+          "$APP_NAME.app/Contents/MacOS/rigctld" --version
+          QT_QPA_PLATFORM=offscreen "$APP_NAME.app/Contents/MacOS/$BUNDLE_BIN" --help > compatibility-help.txt 2>&1
+          grep -q 'QLog Help' compatibility-help.txt
+
+      - name: Notarize app bundle
+        env:
+          PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+          PROD_MACOS_NOTARIZATION_TEAM_ID:  ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+          PROD_MACOS_NOTARIZATION_PWD:      ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+        run: |
+          set -euo pipefail
+          APP="$GITHUB_WORKSPACE/build/$APP_NAME.app"
+
+          xcrun notarytool store-credentials "notarytool-profile" \
+            --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" \
+            --team-id  "$PROD_MACOS_NOTARIZATION_TEAM_ID" \
+            --password "$PROD_MACOS_NOTARIZATION_PWD"
+
+          cd "$GITHUB_WORKSPACE/build"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "notarization.zip"
+
+          xcrun notarytool submit "notarization.zip" \
+            --keychain-profile "notarytool-profile" \
+            --wait --output-format json > notarization_log.json
+          cat notarization_log.json
+
+          NOTARY_ID=$(python3 -c 'import json; print(json.load(open("notarization_log.json"))["id"])')
+          NOTARY_STATUS=$(python3 -c 'import json; print(json.load(open("notarization_log.json"))["status"])')
+
+          xcrun notarytool log "$NOTARY_ID" --keychain-profile "notarytool-profile" || true
+
+          if [ "$NOTARY_STATUS" != "Accepted" ]; then
+            echo "Notarization failed: $NOTARY_STATUS"
+            exit 1
+          fi
+
+          xcrun stapler staple "$APP"
+          xcrun stapler validate "$APP"
+
+      - name: Build DMG
+        run: |
+          set -euo pipefail
+          VERSION="${TAGVERSION%%-*}"
+          DMG_NAME="QLog.v${VERSION}.macos13-arm64.dmg"
+          echo "DMG_NAME=$DMG_NAME" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+          STAGING="$GITHUB_WORKSPACE/build/compatibility-dmg-staging"
+          rm -rf "$STAGING"
+          mkdir -p "$STAGING"
+          ditto "$GITHUB_WORKSPACE/build/$APP_NAME.app" "$STAGING/$APP_NAME.app"
+          ln -s /Applications "$STAGING/Applications"
+
+          hdiutil create \
+            -volname "QLog macOS 13+ (Apple Silicon)" \
+            -srcfolder "$STAGING" \
+            -ov -format UDZO \
+            "$GITHUB_WORKSPACE/build/$DMG_NAME"
+          ls -lh "$GITHUB_WORKSPACE/build/$DMG_NAME"
+
+      - name: Codesign DMG
+        env:
+          MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
+          MACOS_CI_KEYCHAIN_PWD:  ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+        run: |
+          set -euo pipefail
+          DMG="$GITHUB_WORKSPACE/build/$DMG_NAME"
+          KEYCHAIN="$RUNNER_TEMP/compatibility.keychain-db"
+          security unlock-keychain -p "$MACOS_CI_KEYCHAIN_PWD" "$KEYCHAIN"
+          /usr/bin/codesign --force --timestamp \
+            -s "$MACOS_CERTIFICATE_NAME" "$DMG"
+          /usr/bin/codesign --verify --verbose=2 "$DMG"
+
+      - name: Notarize DMG
+        env:
+          PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+          PROD_MACOS_NOTARIZATION_TEAM_ID:  ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+          PROD_MACOS_NOTARIZATION_PWD:      ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+        run: |
+          set -euo pipefail
+          DMG="$GITHUB_WORKSPACE/build/$DMG_NAME"
+          cd "$GITHUB_WORKSPACE/build"
+
+          xcrun notarytool store-credentials "notarytool-profile" \
+            --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" \
+            --team-id  "$PROD_MACOS_NOTARIZATION_TEAM_ID" \
+            --password "$PROD_MACOS_NOTARIZATION_PWD"
+
+          xcrun notarytool submit "$DMG" \
+            --keychain-profile "notarytool-profile" \
+            --wait --output-format json > notarization_dmg.json
+          cat notarization_dmg.json
+
+          NOTARY_ID=$(python3 -c 'import json; print(json.load(open("notarization_dmg.json"))["id"])')
+          NOTARY_STATUS=$(python3 -c 'import json; print(json.load(open("notarization_dmg.json"))["status"])')
+          xcrun notarytool log "$NOTARY_ID" --keychain-profile "notarytool-profile" || true
+
+          if [ "$NOTARY_STATUS" != "Accepted" ]; then
+            echo "DMG notarization failed: $NOTARY_STATUS"
+            exit 1
+          fi
+
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QLog-${{ env.TAGVERSION }}-macos13-arm64
+          path: ${{ github.workspace }}/build/${{ env.DMG_NAME }}
+          if-no-files-found: error
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -f "$RUNNER_TEMP/compatibility-cert.p12"
+          KEYCHAIN="$RUNNER_TEMP/compatibility.keychain-db"
+          if [ -f "$KEYCHAIN" ]; then
+            security delete-keychain "$KEYCHAIN"
+          fi
