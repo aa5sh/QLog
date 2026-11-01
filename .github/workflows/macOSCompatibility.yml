@@ -64,7 +64,8 @@ jobs:
           export CFLAGS="-arch arm64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
           export CXXFLAGS="$CFLAGS"
           export CPPFLAGS="-I$DEPS_PREFIX/include"
-          export LDFLAGS="-arch arm64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET -L$DEPS_PREFIX/lib"
+          # Reserve load-command space for install_name_tool during bundling.
+          export LDFLAGS="-arch arm64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET -Wl,-headerpad_max_install_names -L$DEPS_PREFIX/lib"
 
           download() {
             local url="$1" archive="$2" checksum="$3"
