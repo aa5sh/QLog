@@ -194,7 +194,18 @@ jobs:
             echo "ERROR: hardcoded Homebrew paths remain. Bundle would fail on user machines."
             exit 1
           fi
+      - name: Add Local Network usage description
+        run: |
+          set -euo pipefail
+          PLIST="$GITHUB_WORKSPACE/build/$APP_NAME.app/Contents/Info.plist"
 
+          /usr/libexec/PlistBuddy \
+            -c "Add :NSLocalNetworkUsageDescription string QLog needs local network access to communicate with radios, rotators, and other station devices." \
+            "$PLIST"
+
+          /usr/libexec/PlistBuddy \
+            -c "Print :NSLocalNetworkUsageDescription" \
+            "$PLIST"
       - name: Codesign app bundle
         env:
           MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
