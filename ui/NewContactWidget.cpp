@@ -265,7 +265,6 @@ NewContactWidget::NewContactWidget(QWidget *parent) :
     /********************/
     /* Local SHORTCUTs  */
     /********************/
-    new QShortcut(QKeySequence(Qt::Key_Escape), this, SLOT(resetContact()), nullptr, Qt::ApplicationShortcut);
     new QShortcut(QKeySequence(Qt::Key_F10), this, SLOT(saveContact()), nullptr, Qt::ApplicationShortcut);
     new QShortcut(QKeySequence(Qt::Key_F9), this, SLOT(stopContactTimer()), nullptr, Qt::ApplicationShortcut);
     new QShortcut(QKeySequence(Qt::Key_F8), this, SLOT(startContactTimer()), nullptr, Qt::ApplicationShortcut);
@@ -953,7 +952,7 @@ void NewContactWidget::showExternalQSOWarningOnce(const QString &message,
 
     qWarning() << message;
 
-    QMessageBox::information(nullptr,
+    QMessageBox::information(this,
                              tr("QLog Information"),
                              message);
 }
@@ -981,7 +980,7 @@ void NewContactWidget::showMatchingStationProfileInfoOnce(const StationProfile &
     }
 
     qInfo() << message;
-    QMessageBox::information(nullptr,
+    QMessageBox::information(this,
                              tr("QLog Information"),
                              message);
 }
@@ -1737,7 +1736,7 @@ void NewContactWidget::addAdditionalFields(QSqlRecord &record,
             LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_STX),
         });
 
-        QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+        QMessageBox::warning(this, QMessageBox::tr("QLog Warning"),
                              QMessageBox::tr("The fields <b>%0</b> will not be saved because the <b>%1</b> is not filled.")
                                              .arg(fieldsTranslation.join(", "),
                                                   LogbookModel::getFieldNameTranslation(LogbookModel::COLUMN_CONTEST_ID)));
@@ -2020,7 +2019,7 @@ void NewContactWidget::saveContact()
 
     if ( profile.callsign.isEmpty() )
     {
-        QMessageBox::critical(nullptr, QMessageBox::tr("QLog Error"),
+        QMessageBox::critical(this, QMessageBox::tr("QLog Error"),
                               QMessageBox::tr("Your callsign is empty. Please, set your Station Profile"));
         return;
     }
