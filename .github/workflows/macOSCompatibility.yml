@@ -482,7 +482,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QLog-${{ env.TAGVERSION }}-macos13-arm64
+          name: QLog-${{ env.TAGVERSION }}
           path: ${{ github.workspace }}/build/${{ env.DMG_NAME }}
           if-no-files-found: error
 
