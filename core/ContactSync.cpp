@@ -4,6 +4,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QRegularExpression>
+#include <QSettings>
+#include <QUuid>
 #include <QSaveFile>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -32,6 +35,47 @@ QString currentTimestamp()
 QString journalFileName(int seq)
 {
     return QStringLiteral("journal-%1.jsonl").arg(seq, 4, 10, QChar('0'));
+}
+
+// Strict journal-name match. Cloud clients create conflict copies such as
+// "journal-0001 (Mike's conflicted copy).jsonl", which must never be read as
+// part of the stream (they would also sort ahead of the real file).
+const QRegularExpression &journalNameRe()
+{
+    static const QRegularExpression re(QStringLiteral("^journal-(\\d{4,})\\.jsonl$"));
+    return re;
+}
+
+int journalSeq(const QString &fileName)
+{
+    const QRegularExpressionMatch m = journalNameRe().match(fileName);
+    if ( !m.hasMatch() )
+        return -1;
+    bool ok = false;
+    const int seq = m.captured(1).toInt(&ok);
+    return ok ? seq : -1;
+}
+
+// Upload bookkeeping is per-node; see updateFromPayloadOnDb.
+bool isUploadStateColumn(const QString &col)
+{
+    return col.endsWith(QLatin1String("_qso_upload_status"))
+        || col.endsWith(QLatin1String("_qso_upload_date"));
+}
+
+// Column names come from PRAGMA table_info and include SQL keywords
+// (contacts has a "check" column for the ADIF CHECK field), so always quote.
+QString quoteIdent(const QString &name)
+{
+    return QLatin1Char('"') + QString(name).replace(QLatin1Char('"'), QLatin1String("\"\"")) + QLatin1Char('"');
+}
+
+QVariant jsonToBind(const QJsonValue &v)
+{
+    // A JSON null must bind as SQL NULL, not as a std::nullptr_t variant.
+    if ( v.isNull() || v.isUndefined() )
+        return QVariant();
+    return v.toVariant();
 }
 
 } // namespace
@@ -77,6 +121,12 @@ QString ContactSync::selfNodeId() const
     return LogParam::getLogID();
 }
 
+bool ContactSync::isValidNodeId(const QString &nodeId)
+{
+    static const QRegularExpression re(QStringLiteral("^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"));
+    return re.match(nodeId).hasMatch();
+}
+
 bool ContactSync::setSelfNodeId(const QString &nodeId, QString *errorOut)
 {
     const QString trimmed = nodeId.trimmed();
@@ -85,17 +135,98 @@ bool ContactSync::setSelfNodeId(const QString &nodeId, QString *errorOut)
         if ( errorOut ) *errorOut = tr("Node ID cannot be empty");
         return false;
     }
+    if ( !isValidNodeId(trimmed) )
+    {
+        if ( errorOut ) *errorOut = tr("Node ID may contain only letters, digits, '.', '_' and '-', "
+                                       "must start with a letter or digit, and be at most 64 characters");
+        return false;
+    }
 
     QSqlQuery q;
-    if ( !q.prepare("INSERT OR REPLACE INTO sync_runtime (key, value) VALUES ('self_node_id', :v)") )
+    if ( !q.prepare("INSERT OR REPLACE INTO sync_runtime (key, value) VALUES (:k, :v)") )
     {
         if ( errorOut ) *errorOut = q.lastError().text();
         return false;
     }
-    q.bindValue(":v", trimmed);
-    if ( !q.exec() )
+
+    // Saving a Node ID is the user's explicit statement that this install
+    // owns the identity, so it also (re)claims ownership.
+    const QList<QPair<QString, QString>> rows = {
+        { QStringLiteral("self_node_id"), trimmed },
+        { QStringLiteral("owner_install_id"), installId() }
+    };
+    for ( const auto &row : rows )
     {
-        if ( errorOut ) *errorOut = q.lastError().text();
+        q.bindValue(":k", row.first);
+        q.bindValue(":v", row.second);
+        if ( !q.exec() )
+        {
+            if ( errorOut ) *errorOut = q.lastError().text();
+            return false;
+        }
+    }
+    return true;
+}
+
+QString ContactSync::installId()
+{
+    QSettings settings;
+    QString id = settings.value(QStringLiteral("sync/install_id")).toString();
+    if ( id.isEmpty() )
+    {
+        id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        settings.setValue(QStringLiteral("sync/install_id"), id);
+        settings.sync();
+    }
+    return id;
+}
+
+QString ContactSync::writerId() const
+{
+    return installId() + QLatin1Char('/') + LogParam::getLogID();
+}
+
+bool ContactSync::nodeIdOwnedElsewhere() const
+{
+    QSqlQuery q;
+    if ( !q.exec("SELECT value FROM sync_runtime WHERE key = 'owner_install_id'") || !q.next() )
+        return false;
+    const QString owner = q.value(0).toString();
+    return !owner.isEmpty() && owner != installId();
+}
+
+bool ContactSync::checkOwnership(QString *errorOut)
+{
+    QSqlQuery q;
+    QString owner;
+    if ( q.exec("SELECT value FROM sync_runtime WHERE key = 'owner_install_id'") && q.next() )
+        owner = q.value(0).toString();
+
+    if ( owner.isEmpty() )
+    {
+        // First sync on this database: claim it.
+        QSqlQuery claim;
+        if ( !claim.prepare("INSERT OR REPLACE INTO sync_runtime (key, value) "
+                            "VALUES ('owner_install_id', :v)") )
+        {
+            if ( errorOut ) *errorOut = claim.lastError().text();
+            return false;
+        }
+        claim.bindValue(":v", installId());
+        if ( !claim.exec() )
+        {
+            if ( errorOut ) *errorOut = claim.lastError().text();
+            return false;
+        }
+        return true;
+    }
+
+    if ( owner != installId() )
+    {
+        if ( errorOut ) *errorOut = tr("This logbook's sync Node ID (%1) belongs to a different QLog "
+                                       "installation - the database was probably copied from another "
+                                       "computer. Open Logbook > Contact Sync, enter a Node ID that is "
+                                       "unique to this computer and press Save.").arg(cycleSelf);
         return false;
     }
     return true;
@@ -278,6 +409,9 @@ bool ContactSync::ensureFolderLayout(QString *errorOut)
         return false;
     }
 
+    if ( !checkOwnership(errorOut) )
+        return false;
+
     QDir dir;
     if ( !dir.mkpath(nodeDir()) )
     {
@@ -291,7 +425,7 @@ bool ContactSync::ensureFolderLayout(QString *errorOut)
         return false;
     }
 
-    return loadHead();
+    return loadHead(errorOut);
 }
 
 bool ContactSync::writeManifestIfMissing()
@@ -313,37 +447,64 @@ bool ContactSync::writeManifestIfMissing()
     return f.commit();
 }
 
-bool ContactSync::loadHead()
+bool ContactSync::loadHead(QString *errorOut)
 {
     const QString path = headPath();
     if ( path.isEmpty() )
+    {
+        if ( errorOut ) *errorOut = tr("Sync folder is not set");
         return false;
+    }
 
     if ( !QFile::exists(path) )
     {
-        currentSeq = 1;
-        currentBytes = 0;
+        // No HEAD (fresh node, or HEAD not synced down yet). Never restart at
+        // journal-0001 if later journals already exist: peers that are past
+        // that file would never see records appended to it.
+        int maxSeq = 0;
+        const QStringList existing = QDir(nodeDir()).entryList(QStringList() << "journal-*.jsonl",
+                                                               QDir::Files);
+        for ( const QString &name : existing )
+            maxSeq = qMax(maxSeq, journalSeq(name));
+        currentSeq = qMax(1, maxSeq);
+        currentBytes = QFileInfo(currentJournalPath()).size();
         QFile create(currentJournalPath());
         if ( !create.open(QIODevice::WriteOnly | QIODevice::Append) )
+        {
+            if ( errorOut ) *errorOut = tr("Cannot create journal: %1").arg(create.errorString());
             return false;
+        }
         create.close();
-        return writeHead();
+        if ( !writeHead() )
+        {
+            if ( errorOut ) *errorOut = tr("Cannot update HEAD");
+            return false;
+        }
+        return true;
     }
 
     QFile f(path);
     if ( !f.open(QIODevice::ReadOnly) )
-        return false;
-    const QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
-    const QString fileName = obj.value("file").toString();
-    currentSeq = 1;
-    if ( fileName.startsWith("journal-") && fileName.endsWith(".jsonl") )
     {
-        const QString seqStr = fileName.mid(8, fileName.size() - 8 - 6);
-        bool ok = false;
-        const int parsed = seqStr.toInt(&ok);
-        if ( ok && parsed >= 1 )
-            currentSeq = parsed;
+        if ( errorOut ) *errorOut = tr("Cannot read HEAD: %1").arg(f.errorString());
+        return false;
     }
+    const QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
+
+    // Two installs writing into the same node folder (same hostname, or a
+    // copied database) would interleave their journals and silently skip
+    // each other's changes. HEADs written before this check have no writer.
+    const QString writer = obj.value("writer").toString();
+    if ( !writer.isEmpty() && writer != writerId() )
+    {
+        if ( errorOut ) *errorOut = tr("The sync folder for Node ID '%1' is already used by another "
+                                       "QLog installation. Open Logbook > Contact Sync and choose a "
+                                       "Node ID that is unique to this computer.").arg(cycleSelf);
+        return false;
+    }
+
+    const int parsed = journalSeq(obj.value("file").toString());
+    currentSeq = (parsed >= 1) ? parsed : 1;
     currentBytes = QFileInfo(currentJournalPath()).size();
     return true;
 }
@@ -357,6 +518,7 @@ bool ContactSync::writeHead()
     QJsonObject obj;
     obj["file"] = journalFileName(currentSeq);
     obj["bytes"] = static_cast<qint64>(currentBytes);
+    obj["writer"] = writerId();
     obj["updated_at"] = currentTimestamp();
 
     QSaveFile f(path);
@@ -401,7 +563,7 @@ bool ContactSync::appendRecord(const QByteArray &line, QString *errorOut)
 }
 
 //
-// ---- worker-side DB helpers (use the passed-in cloned connection) ----
+// ---- DB helpers (take the connection to use explicitly) ----
 //
 // Everything below takes `QSqlDatabase &db` and uses `QSqlQuery q(db)`. For
 // now the dispatchers call these synchronously with the default connection,
@@ -431,10 +593,9 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
                             QString *newUpsertWatermark,
                             QString *newDeleteWatermark, QString *errorOut)
 {
-    // Read self and current watermarks from the worker's connection. The
-    // worker never writes to log_param; new watermark values come back to
-    // the main thread via the out-params below, and the queued lambda
-    // commits them through LogParam (so its cache stays coherent).
+    // Reads self and the current watermarks straight from the DB. New
+    // watermark values are returned via the out-params and committed by the
+    // caller through LogParam, so its cache stays coherent.
 
     QString self;
     {
@@ -493,9 +654,10 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
                 if ( name == QLatin1String("id") )
                     continue;
                 const QVariant v = rec.value(i);
-                if ( v.isNull() )
-                    continue;
-                payload.insert(name, QJsonValue::fromVariant(v));
+                // Nulls are written explicitly so that clearing a field on
+                // one node also clears it on its peers.
+                payload.insert(name, v.isNull() ? QJsonValue(QJsonValue::Null)
+                                                : QJsonValue::fromVariant(v));
             }
 
             QJsonObject record;
@@ -577,6 +739,97 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
     return true;
 }
 
+bool ContactSync::setApplyingOnDb(QSqlDatabase &db, bool applying)
+{
+    // Read by contacts_sync_update / contacts_record_tombstone. Only ever
+    // set inside the pull transaction, so a crash rolls it back to '0'.
+    QSqlQuery q(db);
+    if ( !q.prepare(QStringLiteral("INSERT OR REPLACE INTO sync_runtime (key, value) "
+                                   "VALUES ('applying', :v)")) )
+        return false;
+    q.bindValue(":v", applying ? QStringLiteral("1") : QStringLiteral("0"));
+    return q.exec();
+}
+
+bool ContactSync::updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid,
+                                        const QJsonObject &payload, QString *errorOut)
+{
+    // Upload bookkeeping (<service>_qso_upload_status/_date) is per node:
+    // each install may upload to QRZ/ClubLog/... on its own. The main UPDATE
+    // leaves it alone, so update_contacts_upload_status still flips a local
+    // 'Y' to 'M' when the QSO content changed. Afterwards, any service the
+    // peer reports as 'Y' is taken over: the peer's row is the newest
+    // version, so the service already holds this exact content, and
+    // re-uploading it from here would create a duplicate.
+    const QSet<QString> cols = contactColumnsOnDb(db);
+
+    QStringList sets;
+    QVariantList binds;
+    QStringList uploadedServices;
+    for ( auto it = payload.constBegin(); it != payload.constEnd(); ++it )
+    {
+        const QString &col = it.key();
+        if ( col == QLatin1String("id") || col == QLatin1String("qso_uuid") )
+            continue;
+        if ( !cols.contains(col) )
+            continue;
+        if ( isUploadStateColumn(col) )
+        {
+            if ( col.endsWith(QLatin1String("_qso_upload_status"))
+                 && it.value().toString() == QLatin1String("Y") )
+                uploadedServices << col.chopped(int(sizeof("_qso_upload_status")) - 1);
+            continue;
+        }
+        sets << quoteIdent(col) + QStringLiteral(" = ?");
+        binds << jsonToBind(it.value());
+    }
+
+    if ( !sets.isEmpty() )
+    {
+        QSqlQuery upd(db);
+        if ( !upd.prepare("UPDATE contacts SET " + sets.join(", ") +
+                          " WHERE qso_uuid = ?") )
+        {
+            if ( errorOut ) *errorOut = upd.lastError().text();
+            return false;
+        }
+        for ( const QVariant &v : std::as_const(binds) )
+            upd.addBindValue(v);
+        upd.addBindValue(qsoUuid);
+        if ( !upd.exec() )
+        {
+            if ( errorOut ) *errorOut = upd.lastError().text();
+            return false;
+        }
+    }
+
+    for ( const QString &service : std::as_const(uploadedServices) )
+    {
+        const QString statusCol = service + QLatin1String("_qso_upload_status");
+        const QString dateCol   = service + QLatin1String("_qso_upload_date");
+        QStringList svcSets { quoteIdent(statusCol) + " = 'Y'" };
+        if ( cols.contains(dateCol) )
+            svcSets << quoteIdent(dateCol) + " = :d";
+
+        QSqlQuery upd(db);
+        if ( !upd.prepare("UPDATE contacts SET " + svcSets.join(", ") +
+                          " WHERE qso_uuid = :where_uuid") )
+        {
+            if ( errorOut ) *errorOut = upd.lastError().text();
+            return false;
+        }
+        if ( cols.contains(dateCol) )
+            upd.bindValue(":d", jsonToBind(payload.value(dateCol)));
+        upd.bindValue(":where_uuid", qsoUuid);
+        if ( !upd.exec() )
+        {
+            if ( errorOut ) *errorOut = upd.lastError().text();
+            return false;
+        }
+    }
+    return true;
+}
+
 bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
                                   QString *errorOut)
 {
@@ -584,8 +837,6 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
     const QString updatedAt = rec.value("updated_at").toString();
     const QJsonObject payload = rec.value("payload").toObject();
 
-    // Read duplicate policy from the worker's own connection so we never
-    // touch LogParam from a background thread.
     int policyValue = 1;
     {
         QSqlQuery q(db);
@@ -601,7 +852,11 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
     // LWW vs existing local row by qso_uuid.
     {
         QSqlQuery check(db);
-        check.prepare("SELECT updated_at FROM contacts WHERE qso_uuid = :u");
+        if ( !check.prepare("SELECT updated_at FROM contacts WHERE qso_uuid = :u") )
+        {
+            if ( errorOut ) *errorOut = check.lastError().text();
+            return false;
+        }
         check.bindValue(":u", qsoUuid);
         if ( !check.exec() )
         {
@@ -613,46 +868,25 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
             const QString local = check.value(0).toString();
             if ( !local.isEmpty() && local >= updatedAt )
                 return true;
-
-            QStringList sets;
-            QVariantMap binds;
-            const QSet<QString> cols = contactColumnsOnDb(db);
-            for ( auto it = payload.constBegin(); it != payload.constEnd(); ++it )
-            {
-                const QString &col = it.key();
-                if ( col == QLatin1String("id") || col == QLatin1String("qso_uuid") )
-                    continue;
-                if ( !cols.contains(col) )
-                    continue;
-                sets << col + " = :" + col;
-                binds.insert(col, it.value().toVariant());
-            }
-            QSqlQuery upd(db);
-            const QString sql = "UPDATE contacts SET " + sets.join(", ") +
-                                " WHERE qso_uuid = :where_uuid";
-            if ( !upd.prepare(sql) )
-            {
-                if ( errorOut ) *errorOut = upd.lastError().text();
-                return false;
-            }
-            for ( auto it = binds.constBegin(); it != binds.constEnd(); ++it )
-                upd.bindValue(":" + it.key(), it.value());
-            upd.bindValue(":where_uuid", qsoUuid);
-            if ( !upd.exec() )
-            {
-                if ( errorOut ) *errorOut = upd.lastError().text();
-                return false;
-            }
-            return true;
+            return updateFromPayloadOnDb(db, qsoUuid, payload, errorOut);
         }
     }
 
     // Tombstone wins over older incoming insert.
     {
         QSqlQuery tomb(db);
-        tomb.prepare("SELECT deleted_at FROM contacts_tombstones WHERE qso_uuid = :u");
+        if ( !tomb.prepare("SELECT deleted_at FROM contacts_tombstones WHERE qso_uuid = :u") )
+        {
+            if ( errorOut ) *errorOut = tomb.lastError().text();
+            return false;
+        }
         tomb.bindValue(":u", qsoUuid);
-        if ( tomb.exec() && tomb.next() )
+        if ( !tomb.exec() )
+        {
+            if ( errorOut ) *errorOut = tomb.lastError().text();
+            return false;
+        }
+        if ( tomb.next() )
         {
             const QString deletedAt = tomb.value(0).toString();
             if ( !deletedAt.isEmpty() && deletedAt >= updatedAt )
@@ -673,59 +907,91 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
              && !fpStart.isEmpty() )
         {
             QSqlQuery dup(db);
-            if ( dup.prepare("SELECT qso_uuid FROM contacts "
-                             "WHERE callsign = upper(:callsign) "
-                             "  AND upper(mode) = upper(:mode) "
-                             "  AND upper(band) = upper(:band) "
-                             "  AND COALESCE(sat_name, '') = COALESCE(:sat_name, '') "
-                             "  AND ABS(JULIANDAY(start_time) - "
-                             "          JULIANDAY(datetime(:startdate))) * 24 * 60 < 30 "
-                             "LIMIT 1") )
+            if ( !dup.prepare("SELECT qso_uuid, updated_at FROM contacts "
+                              "WHERE callsign = upper(:callsign) "
+                              "  AND upper(mode) = upper(:mode) "
+                              "  AND upper(band) = upper(:band) "
+                              "  AND COALESCE(sat_name, '') = COALESCE(:sat_name, '') "
+                              "  AND ABS(JULIANDAY(start_time) - "
+                              "          JULIANDAY(datetime(:startdate))) * 24 * 60 < 30 "
+                              "LIMIT 1") )
             {
-                dup.bindValue(":callsign",  fpCall);
-                dup.bindValue(":mode",      fpMode);
-                dup.bindValue(":band",      fpBand);
-                dup.bindValue(":sat_name",  fpSat.isEmpty() ? QVariant() : QVariant(fpSat));
-                dup.bindValue(":startdate", fpStart);
+                if ( errorOut ) *errorOut = dup.lastError().text();
+                return false;
+            }
+            dup.bindValue(":callsign",  fpCall);
+            dup.bindValue(":mode",      fpMode);
+            dup.bindValue(":band",      fpBand);
+            dup.bindValue(":sat_name",  fpSat.isEmpty() ? QVariant() : QVariant(fpSat));
+            dup.bindValue(":startdate", fpStart);
+            if ( !dup.exec() )
+            {
+                if ( errorOut ) *errorOut = dup.lastError().text();
+                return false;
+            }
 
-                if ( dup.exec() && dup.next() )
+            if ( dup.next() )
+            {
+                const QString localUuid    = dup.value(0).toString();
+                const QString localUpdated = dup.value(1).toString();
+
+                if ( policy == DuplicatePolicy::Skip )
                 {
-                    const QString localUuid = dup.value(0).toString();
-
-                    if ( policy == DuplicatePolicy::Skip )
-                    {
-                        qCInfo(runtime) << "Sync dup-skip:" << fpCall
-                                        << "remote uuid" << qsoUuid
-                                        << "local uuid" << localUuid;
-                        return true;
-                    }
-
-                    if ( qsoUuid < localUuid )
-                    {
-                        QSqlQuery adopt(db);
-                        adopt.prepare("UPDATE contacts SET qso_uuid = :new "
-                                      "WHERE qso_uuid = :old");
-                        adopt.bindValue(":new", qsoUuid);
-                        adopt.bindValue(":old", localUuid);
-                        if ( !adopt.exec() )
-                        {
-                            if ( errorOut ) *errorOut = adopt.lastError().text();
-                            return false;
-                        }
-                        qCInfo(runtime) << "Sync dup-merge: local" << localUuid
-                                        << "→ remote" << qsoUuid;
-                    }
+                    qCInfo(runtime) << "Sync dup-skip:" << fpCall
+                                    << "remote uuid" << qsoUuid
+                                    << "local uuid" << localUuid;
                     return true;
                 }
+
+                // Merge: both peers converge on the smaller UUID. The side
+                // holding the larger one adopts it; the other side waits
+                // for that adoption to come back through the journal.
+                if ( qsoUuid < localUuid )
+                {
+                    const bool remoteNewer = localUpdated.isEmpty() || updatedAt > localUpdated;
+
+                    QSqlQuery adopt(db);
+                    // When the local copy is the newer one, re-stamp it as
+                    // ours so it gets journaled and the peer takes our
+                    // fields via LWW. (The update trigger is suppressed
+                    // while applying, so this has to be explicit.)
+                    const QString sql = remoteNewer
+                        ? QStringLiteral("UPDATE contacts SET qso_uuid = :new WHERE qso_uuid = :old")
+                        : QStringLiteral("UPDATE contacts SET qso_uuid = :new, "
+                                         "  updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), "
+                                         "  origin_node = (SELECT value FROM sync_runtime "
+                                         "                 WHERE key = 'self_node_id') "
+                                         "WHERE qso_uuid = :old");
+                    if ( !adopt.prepare(sql) )
+                    {
+                        if ( errorOut ) *errorOut = adopt.lastError().text();
+                        return false;
+                    }
+                    adopt.bindValue(":new", qsoUuid);
+                    adopt.bindValue(":old", localUuid);
+                    if ( !adopt.exec() )
+                    {
+                        if ( errorOut ) *errorOut = adopt.lastError().text();
+                        return false;
+                    }
+                    qCInfo(runtime) << "Sync dup-merge: local" << localUuid
+                                    << "→ remote" << qsoUuid
+                                    << (remoteNewer ? "(remote fields)" : "(local fields)");
+
+                    if ( remoteNewer )
+                        return updateFromPayloadOnDb(db, qsoUuid, payload, errorOut);
+                }
+                return true;
             }
         }
     }
 
     // Fresh INSERT with all sync columns pre-set so the AFTER INSERT auto-fill
     // trigger's WHEN-guard skips and preserves the remote node id and ts.
+    // Upload state is copied as-is: a brand-new row has no local history.
     QStringList cols;
     QStringList placeholders;
-    QVariantMap binds;
+    QVariantList binds;
     const QSet<QString> known = contactColumnsOnDb(db);
     for ( auto it = payload.constBegin(); it != payload.constEnd(); ++it )
     {
@@ -734,9 +1000,11 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
             continue;
         if ( !known.contains(col) )
             continue;
-        cols << col;
-        placeholders << ":" + col;
-        binds.insert(col, it.value().toVariant());
+        if ( it.value().isNull() )
+            continue;   // let column defaults apply
+        cols << quoteIdent(col);
+        placeholders << QStringLiteral("?");
+        binds << jsonToBind(it.value());
     }
 
     QSqlQuery ins(db);
@@ -747,8 +1015,8 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
         if ( errorOut ) *errorOut = ins.lastError().text();
         return false;
     }
-    for ( auto it = binds.constBegin(); it != binds.constEnd(); ++it )
-        ins.bindValue(":" + it.key(), it.value());
+    for ( const QVariant &v : std::as_const(binds) )
+        ins.addBindValue(v);
     if ( !ins.exec() )
     {
         if ( errorOut ) *errorOut = ins.lastError().text();
@@ -762,7 +1030,11 @@ bool ContactSync::applyDeleteOnDb(QSqlDatabase &db, const QString &qsoUuid,
                                   const QString &origin, QString *errorOut)
 {
     QSqlQuery check(db);
-    check.prepare("SELECT updated_at FROM contacts WHERE qso_uuid = :u");
+    if ( !check.prepare("SELECT updated_at FROM contacts WHERE qso_uuid = :u") )
+    {
+        if ( errorOut ) *errorOut = check.lastError().text();
+        return false;
+    }
     check.bindValue(":u", qsoUuid);
     if ( !check.exec() )
     {
@@ -773,21 +1045,31 @@ bool ContactSync::applyDeleteOnDb(QSqlDatabase &db, const QString &qsoUuid,
     {
         const QString local = check.value(0).toString();
         if ( !local.isEmpty() && local > deletedAt )
-            return true;
+            return true;   // local edit is newer than the delete
         QSqlQuery del(db);
-        del.prepare("DELETE FROM contacts WHERE qso_uuid = :u");
+        if ( !del.prepare("DELETE FROM contacts WHERE qso_uuid = :u") )
+        {
+            if ( errorOut ) *errorOut = del.lastError().text();
+            return false;
+        }
         del.bindValue(":u", qsoUuid);
         if ( !del.exec() )
         {
             if ( errorOut ) *errorOut = del.lastError().text();
             return false;
         }
-        return true;
     }
 
+    // Record the tombstone with the remote's timestamp and origin (the
+    // tombstone trigger is suppressed while applying). Because origin is
+    // the peer, this node does not echo the delete back out.
     QSqlQuery tomb(db);
-    tomb.prepare("INSERT OR REPLACE INTO contacts_tombstones "
-                 "(qso_uuid, deleted_at, origin_node) VALUES (:u, :d, :o)");
+    if ( !tomb.prepare("INSERT OR REPLACE INTO contacts_tombstones "
+                       "(qso_uuid, deleted_at, origin_node) VALUES (:u, :d, :o)") )
+    {
+        if ( errorOut ) *errorOut = tomb.lastError().text();
+        return false;
+    }
     tomb.bindValue(":u", qsoUuid);
     tomb.bindValue(":d", deletedAt);
     tomb.bindValue(":o", origin);
@@ -799,49 +1081,67 @@ bool ContactSync::applyDeleteOnDb(QSqlDatabase &db, const QString &qsoUuid,
     return true;
 }
 
-bool ContactSync::applyJournalLineOnDb(QSqlDatabase &db, const QByteArray &line,
-                                       QString *errorOut)
+ContactSync::ApplyResult ContactSync::applyJournalLineOnDb(QSqlDatabase &db,
+                                                           const QByteArray &line,
+                                                           QString *errorOut)
 {
     QJsonParseError parseErr;
     const QJsonDocument doc = QJsonDocument::fromJson(line, &parseErr);
-    if ( parseErr.error != QJsonParseError::NoError )
+    if ( parseErr.error != QJsonParseError::NoError || !doc.isObject() )
     {
         if ( errorOut ) *errorOut = parseErr.errorString();
-        return false;
+        return ApplyResult::SkipPermanent;
     }
     const QJsonObject rec = doc.object();
 
     if ( rec.value("v").toInt() != JOURNAL_FORMAT_VERSION )
     {
-        if ( errorOut ) *errorOut = tr("unknown record version");
-        return false;
+        // Probably written by a newer QLog. Don't skip past it; wait until
+        // this install is upgraded.
+        if ( errorOut ) *errorOut = tr("unsupported journal record version %1")
+                                        .arg(rec.value("v").toInt());
+        return ApplyResult::Retry;
     }
 
-    const QString op       = rec.value("op").toString();
-    const QString qsoUuid  = rec.value("qso_uuid").toString();
+    const QString op        = rec.value("op").toString();
+    const QString qsoUuid   = rec.value("qso_uuid").toString();
     const QString updatedAt = rec.value("updated_at").toString();
-    const QString origin   = rec.value("node").toString();
+    const QString origin    = rec.value("node").toString();
 
     if ( qsoUuid.isEmpty() )
     {
         if ( errorOut ) *errorOut = tr("missing qso_uuid");
-        return false;
+        return ApplyResult::SkipPermanent;
     }
 
+    if ( op == QLatin1String("upsert") && updatedAt.isEmpty() )
+    {
+        if ( errorOut ) *errorOut = tr("missing updated_at");
+        return ApplyResult::SkipPermanent;
+    }
+
+    bool ok = false;
     if ( op == QLatin1String("upsert") )
-        return applyUpsertOnDb(db, rec, errorOut);
+        ok = applyUpsertOnDb(db, rec, errorOut);
+    else if ( op == QLatin1String("delete") )
+        ok = applyDeleteOnDb(db, qsoUuid, updatedAt, origin, errorOut);
+    else
+    {
+        if ( errorOut ) *errorOut = tr("unknown op: %1").arg(op);
+        return ApplyResult::SkipPermanent;
+    }
 
-    if ( op == QLatin1String("delete") )
-        return applyDeleteOnDb(db, qsoUuid, updatedAt, origin, errorOut);
-
-    if ( errorOut ) *errorOut = tr("unknown op: %1").arg(op);
-    return false;
+    // Apply failures are database errors (locked, disk full, constraint
+    // from a schema mismatch, ...): retry rather than lose the record.
+    return ok ? ApplyResult::Applied : ApplyResult::Retry;
 }
 
 bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
                                const QString &peerDir, int *appliedOut,
                                QString *errorOut)
 {
+    if ( appliedOut ) *appliedOut = 0;
+
     QString lastFile;
     qint64  lastOffset = 0;
     {
@@ -856,63 +1156,134 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
             }
         }
     }
+    const int lastSeq = journalSeq(lastFile);
 
+    // Only real journal files, in numeric order.
     QDir peerD(peerDir);
-    const QStringList journals = peerD.entryList(QStringList() << "journal-*.jsonl",
-                                                 QDir::Files, QDir::Name);
+    QList<QPair<int, QString>> journals;
+    const QStringList candidates = peerD.entryList(QStringList() << "journal-*.jsonl",
+                                                   QDir::Files, QDir::Name);
+    for ( const QString &name : candidates )
+    {
+        const int seq = journalSeq(name);
+        if ( seq >= 1 && seq >= lastSeq )
+            journals << qMakePair(seq, name);
+    }
+    std::sort(journals.begin(), journals.end());
+
+    // One transaction per peer: applied records and the resume offset are
+    // committed together (no gaps or re-applies after a crash), and the
+    // apply runs far faster than one implicit commit per record.
+    if ( !db.transaction() )
+    {
+        if ( errorOut ) *errorOut = db.lastError().text();
+        return false;
+    }
+    if ( !setApplyingOnDb(db, true) )
+    {
+        if ( errorOut ) *errorOut = tr("cannot set sync apply flag");
+        db.rollback();
+        return false;
+    }
 
     int applied = 0;
-    QString    finalFile   = lastFile;
-    qint64     finalOffset = lastOffset;
+    QString finalFile   = lastFile;
+    qint64  finalOffset = lastOffset;
+    QString stopReason;
 
-    for ( const QString &name : journals )
+    for ( const auto &entry : std::as_const(journals) )
     {
-        if ( !lastFile.isEmpty() && name < lastFile )
-            continue;
-
+        const QString &name = entry.second;
         QFile f(peerD.filePath(name));
         if ( !f.open(QIODevice::ReadOnly) )
-            continue;
-
-        const qint64 startAt = (name == lastFile) ? lastOffset : 0;
-        if ( !f.seek(startAt) )
         {
-            f.close();
-            continue;
+            // e.g. a cloud placeholder that hasn't downloaded yet. Later
+            // files must not be read before this one.
+            stopReason = tr("cannot open %1: %2").arg(name, f.errorString());
+            break;
         }
 
-        while ( !f.atEnd() )
+        const qint64 startAt = (name == lastFile) ? lastOffset : 0;
+        if ( startAt > f.size() || !f.seek(startAt) )
+        {
+            stopReason = tr("%1 is shorter than the last read position; "
+                            "it may still be syncing").arg(name);
+            break;
+        }
+
+        bool fileComplete = true;
+        while ( true )
         {
             const QByteArray line = f.readLine();
-            if ( line.trimmed().isEmpty() )
-                break;
+            if ( line.isEmpty() )
+                break;   // EOF
 
-            QString err;
-            if ( applyJournalLineOnDb(db, line, &err) )
-                ++applied;
-            else
-                qCWarning(runtime) << "Skipping record from" << peerNode << ":" << err;
+            if ( !line.endsWith('\n') )
+            {
+                // Partially written or partially synced last line. Leave
+                // the offset before it and pick it up on a later cycle.
+                fileComplete = false;
+                break;
+            }
+
+            if ( !line.trimmed().isEmpty() )
+            {
+                QString err;
+                const ApplyResult res = applyJournalLineOnDb(db, line, &err);
+                if ( res == ApplyResult::Retry )
+                {
+                    stopReason = tr("%1 @%2: %3").arg(name).arg(f.pos() - line.size()).arg(err);
+                    fileComplete = false;
+                    break;
+                }
+                if ( res == ApplyResult::Applied )
+                    ++applied;
+                else
+                    qCWarning(runtime) << "Skipping malformed record from" << peerNode
+                                       << name << ":" << err;
+            }
 
             finalFile   = name;
             finalOffset = f.pos();
         }
         f.close();
+
+        // A file with an unfinished tail is still being written or synced;
+        // records in later files are newer and must wait for it.
+        if ( !fileComplete )
+            break;
     }
 
+    bool ok = setApplyingOnDb(db, false);
+
     QSqlQuery upd(db);
-    if ( upd.prepare("INSERT OR REPLACE INTO sync_peers "
-                     "(node, last_file, last_offset, last_seen_at) "
-                     "VALUES (:n, :f, :o, :t)") )
+    ok = ok && upd.prepare("INSERT OR REPLACE INTO sync_peers "
+                           "(node, last_file, last_offset, last_seen_at) "
+                           "VALUES (:n, :f, :o, :t)");
+    if ( ok )
     {
         upd.bindValue(":n", peerNode);
         upd.bindValue(":f", finalFile);
         upd.bindValue(":o", static_cast<qlonglong>(finalOffset));
         upd.bindValue(":t", QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs));
-        if ( !upd.exec() && errorOut )
-            *errorOut = upd.lastError().text();
+        ok = upd.exec();
+    }
+
+    if ( !ok || !db.commit() )
+    {
+        const QString err = ok ? db.lastError().text() : upd.lastError().text();
+        db.rollback();
+        if ( errorOut ) *errorOut = err;
+        return false;
     }
 
     if ( appliedOut ) *appliedOut = applied;
+
+    if ( !stopReason.isEmpty() )
+    {
+        if ( errorOut ) *errorOut = stopReason;
+        return false;
+    }
     return true;
 }
 
@@ -969,11 +1340,6 @@ void ContactSync::setBusy(bool busy)
 
 void ContactSync::runFlushCycle()
 {
-    // NOTE: Temporarily reverted to synchronous-on-main-thread to isolate
-    // whether the worker thread / connection cloning was the root cause of
-    // the "SET - Cannot exec an insert parameter statement" errors. If this
-    // version runs cleanly we'll know it's a threading issue.
-
     if ( !isEnabled() )
         return;
     if ( !busyFlag.testAndSetAcquire(0, 1) )
@@ -987,6 +1353,7 @@ void ContactSync::runFlushCycle()
     {
         busyFlag.storeRelease(0);
         setBusy(false);
+        qCWarning(runtime) << "Contact sync flush failed:" << err;
         emit flushFailed(err);
         return;
     }
@@ -1010,6 +1377,7 @@ void ContactSync::runFlushCycle()
     }
     else
     {
+        qCWarning(runtime) << "Contact sync flush failed:" << err;
         emit flushFailed(err);
     }
     busyFlag.storeRelease(0);
@@ -1031,6 +1399,7 @@ void ContactSync::runPullCycle()
     {
         busyFlag.storeRelease(0);
         setBusy(false);
+        qCWarning(runtime) << "Contact sync pull failed:" << err;
         emit pullFailed(err);
         return;
     }
@@ -1048,6 +1417,9 @@ void ContactSync::runPullCycle()
     }
     else
     {
+        qCWarning(runtime) << "Contact sync pull failed:" << err;
+        if ( applied > 0 )
+            emit pulled(applied);   // other peers may still have applied rows
         emit pullFailed(err);
     }
     busyFlag.storeRelease(0);
@@ -1069,6 +1441,7 @@ void ContactSync::runFullCycle()
     {
         busyFlag.storeRelease(0);
         setBusy(false);
+        qCWarning(runtime) << "Contact sync cycle failed:" << preErr;
         emit flushFailed(preErr);
         return;
     }
@@ -1095,6 +1468,7 @@ void ContactSync::runFullCycle()
     }
     else
     {
+        qCWarning(runtime) << "Contact sync flush failed:" << flushErr;
         emit flushFailed(flushErr);
     }
 
@@ -1107,6 +1481,9 @@ void ContactSync::runFullCycle()
     }
     else
     {
+        qCWarning(runtime) << "Contact sync pull failed:" << pullErr;
+        if ( applied > 0 )
+            emit pulled(applied);
         emit pullFailed(pullErr);
     }
 

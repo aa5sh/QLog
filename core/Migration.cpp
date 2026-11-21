@@ -566,7 +566,12 @@ bool DBSchemaMigration::setupContactSync()
     // back to the existing log GUID). The triggers below read the current
     // value at fire time, so the user can later change it via the Sync
     // dialog without rebuilding any trigger.
+    // The node id doubles as a directory name in the shared folder, so keep
+    // it to a filesystem-safe alphabet.
     QString defaultNodeId = QHostInfo::localHostName().trimmed();
+    defaultNodeId.replace(QRegularExpression(QStringLiteral("[^A-Za-z0-9._-]")), QStringLiteral("-"));
+    while ( defaultNodeId.startsWith('.') )
+        defaultNodeId.remove(0, 1);
     if ( defaultNodeId.isEmpty() )
         defaultNodeId = LogParam::getLogID();
 
@@ -597,6 +602,15 @@ bool DBSchemaMigration::setupContactSync()
     static const QString nodeSelect =
         "(SELECT value FROM sync_runtime WHERE key = 'self_node_id')";
 
+    // ContactSync sets sync_runtime.applying = '1' inside the pull
+    // transaction. While it is set, the update/tombstone triggers stay quiet:
+    // without this guard, any secondary UPDATE fired while a remote row is
+    // applied (e.g. update_contacts_upload_status) re-stamps the row with
+    // this node's id and a fresh timestamp, and the two peers then bounce
+    // the same row back and forth forever.
+    static const QString notApplying =
+        " COALESCE((SELECT value FROM sync_runtime WHERE key = 'applying'), '0') <> '1' ";
+
     // Backfill sync metadata for existing contacts. Done before any sync
     // trigger exists, so no AFTER UPDATE bumper fires during the mass write.
     QSqlQuery backfill;
@@ -604,8 +618,9 @@ bool DBSchemaMigration::setupContactSync()
             "UPDATE contacts SET "
             "    qso_uuid    = COALESCE(qso_uuid, ") + uuidExpr +
             QStringLiteral("), "
-            "    updated_at  = COALESCE(updated_at, end_time, start_time, "
-            "                           strftime('%Y-%m-%dT%H:%M:%fZ', 'now')), "
+            "    updated_at  = COALESCE(updated_at, "
+            "                           strftime('%Y-%m-%dT%H:%M:%fZ', "
+            "                                    COALESCE(end_time, start_time, 'now'))), "
             "    origin_node = COALESCE(origin_node, :node)")) )
     {
         qWarning() << "Cannot prepare contacts backfill" << backfill.lastError();
@@ -660,6 +675,7 @@ bool DBSchemaMigration::setupContactSync()
                                 "AFTER UPDATE ON contacts "
                                 "FOR EACH ROW "
                                 "WHEN NEW.updated_at IS OLD.updated_at "
+                                "  AND") + notApplying + QStringLiteral(
                                 "BEGIN "
                                 "  UPDATE contacts "
                                 "     SET updated_at  = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), "
@@ -680,6 +696,7 @@ bool DBSchemaMigration::setupContactSync()
                        "BEFORE DELETE ON contacts "
                        "FOR EACH ROW "
                        "WHEN OLD.qso_uuid IS NOT NULL "
+                       "  AND") + notApplying + QStringLiteral(
                        "BEGIN "
                        "  INSERT OR REPLACE INTO contacts_tombstones "
                        "    (qso_uuid, deleted_at, origin_node) "

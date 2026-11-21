@@ -42,6 +42,14 @@ public:
 
     int  pendingChangesCount() const;
 
+    // True when this database's sync identity was claimed by a different
+    // QLog installation (typically: qlog.db was copied to a second computer).
+    // Sync refuses to run until the user saves a Node ID in the Sync dialog.
+    bool nodeIdOwnedElsewhere() const;
+
+    // Node ids double as directory names in the shared folder.
+    static bool isValidNodeId(const QString &nodeId);
+
     void start();
     void stop();
 
@@ -76,8 +84,19 @@ private:
 
     // ---- worker-side: every method takes the cloned connection it should
     //      use. They never touch the default (main-thread) connection.
+    // Outcome of applying one journal record.
+    enum class ApplyResult {
+        Applied,        // applied (or a no-op that LWW says is correct)
+        SkipPermanent,  // malformed record; skip it forever
+        Retry           // transient failure; stop and retry next cycle
+    };
+
+    static QString installId();     // per-machine id kept in QSettings
+    QString writerId() const;       // installId + this log's id
+    bool checkOwnership(QString *errorOut);
+
     bool ensureFolderLayout(QString *errorOut);
-    bool loadHead();
+    bool loadHead(QString *errorOut);
     bool writeHead();
     bool writeManifestIfMissing();
     bool appendRecord(const QByteArray &line, QString *errorOut);
@@ -91,18 +110,21 @@ private:
     bool pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
                       const QString &peerDir, int *appliedOut,
                       QString *errorOut);
-    bool applyJournalLineOnDb(QSqlDatabase &db, const QByteArray &line,
-                              QString *errorOut);
+    ApplyResult applyJournalLineOnDb(QSqlDatabase &db, const QByteArray &line,
+                                     QString *errorOut);
     bool applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &record,
                          QString *errorOut);
+    bool updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid,
+                               const QJsonObject &payload, QString *errorOut);
     bool applyDeleteOnDb(QSqlDatabase &db, const QString &qsoUuid,
                          const QString &deletedAt, const QString &origin,
                          QString *errorOut);
+    bool setApplyingOnDb(QSqlDatabase &db, bool applying);
 
     QSet<QString> contactColumnsOnDb(QSqlDatabase &db) const;
 
-    // Dispatch helpers — open a per-call cloned SQLite connection, run the
-    // work, post results back to this object via queued signals.
+    // Dispatch helpers. They currently run synchronously on the main thread
+    // with the default connection.
     void runFlushCycle();
     void runPullCycle();
     void runFullCycle();   // flush then pull (timer tick)

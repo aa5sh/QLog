@@ -1,5 +1,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTimer>
 
 #include "SyncDialog.h"
 #include "ui_SyncDialog.h"
@@ -28,6 +29,20 @@ SyncDialog::SyncDialog(QWidget *parent)
 
     refreshStatus();
     applyEnabledUiState();
+
+    if ( sync->isEnabled() && sync->nodeIdOwnedElsewhere() )
+    {
+        QTimer::singleShot(0, this, [this]()
+        {
+            QMessageBox::warning(this, tr("Sync"),
+                                 tr("Sync is paused: this logbook's Node ID belongs to another QLog "
+                                    "installation (the database was probably copied from another "
+                                    "computer).\n\nEnter a Node ID that is unique to this computer "
+                                    "and press Save."));
+            ui->nodeIdLineEdit->setFocus();
+            ui->nodeIdLineEdit->selectAll();
+        });
+    }
 
     connect(ui->enabledCheckBox,  &QCheckBox::toggled, this, &SyncDialog::onEnabledToggled);
     connect(ui->browseButton,     &QPushButton::clicked, this, &SyncDialog::onBrowseClicked);
@@ -120,6 +135,7 @@ void SyncDialog::onSaveNodeIdClicked()
         ui->nodeIdLineEdit->setText(ContactSync::instance()->selfNodeId());
         return;
     }
+    ui->nodeIdLineEdit->setText(ContactSync::instance()->selfNodeId());
     refreshStatus();
 }
 
@@ -137,8 +153,8 @@ void SyncDialog::onFlushNowClicked()
 {
     FCT_IDENTIFICATION;
 
-    // Fire-and-forget: the cycle runs on a worker thread and posts back via
-    // flushed / flushFailed / busyChanged signals connected in the ctor.
+    // Runs synchronously; results arrive via the flushed / flushFailed /
+    // busyChanged signals connected in the ctor.
     ContactSync::instance()->requestFlush();
 }
 
