@@ -27,6 +27,7 @@ Rc28Controller::Rc28Controller(QObject *parent) :
     rigFrequencyHz(0),
     commandedFrequencyHz(0),
     pendingSteps(0),
+    frequencyRequestInFlight(false),
     txArmed(false),
     pttKeyed(false),
     f1Pressed(false),
@@ -36,11 +37,11 @@ Rc28Controller::Rc28Controller(QObject *parent) :
     FCT_IDENTIFICATION;
 
     scanTimer->setInterval(SCAN_INTERVAL_MS);
-    tuneTimer->setInterval(TUNE_INTERVAL_MS);
+    tuneTimer->setInterval(MIN_TUNE_INTERVAL_MS);
     tuneTimer->setSingleShot(true);
 
     connect(scanTimer, &QTimer::timeout, this, &Rc28Controller::openDevice);
-    connect(tuneTimer, &QTimer::timeout, this, &Rc28Controller::flushTuning);
+    connect(tuneTimer, &QTimer::timeout, this, &Rc28Controller::sendTuning);
     connect(device, &Rc28Device::reportReceived, this, &Rc28Controller::processReport);
     connect(device, &Rc28Device::removed, this, &Rc28Controller::deviceRemoved);
 }
@@ -74,14 +75,18 @@ void Rc28Controller::updateRigStatus(const Rig::Status &status)
 {
     FCT_IDENTIFICATION;
 
+    const qint64 frequencyHz = qRound64(status.freq * 1e6);
+
+    // Reports reach this thread in rig-thread order, so a frequency change
+    // reported while no request is in flight is the rig's state after our
+    // last request, including its own VFO knob or rounding.
+    if ( frequencyHz != rigFrequencyHz && !frequencyRequestInFlight )
+        commandedFrequencyHz = 0;
+
     rigConnected = status.isConnected;
     rigTransmitting = status.ptt > 0;
     rigMode = status.mode;
-    rigFrequencyHz = qRound64(status.freq * 1e6);
-
-    // The rig has caught up; later reports may come from its own VFO knob.
-    if ( rigFrequencyHz == commandedFrequencyHz )
-        commandedFrequencyHz = 0;
+    rigFrequencyHz = frequencyHz;
 
     updateLeds();
 }
@@ -94,6 +99,7 @@ void Rc28Controller::rigDisconnected()
     rigTransmitting = false;
     rigFrequencyHz = 0;
     commandedFrequencyHz = 0;
+    frequencyRequestInFlight = false;
     pendingSteps = 0;
     tuneTimer->stop();
     releasePtt();
@@ -167,9 +173,7 @@ void Rc28Controller::processReport(const QByteArray &data)
     if ( report.steps != 0 && rigConnected && !pttKeyed && !rigTransmitting )
     {
         pendingSteps += report.steps;
-
-        if ( !tuneTimer->isActive() )
-            tuneTimer->start();
+        sendTuning();
     }
 
     updateLeds();
@@ -189,27 +193,38 @@ void Rc28Controller::deviceRemoved()
         scanTimer->start();
 }
 
-void Rc28Controller::flushTuning()
+void Rc28Controller::frequencyRequestDone()
 {
     FCT_IDENTIFICATION;
+
+    frequencyRequestInFlight = false;
+    sendTuning();
+}
+
+void Rc28Controller::sendTuning()
+{
+    FCT_IDENTIFICATION;
+
+    if ( pendingSteps == 0 || frequencyRequestInFlight || tuneTimer->isActive() )
+        return;
 
     const int steps = pendingSteps;
     pendingSteps = 0;
 
-    if ( steps == 0 || !rigConnected || pttKeyed || rigTransmitting )
+    if ( !rigConnected || pttKeyed || rigTransmitting )
         return;
 
-    const bool useCommanded = commandedFrequencyHz > 0
-                              && commandTimer.isValid()
-                              && commandTimer.elapsed() < COMMAND_HOLD_MS;
-    const qint64 baseHz = useCommanded ? commandedFrequencyHz : rigFrequencyHz;
+    // Continue from the last request until the rig reports a newer frequency;
+    // its polled report lags behind the requests.
+    const qint64 baseHz = commandedFrequencyHz > 0 ? commandedFrequencyHz : rigFrequencyHz;
     const qint64 targetHz = Rc28Protocol::tunedFrequencyHz(baseHz, steps,
                                                            Rc28Protocol::tuningStepHz(rigMode, fastTuning));
     if ( targetHz == baseHz )
         return;
 
     commandedFrequencyHz = targetHz;
-    commandTimer.start();
+    frequencyRequestInFlight = true;
+    tuneTimer->start();
     emit frequencyRequested(static_cast<double>(targetHz));
 }
 

@@ -26,6 +26,8 @@ public slots:
     void setEnabled(bool enabled);
     void updateRigStatus(const Rig::Status &status);
     void rigDisconnected();
+    // The rig thread has finished the last frequencyRequested().
+    void frequencyRequestDone();
 
 signals:
     void frequencyRequested(double frequencyHz);
@@ -35,7 +37,7 @@ private slots:
     void openDevice();
     void processReport(const QByteArray &data);
     void deviceRemoved();
-    void flushTuning();
+    void sendTuning();
 
 private:
     explicit Rc28Controller(QObject *parent = nullptr);
@@ -48,21 +50,19 @@ private:
     // Looking for a newly plugged RC-28 is a cheap enumeration, run only while
     // enabled and disconnected.
     static const int SCAN_INTERVAL_MS = 3000;
-    // Encoder reports are summed and sent to the rig at most this often, so a
-    // fast spin cannot queue more CAT commands than a slow rig can process.
-    static const int TUNE_INTERVAL_MS = 100;
+    // Only one frequency request is in flight, so requests never queue up
+    // behind a slow rig (Hamlib sleeps 200 ms after each set); encoder steps
+    // are summed meanwhile. Drivers that return at once are also limited to
+    // one request per this interval.
+    static const int MIN_TUNE_INTERVAL_MS = 50;
     // A TRANSMIT press in the first report, this soon after opening, was held
     // while the device connected; it must be released before it can key the rig.
     static const int HELD_AT_OPEN_MS = 250;
-    // How long a requested frequency is the tuning base before the rig reports
-    // it, so consecutive flushes do not restart from a stale rig report.
-    static const int COMMAND_HOLD_MS = 1000;
 
     Rc28Device *device;
     QTimer *scanTimer;
     QTimer *tuneTimer;
     QElapsedTimer openedTimer;
-    QElapsedTimer commandTimer;
     bool enabled;
     bool rigConnected;
     bool rigTransmitting;
@@ -70,6 +70,7 @@ private:
     qint64 rigFrequencyHz;
     qint64 commandedFrequencyHz;
     int pendingSteps;
+    bool frequencyRequestInFlight;
     bool txArmed;
     bool pttKeyed;
     bool f1Pressed;

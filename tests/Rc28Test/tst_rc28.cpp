@@ -17,6 +17,8 @@ private slots:
     void tuningStepFollowsMode();
     void tunedFrequencySnapsToGrid();
 
+    void tuningWaitsForRig();
+
     void pttFollowsTransmitButton();
     void pttReleasedWhenDeviceRemoved();
     void pttReleasedWhenDisabled();
@@ -148,6 +150,46 @@ void Rc28Test::tunedFrequencySnapsToGrid()
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(14074012, 0, 10), qint64(14074012));
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(0, 5, 10), qint64(0));
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(20, -5, 10), qint64(20));
+}
+
+void Rc28Test::tuningWaitsForRig()
+{
+    Rc28Controller *controller = Rc28Controller::instance();
+    controller->updateRigStatus(connectedRig());
+    openDevice();
+    QSignalSpy tune(controller, &Rc28Controller::frequencyRequested);
+
+    emit device()->reportReceived(inputReport(3, false));
+    QCOMPARE(tune.count(), 1);
+    QCOMPARE(tune.last().at(0).toDouble(), 14074030.0);
+
+    // Spinning while the rig applies a set queues nothing; steps add up.
+    emit device()->reportReceived(inputReport(2, false));
+    emit device()->reportReceived(inputReport(4, false));
+    QCOMPARE(tune.count(), 1);
+
+    controller->frequencyRequestDone();
+    QTRY_COMPARE(tune.count(), 2);
+    QCOMPARE(tune.last().at(0).toDouble(), 14074090.0);
+
+    // A report without a new frequency is stale; tuning continues from the request.
+    Rig::Status stale = connectedRig();
+    stale.mode = QStringLiteral("CW");
+    controller->frequencyRequestDone();
+    controller->updateRigStatus(stale);
+    emit device()->reportReceived(inputReport(1, false));
+    QTRY_COMPARE(tune.count(), 3);
+    QCOMPARE(tune.last().at(0).toDouble(), 14074100.0);
+
+    // A new frequency after the set completed, e.g. from the radio's own knob, wins.
+    controller->frequencyRequestDone();
+    Rig::Status moved = connectedRig();
+    moved.freq = 7.050;
+    controller->updateRigStatus(moved);
+    emit device()->reportReceived(inputReport(1, false));
+    QTRY_COMPARE(tune.count(), 4);
+    QCOMPARE(tune.last().at(0).toDouble(), 7050010.0);
+    controller->frequencyRequestDone();
 }
 
 void Rc28Test::pttFollowsTransmitButton()
