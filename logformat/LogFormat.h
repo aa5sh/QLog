@@ -57,7 +57,7 @@ public:
                             unsigned long *warnings,
                             unsigned long *errors,
                             QSet<uint> *importedEntities = nullptr);
-    void runQSLImport(QSLFrom fromService);
+    void runQSLImport(QSLFrom fromService, const bool *canceled = nullptr);
     void runDXCCCreditImport();
     long runExport();
     long runExport(const QList<QSqlRecord>&);
@@ -109,6 +109,7 @@ protected:
     QMap<QString, QString>* defaults;
     void addImportWarning(const QString &message) { importWarnings.append(message); }
     void clearImportWarnings() { importWarnings.clear(); }
+    virtual QString importErrorString() const { return QString(); }
     virtual bool importNextDXCCCredit(DXCCCreditRecord&) { return false; }
 
 private:

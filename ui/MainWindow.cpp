@@ -70,6 +70,7 @@
 #include "ui/SteppirWidget.h"
 #include "antenna/SteppirController.h"
 #include <QFileDialog>
+#include "ui/QLogFileDialog.h"
 #include <QProcess>
 #include <QThread>
 #include <QTemporaryFile>
@@ -647,6 +648,7 @@ MainWindow::MainWindow(QWidget* parent) :
     /********************/
     // Menu actions are defined in the MainWindow.ui file
     // The rest of global shortcuts are defined below
+    connect(ui->actionWipeContact, &QAction::triggered, ui->newContactWidget, &NewContactWidget::resetContact);
     connect(ui->actionSearchCallsign, &QAction::triggered, ui->logbookWidget, &LogbookWidget::focusSearchCallsign);
     connect(ui->actionAddBandmapMark, &QAction::triggered, ui->newContactWidget, &NewContactWidget::markContact);
     connect(ui->actionUseNearestCallsign, &QAction::triggered, ui->newContactWidget, &NewContactWidget::useNearestCallsign);
@@ -672,6 +674,7 @@ MainWindow::MainWindow(QWidget* parent) :
     addAction(ui->actionCWProfileDown);
     addAction(ui->actionPTTOn);
     addAction(ui->actionNewContact);
+    addAction(ui->actionWipeContact);
     addAction(ui->actionSaveContact);
 
     restoreUserDefinedShortcuts();
@@ -871,7 +874,7 @@ void MainWindow::rigErrorHandler(const QString &error, const QString &errorDetai
 {
     FCT_IDENTIFICATION;
 
-    QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+    QMessageBox::warning(this, QMessageBox::tr("QLog Warning"),
                          QMessageBox::tr("<b>Rig Error:</b> ") + error
                                          + "<p>" + tr("<b>Error Detail:</b> ") + errorDetail + "</p>");
     if ( ui->actionConnectRig->isChecked() )
@@ -884,7 +887,7 @@ void MainWindow::rotErrorHandler(const QString &error, const QString &errorDetai
 {
     FCT_IDENTIFICATION;
 
-    QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+    QMessageBox::warning(this, QMessageBox::tr("QLog Warning"),
                          QMessageBox::tr("<b>Rotator Error:</b> ") + error
                                          + "<p>" + tr("<b>Error Detail:</b> ") + errorDetail + "</p>");
     ui->actionConnectRotator->setChecked(false);
@@ -912,7 +915,7 @@ void MainWindow::cwKeyerErrorHandler(const QString &error, const QString &errorD
 {
     FCT_IDENTIFICATION;
 
-    QMessageBox::warning(nullptr, QMessageBox::tr("QLog Warning"),
+    QMessageBox::warning(this, QMessageBox::tr("QLog Warning"),
                          QMessageBox::tr("<b>CW Keyer Error:</b> ") + error
                                          + "<p>" + tr("<b>Error Detail:</b> ") + errorDetail + "</p>");
     ui->actionConnectCWKeyer->setChecked(false);
@@ -1112,7 +1115,7 @@ void MainWindow::showUpdateDialog(const QString &newVersion, const QString &repo
 {
     FCT_IDENTIFICATION;
 
-    QMessageBox msgBox;
+    QMessageBox msgBox(this);
     QSettings settings;
 
 #if defined(Q_OS_MACOS) && QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
@@ -1551,10 +1554,16 @@ void MainWindow::showDumpDB()
 
     const QString documentsPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 
+#ifdef QLOG_FLATPAK
+    QString filename = QLogFileDialog::getSaveFileName(this, tr("Pack Data & Settings"),
+                                                       QDir(documentsPath).filePath("qlog.dbe"),
+                                                       tr("Database files (*.dbe);;All files (*)"), "dbe", true);
+#else
     QString filename = QFileDialog::getSaveFileName(this,
                                                     tr("Pack Data & Settings"),
                                                     documentsPath,
                                                     tr("Database files (*.dbe);;All files (*)"));
+#endif
 
     if ( filename.isEmpty() )
     {
@@ -1583,8 +1592,8 @@ void MainWindow::showDumpDB()
     {
         LogParam::removeEncryptedPasswords();
         LogParam::removeSourcePlatform();
-        QMessageBox::warning(this, tr("Pack Data & Settings"),
-                             tr("Choose a different file. The export destination points to the open database."));
+        QLogFileDialog::showError(this, tr("Pack Data & Settings"),
+                                   tr("Cannot pack into %1 because it is the open logbook database. Choose another file.").arg(filename));
         return;
     }
 
@@ -1594,15 +1603,17 @@ void MainWindow::showDumpDB()
     {
         LogParam::removeEncryptedPasswords();
         LogParam::removeSourcePlatform();
-        QMessageBox::warning(this, tr("Pack Data & Settings"),
-                             tr("Failed to create temporary file."));
+        QLogFileDialog::showError(this, tr("Pack Data & Settings"),
+                                   tr("Cannot create a temporary database file for packing in %1:\n%2")
+                                 .arg(QDir::tempPath(), tempFile.errorString()));
         return;
     }
     QString tempPath = tempFile.fileName();
     tempFile.close();
 
     // Copy database to temporary file
-    bool ok = LogDatabase::instance()->atomicCopy(tempPath);
+    QString error;
+    bool ok = LogDatabase::instance()->atomicCopy(tempPath, &error);
 
     LogParam::removeEncryptedPasswords();
     LogParam::removeSourcePlatform();
@@ -1610,13 +1621,12 @@ void MainWindow::showDumpDB()
     if ( !ok )
     {
         tempFile.remove();
-        QMessageBox::warning(this, tr("Pack Data & Settings"),
-                             tr("Failed to dump the database."));
+        QLogFileDialog::showError(this, tr("Pack Data & Settings"), error);
         return;
     }
 
     // Compress temporary file to destination (with progress dialog)
-    ok = FileCompressor::gzipFileWithProgress(tempPath, filename, this, tr("Compressing database..."));
+    ok = FileCompressor::gzipFileWithProgress(tempPath, filename, this, tr("Compressing database..."), &error);
     tempFile.remove();
 
     if ( ok )
@@ -1634,8 +1644,7 @@ void MainWindow::showDumpDB()
     }
     else
     {
-        QMessageBox::warning(this, tr("Pack Data & Settings"),
-                             tr("Failed to compress the database."));
+        QLogFileDialog::showError(this, tr("Pack Data & Settings"), error);
     }
 }
 
@@ -1695,7 +1704,7 @@ void MainWindow::showLoadDB()
     if ( !prepared )
     {
         QFile::remove(decompressedFile);
-        QMessageBox::warning(this, tr("Unpack Data & Settings"), LogDatabase::instance()->pendingImportError());
+        QLogFileDialog::showError(this, tr("Unpack Data & Settings"), LogDatabase::instance()->pendingImportError());
         return;
     }
     QFile::remove(decompressedFile);

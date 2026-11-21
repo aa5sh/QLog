@@ -290,6 +290,7 @@ EQSLQSLDownloader::~EQSLQSLDownloader()
 {
     FCT_IDENTIFICATION;
 
+    disconnect(getNetworkAccessManager(), nullptr, this, nullptr);
     if ( currentReply )
     {
         currentReply->abort();
@@ -304,6 +305,7 @@ void EQSLQSLDownloader::receiveQSL(const QDate &start_date, bool qso_since, cons
 
     qCDebug(function_parameters) << start_date << qso_since << qthNick;
 
+    aborted = false;
     QList<QPair<QString, QString>> params;
 
     if ( !qthNick.isEmpty() )
@@ -381,6 +383,7 @@ void EQSLQSLDownloader::abortDownload()
 {
     FCT_IDENTIFICATION;
 
+    aborted = true;
     if ( currentReply )
     {
         currentReply->abort();
@@ -401,16 +404,18 @@ void EQSLQSLDownloader::processReply(QNetworkReply *reply)
          || replyStatusCode < 200
          || replyStatusCode >= 300)
     {
-        qCDebug(runtime) << "eQSL error URL " << reply->request().url().toString();
-        qCDebug(runtime) << "eQSL error" << reply->errorString();
+        qCDebug(runtime) << "eQSL error URL " << reply->request().url().adjusted(QUrl::RemoveQuery | QUrl::RemoveUserInfo);
+        qCDebug(runtime) << "eQSL error" << reply->error();
         qCDebug(runtime) << "HTTP Status Code" << replyStatusCode;
 
         if ( reply->error() != QNetworkReply::OperationCanceledError )
         {
             emit receiveQSLFailed(reply->errorString());
             emit QSLImageError(reply->errorString());
-            reply->deleteLater();
         }
+        else
+            emit receiveQSLFailed(tr("QSL download canceled"));
+        reply->deleteLater();
         return;
     }
 
@@ -518,6 +523,16 @@ void EQSLQSLDownloader::processReply(QNetworkReply *reply)
         qint64 size = reply->size();
         qCDebug(runtime) << "Reply size: " << size;
 
+        const QByteArray data = reply->readAll();
+        const QByteArray adif = data.trimmed().toUpper();
+        if ( !adif.contains("<EOH>")
+             || (!adif.endsWith("<EOH>") && !adif.endsWith("<EOR>")) )
+        {
+            emit receiveQSLFailed(tr("eQSL returned an invalid or incomplete ADIF response"));
+            reply->deleteLater();
+            return;
+        }
+
         /* Currently, QT returns an incorrect stream position value in Network stream
          * when the stream is used in QTextStream. Therefore
          * QLog downloads a response, saves it to a temp file and opens
@@ -527,22 +542,27 @@ void EQSLQSLDownloader::processReply(QNetworkReply *reply)
         if ( ! tempFile.open() )
         {
             qCDebug(runtime) << "Cannot open temp file";
-            emit receiveQSLFailed(tr("Cannot open temporary file"));
+            emit receiveQSLFailed(tr("Cannot open temporary file: %1").arg(tempFile.errorString()));
             reply->deleteLater();
             return;
         }
 
-        const QByteArray &data = reply->readAll();
-
-        tempFile.write(data);
-        tempFile.flush();
-        tempFile.seek(0);
+        if ( tempFile.write(data) != data.size()
+             || !tempFile.flush()
+             || !tempFile.seek(0) )
+        {
+            emit receiveQSLFailed(tr("Cannot save eQSL response to temporary file: %1")
+                                 .arg(tempFile.errorString()));
+            reply->deleteLater();
+            return;
+        }
 
         emit receiveQSLStarted();
 
         /* see above why QLog uses a temp file */
         QTextStream stream(&tempFile);
         AdiFormat adi(stream);
+        adi.setFilterMyCallsign(downloadCallsign);
 
         connect(&adi, &AdiFormat::importPosition, this, [this, size](qint64 position)
         {
@@ -563,7 +583,7 @@ void EQSLQSLDownloader::processReply(QNetworkReply *reply)
             emit receiveQSLFailed(error);
         });
 
-        adi.runQSLImport(adi.EQSL);
+        adi.runQSLImport(adi.EQSL, &aborted);
 
         tempFile.close();
     }
@@ -609,6 +629,9 @@ void EQSLQSLDownloader::get(const QList<QPair<QString, QString>> &params)
 
     const QString &username = getUsername();
     const QString &password = getPasswd();
+
+    // Keep the request's station identity through the ADIF download.
+    downloadCallsign = username.trimmed().toUpper();
 
     QUrlQuery query;
     query.setQueryItems(params);
