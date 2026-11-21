@@ -22,63 +22,42 @@
 
 MODULE_IDENTIFICATION("qlog.core.contactsync");
 
-namespace {
-
-constexpr const char *SUBDIR_ROOT  = "qlog-sync";
-constexpr const char *SUBDIR_NODES = "nodes";
-
-QString currentTimestamp()
+QString ContactSync::currentTimestamp()
 {
+    FCT_IDENTIFICATION;
+
     return QDateTime::currentDateTimeUtc().toString(QStringLiteral("yyyy-MM-ddTHH:mm:ss.zzzZ"));
 }
 
-QString journalFileName(int seq)
+QString ContactSync::journalFileName(int seq)
 {
+    FCT_IDENTIFICATION;
+
     return QStringLiteral("journal-%1.jsonl").arg(seq, 4, 10, QChar('0'));
 }
 
 // Strict journal-name match. Cloud clients create conflict copies such as
 // "journal-0001 (Mike's conflicted copy).jsonl", which must never be read as
 // part of the stream (they would also sort ahead of the real file).
-const QRegularExpression &journalNameRe()
+const QRegularExpression &ContactSync::journalNameRegExp()
 {
+    FCT_IDENTIFICATION;
+
     static const QRegularExpression re(QStringLiteral("^journal-(\\d{4,})\\.jsonl$"));
     return re;
 }
 
-int journalSeq(const QString &fileName)
+int ContactSync::journalSeq(const QString &fileName)
 {
-    const QRegularExpressionMatch m = journalNameRe().match(fileName);
-    if ( !m.hasMatch() )
+    FCT_IDENTIFICATION;
+
+    const QRegularExpressionMatch match = journalNameRegExp().match(fileName);
+    if ( !match.hasMatch() )
         return -1;
     bool ok = false;
-    const int seq = m.captured(1).toInt(&ok);
+    const int seq = match.captured(1).toInt(&ok);
     return ok ? seq : -1;
 }
-
-// Upload bookkeeping is per-node; see updateFromPayloadOnDb.
-bool isUploadStateColumn(const QString &col)
-{
-    return col.endsWith(QLatin1String("_qso_upload_status"))
-        || col.endsWith(QLatin1String("_qso_upload_date"));
-}
-
-// Column names come from PRAGMA table_info and include SQL keywords
-// (contacts has a "check" column for the ADIF CHECK field), so always quote.
-QString quoteIdent(const QString &name)
-{
-    return QLatin1Char('"') + QString(name).replace(QLatin1Char('"'), QLatin1String("\"\"")) + QLatin1Char('"');
-}
-
-QVariant jsonToBind(const QJsonValue &v)
-{
-    // A JSON null must bind as SQL NULL, not as a std::nullptr_t variant.
-    if ( v.isNull() || v.isUndefined() )
-        return QVariant();
-    return v.toVariant();
-}
-
-} // namespace
 
 ContactSync *ContactSync::instance()
 {
@@ -93,6 +72,8 @@ ContactSync::ContactSync(QObject *parent)
       currentBytes(0),
       busyFlag(0)
 {
+    FCT_IDENTIFICATION;
+
     timer->setInterval(FLUSH_INTERVAL_MS);
     connect(timer, &QTimer::timeout, this, &ContactSync::onTick);
 }
@@ -103,16 +84,22 @@ ContactSync::ContactSync(QObject *parent)
 
 bool ContactSync::isEnabled() const
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getSyncEnabled();
 }
 
 QString ContactSync::folder() const
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getSyncFolder();
 }
 
 QString ContactSync::selfNodeId() const
 {
+    FCT_IDENTIFICATION;
+
     QSqlQuery q;
     if ( !q.exec("SELECT value FROM sync_runtime WHERE key = 'self_node_id'") )
         return LogParam::getLogID();
@@ -123,12 +110,17 @@ QString ContactSync::selfNodeId() const
 
 bool ContactSync::isValidNodeId(const QString &nodeId)
 {
+    FCT_IDENTIFICATION;
+
     static const QRegularExpression re(QStringLiteral("^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"));
     return re.match(nodeId).hasMatch();
 }
 
 bool ContactSync::setSelfNodeId(const QString &nodeId, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << nodeId;
+
     const QString trimmed = nodeId.trimmed();
     if ( trimmed.isEmpty() )
     {
@@ -170,6 +162,8 @@ bool ContactSync::setSelfNodeId(const QString &nodeId, QString *errorOut)
 
 QString ContactSync::installId()
 {
+    FCT_IDENTIFICATION;
+
     QSettings settings;
     QString id = settings.value(QStringLiteral("sync/install_id")).toString();
     if ( id.isEmpty() )
@@ -183,11 +177,15 @@ QString ContactSync::installId()
 
 QString ContactSync::writerId() const
 {
+    FCT_IDENTIFICATION;
+
     return installId() + QLatin1Char('/') + LogParam::getLogID();
 }
 
 bool ContactSync::nodeIdOwnedElsewhere() const
 {
+    FCT_IDENTIFICATION;
+
     QSqlQuery q;
     if ( !q.exec("SELECT value FROM sync_runtime WHERE key = 'owner_install_id'") || !q.next() )
         return false;
@@ -197,6 +195,8 @@ bool ContactSync::nodeIdOwnedElsewhere() const
 
 bool ContactSync::checkOwnership(QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     QSqlQuery q;
     QString owner;
     if ( q.exec("SELECT value FROM sync_runtime WHERE key = 'owner_install_id'") && q.next() )
@@ -234,6 +234,8 @@ bool ContactSync::checkOwnership(QString *errorOut)
 
 QDateTime ContactSync::lastFlushTime() const
 {
+    FCT_IDENTIFICATION;
+
     const QString stored = LogParam::getSyncLastFlush();
     if ( stored.isEmpty() )
         return QDateTime();
@@ -242,6 +244,8 @@ QDateTime ContactSync::lastFlushTime() const
 
 QDateTime ContactSync::lastPullTime() const
 {
+    FCT_IDENTIFICATION;
+
     const QString stored = LogParam::getSyncLastPull();
     if ( stored.isEmpty() )
         return QDateTime();
@@ -250,16 +254,24 @@ QDateTime ContactSync::lastPullTime() const
 
 ContactSync::DuplicatePolicy ContactSync::duplicatePolicy() const
 {
+    FCT_IDENTIFICATION;
+
     return static_cast<DuplicatePolicy>(LogParam::getSyncDuplicatePolicy());
 }
 
 void ContactSync::setDuplicatePolicy(DuplicatePolicy policy)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << static_cast<int>(policy);
+
     LogParam::setSyncDuplicatePolicy(static_cast<int>(policy));
 }
 
 bool ContactSync::setEnabled(bool enabled, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << enabled;
+
     if ( enabled )
     {
         snapshotForCycle();
@@ -276,6 +288,9 @@ bool ContactSync::setEnabled(bool enabled, QString *errorOut)
 
 bool ContactSync::setFolder(const QString &path, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << path;
+
     LogParam::setSyncFolder(path);
     if ( isEnabled() )
     {
@@ -287,6 +302,8 @@ bool ContactSync::setFolder(const QString &path, QString *errorOut)
 
 void ContactSync::start()
 {
+    FCT_IDENTIFICATION;
+
     if ( !isEnabled() )
         return;
     if ( !timer->isActive() )
@@ -295,11 +312,15 @@ void ContactSync::start()
 
 void ContactSync::stop()
 {
+    FCT_IDENTIFICATION;
+
     timer->stop();
 }
 
 int ContactSync::pendingChangesCount() const
 {
+    FCT_IDENTIFICATION;
+
     if ( !isEnabled() )
         return 0;
 
@@ -352,12 +373,16 @@ int ContactSync::pendingChangesCount() const
 
 void ContactSync::snapshotForCycle()
 {
+    FCT_IDENTIFICATION;
+
     cycleFolder = folder();        // LogParam — main-thread safe
     cycleSelf   = selfNodeId();    // sync_runtime via default conn — main-thread safe
 }
 
 QString ContactSync::rootDir() const
 {
+    FCT_IDENTIFICATION;
+
     if ( cycleFolder.isEmpty() )
         return QString();
     return QDir(cycleFolder).filePath(SUBDIR_ROOT);
@@ -365,6 +390,8 @@ QString ContactSync::rootDir() const
 
 QString ContactSync::nodeDir() const
 {
+    FCT_IDENTIFICATION;
+
     const QString root = rootDir();
     if ( root.isEmpty() || cycleSelf.isEmpty() )
         return QString();
@@ -373,24 +400,32 @@ QString ContactSync::nodeDir() const
 
 QString ContactSync::manifestPath() const
 {
+    FCT_IDENTIFICATION;
+
     const QString root = rootDir();
     return root.isEmpty() ? QString() : QDir(root).filePath(QStringLiteral("manifest.json"));
 }
 
 QString ContactSync::headPath() const
 {
+    FCT_IDENTIFICATION;
+
     const QString nd = nodeDir();
     return nd.isEmpty() ? QString() : QDir(nd).filePath(QStringLiteral("HEAD"));
 }
 
 QString ContactSync::journalPath(int seq) const
 {
+    FCT_IDENTIFICATION;
+
     const QString nd = nodeDir();
     return nd.isEmpty() ? QString() : QDir(nd).filePath(journalFileName(seq));
 }
 
 QString ContactSync::currentJournalPath() const
 {
+    FCT_IDENTIFICATION;
+
     return journalPath(currentSeq);
 }
 
@@ -430,6 +465,8 @@ bool ContactSync::ensureFolderLayout(QString *errorOut)
 
 bool ContactSync::writeManifestIfMissing()
 {
+    FCT_IDENTIFICATION;
+
     const QString path = manifestPath();
     if ( path.isEmpty() )
         return false;
@@ -449,6 +486,8 @@ bool ContactSync::writeManifestIfMissing()
 
 bool ContactSync::loadHead(QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     const QString path = headPath();
     if ( path.isEmpty() )
     {
@@ -511,6 +550,8 @@ bool ContactSync::loadHead(QString *errorOut)
 
 bool ContactSync::writeHead()
 {
+    FCT_IDENTIFICATION;
+
     const QString path = headPath();
     if ( path.isEmpty() )
         return false;
@@ -530,6 +571,8 @@ bool ContactSync::writeHead()
 
 bool ContactSync::rotateIfNeeded()
 {
+    FCT_IDENTIFICATION;
+
     if ( currentBytes < MAX_JOURNAL_BYTES )
         return true;
     currentSeq += 1;
@@ -539,6 +582,8 @@ bool ContactSync::rotateIfNeeded()
 
 bool ContactSync::appendRecord(const QByteArray &line, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     if ( !rotateIfNeeded() )
     {
         if ( errorOut ) *errorOut = tr("Cannot rotate journal");
@@ -573,6 +618,8 @@ bool ContactSync::appendRecord(const QByteArray &line, QString *errorOut)
 
 QSet<QString> ContactSync::contactColumnsOnDb(QSqlDatabase &db) const
 {
+    FCT_IDENTIFICATION;
+
     // Cache is per-process; the schema can't change at runtime.
     static QSet<QString> cache;
     static bool loaded = false;
@@ -593,6 +640,8 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
                             QString *newUpsertWatermark,
                             QString *newDeleteWatermark, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     // Reads self and the current watermarks straight from the DB. New
     // watermark values are returned via the out-params and committed by the
     // caller through LogParam, so its cache stays coherent.
@@ -741,6 +790,9 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
 
 bool ContactSync::setApplyingOnDb(QSqlDatabase &db, bool applying)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << applying;
+
     // Read by contacts_sync_update / contacts_record_tombstone. Only ever
     // set inside the pull transaction, so a crash rolls it back to '0'.
     QSqlQuery q(db);
@@ -754,6 +806,9 @@ bool ContactSync::setApplyingOnDb(QSqlDatabase &db, bool applying)
 bool ContactSync::updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid,
                                         const QJsonObject &payload, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << qsoUuid;
+
     // Upload bookkeeping (<service>_qso_upload_status/_date) is per node:
     // each install may upload to QRZ/ClubLog/... on its own. The main UPDATE
     // leaves it alone, so update_contacts_upload_status still flips a local
@@ -793,9 +848,9 @@ bool ContactSync::updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid
             if ( errorOut ) *errorOut = upd.lastError().text();
             return false;
         }
-        for ( const QVariant &v : std::as_const(binds) )
-            upd.addBindValue(v);
-        upd.addBindValue(qsoUuid);
+        for ( int i = 0; i < binds.size(); ++i )
+            upd.bindValue(i, binds.at(i));
+        upd.bindValue(binds.size(), qsoUuid);
         if ( !upd.exec() )
         {
             if ( errorOut ) *errorOut = upd.lastError().text();
@@ -803,7 +858,7 @@ bool ContactSync::updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid
         }
     }
 
-    for ( const QString &service : std::as_const(uploadedServices) )
+    for ( const QString &service : uploadedServices )
     {
         const QString statusCol = service + QLatin1String("_qso_upload_status");
         const QString dateCol   = service + QLatin1String("_qso_upload_date");
@@ -833,6 +888,8 @@ bool ContactSync::updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid
 bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
                                   QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     const QString qsoUuid   = rec.value("qso_uuid").toString();
     const QString updatedAt = rec.value("updated_at").toString();
     const QJsonObject payload = rec.value("payload").toObject();
@@ -1015,8 +1072,8 @@ bool ContactSync::applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &rec,
         if ( errorOut ) *errorOut = ins.lastError().text();
         return false;
     }
-    for ( const QVariant &v : std::as_const(binds) )
-        ins.addBindValue(v);
+    for ( int i = 0; i < binds.size(); ++i )
+        ins.bindValue(i, binds.at(i));
     if ( !ins.exec() )
     {
         if ( errorOut ) *errorOut = ins.lastError().text();
@@ -1029,6 +1086,9 @@ bool ContactSync::applyDeleteOnDb(QSqlDatabase &db, const QString &qsoUuid,
                                   const QString &deletedAt,
                                   const QString &origin, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << qsoUuid << deletedAt << origin;
+
     QSqlQuery check(db);
     if ( !check.prepare("SELECT updated_at FROM contacts WHERE qso_uuid = :u") )
     {
@@ -1085,6 +1145,8 @@ ContactSync::ApplyResult ContactSync::applyJournalLineOnDb(QSqlDatabase &db,
                                                            const QByteArray &line,
                                                            QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     QJsonParseError parseErr;
     const QJsonDocument doc = QJsonDocument::fromJson(line, &parseErr);
     if ( parseErr.error != QJsonParseError::NoError || !doc.isObject() )
@@ -1140,6 +1202,9 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
                                const QString &peerDir, int *appliedOut,
                                QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << peerNode << peerDir;
+
     if ( appliedOut ) *appliedOut = 0;
 
     QString lastFile;
@@ -1191,7 +1256,7 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
     qint64  finalOffset = lastOffset;
     QString stopReason;
 
-    for ( const auto &entry : std::as_const(journals) )
+    for ( const auto &entry : journals )
     {
         const QString &name = entry.second;
         QFile f(peerD.filePath(name));
@@ -1289,6 +1354,8 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
 
 bool ContactSync::pullOnDb(QSqlDatabase &db, int *appliedOut, QString *errorOut)
 {
+    FCT_IDENTIFICATION;
+
     QString self;
     {
         QSqlQuery q(db);
@@ -1335,11 +1402,15 @@ bool ContactSync::pullOnDb(QSqlDatabase &db, int *appliedOut, QString *errorOut)
 
 void ContactSync::setBusy(bool busy)
 {
+    FCT_IDENTIFICATION;
+
     emit busyChanged(busy);
 }
 
 void ContactSync::runFlushCycle()
 {
+    FCT_IDENTIFICATION;
+
     if ( !isEnabled() )
         return;
     if ( !busyFlag.testAndSetAcquire(0, 1) )
@@ -1386,6 +1457,8 @@ void ContactSync::runFlushCycle()
 
 void ContactSync::runPullCycle()
 {
+    FCT_IDENTIFICATION;
+
     if ( !isEnabled() )
         return;
     if ( !busyFlag.testAndSetAcquire(0, 1) )
@@ -1428,6 +1501,8 @@ void ContactSync::runPullCycle()
 
 void ContactSync::runFullCycle()
 {
+    FCT_IDENTIFICATION;
+
     if ( !isEnabled() )
         return;
     if ( !busyFlag.testAndSetAcquire(0, 1) )
@@ -1493,15 +1568,21 @@ void ContactSync::runFullCycle()
 
 void ContactSync::requestFlush()
 {
+    FCT_IDENTIFICATION;
+
     runFlushCycle();
 }
 
 void ContactSync::requestPull()
 {
+    FCT_IDENTIFICATION;
+
     runPullCycle();
 }
 
 void ContactSync::onTick()
 {
+    FCT_IDENTIFICATION;
+
     runFullCycle();
 }

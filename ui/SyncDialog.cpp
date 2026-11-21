@@ -13,6 +13,8 @@ SyncDialog::SyncDialog(QWidget *parent)
     : QDialog(parent),
       ui(new Ui::SyncDialog)
 {
+    FCT_IDENTIFICATION;
+
     ui->setupUi(this);
 
     ContactSync *sync = ContactSync::instance();
@@ -74,11 +76,15 @@ SyncDialog::SyncDialog(QWidget *parent)
 
 SyncDialog::~SyncDialog()
 {
+    FCT_IDENTIFICATION;
+
     delete ui;
 }
 
 void SyncDialog::applyEnabledUiState()
 {
+    FCT_IDENTIFICATION;
+
     const bool on = ui->enabledCheckBox->isChecked();
     const bool ready = on && !ui->folderLineEdit->text().trimmed().isEmpty();
     ui->flushNowButton->setEnabled(ready);
@@ -88,6 +94,7 @@ void SyncDialog::applyEnabledUiState()
 void SyncDialog::onEnabledToggled(bool checked)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << checked;
 
     QString err;
     if ( !ContactSync::instance()->setEnabled(checked, &err) )
@@ -104,6 +111,8 @@ void SyncDialog::onEnabledToggled(bool checked)
 
 void SyncDialog::onBrowseClicked()
 {
+    FCT_IDENTIFICATION;
+
     const QString chosen = QFileDialog::getExistingDirectory(this,
                                                              tr("Choose Sync Folder"),
                                                              ui->folderLineEdit->text());
@@ -142,6 +151,7 @@ void SyncDialog::onSaveNodeIdClicked()
 void SyncDialog::onDupePolicyChanged(int index)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << index;
 
     // Combo: 0 = Merge, 1 = Skip; enum: 0 = Skip, 1 = Merge.
     const auto policy = (index == 0) ? ContactSync::DuplicatePolicy::Merge
@@ -167,6 +177,8 @@ void SyncDialog::onPullNowClicked()
 
 void SyncDialog::refreshStatus()
 {
+    FCT_IDENTIFICATION;
+
     ContactSync *sync = ContactSync::instance();
 
     const QDateTime lastFlush = sync->lastFlushTime();
