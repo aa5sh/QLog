@@ -45,14 +45,16 @@ int Rc28Protocol::tuningStepHz(const QString &mode, bool fast)
 
     qCDebug(function_parameters) << mode << fast;
 
-    // 10 Hz per detent matches the radios' own fine tuning for CW, SSB and
-    // data modes. AM and FM use coarser steps so the knob stays usable there.
-    int stepHz = 10;
+    // The RC-28 encoder has no detents and is fine-grained: a small nudge is
+    // about 10-40 counts and a slow turn 100-200 (measured on hardware), so
+    // 1 Hz per count tunes like a radio's main dial in CW, SSB and data modes.
+    // AM and FM use coarser steps so the knob stays usable there.
+    int stepHz = 1;
 
     if ( mode == QLatin1String("AM") )
-        stepHz = 100;
+        stepHz = 10;
     else if ( mode == QLatin1String("FM") )
-        stepHz = 1000;
+        stepHz = 100;
 
     return fast ? stepHz * 10 : stepHz;
 }
@@ -66,7 +68,7 @@ qint64 Rc28Protocol::tunedFrequencyHz(qint64 currentHz, int steps, int stepHz)
     if ( currentHz <= 0 || stepHz <= 0 || steps == 0 )
         return currentHz;
 
-    // Snap to the step grid in the turning direction, so the first detent from
+    // Snap to the step grid in the turning direction, so the first count from
     // an off-grid frequency lands on the next grid point, as Icom radios do.
     qint64 gridHz = ( currentHz / stepHz ) * stepHz;
 

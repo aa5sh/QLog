@@ -128,21 +128,21 @@ void Rc28Test::ledReportIsActiveLow()
 
 void Rc28Test::tuningStepFollowsMode()
 {
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("SSB"), false), 10);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("CW"), false), 10);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("FT8"), false), 10);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QString(), false), 10);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("AM"), false), 100);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("FM"), false), 1000);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("CW"), true), 100);
-    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("FM"), true), 10000);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("SSB"), false), 1);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("CW"), false), 1);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("FT8"), false), 1);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QString(), false), 1);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("AM"), false), 10);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("FM"), false), 100);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("CW"), true), 10);
+    QCOMPARE(Rc28Protocol::tuningStepHz(QStringLiteral("FM"), true), 1000);
 }
 
 void Rc28Test::tunedFrequencySnapsToGrid()
 {
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(14074000, 3, 10), qint64(14074030));
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(14074000, -3, 10), qint64(14073970));
-    // From off grid, the first detent lands on the next grid point.
+    // From off grid, the first count lands on the next grid point.
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(14074012, 1, 10), qint64(14074020));
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(14074012, -1, 10), qint64(14074010));
     QCOMPARE(Rc28Protocol::tunedFrequencyHz(14074012, 2, 100), qint64(14074200));
@@ -161,7 +161,7 @@ void Rc28Test::tuningWaitsForRig()
 
     emit device()->reportReceived(inputReport(3, false));
     QCOMPARE(tune.count(), 1);
-    QCOMPARE(tune.last().at(0).toDouble(), 14074030.0);
+    QCOMPARE(tune.last().at(0).toDouble(), 14074003.0);
 
     // Spinning while the rig applies a set queues nothing; steps add up.
     emit device()->reportReceived(inputReport(2, false));
@@ -170,7 +170,7 @@ void Rc28Test::tuningWaitsForRig()
 
     controller->frequencyRequestDone();
     QTRY_COMPARE(tune.count(), 2);
-    QCOMPARE(tune.last().at(0).toDouble(), 14074090.0);
+    QCOMPARE(tune.last().at(0).toDouble(), 14074009.0);
 
     // A report without a new frequency is stale; tuning continues from the request.
     Rig::Status stale = connectedRig();
@@ -179,7 +179,7 @@ void Rc28Test::tuningWaitsForRig()
     controller->updateRigStatus(stale);
     emit device()->reportReceived(inputReport(1, false));
     QTRY_COMPARE(tune.count(), 3);
-    QCOMPARE(tune.last().at(0).toDouble(), 14074100.0);
+    QCOMPARE(tune.last().at(0).toDouble(), 14074010.0);
 
     // A new frequency after the set completed, e.g. from the radio's own knob, wins.
     controller->frequencyRequestDone();
@@ -188,7 +188,7 @@ void Rc28Test::tuningWaitsForRig()
     controller->updateRigStatus(moved);
     emit device()->reportReceived(inputReport(1, false));
     QTRY_COMPARE(tune.count(), 4);
-    QCOMPARE(tune.last().at(0).toDouble(), 7050010.0);
+    QCOMPARE(tune.last().at(0).toDouble(), 7050001.0);
     controller->frequencyRequestDone();
 }
 

@@ -11,7 +11,7 @@ class Rc28Protocol
 public:
     struct Report
     {
-        // Encoder detents since the previous report; positive is clockwise.
+        // Encoder counts since the previous report; positive is clockwise.
         int steps = 0;
         bool txPressed = false;
         bool f1Pressed = false;
