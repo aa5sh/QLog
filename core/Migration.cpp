@@ -676,16 +676,12 @@ bool DBSchemaMigration::setupContactSync()
     QSqlQuery seed;
     if ( !seed.prepare("INSERT OR REPLACE INTO sync_runtime (key, value) "
                        "VALUES ('self_node_id', :v)") )
-    {
-        qWarning() << "Cannot prepare sync_runtime seed" << seed.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot prepare the contact sync identity in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), seed.lastError().text()));
     seed.bindValue(":v", defaultNodeId);
     if ( !seed.exec() )
-    {
-        qWarning() << "Cannot seed sync_runtime" << seed.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot store the contact sync identity in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), seed.lastError().text()));
 
     // SQL fragments reused below. uuidExpr generates a v4-shaped UUID purely
     // in SQLite so each row gets a distinct value in a single UPDATE.
@@ -720,16 +716,12 @@ bool DBSchemaMigration::setupContactSync()
             "                           strftime('%Y-%m-%dT%H:%M:%fZ', "
             "                                    COALESCE(end_time, start_time, 'now'))), "
             "    origin_node = COALESCE(origin_node, :node)")) )
-    {
-        qWarning() << "Cannot prepare contacts backfill" << backfill.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot prepare contact sync metadata in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), backfill.lastError().text()));
     backfill.bindValue(":node", defaultNodeId);
     if ( !backfill.exec() )
-    {
-        qWarning() << "Cannot backfill contacts" << backfill.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot add contact sync metadata in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), backfill.lastError().text()));
 
     QSqlQuery q;
 
@@ -757,10 +749,8 @@ bool DBSchemaMigration::setupContactSync()
                        "END");
 
     if ( !q.exec(insertTrigger) )
-    {
-        qWarning() << "Cannot create contacts_sync_insert" << q.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot create the contact sync insert rule in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), q.lastError().text()));
 
     // AFTER UPDATE: bump updated_at and re-stamp origin_node on every local
     // edit, unless the caller already set updated_at explicitly (the sync
@@ -781,10 +771,8 @@ bool DBSchemaMigration::setupContactSync()
                  QStringLiteral(" "
                                 "   WHERE id = NEW.id; "
                                 "END")) )
-    {
-        qWarning() << "Cannot create contacts_sync_update" << q.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot create the contact sync update rule in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), q.lastError().text()));
 
     // BEFORE DELETE: record a tombstone so the sync layer can propagate the
     // delete to peers. Origin is this install's node id (the deleter), not
@@ -805,10 +793,8 @@ bool DBSchemaMigration::setupContactSync()
                        "END");
 
     if ( !q.exec(tombTrigger) )
-    {
-        qWarning() << "Cannot create contacts_record_tombstone" << q.lastError();
-        return false;
-    }
+        return failMigration(tr("Cannot create the contact sync delete rule in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), q.lastError().text()));
 
     return true;
 }

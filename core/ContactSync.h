@@ -6,9 +6,13 @@
 #include <QString>
 #include <QSet>
 #include <QAtomicInt>
+#include <QJsonValue>
+#include <QLatin1String>
+#include <QVariant>
 
 class QTimer;
 class QJsonObject;
+class QRegularExpression;
 class QSqlDatabase;
 
 class ContactSync : public QObject
@@ -91,6 +95,38 @@ private:
         Retry           // transient failure; stop and retry next cycle
     };
 
+    static QString currentTimestamp();
+    static QString journalFileName(int seq);
+    static const QRegularExpression &journalNameRegExp();
+    static int journalSeq(const QString &fileName);
+
+    // The helpers below run once per column of every applied record, so they
+    // stay inline and free of per-call instrumentation.
+
+    // Upload bookkeeping is per node; see updateFromPayloadOnDb.
+    static bool isUploadStateColumn(const QString &col)
+    {
+        return col.endsWith(QLatin1String("_qso_upload_status"))
+            || col.endsWith(QLatin1String("_qso_upload_date"));
+    }
+
+    // SQL identifiers cannot be bound. Callers only pass column names taken
+    // from PRAGMA table_info(contacts), and those include SQL keywords
+    // (the ADIF CHECK field is stored as "check"), so always quote them.
+    static QString quoteIdent(const QString &name)
+    {
+        return QLatin1Char('"') + QString(name).replace(QLatin1Char('"'), QLatin1String("\"\""))
+             + QLatin1Char('"');
+    }
+
+    // A JSON null must bind as SQL NULL, not as a std::nullptr_t variant.
+    static QVariant jsonToBind(const QJsonValue &value)
+    {
+        if ( value.isNull() || value.isUndefined() )
+            return QVariant();
+        return value.toVariant();
+    }
+
     static QString installId();     // per-machine id kept in QSettings
     QString writerId() const;       // installId + this log's id
     bool checkOwnership(QString *errorOut);
@@ -147,6 +183,8 @@ private:
     QString        cycleFolder;     // snapshot of folder() for this cycle
     QString        cycleSelf;       // snapshot of selfNodeId() for this cycle
 
+    static constexpr const char *SUBDIR_ROOT  = "qlog-sync";
+    static constexpr const char *SUBDIR_NODES = "nodes";
     static constexpr qint64 MAX_JOURNAL_BYTES = 4 * 1024 * 1024;
     static constexpr int    FLUSH_INTERVAL_MS = 30000;
     static constexpr int    JOURNAL_FORMAT_VERSION = 1;

@@ -96,20 +96,110 @@ QString LogParam::getLogID()
     return getParam("logid").toString();
 }
 
-bool LogParam::setSyncEnabled(bool enabled)            { return setParam("sync/enabled", enabled); }
-bool LogParam::getSyncEnabled()                        { return getParam("sync/enabled", false).toBool(); }
-bool LogParam::setSyncFolder(const QString &path)      { return setParam("sync/folder", path); }
-QString LogParam::getSyncFolder()                      { return getParam("sync/folder").toString(); }
-bool LogParam::setSyncLastFlush(const QString &iso)    { return setParam("sync/last_flush", iso); }
-QString LogParam::getSyncLastFlush()                   { return getParam("sync/last_flush").toString(); }
-bool LogParam::setSyncLastPull(const QString &iso)     { return setParam("sync/last_pull", iso); }
-QString LogParam::getSyncLastPull()                    { return getParam("sync/last_pull").toString(); }
-bool LogParam::setSyncDuplicatePolicy(int v)           { return setParam("sync/duplicate_policy", v); }
-int  LogParam::getSyncDuplicatePolicy()                { return getParam("sync/duplicate_policy", 1).toInt(); }
-bool LogParam::setSyncUpsertWatermark(const QString &iso) { return setParam("sync/last_journaled_updated_at", iso); }
-QString LogParam::getSyncUpsertWatermark()             { return getParam("sync/last_journaled_updated_at").toString(); }
-bool LogParam::setSyncDeleteWatermark(const QString &iso) { return setParam("sync/last_journaled_deleted_at", iso); }
-QString LogParam::getSyncDeleteWatermark()             { return getParam("sync/last_journaled_deleted_at").toString(); }
+bool LogParam::setSyncEnabled(bool enabled)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << enabled;
+
+    return setParam("sync/enabled", enabled);
+}
+
+bool LogParam::getSyncEnabled()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/enabled", false).toBool();
+}
+
+bool LogParam::setSyncFolder(const QString &path)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << path;
+
+    return setParam("sync/folder", path);
+}
+
+QString LogParam::getSyncFolder()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/folder").toString();
+}
+
+bool LogParam::setSyncLastFlush(const QString &iso)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << iso;
+
+    return setParam("sync/last_flush", iso);
+}
+
+QString LogParam::getSyncLastFlush()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/last_flush").toString();
+}
+
+bool LogParam::setSyncLastPull(const QString &iso)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << iso;
+
+    return setParam("sync/last_pull", iso);
+}
+
+QString LogParam::getSyncLastPull()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/last_pull").toString();
+}
+
+bool LogParam::setSyncDuplicatePolicy(int v)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << v;
+
+    return setParam("sync/duplicate_policy", v);
+}
+
+int LogParam::getSyncDuplicatePolicy()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/duplicate_policy", 1).toInt();
+}
+
+bool LogParam::setSyncUpsertWatermark(const QString &iso)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << iso;
+
+    return setParam("sync/last_journaled_updated_at", iso);
+}
+
+QString LogParam::getSyncUpsertWatermark()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/last_journaled_updated_at").toString();
+}
+
+bool LogParam::setSyncDeleteWatermark(const QString &iso)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << iso;
+
+    return setParam("sync/last_journaled_deleted_at", iso);
+}
+
+QString LogParam::getSyncDeleteWatermark()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("sync/last_journaled_deleted_at").toString();
+}
 
 bool LogParam::setContestSeqnoType(const QVariant &data)
 {
