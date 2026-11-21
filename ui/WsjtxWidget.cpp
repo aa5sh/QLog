@@ -95,7 +95,7 @@ public:
 WsjtxWidget::WsjtxWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::WsjtxWidget),
-    cqRE("(^(?:(?P<word1>(?:CQ|DE|QRZ)(?:\\s?DX|\\s(?:[A-Z]{1,4}|\\d{3}))|[A-Z0-9\\/]+|\\.{3})\\s)(?:(?P<word2>[A-Z0-9\\/]+)(?:\\s(?P<word3>[-+A-Z0-9]+)(?:\\s(?P<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)")
+    cqRE("(^(?:(?P<word1>(?:CQ|DE|QRZ)(?:\\s?DX|\\s(?:[A-Z]{1,4}|\\d{3}))|[A-Z0-9\\/]+|\\.{3})\\s)(?:(?P<word2><?[A-Z0-9\\/]+>?)(?:\\s(?P<word3>[-+A-Z0-9]+)(?:\\s(?P<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)")
 {
     FCT_IDENTIFICATION;
 
@@ -152,21 +152,24 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
     if ( message.startsWith("CQ") || finalMatch.hasMatch() )
     {
         QRegularExpressionMatch match = cqRE.match(message);
+        // MyFeatures: WSJT-X shows a hashed nonstandard call as <CALL>, or
+        // <...> when unresolved. Only spot a valid callsign; otherwise a
+        // decode such as "CQ <...> FN42" or "CQ 3 K1ABC" produced a spot
+        // with an empty or wrong call.
+        const QString callsign = finalMatch.hasMatch()
+                                 ? finalMatch.captured(2).toUpper()
+                                 : match.captured(3).remove(QLatin1Char('<')).remove(QLatin1Char('>'));
 
-        if ( match.hasMatch() || finalMatch.hasMatch() )
+        if ( ( match.hasMatch() || finalMatch.hasMatch() ) && Callsign(callsign).isValid() )
         {
             WsjtxEntry entry;
 
             entry.dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
             entry.decode = decode;
             entry.replyDecode = decode;
-            if ( finalMatch.hasMatch() )
-                entry.callsign = finalMatch.captured(2).toUpper();
-            else
-            {
-                entry.callsign = match.captured(3);
+            entry.callsign = callsign;
+            if ( !finalMatch.hasMatch() )
                 entry.grid = match.captured(4);
-            }
             // A final exchange carries no grid; keep the one from the station's CQ.
             const bool existingSpot = wsjtxTableModel->callsignExists(entry);
             if ( existingSpot && entry.grid.isEmpty() )
