@@ -2138,6 +2138,22 @@ void LogParam::setWaveshareActions(const QString &json)
     setParam("waveshare/actions", json);
 }
 
+bool LogParam::getRc28Enabled()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("rc28/enabled", false).toBool();
+}
+
+void LogParam::setRc28Enabled(bool enabled)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << enabled;
+
+    setParam("rc28/enabled", enabled);
+}
+
 void LogParam::removeMainWindowBandmapWidgets()
 {
     removeParamGroup("mainwindow/bandmapwidgets");

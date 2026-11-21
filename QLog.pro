@@ -182,6 +182,9 @@ SOURCES += \
         models/SqlListModel.cpp \
         models/WsjtxActivity.cpp \
         models/WsjtxTableModel.cpp \
+        rig/Rc28Controller.cpp \
+        rig/Rc28Device.cpp \
+        rig/Rc28Protocol.cpp \
         rig/Rig.cpp \
         rig/RigRuntimeProvider.cpp \
         rig/RigCaps.cpp \
@@ -439,6 +442,9 @@ HEADERS += \
         models/SqlListModel.h \
         models/WsjtxActivity.h \
         models/WsjtxTableModel.h \
+        rig/Rc28Controller.h \
+        rig/Rc28Device.h \
+        rig/Rc28Protocol.h \
         rig/Rig.h \
         rig/RigRuntimeProvider.h \
         rig/RigCaps.h \
@@ -776,7 +782,7 @@ macx: {
    }
 
    INCLUDEPATH += /usr/local/include /opt/homebrew/include /opt/local/include
-   LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3 -lz -L/opt/local/lib -lssl -lcrypto -framework UserNotifications
+   LIBS += -L/usr/local/lib -L/opt/homebrew/lib -lhamlib -lsqlite3 -lz -L/opt/local/lib -lssl -lcrypto -framework UserNotifications -framework IOKit -framework CoreFoundation
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
 
@@ -814,7 +820,7 @@ win32: {
    QMAKE_TARGET_COMPANY = OK1MLG
    QMAKE_TARGET_DESCRIPTION = Hamradio logging
 
-   LIBS += -lws2_32 -lruntimeobject -lole32 -lshell32 -lpropsys -llibhamlib-4 -lzlib -llibssl -llibcrypto
+   LIBS += -lws2_32 -lruntimeobject -lole32 -lshell32 -lpropsys -lsetupapi -lhid -llibhamlib-4 -lzlib -llibssl -llibcrypto
    equals(QT_MAJOR_VERSION, 6): LIBS += -lqt6keychain
    equals(QT_MAJOR_VERSION, 5): LIBS += -lqt5keychain
 

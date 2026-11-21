@@ -27,6 +27,7 @@
 #include "core/FldigiTCPServer.h"
 #include "core/FldigiUDPReceiver.h"
 #include "rig/Rig.h"
+#include "rig/Rc28Controller.h"
 #include "rotator/Rotator.h"
 #include "cwkey/CWKeyer.h"
 #include "core/WsjtxUDPReceiver.h"
@@ -378,6 +379,24 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(Rig::instance(), &Rig::splitChanged, ui->newContactWidget, &NewContactWidget::changeSplit);
     connect(Rig::instance(), &Rig::rigStatusChanged, &networknotification, &NetworkNotification::rigStatus);
     connect(Rig::instance(), &Rig::rigStatusHeartBeat, &networknotification, &NetworkNotification::rigStatus);
+
+    Rc28Controller *rc28 = Rc28Controller::instance();
+    connect(Rig::instance(), &Rig::rigStatusChanged, rc28, &Rc28Controller::updateRigStatus);
+    connect(Rig::instance(), &Rig::rigDisconnected, rc28, &Rc28Controller::rigDisconnected);
+    // Rig's public slots only queue work to the rig thread. Calling them directly
+    // keeps the RC-28's PTT release ahead of Rig::shutdown() in that queue.
+    connect(rc28, &Rc28Controller::frequencyRequested, this, [rc28](double frequencyHz)
+    {
+        Rig::instance()->setFrequency(frequencyHz);
+        // Queued behind the set in the rig thread, this runs once the rig has
+        // applied it, so the RC-28 never has more than one set waiting.
+        QMetaObject::invokeMethod(Rig::instance(), [rc28]()
+        {
+            QMetaObject::invokeMethod(rc28, &Rc28Controller::frequencyRequestDone, Qt::QueuedConnection);
+        }, Qt::QueuedConnection);
+    });
+    connect(rc28, &Rc28Controller::pttRequested, Rig::instance(), &Rig::setPTT, Qt::DirectConnection);
+    rc28->setEnabled(LogParam::getRc28Enabled());
 
     connect(Rotator::instance(), &Rotator::rotErrorPresent, this, &MainWindow::rotErrorHandler);
     connect(Rotator::instance(), &Rotator::positionChanged, ui->onlineMapWidget, &OnlineMapWidget::antPositionChanged);
@@ -2930,6 +2949,7 @@ MainWindow::~MainWindow()
     Rotator::instance()->shutdown();
     SteppirController::instance()->close();
     AmplifierController::instance()->close();
+    Rc28Controller::instance()->setEnabled(false);
     Rig::instance()->shutdown();
 
     delete stats;

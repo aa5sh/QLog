@@ -21,6 +21,7 @@
 
 #include "antenna/SteppirController.h"
 #include "amplifier/AmplifierController.h"
+#include "rig/Rc28Controller.h"
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 #include "models/RigTypeModel.h"
@@ -3433,6 +3434,7 @@ void SettingsDialog::readSettings()
     ui->showDxccFlagsCheckBox->setChecked(LogParam::getShowDxccFlags());
     loadQsoStatusColors();
     waveshareSettings->loadSettings();
+    ui->rc28EnabledCheckBox->setChecked(LogParam::getRc28Enabled());
 
     /***************/
     /* Email QSL   */
@@ -3620,6 +3622,9 @@ void SettingsDialog::writeSettings()
     Data::instance()->setDxccFlagsVisible(showDxccFlags);
     saveQsoStatusColors();
     waveshareSettings->saveSettings();
+    const bool rc28Enabled = ui->rc28EnabledCheckBox->isChecked();
+    LogParam::setRc28Enabled(rc28Enabled);
+    Rc28Controller::instance()->setEnabled(rc28Enabled);
     Data::reloadQsoStatusColors();
 
     /***************/
