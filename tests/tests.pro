@@ -37,4 +37,5 @@ SUBDIRS += CallsignTest \
            RotatorReportingTest \
            RuntimeContextTest \
            RuntimeServerTest \
-           WsjtxActivityTest
+           WsjtxActivityTest \
+           ContactSyncTest

@@ -104,6 +104,7 @@ SOURCES += \
         core/LOVDatabase.cpp \
         core/LogDatabase.cpp \
         core/DatabaseBackup.cpp \
+        core/ContactSync.cpp \
         core/LogLocale.cpp \
         core/LogParam.cpp \
         core/MacroExpander.cpp \
@@ -222,6 +223,7 @@ SOURCES += \
         ui/AlertWidget.cpp \
         ui/AwardsDialog.cpp \
         ui/DXCCSubmissionDialog.cpp \
+        ui/SyncDialog.cpp \
         ui/BandmapWidget.cpp \
         ui/BandmapGuideDialog.cpp \
         ui/CWConsoleWidget.cpp \
@@ -338,6 +340,7 @@ HEADERS += \
         core/LOVDatabase.h \
         core/LogDatabase.h \
         core/DatabaseBackup.h \
+        core/ContactSync.h \
         core/LogLocale.h \
         core/LogParam.h \
         core/MacroExpander.h \
@@ -479,6 +482,7 @@ HEADERS += \
         ui/AlertWidget.h \
         ui/AwardsDialog.h \
         ui/DXCCSubmissionDialog.h \
+        ui/SyncDialog.h \
         ui/BandmapWidget.h \
         ui/BandmapGuideDialog.h \
         ui/CWConsoleWidget.h \
@@ -573,6 +577,7 @@ FORMS += \
         ui/AlertWidget.ui \
         ui/AwardsDialog.ui \
         ui/DXCCSubmissionDialog.ui \
+        ui/SyncDialog.ui \
         ui/BandmapWidget.ui \
         ui/BandmapGuideDialog.ui \
         ui/CWConsoleWidget.ui \
