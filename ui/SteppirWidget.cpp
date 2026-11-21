@@ -13,6 +13,8 @@ SteppirWidget::SteppirWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SteppirWidget)
 {
+    FCT_IDENTIFICATION;
+
     ui->setupUi(this);
 
     QButtonGroup *directionButtons = new QButtonGroup(this);
@@ -40,48 +42,63 @@ SteppirWidget::SteppirWidget(QWidget *parent) :
 
 SteppirWidget::~SteppirWidget()
 {
+    FCT_IDENTIFICATION;
+
     delete ui;
 }
 
 void SteppirWidget::setConnectAction(QAction *action)
 {
+    FCT_IDENTIFICATION;
+
     ui->connectButton->setDefaultAction(action);
 }
 
 void SteppirWidget::finalizeBeforeAppExit()
 {
+    FCT_IDENTIFICATION;
 }
 
 void SteppirWidget::reloadSettings()
 {
+    FCT_IDENTIFICATION;
+
     refreshProfileCombo();
     SteppirController::instance()->reloadSettings();
 }
 
 void SteppirWidget::refreshProfileCombo()
 {
+    FCT_IDENTIFICATION;
+
     const QSignalBlocker blocker(ui->profileCombo);
     const QString current = SteppirProfiles::currentProfileName();
     ui->profileCombo->clear();
     ui->profileCombo->addItems(SteppirProfiles::profileNames());
     const int index = ui->profileCombo->findText(current);
-    if (index >= 0)
+    if ( index >= 0 )
         ui->profileCombo->setCurrentIndex(index);
 }
 
 void SteppirWidget::connected()
 {
+    FCT_IDENTIFICATION;
+
     refreshProfileCombo();
     updateState();
 }
 
 void SteppirWidget::disconnected()
 {
+    FCT_IDENTIFICATION;
+
     updateState();
 }
 
 void SteppirWidget::updateState()
 {
+    FCT_IDENTIFICATION;
+
     SteppirController *controller = SteppirController::instance();
     ui->connectButton->setStyleSheet(controller->isConnected()
                                     ? QStringLiteral("QToolButton {background-color: green}")
@@ -98,7 +115,7 @@ void SteppirWidget::updateState()
     ui->autotrackButton->setChecked(controller->autotrack());
 
     QRadioButton *button = directionButton(controller->direction());
-    if (button)
+    if ( button )
     {
         const QSignalBlocker buttonBlocker(button);
         button->setChecked(true);
@@ -107,7 +124,9 @@ void SteppirWidget::updateState()
 
 void SteppirWidget::profileComboChanged(const QString &profileName)
 {
-    if (profileName.isEmpty())
+    FCT_IDENTIFICATION;
+
+    if ( profileName.isEmpty() )
         return;
     SteppirProfiles::setCurrentProfileName(profileName);
     emit profileChanged();
@@ -115,12 +134,14 @@ void SteppirWidget::profileComboChanged(const QString &profileName)
 
 void SteppirWidget::directionClicked()
 {
+    FCT_IDENTIFICATION;
+
     QObject *button = sender();
-    if (button == ui->oneEightyButton)
+    if ( button == ui->oneEightyButton )
         SteppirController::instance()->setDirection(SteppirController::OneEighty);
-    else if (button == ui->biDirButton)
+    else if ( button == ui->biDirButton )
         SteppirController::instance()->setDirection(SteppirController::BiDir);
-    else if (button == ui->threeQuarterButton)
+    else if ( button == ui->threeQuarterButton )
         SteppirController::instance()->setDirection(SteppirController::ThreeQuarter);
     else
         SteppirController::instance()->setDirection(SteppirController::Normal);
@@ -128,7 +149,9 @@ void SteppirWidget::directionClicked()
 
 QRadioButton *SteppirWidget::directionButton(SteppirController::Direction direction) const
 {
-    switch (direction)
+    FCT_IDENTIFICATION;
+
+    switch ( direction )
     {
     case SteppirController::OneEighty:
         return ui->oneEightyButton;

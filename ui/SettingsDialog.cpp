@@ -78,30 +78,6 @@ namespace
 {
     constexpr int ADIF_FILE_EXISTS_ROLE = Qt::UserRole + 1;
 
-    WaveshareSettingsWidget *waveshareSettingsWidget(QTabWidget *equipmentTabWidget)
-    {
-        return equipmentTabWidget->findChild<WaveshareSettingsWidget *>(QStringLiteral("waveshareSettingsWidget"));
-    }
-
-    void setupWaveshareTab(QTabWidget *equipmentTabWidget)
-    {
-        WaveshareSettingsWidget *widget = new WaveshareSettingsWidget(equipmentTabWidget);
-        widget->setObjectName(QStringLiteral("waveshareSettingsWidget"));
-        equipmentTabWidget->addTab(widget, QObject::tr("Waveshare"));
-    }
-
-    void loadWaveshareActions(QTabWidget *equipmentTabWidget)
-    {
-        if ( WaveshareSettingsWidget *widget = waveshareSettingsWidget(equipmentTabWidget) )
-            widget->loadSettings();
-    }
-
-    void saveWaveshareActions(QTabWidget *equipmentTabWidget)
-    {
-        if ( WaveshareSettingsWidget *widget = waveshareSettingsWidget(equipmentTabWidget) )
-            widget->saveSettings();
-    }
-
     class AdifRecoveryPathDelegate : public QStyledItemDelegate
     {
     public:
@@ -480,7 +456,8 @@ SettingsDialog::SettingsDialog(MainWindow *parent) :
                              ui->cwShortcutF7MacroEdit} )
         edit->setToolTip(macroHelp);
     snapshotEquipmentProfiles();
-    setupWaveshareTab(ui->equipmentTabWidget);
+    waveshareSettings = new WaveshareSettingsWidget(ui->equipmentTabWidget);
+    ui->equipmentTabWidget->addTab(waveshareSettings, tr("Waveshare"));
     setupAdifRecoveryTab();
     if ( DatabaseBackup *backup = qApp->findChild<DatabaseBackup *>() )
         connect(backup, &QThread::finished, this, &SettingsDialog::refreshBackupStatus);
@@ -1777,7 +1754,7 @@ void SettingsDialog::addSteppirProfile()
 {
     FCT_IDENTIFICATION;
 
-    if (ui->steppirProfileNameEdit->text().isEmpty())
+    if ( ui->steppirProfileNameEdit->text().isEmpty() )
     {
         ui->steppirProfileNameEdit->setPlaceholderText(tr("Must not be empty"));
         return;
@@ -1791,13 +1768,13 @@ void SettingsDialog::addSteppirProfile()
     profile.serialPort = ui->steppirSerialPortEdit->text();
     profile.baudRate = ui->steppirBaudCombo->currentText().toInt();
 
-    if (profile.type == SteppirProfile::Network && profile.host.isEmpty())
+    if ( profile.type == SteppirProfile::Network && profile.host.isEmpty() )
     {
         ui->steppirHostEdit->setPlaceholderText(tr("Must not be empty"));
         return;
     }
 
-    if (profile.type == SteppirProfile::Serial && profile.serialPort.isEmpty())
+    if ( profile.type == SteppirProfile::Serial && profile.serialPort.isEmpty() )
     {
         ui->steppirSerialPortEdit->setPlaceholderText(tr("Must not be empty"));
         return;
@@ -1899,6 +1876,8 @@ void SettingsDialog::clearSteppirProfileForm()
 
 void SettingsDialog::setSteppirConnectionType(int index)
 {
+    FCT_IDENTIFICATION;
+
     const bool isSerial = ui->steppirConnectionTypeCombo->itemData(index).toInt() == SteppirProfile::Serial;
     ui->steppirHostLabel->setVisible(!isSerial);
     ui->steppirHostEdit->setVisible(!isSerial);
@@ -3453,7 +3432,7 @@ void SettingsDialog::readSettings()
     ui->unitFormatImperialRadioButton->setChecked(!unitFormatMetric);
     ui->showDxccFlagsCheckBox->setChecked(LogParam::getShowDxccFlags());
     loadQsoStatusColors();
-    loadWaveshareActions(ui->equipmentTabWidget);
+    waveshareSettings->loadSettings();
 
     /***************/
     /* Email QSL   */
@@ -3640,7 +3619,7 @@ void SettingsDialog::writeSettings()
     LogParam::setShowDxccFlags(showDxccFlags);
     Data::instance()->setDxccFlagsVisible(showDxccFlags);
     saveQsoStatusColors();
-    saveWaveshareActions(ui->equipmentTabWidget);
+    waveshareSettings->saveSettings();
     Data::reloadQsoStatusColors();
 
     /***************/

@@ -52,10 +52,10 @@ bool DBSchemaMigration::run(QString *backupSnapshot)
 
 
     int currentMyFeaturesVersion = getMyFeaturesVersion();
-    if (currentMyFeaturesVersion > latestMyFeaturesVersion)
+    if ( currentMyFeaturesVersion > latestMyFeaturesVersion )
         return false;
 
-    if (currentVersion == latestVersion && currentMyFeaturesVersion == latestMyFeaturesVersion) {
+    if ( currentVersion == latestVersion && currentMyFeaturesVersion == latestMyFeaturesVersion ) {
         qCDebug(runtime) << "Database schema already up to date";
         // temporarily added to create a trigger without calling db migration
         //refreshUploadStatusTrigger();
@@ -125,10 +125,10 @@ bool DBSchemaMigration::run(QString *backupSnapshot)
     if ( !result || !foreignKeysRestored )
         return false;
 
-    while ((currentMyFeaturesVersion = getMyFeaturesVersion()) < latestMyFeaturesVersion)
+    while ( (currentMyFeaturesVersion = getMyFeaturesVersion()) < latestMyFeaturesVersion )
     {
-        if (!migrateMyFeatures(currentMyFeaturesVersion + 1)
-            || getMyFeaturesVersion() == currentMyFeaturesVersion)
+        if ( !migrateMyFeatures(currentMyFeaturesVersion + 1)
+            || getMyFeaturesVersion() == currentMyFeaturesVersion )
             return false;
     }
 
@@ -299,21 +299,17 @@ bool DBSchemaMigration::setMyFeaturesVersion(int version)
     qCDebug(function_parameters) << version;
 
     QSqlQuery query;
-    if ( ! query.prepare("INSERT INTO myfeatures_schema_versions (version, updated) "
-                  "VALUES (:version, datetime('now'))") )
-    {
-        qWarning() << "Cannot prepare Insert statement";
-    }
+    if ( !query.prepare("INSERT INTO myfeatures_schema_versions (version, updated) "
+                        "VALUES (:version, datetime('now'))") )
+        return failMigration(tr("Cannot prepare recording MyFeatures format version %1 in %2:\n%3")
+                                 .arg(QString::number(version), QSqlDatabase::database().databaseName(), query.lastError().text()));
 
     query.bindValue(":version", version);
 
-    if (!query.exec()) {
-        qWarning() << "setting myfeatures schema version failed" << query.lastError();
-        return false;
-    }
-    else {
-        return true;
-    }
+    if ( !query.exec() )
+        return failMigration(tr("Cannot record MyFeatures format version %1 in %2:\n%3")
+                                 .arg(QString::number(version), QSqlDatabase::database().databaseName(), query.lastError().text()));
+    return true;
 }
 
 /**
@@ -327,10 +323,9 @@ bool DBSchemaMigration::migrateMyFeatures(int toVersion)
     qCDebug(runtime) << "migrate myfeatures schema to" << toVersion;
 
     QSqlDatabase db = QSqlDatabase::database();
-    if (!db.transaction()) {
-        qCritical() << "transaction failed";
-        return false;
-    }
+    if ( !db.transaction() )
+        return failMigration(tr("Cannot start MyFeatures database update %1 in %2:\n%3")
+                                 .arg(QString::number(toVersion), db.databaseName(), db.lastError().text()));
 
     // Version 3 only rewrites JSON stored in activity_profiles. Upstream
     // never relies on SQLite's JSON functions, so it is done in C++ and has
@@ -356,15 +351,17 @@ bool DBSchemaMigration::migrateMyFeatures(int toVersion)
         }
     }
 
-    if (result && setMyFeaturesVersion(toVersion) && db.commit()) {
+    if ( result )
+        result = setMyFeaturesVersion(toVersion);
+    if ( result && !db.commit() )
+        result = failMigration(tr("Cannot save MyFeatures database update %1 in %2:\n%3")
+                                   .arg(QString::number(toVersion), db.databaseName(), db.lastError().text()));
+    if ( result )
         return true;
-    }
-    else {
-        if (!db.rollback()) {
-            qCritical() << "rollback failed";
-        }
-        return false;
-    }
+
+    if ( !db.rollback() )
+        qCCritical(runtime) << "Cannot roll back MyFeatures database update" << toVersion << db.lastError();
+    return false;
 }
 
 bool DBSchemaMigration::runSqlFile(QString filename)
@@ -1151,25 +1148,25 @@ bool DBSchemaMigration::emailQSLSettings2DB()
 
     QSettings settings;
 
-    if (settings.contains("emailqsl/smtpHost"))
+    if ( settings.contains("emailqsl/smtpHost") )
         LogParam::setEmailQSLSmtpHost(settings.value("emailqsl/smtpHost").toString());
-    if (settings.contains("emailqsl/smtpPort"))
+    if ( settings.contains("emailqsl/smtpPort") )
         LogParam::setEmailQSLSmtpPort(settings.value("emailqsl/smtpPort").toInt());
-    if (settings.contains("emailqsl/smtpEncryption"))
+    if ( settings.contains("emailqsl/smtpEncryption") )
         LogParam::setEmailQSLSmtpEncryption(settings.value("emailqsl/smtpEncryption").toInt());
-    if (settings.contains("emailqsl/smtpUsername"))
+    if ( settings.contains("emailqsl/smtpUsername") )
         LogParam::setEmailQSLSmtpUsername(settings.value("emailqsl/smtpUsername").toString());
-    if (settings.contains("emailqsl/fromAddress"))
+    if ( settings.contains("emailqsl/fromAddress") )
         LogParam::setEmailQSLFromAddress(settings.value("emailqsl/fromAddress").toString());
-    if (settings.contains("emailqsl/fromName"))
+    if ( settings.contains("emailqsl/fromName") )
         LogParam::setEmailQSLFromName(settings.value("emailqsl/fromName").toString());
-    if (settings.contains("emailqsl/subjectTemplate"))
+    if ( settings.contains("emailqsl/subjectTemplate") )
         LogParam::setEmailQSLSubjectTemplate(settings.value("emailqsl/subjectTemplate").toString());
-    if (settings.contains("emailqsl/bodyTemplate"))
+    if ( settings.contains("emailqsl/bodyTemplate") )
         LogParam::setEmailQSLBodyTemplate(settings.value("emailqsl/bodyTemplate").toString());
-    if (settings.contains("emailqsl/cardImagePath"))
+    if ( settings.contains("emailqsl/cardImagePath") )
         LogParam::setEmailQSLCardImagePath(settings.value("emailqsl/cardImagePath").toString());
-    if (settings.contains("emailqsl/cardOverlays"))
+    if ( settings.contains("emailqsl/cardOverlays") )
         LogParam::setEmailQSLCardOverlays(settings.value("emailqsl/cardOverlays").toByteArray());
 
     settings.remove("emailqsl");

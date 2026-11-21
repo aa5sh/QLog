@@ -149,20 +149,20 @@ private:
                          QByteArray &response);
     QByteArray buildMimeMessage();
 
-    QString    m_host;
-    int        m_port;
-    int        m_encryption;
-    bool       m_allowInvalidCert;
-    bool       m_testOnly;
-    QString    m_username;
-    QString    m_password;
-    QString    m_fromAddress;
-    QString    m_fromName;
-    QString    m_toAddress;
-    QString    m_subject;
-    QString    m_body;
-    QByteArray m_imageData;
-    QString    m_imageName;
+    QString    smtpHost;
+    int        smtpPort;
+    int        smtpEncryption;
+    bool       smtpAllowInvalidCert;
+    bool       testOnlyMode;
+    QString    smtpUsername;
+    QString    smtpPassword;
+    QString    mailFromAddress;
+    QString    mailFromName;
+    QString    mailToAddress;
+    QString    mailSubject;
+    QString    mailBody;
+    QByteArray attachmentData;
+    QString    attachmentName;
 };
 
 // High-level service used by the UI.  Call sendEmailQSL() and connect to

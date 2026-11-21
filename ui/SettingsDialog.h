@@ -1,8 +1,6 @@
 #ifndef QLOG_UI_SETTINGSDIALOG_H
 #define QLOG_UI_SETTINGSDIALOG_H
 
-#include "antenna/SteppirController.h"
-#include "amplifier/AmplifierController.h"
 #include <QAbstractItemView>
 #include <QDialog>
 #include <functional>
@@ -31,12 +29,15 @@
 #include "ui/MainWindow.h"
 #include "ui/component/MultiselectCompleter.h"
 #include "rig/RigCaps.h"
+#include "antenna/SteppirController.h"
+#include "amplifier/AmplifierController.h"
 
 namespace Ui {
 class SettingsDialog;
 }
 
 class QSqlTableModel;
+class WaveshareSettingsWidget;
 class QStandardItem;
 class QStandardItemModel;
 class QPushButton;
@@ -171,6 +172,7 @@ private:
     // stages edits here and stores them only when the user presses OK.
     QStringList steppirDraftNames() const;
     QStringList amplifierDraftNames() const;
+    WaveshareSettingsWidget *waveshareSettings;
     QList<SteppirProfile> steppirProfilesDraft;
     QString steppirCurrentProfileDraft;
     QList<AmplifierProfile> amplifierProfilesDraft;

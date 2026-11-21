@@ -1412,7 +1412,7 @@ void LogbookWidget::sendEmailQSL()
     FCT_IDENTIFICATION;
 
     const QModelIndexList selectedIndexes = ui->contactTable->selectionModel()->selectedRows();
-    if (selectedIndexes.isEmpty())
+    if ( selectedIndexes.isEmpty() )
         return;
 
     // Collect records, skip those without an email address silently (report at end)
@@ -1427,12 +1427,12 @@ void LogbookWidget::sendEmailQSL()
 
     const bool batchMode = (selectedIndexes.count() > 1);
 
-    for (const QModelIndex &idx : selectedIndexes)
+    for ( const QModelIndex &idx : selectedIndexes )
     {
         const QSqlRecord rec = model->record(idx.row());
         const QString email  = rec.value(QStringLiteral("email")).toString().trimmed();
 
-        if (email.isEmpty())
+        if ( email.isEmpty() )
         {
             ++skippedNoEmail;
             continue;
@@ -1444,13 +1444,13 @@ void LogbookWidget::sendEmailQSL()
         const bool      sentQso  = prevSent.isValid();
         const bool      sentCall = !sentQso && EmailQSLBase::hasEmailBeenSentToCallsign(callsign, id);
 
-        if (sentQso || sentCall)
+        if ( sentQso || sentCall )
         {
-            if (resendDecision == 0)
+            if ( resendDecision == 0 )
             {
                 continue; // "No to All" already chosen
             }
-            else if (resendDecision == -1)
+            else if ( resendDecision == -1 )
             {
                 QString detail = sentQso
                     ? tr("An Email QSL was already sent for <b>%1</b> on %2 UTC.")
@@ -1459,7 +1459,7 @@ void LogbookWidget::sendEmailQSL()
                         .arg(callsign);
 
                 QString msg = detail + QStringLiteral("<br><br>") + tr("Do you want to send again?");
-                if (batchMode)
+                if ( batchMode )
                     msg += QStringLiteral("<br><i>") +
                            tr("\"Yes to All\" / \"No to All\" applies to every duplicate in this batch.") +
                            QStringLiteral("</i>");
@@ -1479,9 +1479,9 @@ void LogbookWidget::sendEmailQSL()
                 mb.exec();
                 QAbstractButton *clicked = mb.clickedButton();
 
-                if      (clicked == noAllBtn)  { resendDecision = 0; continue; }
-                else if (clicked == noBtn)     { continue; }
-                else if (clicked == yesAllBtn) { resendDecision = 1; }
+                if ( clicked == noAllBtn )  { resendDecision = 0; continue; }
+                else if ( clicked == noBtn )     { continue; }
+                else if ( clicked == yesAllBtn ) { resendDecision = 1; }
                 // else "Yes" — include this one, leave decision open for next
             }
             // resendDecision == 1 → fall through and add
@@ -1490,9 +1490,9 @@ void LogbookWidget::sendEmailQSL()
         toSend.append(rec);
     }
 
-    if (toSend.isEmpty())
+    if ( toSend.isEmpty() )
     {
-        if (skippedNoEmail > 0)
+        if ( skippedNoEmail > 0 )
             QMessageBox::information(this, tr("Email QSL"),
                 tr("%n contact(s) skipped — no email address on file.", "", skippedNoEmail));
         return;
@@ -1501,7 +1501,7 @@ void LogbookWidget::sendEmailQSL()
     // Show dialogs one at a time so they never pile up behind the main window
     showNextEmailQSLDialog(new QList<QSqlRecord>(toSend));
 
-    if (skippedNoEmail > 0)
+    if ( skippedNoEmail > 0 )
         QMessageBox::information(this, tr("Email QSL"),
             tr("%n contact(s) skipped — no email address on file.", "", skippedNoEmail));
 }
@@ -1510,7 +1510,7 @@ void LogbookWidget::showNextEmailQSLDialog(QList<QSqlRecord> *queue)
 {
     FCT_IDENTIFICATION;
 
-    if (queue->isEmpty())
+    if ( queue->isEmpty() )
     {
         delete queue;
         model->select(); // refresh the log table once the whole batch is done

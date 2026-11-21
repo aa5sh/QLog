@@ -18,14 +18,14 @@ public:
     explicit CardEditorWidget(QWidget *parent = nullptr);
 
     void setImage(const QPixmap &pm);
-    const QPixmap &image() const { return m_image; }
+    const QPixmap &image() const { return cardImage; }
 
     void setOverlays(const QList<EmailQSLFieldOverlay> &overlays);
-    const QList<EmailQSLFieldOverlay> &overlays() const { return m_overlays; }
+    const QList<EmailQSLFieldOverlay> &overlays() const { return overlayList; }
 
     void updateOverlay(int index, const EmailQSLFieldOverlay &ov);
     void setSelectedIndex(int index);
-    int  selectedIndex() const { return m_selectedIndex; }
+    int  selectedIndex() const { return selectedOverlayIndex; }
 
     QSize sizeHint()        const override;
     QSize minimumSizeHint() const override;
@@ -53,20 +53,22 @@ private:
     int     overlayAt(const QPointF &wPt)         const; // -1 = none
     bool    isOnResizeHandle(int index, const QPointF &wPt) const;
 
-    QPixmap                     m_image;
-    // m_image scaled to the on-screen rect. Rescaling a full-resolution card
+    static QPointF eventPosition(const QMouseEvent *event);
+
+    QPixmap                     cardImage;
+    // cardImage scaled to the on-screen rect. Rescaling a full-resolution card
     // on every repaint made dragging overlays lag; rebuilt when the image
     // or the display size changes.
-    QPixmap                     m_displayImage;
-    QList<EmailQSLFieldOverlay> m_overlays;
-    int     m_selectedIndex     = -1;
+    QPixmap                     displayImage;
+    QList<EmailQSLFieldOverlay> overlayList;
+    int     selectedOverlayIndex     = -1;
 
     // Drag state
-    int     m_dragIndex         = -1;
-    bool    m_resizing          = false;
-    QPointF m_dragStartImg;         // image-coord of press point
-    QPointF m_dragAnchorImg;        // image-coord anchor (overlay x,y at press)
-    QSizeF  m_dragSizeAtPress;      // overlay w,h at press (resize only)
+    int     dragIndex         = -1;
+    bool    resizing          = false;
+    QPointF dragStartImage;         // image-coord of press point
+    QPointF dragAnchorImage;        // image-coord anchor (overlay x,y at press)
+    QSizeF  dragSizeAtPress;      // overlay w,h at press (resize only)
 };
 
 #endif // QLOG_UI_COMPONENT_CARDEDITORWIDGET_H

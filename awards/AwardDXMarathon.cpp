@@ -27,6 +27,8 @@ MODULE_IDENTIFICATION("qlog.awards.dxmarathon");
 
 QString AwardDXMarathon::displayName() const
 {
+    FCT_IDENTIFICATION;
+
     return QCoreApplication::translate("AwardsDialog", "DX Marathon");
 }
 
@@ -35,7 +37,7 @@ QString AwardDXMarathon::rulesUrl() const
     FCT_IDENTIFICATION;
 
     // The site keeps one rules page per year: /rules/<year>/.
-    const int year = m_year ? m_year->value() : DXMarathon::currentYear();
+    const int year = yearSpin ? yearSpin->value() : DXMarathon::currentYear();
     return QStringLiteral("https://www.dxmarathon.com/rules/%1/").arg(year);
 }
 
@@ -45,40 +47,40 @@ QWidget *AwardDXMarathon::createWidget(QWidget *parent)
     QWidget *widget = new QWidget(parent);
     QVBoxLayout *layout = new QVBoxLayout(widget);
     QHBoxLayout *controls = new QHBoxLayout;
-    m_profile = new QComboBox(widget);
-    for (const QString &name : StationProfilesManager::instance()->profileNameList())
-        m_profile->addItem(name, name);
-    m_profileMatch = new QComboBox(widget);
-    m_profileMatch->addItem(QCoreApplication::translate("AwardsDialog", "Station Profile"), QStringLiteral("profile"));
-    m_profileMatch->addItem(QCoreApplication::translate("AwardsDialog", "Callsign only"), QStringLiteral("callsign"));
-    m_profileMatch->setToolTip(QCoreApplication::translate("AwardsDialog", "Callsign-only matching can combine contacts from different operating locations. Review the exported log before submitting."));
-    m_year = new QSpinBox(widget);
-    m_year->setRange(2006, 2100);
-    m_year->setValue(DXMarathon::currentYear());
+    profileCombo = new QComboBox(widget);
+    for ( const QString &name : StationProfilesManager::instance()->profileNameList() )
+        profileCombo->addItem(name, name);
+    profileMatchCombo = new QComboBox(widget);
+    profileMatchCombo->addItem(QCoreApplication::translate("AwardsDialog", "Station Profile"), QStringLiteral("profile"));
+    profileMatchCombo->addItem(QCoreApplication::translate("AwardsDialog", "Callsign only"), QStringLiteral("callsign"));
+    profileMatchCombo->setToolTip(QCoreApplication::translate("AwardsDialog", "Callsign-only matching can combine contacts from different operating locations. Review the exported log before submitting."));
+    yearSpin = new QSpinBox(widget);
+    yearSpin->setRange(2006, 2100);
+    yearSpin->setValue(DXMarathon::currentYear());
     QPushButton *exportButton = new QPushButton(QCoreApplication::translate("AwardsDialog", "Export submission ADIF"), widget);
     QPushButton *submitButton = new QPushButton(QCoreApplication::translate("AwardsDialog", "Open submission tool"), widget);
-    m_score = new QLabel(widget);
+    scoreLabel = new QLabel(widget);
     controls->addWidget(new QLabel(QCoreApplication::translate("AwardsDialog", "Station Profile"), widget));
-    controls->addWidget(m_profile);
+    controls->addWidget(profileCombo);
     controls->addWidget(new QLabel(QCoreApplication::translate("AwardsDialog", "Match"), widget));
-    controls->addWidget(m_profileMatch);
+    controls->addWidget(profileMatchCombo);
     controls->addWidget(new QLabel(QCoreApplication::translate("AwardsDialog", "Year"), widget));
-    controls->addWidget(m_year);
+    controls->addWidget(yearSpin);
     controls->addWidget(exportButton);
     controls->addWidget(submitButton);
     controls->addStretch();
-    controls->addWidget(m_score);
+    controls->addWidget(scoreLabel);
     layout->addLayout(controls);
-    m_table = new QTableView(widget);
-    m_model = new QSqlQueryModel(m_table);
-    m_table->setModel(m_model);
-    m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_table->setAlternatingRowColors(true);
-    m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    layout->addWidget(m_table);
-    QObject::connect(m_profile, QOverload<int>::of(&QComboBox::currentIndexChanged), widget, [this]{ refresh(); });
-    QObject::connect(m_profileMatch, QOverload<int>::of(&QComboBox::currentIndexChanged), widget, [this]{ refresh(); });
-    QObject::connect(m_year, QOverload<int>::of(&QSpinBox::valueChanged), widget, [this]{ refresh(); });
+    resultTable = new QTableView(widget);
+    resultModel = new QSqlQueryModel(resultTable);
+    resultTable->setModel(resultModel);
+    resultTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    resultTable->setAlternatingRowColors(true);
+    resultTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    layout->addWidget(resultTable);
+    QObject::connect(profileCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), widget, [this]{ refresh(); });
+    QObject::connect(profileMatchCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), widget, [this]{ refresh(); });
+    QObject::connect(yearSpin, QOverload<int>::of(&QSpinBox::valueChanged), widget, [this]{ refresh(); });
     QObject::connect(exportButton, &QPushButton::clicked, widget, [this]{ exportAdif(); });
     QObject::connect(submitButton, &QPushButton::clicked, widget, []{ QDesktopServices::openUrl(QUrl(QStringLiteral("https://entry.dxmarathon.com"))); });
     m_widget = widget;
@@ -90,11 +92,11 @@ QString AwardDXMarathon::contactPredicate(bool inlineValues) const
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << inlineValues;
 
-    if ( !m_profile || m_profile->currentIndex() < 0 )
+    if ( !profileCombo || profileCombo->currentIndex() < 0 )
         return QStringLiteral("0");
 
-    const StationProfile profile = StationProfilesManager::instance()->getProfile(m_profile->currentData().toString());
-    const bool byProfile = ( m_profileMatch->currentData().toString() == QLatin1String("profile") );
+    const StationProfile profile = StationProfilesManager::instance()->getProfile(profileCombo->currentData().toString());
+    const bool byProfile = ( profileMatchCombo->currentData().toString() == QLatin1String("profile") );
 
     // Values are bound (see bindPredicate) except for getConditionSelected(),
     // whose filter the award framework requires as plain SQL text; only
@@ -114,47 +116,55 @@ QString AwardDXMarathon::contactPredicate(bool inlineValues) const
 
     return stationMatch
          + QStringLiteral(" AND start_time >= %1 AND start_time < %2 AND ")
-               .arg(value(QStringLiteral(":dxmStart"), DXMarathon::yearStart(m_year->value())),
-                    value(QStringLiteral(":dxmEnd"), DXMarathon::yearStart(m_year->value() + 1)))
+               .arg(value(QStringLiteral(":dxmStart"), DXMarathon::yearStart(yearSpin->value())),
+                    value(QStringLiteral(":dxmEnd"), DXMarathon::yearStart(yearSpin->value() + 1)))
          + DXMarathon::eligibleContactsCondition()
-         + QLatin1Char(' ') + m_userFilter;
+         + QLatin1Char(' ') + userFilter;
 }
 
 void AwardDXMarathon::bindPredicate(QSqlQuery &query) const
 {
     FCT_IDENTIFICATION;
 
-    if ( !m_profile || m_profile->currentIndex() < 0 )
+    if ( !profileCombo || profileCombo->currentIndex() < 0 )
         return;
 
-    const StationProfile profile = StationProfilesManager::instance()->getProfile(m_profile->currentData().toString());
+    const StationProfile profile = StationProfilesManager::instance()->getProfile(profileCombo->currentData().toString());
     // Bind only the placeholder contactPredicate() emitted for this mode.
-    if ( m_profileMatch->currentData().toString() == QLatin1String("profile") )
+    if ( profileMatchCombo->currentData().toString() == QLatin1String("profile") )
         query.bindValue(QStringLiteral(":dxmProfile"), profile.profileName);
     else
         query.bindValue(QStringLiteral(":dxmCallsign"), profile.callsign);
-    query.bindValue(QStringLiteral(":dxmStart"), DXMarathon::yearStart(m_year->value()));
-    query.bindValue(QStringLiteral(":dxmEnd"), DXMarathon::yearStart(m_year->value() + 1));
+    query.bindValue(QStringLiteral(":dxmStart"), DXMarathon::yearStart(yearSpin->value()));
+    query.bindValue(QStringLiteral(":dxmEnd"), DXMarathon::yearStart(yearSpin->value() + 1));
 }
 
 QString AwardDXMarathon::entityKindLabel()
 {
+    FCT_IDENTIFICATION;
+
     return QCoreApplication::translate("AwardsDialog", "Entity");
 }
 
 QString AwardDXMarathon::zoneKindLabel()
 {
+    FCT_IDENTIFICATION;
+
     return QCoreApplication::translate("AwardsDialog", "Zone");
 }
 
 QString AwardDXMarathon::workedLabel()
 {
+    FCT_IDENTIFICATION;
+
     return QCoreApplication::translate("AwardsDialog", "Worked");
 }
 
 void AwardDXMarathon::updateData(const AwardFilterParams &params)
 {
-    m_userFilter = params.userFilterWhereClause;
+    FCT_IDENTIFICATION;
+
+    userFilter = params.userFilterWhereClause;
     refresh();
 }
 
@@ -162,7 +172,7 @@ void AwardDXMarathon::refresh()
 {
     FCT_IDENTIFICATION;
 
-    if ( !m_model )
+    if ( !resultModel )
         return;
 
     const QString eligible = contactPredicate(false);
@@ -191,12 +201,12 @@ void AwardDXMarathon::refresh()
     if ( !query.exec() )
         qCWarning(runtime) << "DX Marathon query error:" << query.lastError();
 
-    m_model->setQuery(std::move(query));
-    m_model->setHeaderData(0, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Type"));
-    m_model->setHeaderData(1, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Number"));
-    m_model->setHeaderData(2, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Entity / Zone"));
-    m_model->setHeaderData(3, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Status"));
-    m_model->setHeaderData(4, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "First QSO"));
+    resultModel->setQuery(std::move(query));
+    resultModel->setHeaderData(0, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Type"));
+    resultModel->setHeaderData(1, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Number"));
+    resultModel->setHeaderData(2, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Entity / Zone"));
+    resultModel->setHeaderData(3, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "Status"));
+    resultModel->setHeaderData(4, Qt::Horizontal, QCoreApplication::translate("AwardsDialog", "First QSO"));
 
     QSqlQuery count;
     if ( !count.prepare(QStringLiteral("SELECT COUNT(DISTINCT CASE WHEN dxcc>0 THEN dxcc END), "
@@ -214,17 +224,22 @@ void AwardDXMarathon::refresh()
     }
     const int entities = count.value(0).toInt();
     const int zones = count.value(1).toInt();
-    m_score->setText(QCoreApplication::translate("AwardsDialog", "Score: %1 (%2 entities + %3 zones)")
+    scoreLabel->setText(QCoreApplication::translate("AwardsDialog", "Score: %1 (%2 entities + %3 zones)")
                          .arg(entities + zones).arg(entities).arg(zones));
 }
 
 void AwardDXMarathon::exportAdif()
 {
     FCT_IDENTIFICATION;
-    const QString fileName = QFileDialog::getSaveFileName(m_widget, QCoreApplication::translate("AwardsDialog", "Export DX Marathon ADIF"), QString("dxmarathon-%1.adi").arg(m_year->value()), QStringLiteral("ADIF (*.adi)"));
-    if (fileName.isEmpty()) return;
+    const QString fileName = QFileDialog::getSaveFileName(m_widget, QCoreApplication::translate("AwardsDialog", "Export DX Marathon ADIF"), QString("dxmarathon-%1.adi").arg(yearSpin->value()), QStringLiteral("ADIF (*.adi)"));
+    if ( fileName.isEmpty() )
+        return;
     QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { QMessageBox::critical(m_widget, QObject::tr("QLog Error"), file.errorString()); return; }
+    if ( !file.open(QIODevice::WriteOnly | QIODevice::Text) )
+    {
+        QMessageBox::critical(m_widget, QObject::tr("QLog Error"), file.errorString());
+        return;
+    }
     QTextStream stream(&file);
     AdiFormat format(stream);
     QSqlQuery query;
@@ -237,8 +252,14 @@ void AwardDXMarathon::exportAdif()
     bindPredicate(query);
     query.exec();
     QList<QSqlRecord> records;
-    while (query.next()) records.append(query.record());
-    if (query.lastError().isValid()) { qCWarning(runtime) << "DX Marathon export query error:" << query.lastError(); QMessageBox::critical(m_widget, QObject::tr("QLog Error"), query.lastError().text()); return; }
+    while ( query.next() )
+        records.append(query.record());
+    if ( query.lastError().isValid() )
+    {
+        qCWarning(runtime) << "DX Marathon export query error:" << query.lastError();
+        QMessageBox::critical(m_widget, QObject::tr("QLog Error"), query.lastError().text());
+        return;
+    }
     const long exported = format.runExport(records);
     qCDebug(runtime) << "DX Marathon ADIF exported contacts:" << exported << "file:" << fileName;
     QMessageBox::information(m_widget, QObject::tr("QLog Info"), QCoreApplication::translate("AwardsDialog", "%1 contacts exported. Upload this ADIF to the DX Marathon submission tool.").arg(exported));
@@ -246,12 +267,14 @@ void AwardDXMarathon::exportAdif()
 
 AwardDefinition::ConditionResult AwardDXMarathon::getConditionSelected(const QModelIndex &index) const
 {
+    FCT_IDENTIFICATION;
+
     ConditionResult r;
-    if ( !index.isValid() || m_model->data(m_model->index(index.row(), 3)).toString() != workedLabel() )
+    if ( !index.isValid() || resultModel->data(resultModel->index(index.row(), 3)).toString() != workedLabel() )
         return r;
-    const QString kind = m_model->data(m_model->index(index.row(), 0)).toString();
+    const QString kind = resultModel->data(resultModel->index(index.row(), 0)).toString();
     // The number column is an integer produced by the query, not user text.
-    const int item = m_model->data(m_model->index(index.row(), 1)).toInt();
+    const int item = resultModel->data(resultModel->index(index.row(), 1)).toInt();
     r.filter = QStringLiteral("(%1 = %2 AND %3)").arg(kind == zoneKindLabel() ? QStringLiteral("cqz") : QStringLiteral("dxcc"))
                                                  .arg(item).arg(contactPredicate(true));
     r.valid = true;

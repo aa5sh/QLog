@@ -16,10 +16,10 @@
 
 MODULE_IDENTIFICATION("qlog.antenna.steppircontroller");
 
-namespace
+QJsonObject SteppirProfiles::toJson(const SteppirProfile &profile)
 {
-QJsonObject toJson(const SteppirProfile &profile)
-{
+    FCT_IDENTIFICATION;
+
     QJsonObject obj;
     obj["name"] = profile.name;
     obj["type"] = profile.type;
@@ -30,8 +30,10 @@ QJsonObject toJson(const SteppirProfile &profile)
     return obj;
 }
 
-SteppirProfile fromJson(const QJsonObject &obj)
+SteppirProfile SteppirProfiles::fromJson(const QJsonObject &obj)
 {
+    FCT_IDENTIFICATION;
+
     SteppirProfile profile;
     profile.name = obj["name"].toString();
     profile.type = static_cast<SteppirProfile::ConnectionType>(obj["type"].toInt(SteppirProfile::Network));
@@ -41,16 +43,18 @@ SteppirProfile fromJson(const QJsonObject &obj)
     profile.baudRate = obj["baudRate"].toInt(9600);
     return profile;
 }
-}
+
 
 QList<SteppirProfile> SteppirProfiles::profiles()
 {
+    FCT_IDENTIFICATION;
+
     QList<SteppirProfile> ret;
     const QJsonDocument doc = QJsonDocument::fromJson(LogParam::getSteppirProfiles().toUtf8());
-    for (const QJsonValue &value : doc.array())
+    for ( const QJsonValue &value : doc.array() )
     {
         SteppirProfile profile = fromJson(value.toObject());
-        if (!profile.name.isEmpty())
+        if ( !profile.name.isEmpty() )
             ret << profile;
     }
     return ret;
@@ -58,65 +62,79 @@ QList<SteppirProfile> SteppirProfiles::profiles()
 
 QStringList SteppirProfiles::profileNames()
 {
+    FCT_IDENTIFICATION;
+
     QStringList ret;
-    for (const SteppirProfile &profile : profiles())
+    for ( const SteppirProfile &profile : profiles() )
         ret << profile.name;
     return ret;
 }
 
 SteppirProfile SteppirProfiles::profile(const QString &name)
 {
-    for (const SteppirProfile &profile : profiles())
-        if (profile.name == name)
+    FCT_IDENTIFICATION;
+
+    for ( const SteppirProfile &profile : profiles() )
+        if ( profile.name == name )
             return profile;
     return SteppirProfile();
 }
 
 void SteppirProfiles::saveProfiles(const QList<SteppirProfile> &profiles)
 {
+    FCT_IDENTIFICATION;
+
     QJsonArray array;
-    for (const SteppirProfile &profile : profiles)
-        if (!profile.name.isEmpty())
+    for ( const SteppirProfile &profile : profiles )
+        if ( !profile.name.isEmpty() )
             array << toJson(profile);
     LogParam::setSteppirProfiles(QString::fromUtf8(QJsonDocument(array).toJson(QJsonDocument::Compact)));
 }
 
 void SteppirProfiles::addOrReplace(const SteppirProfile &profile)
 {
+    FCT_IDENTIFICATION;
+
     QList<SteppirProfile> all = profiles();
     bool replaced = false;
-    for (SteppirProfile &existing : all)
+    for ( SteppirProfile &existing : all )
     {
-        if (existing.name == profile.name)
+        if ( existing.name == profile.name )
         {
             existing = profile;
             replaced = true;
             break;
         }
     }
-    if (!replaced)
+    if ( !replaced )
         all << profile;
     saveProfiles(all);
 }
 
 void SteppirProfiles::remove(const QString &name)
 {
+    FCT_IDENTIFICATION;
+
     QList<SteppirProfile> all;
-    for (const SteppirProfile &profile : profiles())
-        if (profile.name != name)
+    for ( const SteppirProfile &profile : profiles() )
+        if ( profile.name != name )
             all << profile;
     saveProfiles(all);
-    if (currentProfileName() == name)
+    if ( currentProfileName() == name )
         setCurrentProfileName(QString());
 }
 
 QString SteppirProfiles::currentProfileName()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getSteppirCurrentProfile();
 }
 
 void SteppirProfiles::setCurrentProfileName(const QString &name)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setSteppirCurrentProfile(name);
 }
 
@@ -140,13 +158,15 @@ SteppirController::SteppirController(QObject *parent) :
     tuningState(false),
     reportingError(false)
 {
+    FCT_IDENTIFICATION;
+
     // Coalesce tuning updates so rapid dial movement does not flood the device.
     QTimer *frequencyTimer = new QTimer(this);
     frequencyTimer->setInterval(150);
     frequencyTimer->setSingleShot(true);
     connect(frequencyTimer, &QTimer::timeout, this, [this]() {
-        if (isConnected() && pendingFrequencyKHz > 0
-            && pendingFrequencyKHz != lastReportedFrequencyKHz)
+        if ( isConnected() && pendingFrequencyKHz > 0
+            && pendingFrequencyKHz != lastReportedFrequencyKHz )
         {
             setFrequencyKHz(pendingFrequencyKHz);
             lastReportedFrequencyKHz = pendingFrequencyKHz;
@@ -155,7 +175,7 @@ SteppirController::SteppirController(QObject *parent) :
     const auto reportRigFrequency = [this, frequencyTimer](const Rig::Status &status) {
         const double frequency = status.isConnected ? status.freq : 0.0;
         const double frequencyKHz = frequency * 1000.0;
-        if (!std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 167772)
+        if ( !std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 167772 )
         {
             frequencyTimer->stop();
             pendingFrequencyKHz = 0;
@@ -163,8 +183,8 @@ SteppirController::SteppirController(QObject *parent) :
             return;
         }
         pendingFrequencyKHz = static_cast<int>(frequencyKHz);
-        if (isConnected() && pendingFrequencyKHz != lastReportedFrequencyKHz
-            && !frequencyTimer->isActive())
+        if ( isConnected() && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive() )
             frequencyTimer->start();
     };
     connect(Rig::instance(), &Rig::rigStatusChanged, this, reportRigFrequency);
@@ -178,15 +198,15 @@ SteppirController::SteppirController(QObject *parent) :
     // The Data Out protocol requires at least 100 ms between all commands.
     commandTimer->setInterval(110);
     connect(commandTimer, &QTimer::timeout, this, [this]() {
-        if (pendingCommands.isEmpty())
+        if ( pendingCommands.isEmpty() )
         {
             commandTimer->stop();
             return;
         }
         const QByteArray command = pendingCommands.dequeue();
-        if (activeProfile.type == SteppirProfile::Network && socket->state() == QAbstractSocket::ConnectedState)
+        if ( activeProfile.type == SteppirProfile::Network && socket->state() == QAbstractSocket::ConnectedState )
             socket->write(command);
-        else if (activeProfile.type == SteppirProfile::Serial && serial->isOpen())
+        else if ( activeProfile.type == SteppirProfile::Serial && serial->isOpen() )
             serial->write(command);
     });
     pollTimer->setInterval(1000);
@@ -199,7 +219,7 @@ SteppirController::SteppirController(QObject *parent) :
         pendingCommands.clear();
         buffer.clear();
         lastReportedFrequencyKHz = 0;
-        if (connectedState)
+        if ( connectedState )
         {
             connectedState = false;
             emit disconnected();
@@ -215,51 +235,69 @@ SteppirController::SteppirController(QObject *parent) :
 
 SteppirController::~SteppirController()
 {
+    FCT_IDENTIFICATION;
+
     close();
 }
 
 bool SteppirController::isConnected() const
 {
+    FCT_IDENTIFICATION;
+
     return connectedState;
 }
 
 QString SteppirController::currentProfile() const
 {
+    FCT_IDENTIFICATION;
+
     return hasActiveProfile ? activeProfile.name : QString();
 }
 
 int SteppirController::tunedFrequencyKHz() const
 {
+    FCT_IDENTIFICATION;
+
     return frequencyKHz;
 }
 
 SteppirController::Direction SteppirController::direction() const
 {
+    FCT_IDENTIFICATION;
+
     return currentDirection;
 }
 
 bool SteppirController::autotrack() const
 {
+    FCT_IDENTIFICATION;
+
     return autotrackState;
 }
 
 bool SteppirController::tuning() const
 {
+    FCT_IDENTIFICATION;
+
     return tuningState;
 }
 
 void SteppirController::open()
 {
+    FCT_IDENTIFICATION;
+
     openProfile(SteppirProfiles::currentProfileName());
 }
 
 void SteppirController::openProfile(const QString &profileName)
 {
+    FCT_IDENTIFICATION;
+
     close();
     activeProfile = SteppirProfiles::profile(profileName);
     hasActiveProfile = !activeProfile.name.isEmpty();
 
-    if (!hasActiveProfile)
+    if ( !hasActiveProfile )
     {
         reportError(tr("Cannot open SteppIR Controller"), tr("No SteppIR profile selected"));
         return;
@@ -267,9 +305,9 @@ void SteppirController::openProfile(const QString &profileName)
 
     SteppirProfiles::setCurrentProfileName(activeProfile.name);
 
-    if (activeProfile.type == SteppirProfile::Network)
+    if ( activeProfile.type == SteppirProfile::Network )
     {
-        if (activeProfile.host.isEmpty() || activeProfile.port == 0)
+        if ( activeProfile.host.isEmpty() || activeProfile.port == 0 )
         {
             reportError(tr("Cannot open SteppIR Controller"), tr("Network host and port must be configured"));
             return;
@@ -278,7 +316,7 @@ void SteppirController::openProfile(const QString &profileName)
     }
     else
     {
-        if (activeProfile.serialPort.isEmpty())
+        if ( activeProfile.serialPort.isEmpty() )
         {
             reportError(tr("Cannot open SteppIR Controller"), tr("Serial port must be configured"));
             return;
@@ -291,7 +329,7 @@ void SteppirController::openProfile(const QString &profileName)
         serial->setStopBits(QSerialPort::OneStop);
         serial->setFlowControl(QSerialPort::NoFlowControl);
 
-        if (!serial->open(QIODevice::ReadWrite))
+        if ( !serial->open(QIODevice::ReadWrite) )
         {
             reportError(tr("Cannot open SteppIR Controller"), serial->errorString());
             return;
@@ -302,16 +340,18 @@ void SteppirController::openProfile(const QString &profileName)
 
 void SteppirController::close()
 {
+    FCT_IDENTIFICATION;
+
     lastReportedFrequencyKHz = 0;
     commandTimer->stop();
     pendingCommands.clear();
     buffer.clear();
     pollTimer->stop();
-    if (socket->state() != QAbstractSocket::UnconnectedState)
+    if ( socket->state() != QAbstractSocket::UnconnectedState )
         socket->disconnectFromHost();
-    if (serial->isOpen())
+    if ( serial->isOpen() )
         serial->close();
-    if (connectedState)
+    if ( connectedState )
     {
         connectedState = false;
         emit disconnected();
@@ -321,13 +361,17 @@ void SteppirController::close()
 
 void SteppirController::setFrequencyHz(double frequencyHz)
 {
-    if (std::isfinite(frequencyHz) && frequencyHz >= 1000.0 && frequencyHz <= 167772000.0)
+    FCT_IDENTIFICATION;
+
+    if ( std::isfinite(frequencyHz) && frequencyHz >= 1000.0 && frequencyHz <= 167772000.0 )
         setFrequencyKHz(static_cast<int>(frequencyHz / 1000.0));
 }
 
 void SteppirController::setFrequencyKHz(int frequencyKHz)
 {
-    if (!connectedState || frequencyKHz <= 0 || frequencyKHz > 167772)
+    FCT_IDENTIFICATION;
+
+    if ( !connectedState || frequencyKHz <= 0 || frequencyKHz > 167772 )
         return;
 
     pendingFrequencyKHz = frequencyKHz;
@@ -342,6 +386,8 @@ void SteppirController::setFrequencyKHz(int frequencyKHz)
 
 void SteppirController::setDirection(SteppirController::Direction direction)
 {
+    FCT_IDENTIFICATION;
+
     currentDirection = direction;
     writeCommand(commandFrame(0x00));
     emit directionChanged(currentDirection);
@@ -350,6 +396,8 @@ void SteppirController::setDirection(SteppirController::Direction direction)
 
 void SteppirController::setAutotrack(bool enabled)
 {
+    FCT_IDENTIFICATION;
+
     autotrackState = enabled;
     writeCommand(commandFrame(enabled ? 0x52 : 0x55));
     emit autotrackChanged(autotrackState);
@@ -358,39 +406,53 @@ void SteppirController::setAutotrack(bool enabled)
 
 void SteppirController::calibrate()
 {
+    FCT_IDENTIFICATION;
+
     writeCommand(commandFrame(0x56));
 }
 
 void SteppirController::home()
 {
+    FCT_IDENTIFICATION;
+
     writeCommand(commandFrame(0x53));
 }
 
 void SteppirController::reloadSettings()
 {
-    if (connectedState && currentProfile() != SteppirProfiles::currentProfileName())
+    FCT_IDENTIFICATION;
+
+    if ( connectedState && currentProfile() != SteppirProfiles::currentProfileName() )
         open();
 }
 
 void SteppirController::poll()
 {
+    FCT_IDENTIFICATION;
+
     writeCommand(QByteArray::fromHex("3F410D"));
 }
 
 void SteppirController::readNetworkData()
 {
+    FCT_IDENTIFICATION;
+
     buffer.append(socket->readAll());
     processBuffer();
 }
 
 void SteppirController::readSerialData()
 {
+    FCT_IDENTIFICATION;
+
     buffer.append(serial->readAll());
     processBuffer();
 }
 
 void SteppirController::socketConnected()
 {
+    FCT_IDENTIFICATION;
+
     connectedState = true;
     emit connected();
     emit stateChanged();
@@ -400,25 +462,31 @@ void SteppirController::socketConnected()
 
 void SteppirController::socketError()
 {
-    if (socket->error() == QAbstractSocket::RemoteHostClosedError)
+    FCT_IDENTIFICATION;
+
+    if ( socket->error() == QAbstractSocket::RemoteHostClosedError )
         return;
     reportError(tr("SteppIR Controller Error"), socket->errorString(), true);
 }
 
 void SteppirController::serialError()
 {
-    if (serial->error() == QSerialPort::NoError)
+    FCT_IDENTIFICATION;
+
+    if ( serial->error() == QSerialPort::NoError )
         return;
     reportError(tr("SteppIR Controller Error"), serial->errorString(), true);
 }
 
 void SteppirController::reportError(const QString &error, const QString &detail, bool closeConnection)
 {
-    if (reportingError)
+    FCT_IDENTIFICATION;
+
+    if ( reportingError )
         return;
 
     reportingError = true;
-    if (closeConnection)
+    if ( closeConnection )
         close();
     emit errorPresent(error, detail);
     reportingError = false;
@@ -426,15 +494,19 @@ void SteppirController::reportError(const QString &error, const QString &detail,
 
 void SteppirController::writeCommand(const QByteArray &command)
 {
-    if (!connectedState || command.isEmpty())
+    FCT_IDENTIFICATION;
+
+    if ( !connectedState || command.isEmpty() )
         return;
     pendingCommands.enqueue(command);
-    if (!commandTimer->isActive())
+    if ( !commandTimer->isActive() )
         commandTimer->start();
 }
 
 QByteArray SteppirController::commandFrame(quint8 command) const
 {
+    FCT_IDENTIFICATION;
+
     QByteArray frame;
     frame.append(char(0x40));
     frame.append(char(0x41));
@@ -455,19 +527,21 @@ QByteArray SteppirController::commandFrame(quint8 command) const
 
 void SteppirController::processBuffer()
 {
+    FCT_IDENTIFICATION;
+
     // Responses are fixed-length binary frames; frequency bytes may contain CR.
-    while (!buffer.isEmpty())
+    while ( !buffer.isEmpty() )
     {
         const int start = buffer.indexOf("@A");
-        if (start < 0)
+        if ( start < 0 )
         {
             buffer = buffer.endsWith('@') ? QByteArray("@") : QByteArray();
             return;
         }
         buffer.remove(0, start);
-        if (buffer.size() < 11)
+        if ( buffer.size() < 11 )
             return;
-        if (buffer.at(10) != '\r')
+        if ( buffer.at(10) != '\r' )
         {
             buffer.remove(0, 1);
             continue;
@@ -479,7 +553,9 @@ void SteppirController::processBuffer()
 
 void SteppirController::processResponse(const QByteArray &frame)
 {
-    if (frame.size() < 8 || static_cast<unsigned char>(frame.at(0)) != 0x40)
+    FCT_IDENTIFICATION;
+
+    if ( frame.size() < 8 || static_cast<unsigned char>(frame.at(0)) != 0x40 )
         return;
 
     int encodedFrequency = (static_cast<unsigned char>(frame.at(3)) << 16)
@@ -491,22 +567,22 @@ void SteppirController::processResponse(const QByteArray &frame)
     Direction newDirection = directionFromBits((status & 0xe0) >> 5);
     bool newAutotrack = ((status & 0x04) >> 2) == 1;
 
-    if (newFrequency != frequencyKHz)
+    if ( newFrequency != frequencyKHz )
     {
         frequencyKHz = newFrequency;
         emit tunedFrequencyChanged(frequencyKHz);
     }
-    if (newTuning != tuningState)
+    if ( newTuning != tuningState )
     {
         tuningState = newTuning;
         emit tuningChanged(tuningState);
     }
-    if (newDirection != currentDirection)
+    if ( newDirection != currentDirection )
     {
         currentDirection = newDirection;
         emit directionChanged(currentDirection);
     }
-    if (newAutotrack != autotrackState)
+    if ( newAutotrack != autotrackState )
     {
         autotrackState = newAutotrack;
         emit autotrackChanged(autotrackState);
@@ -516,7 +592,9 @@ void SteppirController::processResponse(const QByteArray &frame)
 
 quint8 SteppirController::directionBits(Direction direction) const
 {
-    switch (direction)
+    FCT_IDENTIFICATION;
+
+    switch ( direction )
     {
     case OneEighty:
         return 0x40;
@@ -532,7 +610,9 @@ quint8 SteppirController::directionBits(Direction direction) const
 
 SteppirController::Direction SteppirController::directionFromBits(quint8 value) const
 {
-    switch (value)
+    FCT_IDENTIFICATION;
+
+    switch ( value )
     {
     case 2:
         return OneEighty;

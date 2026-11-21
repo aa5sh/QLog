@@ -122,6 +122,10 @@ private slots:
     void showUpdateDialog(const QString &newVersion, const QString &repoName);
 
 private:
+    // A SteppIR controller can come up after QLog starts; retry autoconnect.
+    static constexpr int STEPPIR_AUTOCONNECT_RETRY_ATTEMPTS = 2;
+    static constexpr int STEPPIR_AUTOCONNECT_RETRY_INTERVAL_MS = 5000;
+
     Ui::MainWindow* ui;
     QLabel* conditionsLabel;
     QLabel* profileLabel;

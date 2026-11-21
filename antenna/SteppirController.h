@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QQueue>
 
+class QJsonObject;
 class QSerialPort;
 class QTcpSocket;
 class QTimer;
@@ -36,6 +37,10 @@ public:
     static void remove(const QString &name);
     static QString currentProfileName();
     static void setCurrentProfileName(const QString &name);
+
+private:
+    static QJsonObject toJson(const SteppirProfile &profile);
+    static SteppirProfile fromJson(const QJsonObject &obj);
 };
 
 class SteppirController : public QObject

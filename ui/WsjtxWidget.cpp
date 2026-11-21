@@ -126,227 +126,173 @@ WsjtxWidget::WsjtxWidget(QWidget *parent) :
     reloadSetting();
 }
 
-
-
 void WsjtxWidget::decodeReceived(WsjtxDecode decode)
 {
     FCT_IDENTIFICATION;
 
-    qCDebug(function_parameters) << decode.message;
+    qCDebug(function_parameters)<<decode.message;
 
     const auto clientIt = clients.constFind(decode.id);
-    if (clientIt == clients.constEnd() || !clientIt->initialized)
+    if ( clientIt == clients.constEnd() || !clientIt->initialized )
     {
-        qCDebug(runtime) << "Ignoring WSJT-X decode without status"
-                         << decode.id;
+        qCDebug(runtime) << "Ignoring WSJT-X decode without status" << decode.id;
         return;
     }
 
     const ClientState &client = clientIt.value();
-    const StationProfile &profile =
-        StationProfilesManager::instance()->getCurProfile1();
-
+    const StationProfile &profile = StationProfilesManager::instance()->getCurProfile1();
     const QString message = decode.message.trimmed();
 
-    // Standard directed final-exchange messages:
-    //   RECIPIENT TRANSMITTER RRR
-    //   RECIPIENT TRANSMITTER RR73
-    //   RECIPIENT TRANSMITTER 73
-    //
-    // The second callsign identifies the transmitting station.
-    static const QRegularExpression finalExchangeRE(
-        R"(^([A-Z0-9/]+)\s+([A-Z0-9/]+)\s+(RR73|RRR|73)$)",
-        QRegularExpression::CaseInsensitiveOption
-        );
+    // MyFeatures: a directed final exchange "RECIPIENT TRANSMITTER RRR|RR73|73"
+    // is spotted like a CQ; the second callsign is the transmitting station.
+    static const QRegularExpression finalExchangeRE(QStringLiteral("^([A-Z0-9/]+)\\s+([A-Z0-9/]+)\\s+(RR73|RRR|73)$"),
+                                                    QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch finalMatch = finalExchangeRE.match(message);
 
-    const bool isCQ = message.startsWith("CQ ");
-    const QRegularExpressionMatch finalMatch =
-        finalExchangeRE.match(message);
-    const bool isFinalExchange = finalMatch.hasMatch();
-
-    QRegularExpressionMatch cqMatch;
-    if (isCQ)
-        cqMatch = cqRE.match(message);
-
-    const bool isNewSpotEvent =
-        (isCQ && cqMatch.hasMatch()) || isFinalExchange;
-
-    auto initializeEntry = [&](WsjtxEntry &entry)
+    if ( message.startsWith("CQ") || finalMatch.hasMatch() )
     {
-        entry.dateTime = QDateTime::currentDateTimeUtc();
-        entry.decode = decode;
-        entry.replyDecode = decode;
-        entry.dxcc = Data::instance()->lookupDxcc(entry.callsign);
-        entry.status = Data::instance()->currentDxccStatus(
-            entry.dxcc.dxcc,
-            client.band,
-            BandPlan::MODE_GROUP_STRING_DIGITAL
-            );
-        entry.dxccStatusSatellite =
-            Data::instance()->isSatelliteDxccContext();
-        entry.receivedTime = QDateTime::currentDateTimeUtc();
-        entry.freq = client.frequency;
-        entry.band = client.band;
-        entry.decodedMode = client.status.mode;
+        QRegularExpressionMatch match = cqRE.match(message);
 
-        entry.bandPlanMode =
-            (client.status.mode == "FT8") ? BandPlan::BAND_MODE_FT8
-            : (client.status.mode == "FT4") ? BandPlan::BAND_MODE_FT4
-            : (client.status.mode == "FT2") ? BandPlan::BAND_MODE_FT2
-                                            : BandPlan::BAND_MODE_DIGITAL;
-
-        entry.modeGroupString =
-            BandPlan::bandMode2BandModeGroupString(entry.bandPlanMode);
-
-        entry.spotPeriod = client.spotPeriod;
-        entry.spotter = profile.callsign.toUpper();
-        entry.comment = decode.message;
-
-        entry.dxcc_spotter =
-            Data::instance()->lookupDxcc(entry.spotter);
-
-        entry.dxcc_spotter.country = profile.country;
-        entry.dxcc_spotter.cqz = profile.cqz;
-        entry.dxcc_spotter.ituz = profile.ituz;
-        entry.dxcc_spotter.dxcc = profile.dxcc;
-
-        entry.distance = 0.0;
-
-        entry.dupeCount = Data::countDupe(
-            entry.callsign,
-            entry.band,
-            BandPlan::MODE_GROUP_STRING_DIGITAL
-            );
-    };
-
-    if (isNewSpotEvent)
-    {
-        WsjtxEntry entry;
-        bool existingSpot = false;
-
-        if (isFinalExchange)
+        if ( match.hasMatch() || finalMatch.hasMatch() )
         {
-            entry.callsign = finalMatch.captured(2).toUpper();
-        }
-        else
-        {
-            // Preserve existing CQ regex capture semantics.
-            entry.callsign = cqMatch.captured(3);
-            entry.grid = cqMatch.captured(4);
-        }
+            WsjtxEntry entry;
 
-        // The model uses decode.id + callsign for matching.
-        entry.decode.id = decode.id;
-        existingSpot = wsjtxTableModel->callsignExists(entry);
+            entry.dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
+            entry.decode = decode;
+            entry.replyDecode = decode;
+            if ( finalMatch.hasMatch() )
+                entry.callsign = finalMatch.captured(2).toUpper();
+            else
+            {
+                entry.callsign = match.captured(3);
+                entry.grid = match.captured(4);
+            }
+            // A final exchange carries no grid; keep the one from the station's CQ.
+            const bool existingSpot = wsjtxTableModel->callsignExists(entry);
+            if ( existingSpot && entry.grid.isEmpty() )
+                entry.grid = wsjtxTableModel->getEntry(decode.id, entry.callsign).grid;
+            entry.dxcc = Data::instance()->lookupDxcc(entry.callsign);
+            entry.status = Data::instance()->currentDxccStatus(entry.dxcc.dxcc,
+                                                               client.band,
+                                                               BandPlan::MODE_GROUP_STRING_DIGITAL);
+            entry.dxccStatusSatellite = Data::instance()->isSatelliteDxccContext();
+            entry.receivedTime = QDateTime::currentDateTimeUtc();
+            entry.freq = client.frequency;
+            entry.band = client.band;
+            entry.decodedMode = client.status.mode;
+            entry.bandPlanMode = ( client.status.mode == "FT8" ) ? BandPlan::BAND_MODE_FT8
+                   : ( client.status.mode == "FT4" ) ? BandPlan::BAND_MODE_FT4
+                   : ( client.status.mode == "FT2" ) ? BandPlan::BAND_MODE_FT2
+                   : BandPlan::BAND_MODE_DIGITAL;
+            entry.modeGroupString = BandPlan::bandMode2BandModeGroupString(entry.bandPlanMode);
+            entry.spotPeriod = client.spotPeriod;
+            entry.spotter = profile.callsign.toUpper();
+            entry.comment = decode.message;
+            entry.dxcc_spotter = Data::instance()->lookupDxcc(entry.spotter);
+            // fix dxcc_spotter based on station prifile setting - cont is not calculated
+            entry.dxcc_spotter.country = profile.country;
+            entry.dxcc_spotter.cqz = profile.cqz;
+            entry.dxcc_spotter.ituz = profile.ituz;
+            entry.dxcc_spotter.dxcc = profile.dxcc;
+            entry.distance = 0.0;
+            entry.potaRef = PotaQE::instance()->findReferenceId(Callsign(entry.callsign), entry.freq).reference;
+            if ( !entry.potaRef.isEmpty() )
+            {
+                entry.containsPOTA = true;
+                entry.comment.append(" [+] POTA " + entry.potaRef);
+            }
+            entry.callsign_member = MembershipQE::instance()->query(entry.callsign);
+            entry.dupeCount = Data::countDupe(entry.callsign, entry.band, BandPlan::MODE_GROUP_STRING_DIGITAL);
+            if ( !profile.locator.isEmpty() )
+            {
+                Gridsquare myGrid(profile.locator);
+                double distance;
 
-        if (existingSpot && entry.grid.isEmpty())
-        {
-            const WsjtxEntry previous =
-                wsjtxTableModel->getEntry(
-                    decode.id, entry.callsign
-                    );
+                if ( myGrid.distanceTo(Gridsquare(entry.grid), distance) )
+                {
+                    entry.distance = round(distance);
+                }
+            }
 
-            entry.grid = previous.grid;
-        }
+            emit CQSpot(entry);
 
-        initializeEntry(entry);
+            QString unit;
+            qCDebug(runtime)
+                    << "Continent" << entry.dxcc.cont.contains(contregexp)
+                    << "Continent RegExp" << contregexp
+                    << "DX Status" << entry.status
+                    << "Distance" << (entry.distance >= distanceFilter)
+                    << "Curr Distance" << entry.distance << distanceFilter
+                    << "SNR"<< (entry.decode.snr >= snrFilter )
+                    << "Current SNR" << snrFilter
+                    << "Member" << ( dxMemberFilter.size() == 0
+                         || (dxMemberFilter.size()
+                             && entry.memberList2Set().intersects(dxMemberFilter)));
 
-        entry.potaRef = PotaQE::instance()->findReferenceId(
-                                              Callsign(entry.callsign), entry.freq
-                                              ).reference;
-
-        if (!entry.potaRef.isEmpty())
-        {
-            entry.containsPOTA = true;
-            entry.comment.append(" [+] POTA " + entry.potaRef);
-        }
-
-        entry.callsign_member =
-            MembershipQE::instance()->query(entry.callsign);
-
-        if (!profile.locator.isEmpty() && !entry.grid.isEmpty())
-        {
-            Gridsquare myGrid(profile.locator);
-            double distance;
-
-            if (myGrid.distanceTo(Gridsquare(entry.grid), distance))
-                entry.distance = round(distance);
-        }
-
-        // Unfiltered event notification.
-        emit CQSpot(entry);
-
-        QString unit;
-
-        qCDebug(runtime)
-            << "Spot Type"
-            << (isFinalExchange
-                    ? finalMatch.captured(3)
-                    : QStringLiteral("CQ"))
-            << "Continent" << entry.dxcc.cont.contains(contregexp)
-            << "Continent RegExp" << contregexp
-            << "DX Status" << entry.status
-            << "Distance" << (entry.distance >= distanceFilter)
-            << "Curr Distance" << entry.distance << distanceFilter
-            << "SNR" << (entry.decode.snr >= snrFilter)
-            << "Current SNR" << snrFilter
-            << "Member"
-            << (dxMemberFilter.isEmpty()
-                || entry.memberList2Set().intersects(dxMemberFilter));
-
-        if (entry.dxcc.cont.contains(contregexp)
-            && Gridsquare::distance2localeUnitDistance(
-                   entry.distance, unit, locale) >= distanceFilter
-            && entry.decode.snr >= snrFilter
-            && (dxMemberFilter.isEmpty()
-                || entry.memberList2Set().intersects(dxMemberFilter))
-            && entry.dupeCount == 0
-            && Data::instance()->matchesDxccLogStatus(
-                entry, logStatusFilter))
-        {
-            wsjtxTableModel->addOrReplaceEntry(entry);
-            emit filteredCQSpot(entry);
-
-            if (isFinalExchange && existingSpot)
-                emit updatedCQSpot(entry);
+            if ( entry.dxcc.cont.contains(contregexp)
+                 && Gridsquare::distance2localeUnitDistance(entry.distance, unit, locale) >= distanceFilter
+                 && entry.decode.snr >= snrFilter
+                 && ( dxMemberFilter.size() == 0
+                      || (dxMemberFilter.size() && entry.memberList2Set().intersects(dxMemberFilter)))
+                 && entry.dupeCount == 0
+                 && Data::instance()->matchesDxccLogStatus(entry, logStatusFilter)
+               )
+            {
+                wsjtxTableModel->addOrReplaceEntry(entry);
+                emit filteredCQSpot(entry);
+                if ( finalMatch.hasMatch() && existingSpot )
+                    emit updatedCQSpot(entry);
+            }
         }
     }
     else
     {
-        // Ordinary directed messages only update existing spots.
-        const QStringList decodedElements =
-            message.split(' ', Qt::SkipEmptyParts);
+        const QStringList &decodedElements = message.split(' ', Qt::SkipEmptyParts);
 
-        if (decodedElements.count() > 1)
+        if ( decodedElements.count() > 1 )
         {
             WsjtxEntry entry;
             entry.decode = decode;
             entry.callsign = decodedElements.at(1);
 
-            if (wsjtxTableModel->callsignExists(entry))
+            if ( wsjtxTableModel->callsignExists(entry) )
             {
-                initializeEntry(entry);
-                // Keep replying to the station's CQ: an empty replyDecode
-                // tells addOrReplaceEntry to keep the stored one.
-                entry.replyDecode = WsjtxDecode();
+                entry.dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
+                entry.dxcc = Data::instance()->lookupDxcc(entry.callsign);
+                entry.status = Data::instance()->currentDxccStatus(entry.dxcc.dxcc,
+                                                                   client.band,
+                                                                   BandPlan::MODE_GROUP_STRING_DIGITAL);
+                entry.dxccStatusSatellite = Data::instance()->isSatelliteDxccContext();
+                entry.receivedTime = QDateTime::currentDateTimeUtc();
+                entry.freq = client.frequency;
+                entry.band = client.band;
+                entry.decodedMode = client.status.mode;
+                entry.comment = decode.message;
+                entry.bandPlanMode = ( client.status.mode == "FT8" ) ? BandPlan::BAND_MODE_FT8
+                   : ( client.status.mode == "FT4" ) ? BandPlan::BAND_MODE_FT4
+                   : ( client.status.mode == "FT2" ) ? BandPlan::BAND_MODE_FT2
+                   : BandPlan::BAND_MODE_DIGITAL;
+                entry.modeGroupString = BandPlan::bandMode2BandModeGroupString(entry.bandPlanMode);
+                entry.spotPeriod = client.spotPeriod;
+                entry.spotter = profile.callsign.toUpper();
+                entry.dxcc_spotter = Data::instance()->lookupDxcc(entry.spotter);
+                // fix dxcc_spotter based on station prifile setting - cont is not calculated
+                entry.dxcc_spotter.country = profile.country;
+                entry.dxcc_spotter.cqz = profile.cqz;
+                entry.dxcc_spotter.ituz = profile.ituz;
+                entry.dxcc_spotter.dxcc = profile.dxcc;
+                entry.distance = 0.0;
+                entry.dupeCount = Data::countDupe(entry.callsign, entry.band, BandPlan::MODE_GROUP_STRING_DIGITAL);
+                // it is not needed to update entry.callsign_clubs because addOrReplaceEntry does not
+                // update it. Only CQ provides the club membeship info
 
-                const WsjtxEntry previous =
-                    wsjtxTableModel->getEntry(
-                        decode.id, entry.callsign
-                        );
-
-                entry.grid = previous.grid;
-
-                if (!Data::instance()->matchesDxccLogStatus(
-                        entry, logStatusFilter))
+                entry.grid = wsjtxTableModel->getEntry(decode.id, entry.callsign).grid;
+                if ( !Data::instance()->matchesDxccLogStatus(entry, logStatusFilter) )
                 {
-                    wsjtxTableModel->removeSpot(
-                        entry.callsign, entry.band
-                        );
+                    wsjtxTableModel->removeSpot(entry.callsign, entry.band);
                     redrawMapSpots();
                     return;
                 }
-
                 wsjtxTableModel->addOrReplaceEntry(entry);
                 emit filteredCQSpot(entry);
                 emit updatedCQSpot(entry);
@@ -355,9 +301,9 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
     }
 
     wsjtxTableModel->spotAging();
+
     ui->tableView->repaint();
 }
-
 
 void WsjtxWidget::statusReceived(WsjtxStatus newStatus)
 {

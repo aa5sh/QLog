@@ -14,220 +14,210 @@
 
 MODULE_IDENTIFICATION("qlog.amplifier.amplifiercontroller");
 
-namespace
+QString AmplifierController::connectionTypeName(AmplifierProfile::ConnectionType type)
 {
-    constexpr quint8 PC_SYN = 0x55;
-    constexpr quint8 AMP_SYN = 0xaa;
-    constexpr quint8 STATUS_COUNT = 0x1e;
+    FCT_IDENTIFICATION;
 
-    constexpr quint8 CMD_KEY_ON = 0x10;
-    constexpr quint8 CMD_RCU_ON = 0x80;
-    constexpr quint8 CMD_RCU_OFF = 0x81;
-    constexpr int CAT_RS232 = 6;
-
-    constexpr quint8 KEY_OFF = 0x18;
-    constexpr quint8 KEY_MODE = 0x1a;
-    constexpr quint8 KEY_OPERATE = 0x1c;
-    constexpr quint8 KEY_INPUT = 0x28;
-    constexpr quint8 KEY_BAND_MINUS = 0x29;
-    constexpr quint8 KEY_BAND_PLUS = 0x2a;
-    constexpr quint8 KEY_ANTENNA = 0x2b;
-    constexpr quint8 KEY_LEFT = 0x2d;
-    constexpr quint8 KEY_RIGHT = 0x2e;
-    constexpr quint8 KEY_TUNE = 0x34;
-
-    constexpr quint8 FLAG_TUNE = 0x01;
-    constexpr quint8 FLAG_OPERATE = 0x02;
-    constexpr quint8 FLAG_TX = 0x04;
-    constexpr quint8 FLAG_ALARM = 0x08;
-    constexpr quint8 FLAG_FULL_MODE = 0x10;
-    constexpr quint8 FLAG_TEMP_CELSIUS = 0x80;
-
-    QString connectionTypeName(AmplifierProfile::ConnectionType type)
+    switch ( type )
     {
-        switch (type)
-        {
-        case AmplifierProfile::Serial:
-            return QStringLiteral("Serial");
-        case AmplifierProfile::Network:
-            return QStringLiteral("Network");
-        }
-        return QStringLiteral("Unknown");
+    case AmplifierProfile::Serial:
+        return QStringLiteral("Serial");
+    case AmplifierProfile::Network:
+        return QStringLiteral("Network");
     }
+    return QStringLiteral("Unknown");
+}
 
-    QString serialErrorName(QSerialPort::SerialPortError error)
+QString AmplifierController::serialErrorName(QSerialPort::SerialPortError error)
+{
+    FCT_IDENTIFICATION;
+
+    switch ( error )
     {
-        switch (error)
-        {
-        case QSerialPort::NoError:
-            return QStringLiteral("NoError");
-        case QSerialPort::DeviceNotFoundError:
-            return QStringLiteral("DeviceNotFoundError");
-        case QSerialPort::PermissionError:
-            return QStringLiteral("PermissionError");
-        case QSerialPort::OpenError:
-            return QStringLiteral("OpenError");
-        case QSerialPort::WriteError:
-            return QStringLiteral("WriteError");
-        case QSerialPort::ReadError:
-            return QStringLiteral("ReadError");
-        case QSerialPort::ResourceError:
-            return QStringLiteral("ResourceError");
-        case QSerialPort::UnsupportedOperationError:
-            return QStringLiteral("UnsupportedOperationError");
-        case QSerialPort::TimeoutError:
-            return QStringLiteral("TimeoutError");
-        case QSerialPort::NotOpenError:
-            return QStringLiteral("NotOpenError");
-        case QSerialPort::UnknownError:
-            return QStringLiteral("UnknownError");
-        }
-        return QStringLiteral("UnknownSerialPortError(%1)").arg(error);
+    case QSerialPort::NoError:
+        return QStringLiteral("NoError");
+    case QSerialPort::DeviceNotFoundError:
+        return QStringLiteral("DeviceNotFoundError");
+    case QSerialPort::PermissionError:
+        return QStringLiteral("PermissionError");
+    case QSerialPort::OpenError:
+        return QStringLiteral("OpenError");
+    case QSerialPort::WriteError:
+        return QStringLiteral("WriteError");
+    case QSerialPort::ReadError:
+        return QStringLiteral("ReadError");
+    case QSerialPort::ResourceError:
+        return QStringLiteral("ResourceError");
+    case QSerialPort::UnsupportedOperationError:
+        return QStringLiteral("UnsupportedOperationError");
+    case QSerialPort::TimeoutError:
+        return QStringLiteral("TimeoutError");
+    case QSerialPort::NotOpenError:
+        return QStringLiteral("NotOpenError");
+    case QSerialPort::UnknownError:
+        return QStringLiteral("UnknownError");
     }
+    return QStringLiteral("UnknownSerialPortError(%1)").arg(error);
+}
 
-    QStringList availableSerialPorts()
+QStringList AmplifierController::availableSerialPorts()
+{
+    FCT_IDENTIFICATION;
+
+    QStringList ports;
+    const QList<QSerialPortInfo> infos = QSerialPortInfo::availablePorts();
+    for ( const QSerialPortInfo &info : infos )
+        ports << info.systemLocation();
+    return ports;
+}
+
+QSerialPortInfo AmplifierController::serialPortInfoForName(const QString &configuredPort)
+{
+    FCT_IDENTIFICATION;
+
+    const QString port = configuredPort.trimmed();
+    if ( port.isEmpty() )
+        return QSerialPortInfo();
+
+    const QList<QSerialPortInfo> infos = QSerialPortInfo::availablePorts();
+    for ( const QSerialPortInfo &info : infos )
     {
-        QStringList ports;
-        const QList<QSerialPortInfo> infos = QSerialPortInfo::availablePorts();
-        for (const QSerialPortInfo &info : infos)
-            ports << info.systemLocation();
-        return ports;
+        if ( info.portName() == port || info.systemLocation() == port )
+            return info;
     }
-
-    QSerialPortInfo serialPortInfoForName(const QString &configuredPort)
-    {
-        const QString port = configuredPort.trimmed();
-        if (port.isEmpty())
-            return QSerialPortInfo();
-
-        const QList<QSerialPortInfo> infos = QSerialPortInfo::availablePorts();
-        for (const QSerialPortInfo &info : infos)
-        {
-            if (info.portName() == port || info.systemLocation() == port)
-                return info;
-        }
 
 #if !defined(Q_OS_WIN)
-        if (!port.startsWith('/'))
+    if ( !port.startsWith('/') )
+    {
+        const QString systemLocation = QStringLiteral("/dev/%1").arg(port);
+        for ( const QSerialPortInfo &info : infos )
         {
-            const QString systemLocation = QStringLiteral("/dev/%1").arg(port);
-            for (const QSerialPortInfo &info : infos)
-            {
-                if (info.systemLocation() == systemLocation)
-                    return info;
-            }
+            if ( info.systemLocation() == systemLocation )
+                return info;
         }
+    }
 #endif
 
-        return QSerialPortInfo();
-    }
+    return QSerialPortInfo();
+}
 
-    QString normalizedSerialPort(const QString &configuredPort)
-    {
-        const QString port = configuredPort.trimmed();
-        if (port.isEmpty())
-            return port;
+QString AmplifierController::normalizedSerialPort(const QString &configuredPort)
+{
+    FCT_IDENTIFICATION;
 
-        const QSerialPortInfo info = serialPortInfoForName(port);
-        if (!info.isNull())
-            return info.systemLocation();
+    const QString port = configuredPort.trimmed();
+    if ( port.isEmpty() )
+        return port;
+
+    const QSerialPortInfo info = serialPortInfoForName(port);
+    if ( !info.isNull() )
+        return info.systemLocation();
 
 #if defined(Q_OS_WIN)
-        return port;
+    return port;
 #else
-        if (port.startsWith('/'))
-            return port;
+    if ( port.startsWith('/') )
+        return port;
 
-        return QStringLiteral("/dev/%1").arg(port);
+    return QStringLiteral("/dev/%1").arg(port);
 #endif
-    }
+}
 
-    QStringList serialPortOpenCandidates(const QString &primaryPort)
-    {
-        QStringList candidates;
-        if (primaryPort.isEmpty())
-            return candidates;
+QStringList AmplifierController::serialPortOpenCandidates(const QString &primaryPort)
+{
+    FCT_IDENTIFICATION;
 
-        candidates << primaryPort;
+    QStringList candidates;
+    if ( primaryPort.isEmpty() )
+        return candidates;
+
+    candidates << primaryPort;
 
 #if defined(Q_OS_MACOS)
-        QString alternatePort;
-        if (primaryPort.startsWith(QStringLiteral("/dev/cu.")))
-            alternatePort = QStringLiteral("/dev/tty.") + primaryPort.mid(8);
-        else if (primaryPort.startsWith(QStringLiteral("/dev/tty.")))
-            alternatePort = QStringLiteral("/dev/cu.") + primaryPort.mid(9);
+    QString alternatePort;
+    if ( primaryPort.startsWith(QStringLiteral("/dev/cu.")) )
+        alternatePort = QStringLiteral("/dev/tty.") + primaryPort.mid(8);
+    else if ( primaryPort.startsWith(QStringLiteral("/dev/tty.")) )
+        alternatePort = QStringLiteral("/dev/cu.") + primaryPort.mid(9);
 
-        if (!alternatePort.isEmpty() && availableSerialPorts().contains(alternatePort))
-            candidates << alternatePort;
+    if ( !alternatePort.isEmpty() && availableSerialPorts().contains(alternatePort) )
+        candidates << alternatePort;
 #endif
 
-        candidates.removeDuplicates();
-        return candidates;
-    }
+    candidates.removeDuplicates();
+    return candidates;
+}
 
-    QJsonObject toJson(const AmplifierProfile &profile)
-    {
-        QJsonObject obj;
-        obj["profileName"] = profile.profileName;
-        obj["model"] = profile.model;
-        obj["connectionType"] = profile.connectionType;
-        obj["serialPort"] = profile.serialPort;
-        obj["baudRate"] = profile.baudRate;
-        obj["host"] = profile.host;
-        obj["port"] = profile.port;
-        return obj;
-    }
+QJsonObject AmplifierProfiles::toJson(const AmplifierProfile &profile)
+{
+    FCT_IDENTIFICATION;
 
-    AmplifierProfile fromJson(const QJsonObject &obj)
-    {
-        AmplifierProfile profile;
-        profile.profileName = obj["profileName"].toString();
-        profile.model = static_cast<AmplifierProfile::AmplifierModel>(obj["model"].toInt(AmplifierProfile::SPE_EXPERT_1K));
-        profile.connectionType = static_cast<AmplifierProfile::ConnectionType>(obj["connectionType"].toInt(AmplifierProfile::Serial));
-        profile.serialPort = obj["serialPort"].toString();
-        profile.baudRate = obj["baudRate"].toInt(9600);
-        profile.host = obj["host"].toString();
-        profile.port = obj["port"].toInt(5000);
-        return profile;
-    }
+    QJsonObject obj;
+    obj["profileName"] = profile.profileName;
+    obj["model"] = profile.model;
+    obj["connectionType"] = profile.connectionType;
+    obj["serialPort"] = profile.serialPort;
+    obj["baudRate"] = profile.baudRate;
+    obj["host"] = profile.host;
+    obj["port"] = profile.port;
+    return obj;
+}
 
-    quint8 keyCodeForCommand(AmplifierController::Command command)
+AmplifierProfile AmplifierProfiles::fromJson(const QJsonObject &obj)
+{
+    FCT_IDENTIFICATION;
+
+    AmplifierProfile profile;
+    profile.profileName = obj["profileName"].toString();
+    profile.model = static_cast<AmplifierProfile::AmplifierModel>(obj["model"].toInt(AmplifierProfile::SPE_EXPERT_1K));
+    profile.connectionType = static_cast<AmplifierProfile::ConnectionType>(obj["connectionType"].toInt(AmplifierProfile::Serial));
+    profile.serialPort = obj["serialPort"].toString();
+    profile.baudRate = obj["baudRate"].toInt(9600);
+    profile.host = obj["host"].toString();
+    profile.port = obj["port"].toInt(5000);
+    return profile;
+}
+
+quint8 AmplifierController::keyCodeForCommand(AmplifierController::Command command)
+{
+    FCT_IDENTIFICATION;
+
+    switch ( command )
     {
-        switch (command)
-        {
-        case AmplifierController::Operate:
-            return KEY_OPERATE;
-        case AmplifierController::Standby:
-            return KEY_OFF;
-        case AmplifierController::Tune:
-            return KEY_TUNE;
-        case AmplifierController::Mode:
-            return KEY_MODE;
-        case AmplifierController::Antenna:
-            return KEY_ANTENNA;
-        case AmplifierController::Input:
-            return KEY_INPUT;
-        case AmplifierController::Left:
-            return KEY_LEFT;
-        case AmplifierController::Right:
-            return KEY_RIGHT;
-        case AmplifierController::BandDown:
-            return KEY_BAND_MINUS;
-        case AmplifierController::BandUp:
-            return KEY_BAND_PLUS;
-        }
+    case AmplifierController::Operate:
         return KEY_OPERATE;
+    case AmplifierController::Standby:
+        return KEY_OFF;
+    case AmplifierController::Tune:
+        return KEY_TUNE;
+    case AmplifierController::Mode:
+        return KEY_MODE;
+    case AmplifierController::Antenna:
+        return KEY_ANTENNA;
+    case AmplifierController::Input:
+        return KEY_INPUT;
+    case AmplifierController::Left:
+        return KEY_LEFT;
+    case AmplifierController::Right:
+        return KEY_RIGHT;
+    case AmplifierController::BandDown:
+        return KEY_BAND_MINUS;
+    case AmplifierController::BandUp:
+        return KEY_BAND_PLUS;
     }
+    return KEY_OPERATE;
 }
 
 QList<AmplifierProfile> AmplifierProfiles::profiles()
 {
+    FCT_IDENTIFICATION;
+
     QList<AmplifierProfile> ret;
     const QJsonDocument doc = QJsonDocument::fromJson(LogParam::getAmplifierProfiles().toUtf8());
-    for (const QJsonValue &value : doc.array())
+    for ( const QJsonValue &value : doc.array() )
     {
         AmplifierProfile profile = fromJson(value.toObject());
-        if (!profile.profileName.isEmpty())
+        if ( !profile.profileName.isEmpty() )
             ret << profile;
     }
     return ret;
@@ -235,17 +225,21 @@ QList<AmplifierProfile> AmplifierProfiles::profiles()
 
 QStringList AmplifierProfiles::profileNames()
 {
+    FCT_IDENTIFICATION;
+
     QStringList ret;
-    for (const AmplifierProfile &profile : profiles())
+    for ( const AmplifierProfile &profile : profiles() )
         ret << profile.profileName;
     return ret;
 }
 
 AmplifierProfile AmplifierProfiles::profile(const QString &profileName)
 {
-    for (const AmplifierProfile &profile : profiles())
+    FCT_IDENTIFICATION;
+
+    for ( const AmplifierProfile &profile : profiles() )
     {
-        if (profile.profileName == profileName)
+        if ( profile.profileName == profileName )
             return profile;
     }
     return AmplifierProfile();
@@ -253,8 +247,10 @@ AmplifierProfile AmplifierProfiles::profile(const QString &profileName)
 
 void AmplifierProfiles::saveProfiles(const QList<AmplifierProfile> &profiles)
 {
+    FCT_IDENTIFICATION;
+
     QJsonArray array;
-    for (const AmplifierProfile &profile : profiles)
+    for ( const AmplifierProfile &profile : profiles )
         array.append(toJson(profile));
 
     LogParam::setAmplifierProfiles(QString::fromUtf8(QJsonDocument(array).toJson(QJsonDocument::Compact)));
@@ -262,28 +258,32 @@ void AmplifierProfiles::saveProfiles(const QList<AmplifierProfile> &profiles)
 
 void AmplifierProfiles::addOrReplace(const AmplifierProfile &profile)
 {
+    FCT_IDENTIFICATION;
+
     QList<AmplifierProfile> all = profiles();
     bool replaced = false;
-    for (AmplifierProfile &existing : all)
+    for ( AmplifierProfile &existing : all )
     {
-        if (existing.profileName == profile.profileName)
+        if ( existing.profileName == profile.profileName )
         {
             existing = profile;
             replaced = true;
             break;
         }
     }
-    if (!replaced)
+    if ( !replaced )
         all << profile;
     saveProfiles(all);
 }
 
 void AmplifierProfiles::remove(const QString &profileName)
 {
+    FCT_IDENTIFICATION;
+
     QList<AmplifierProfile> remaining;
-    for (const AmplifierProfile &profile : profiles())
+    for ( const AmplifierProfile &profile : profiles() )
     {
-        if (profile.profileName != profileName)
+        if ( profile.profileName != profileName )
             remaining << profile;
     }
     saveProfiles(remaining);
@@ -291,11 +291,15 @@ void AmplifierProfiles::remove(const QString &profileName)
 
 QString AmplifierProfiles::currentProfileName()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getAmplifierCurrentProfile();
 }
 
 void AmplifierProfiles::setCurrentProfileName(const QString &profileName)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setAmplifierCurrentProfile(profileName);
 }
 
@@ -311,13 +315,15 @@ AmplifierController::AmplifierController(QObject *parent) :
     serial(new QSerialPort(this)),
     rcuRetryTimer(new QTimer(this))
 {
+    FCT_IDENTIFICATION;
+
     // Coalesce tuning updates so rapid dial movement does not flood the device.
     QTimer *frequencyTimer = new QTimer(this);
     frequencyTimer->setInterval(150);
     frequencyTimer->setSingleShot(true);
     connect(frequencyTimer, &QTimer::timeout, this, [this]() {
-        if (isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz > 0
-            && pendingFrequencyKHz != lastReportedFrequencyKHz)
+        if ( isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz > 0
+            && pendingFrequencyKHz != lastReportedFrequencyKHz )
         {
             setFrequencyKHz(pendingFrequencyKHz);
             lastReportedFrequencyKHz = pendingFrequencyKHz;
@@ -326,7 +332,7 @@ AmplifierController::AmplifierController(QObject *parent) :
     const auto reportRigFrequency = [this, frequencyTimer](const Rig::Status &status) {
         const double frequency = status.isConnected ? status.freq : 0.0;
         const double frequencyKHz = frequency * 1000.0;
-        if (!std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 65535)
+        if ( !std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 65535 )
         {
             frequencyTimer->stop();
             pendingFrequencyKHz = 0;
@@ -334,8 +340,8 @@ AmplifierController::AmplifierController(QObject *parent) :
             return;
         }
         pendingFrequencyKHz = static_cast<int>(frequencyKHz);
-        if (isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz != lastReportedFrequencyKHz
-            && !frequencyTimer->isActive())
+        if ( isConnected() && frequencyReportingAllowed() && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive() )
             frequencyTimer->start();
     };
     connect(Rig::instance(), &Rig::rigStatusChanged, this, reportRigFrequency);
@@ -346,19 +352,17 @@ AmplifierController::AmplifierController(QObject *parent) :
         lastReportedFrequencyKHz = 0;
     });
     connect(this, &AmplifierController::statusChanged, this, [this, frequencyTimer](const AmplifierStatus &) {
-        if (!frequencyReportingAllowed())
+        if ( !frequencyReportingAllowed() )
         {
             frequencyTimer->stop();
             lastReportedFrequencyKHz = 0;
             return;
         }
         // Send the latest rig frequency when CAT becomes RS-232 or input changes.
-        if (pendingFrequencyKHz > 0 && pendingFrequencyKHz != lastReportedFrequencyKHz
-            && !frequencyTimer->isActive())
+        if ( pendingFrequencyKHz > 0 && pendingFrequencyKHz != lastReportedFrequencyKHz
+            && !frequencyTimer->isActive() )
             frequencyTimer->start();
     });
-
-    FCT_IDENTIFICATION;
 
     qRegisterMetaType<AmplifierStatus>("AmplifierStatus");
 
@@ -378,36 +382,50 @@ AmplifierController::AmplifierController(QObject *parent) :
 
 AmplifierController::~AmplifierController()
 {
+    FCT_IDENTIFICATION;
+
     close();
 }
 
 bool AmplifierController::isConnected() const
 {
+    FCT_IDENTIFICATION;
+
     return connectedState;
 }
 
 bool AmplifierController::isEnabled() const
 {
+    FCT_IDENTIFICATION;
+
     return enabledState;
 }
 
 QString AmplifierController::currentProfile() const
 {
+    FCT_IDENTIFICATION;
+
     return activeProfile.profileName;
 }
 
 AmplifierStatus AmplifierController::status() const
 {
+    FCT_IDENTIFICATION;
+
     return currentStatus;
 }
 
 bool AmplifierController::frequencyReportingAllowed() const
 {
+    FCT_IDENTIFICATION;
+
     return currentStatus.cat == CAT_RS232;
 }
 
 void AmplifierController::open()
 {
+    FCT_IDENTIFICATION;
+
     openProfile(AmplifierProfiles::currentProfileName());
 }
 
@@ -428,7 +446,7 @@ void AmplifierController::openProfile(const QString &profileName)
                      << "host" << activeProfile.host
                      << "port" << activeProfile.port;
 
-    if (activeProfile.profileName.isEmpty())
+    if ( activeProfile.profileName.isEmpty() )
     {
         qCWarning(runtime) << "Amplifier profile is not configured";
         emit errorPresent(tr("Amplifier profile is not configured"),
@@ -441,9 +459,9 @@ void AmplifierController::openProfile(const QString &profileName)
     parseState = ParseState::WaitSyn1;
     packetBuffer.clear();
 
-    if (activeProfile.connectionType == AmplifierProfile::Network)
+    if ( activeProfile.connectionType == AmplifierProfile::Network )
     {
-        if (activeProfile.host.isEmpty() || activeProfile.port <= 0)
+        if ( activeProfile.host.isEmpty() || activeProfile.port <= 0 )
         {
             qCWarning(runtime) << "Amplifier network settings are incomplete"
                                << "host" << activeProfile.host
@@ -462,14 +480,14 @@ void AmplifierController::openProfile(const QString &profileName)
     const QString configuredSerialPort = activeProfile.serialPort;
     const QString trimmedSerialPort = configuredSerialPort.trimmed();
     const QString serialPort = normalizedSerialPort(configuredSerialPort);
-    if (configuredSerialPort != trimmedSerialPort)
+    if ( configuredSerialPort != trimmedSerialPort )
         qCWarning(runtime) << "Amplifier serial port contained leading or trailing whitespace"
                            << configuredSerialPort << "trimmed to" << trimmedSerialPort;
-    if (trimmedSerialPort != serialPort)
+    if ( trimmedSerialPort != serialPort )
         qCWarning(runtime) << "Amplifier serial port normalized"
                            << trimmedSerialPort << "->" << serialPort;
 
-    if (serialPort.isEmpty())
+    if ( serialPort.isEmpty() )
     {
         qCWarning(runtime) << "Amplifier serial port is not configured";
         emit errorPresent(tr("Amplifier serial port is not configured"),
@@ -483,11 +501,11 @@ void AmplifierController::openProfile(const QString &profileName)
     QString lastOpenErrorName;
     QString lastOpenCandidate;
 
-    for (const QString &candidatePort : openCandidates)
+    for ( const QString &candidatePort : openCandidates )
     {
         const QSerialPortInfo candidateInfo = serialPortInfoForName(candidatePort);
         serial->clearError();
-        if (!candidateInfo.isNull())
+        if ( !candidateInfo.isNull() )
             serial->setPort(candidateInfo);
         else
             serial->setPortName(candidatePort);
@@ -500,24 +518,24 @@ void AmplifierController::openProfile(const QString &profileName)
                          << "baudRate" << activeProfile.baudRate
                          << "availablePorts" << availableSerialPorts();
 
-        if (!serial->setBaudRate(activeProfile.baudRate))
+        if ( !serial->setBaudRate(activeProfile.baudRate) )
             qCWarning(runtime) << "Cannot set amplifier serial baud rate"
                                << activeProfile.baudRate
                                << serialErrorName(serial->error())
                                << serial->errorString();
-        if (!serial->setDataBits(QSerialPort::Data8))
+        if ( !serial->setDataBits(QSerialPort::Data8) )
             qCWarning(runtime) << "Cannot set amplifier serial data bits"
                                << serialErrorName(serial->error())
                                << serial->errorString();
-        if (!serial->setParity(QSerialPort::NoParity))
+        if ( !serial->setParity(QSerialPort::NoParity) )
             qCWarning(runtime) << "Cannot set amplifier serial parity"
                                << serialErrorName(serial->error())
                                << serial->errorString();
-        if (!serial->setStopBits(QSerialPort::OneStop))
+        if ( !serial->setStopBits(QSerialPort::OneStop) )
             qCWarning(runtime) << "Cannot set amplifier serial stop bits"
                                << serialErrorName(serial->error())
                                << serial->errorString();
-        if (!serial->setFlowControl(QSerialPort::NoFlowControl))
+        if ( !serial->setFlowControl(QSerialPort::NoFlowControl) )
             qCWarning(runtime) << "Cannot set amplifier serial flow control"
                                << serialErrorName(serial->error())
                                << serial->errorString();
@@ -536,7 +554,7 @@ void AmplifierController::openProfile(const QString &profileName)
         openingSerialPort = true;
         const bool serialOpened = serial->open(QIODevice::ReadWrite);
         openingSerialPort = false;
-        if (serialOpened)
+        if ( serialOpened )
             break;
 
         lastOpenCandidate = candidatePort;
@@ -552,7 +570,7 @@ void AmplifierController::openProfile(const QString &profileName)
                            << lastOpenError;
     }
 
-    if (!serial->isOpen())
+    if ( !serial->isOpen() )
     {
         qCWarning(runtime) << "Cannot open amplifier serial port"
                            << "configuredPort" << configuredSerialPort
@@ -572,7 +590,7 @@ void AmplifierController::openProfile(const QString &profileName)
                      << serial->portName()
                      << "baudRate" << serial->baudRate();
 
-    if (!serial->setDataTerminalReady(true))
+    if ( !serial->setDataTerminalReady(true) )
         qCWarning(runtime) << "Cannot set amplifier serial DTR high"
                            << serialErrorName(serial->error())
                            << serial->errorString();
@@ -587,27 +605,27 @@ void AmplifierController::close()
     enabledState = false;
     rcuRetryTimer->stop();
 
-    if (connectedState)
+    if ( connectedState )
         writeCommand(buildRcuCommand(false));
 
-    if (serial->isOpen())
+    if ( serial->isOpen() )
     {
         // QSerialPort::close() discards unwritten output, which would leave
         // the amplifier in remote (RCU) mode. The frame is 6 bytes (~6 ms at
         // 9600 baud), so this short wait is not noticeable. A TCP socket
         // already flushes pending data in disconnectFromHost().
-        if (serial->bytesToWrite() > 0 && !serial->waitForBytesWritten(250))
+        if ( serial->bytesToWrite() > 0 && !serial->waitForBytesWritten(250) )
             qCWarning(runtime) << "Cannot flush amplifier RCU-off command before closing"
                                << serialErrorName(serial->error())
                                << serial->errorString();
-        if (!serial->setDataTerminalReady(false))
+        if ( !serial->setDataTerminalReady(false) )
             qCWarning(runtime) << "Cannot set amplifier serial DTR low"
                                << serialErrorName(serial->error())
                                << serial->errorString();
         qCDebug(runtime) << "Closing amplifier serial port" << serial->portName();
         serial->close();
     }
-    if (socket->state() != QAbstractSocket::UnconnectedState)
+    if ( socket->state() != QAbstractSocket::UnconnectedState )
         socket->disconnectFromHost();
 
     setConnected(false);
@@ -615,20 +633,26 @@ void AmplifierController::close()
 
 void AmplifierController::reloadSettings()
 {
-    if (connectedState && currentProfile() != AmplifierProfiles::currentProfileName())
+    FCT_IDENTIFICATION;
+
+    if ( connectedState && currentProfile() != AmplifierProfiles::currentProfileName() )
         open();
 }
 
 void AmplifierController::sendCommand(AmplifierController::Command command)
 {
+    FCT_IDENTIFICATION;
+
     qCDebug(runtime) << "Amplifier command requested" << command;
     writeCommand(buildKeyCommand(keyCodeForCommand(command)));
 }
 
 void AmplifierController::setFrequencyKHz(int frequencyKHz)
 {
-    if (!connectedState || !frequencyReportingAllowed()
-        || frequencyKHz <= 0 || frequencyKHz > 65535)
+    FCT_IDENTIFICATION;
+
+    if ( !connectedState || !frequencyReportingAllowed()
+        || frequencyKHz <= 0 || frequencyKHz > 65535 )
         return;
 
     // EXPERT protocol CAT_232: kHz, low byte first, additive checksum.
@@ -643,6 +667,8 @@ void AmplifierController::setFrequencyKHz(int frequencyKHz)
 
 void AmplifierController::readNetworkData()
 {
+    FCT_IDENTIFICATION;
+
     const QByteArray data = socket->readAll();
     qCDebug(runtime) << "Amplifier network data received"
                      << data.size()
@@ -652,6 +678,8 @@ void AmplifierController::readNetworkData()
 
 void AmplifierController::readSerialData()
 {
+    FCT_IDENTIFICATION;
+
     const QByteArray data = serial->readAll();
     qCDebug(runtime) << "Amplifier serial data received"
                      << data.size()
@@ -661,6 +689,8 @@ void AmplifierController::readSerialData()
 
 void AmplifierController::socketConnected()
 {
+    FCT_IDENTIFICATION;
+
     qCDebug(runtime) << "Amplifier network connected"
                      << socket->peerName()
                      << socket->peerPort();
@@ -669,7 +699,9 @@ void AmplifierController::socketConnected()
 
 void AmplifierController::socketError()
 {
-    if (socket->error() != QAbstractSocket::UnknownSocketError)
+    FCT_IDENTIFICATION;
+
+    if ( socket->error() != QAbstractSocket::UnknownSocketError )
     {
         qCWarning(runtime) << "Amplifier network error"
                            << socket->error()
@@ -682,14 +714,16 @@ void AmplifierController::socketError()
 
 void AmplifierController::serialError(QSerialPort::SerialPortError error)
 {
-    if (error != QSerialPort::NoError)
+    FCT_IDENTIFICATION;
+
+    if ( error != QSerialPort::NoError )
     {
         qCWarning(runtime) << "Amplifier serial error"
                            << serialErrorName(error)
                            << serial->errorString()
                            << "port" << serial->portName()
                            << "isOpen" << serial->isOpen();
-        if (openingSerialPort)
+        if ( openingSerialPort )
             return;
         emit errorPresent(tr("Amplifier serial error"), serial->errorString());
     }
@@ -697,12 +731,16 @@ void AmplifierController::serialError(QSerialPort::SerialPortError error)
 
 void AmplifierController::rcuRetry()
 {
-    if (connectedState)
+    FCT_IDENTIFICATION;
+
+    if ( connectedState )
         writeCommand(buildRcuCommand(true));
 }
 
 QByteArray AmplifierController::buildKeyCommand(quint8 keyCode) const
 {
+    FCT_IDENTIFICATION;
+
     QByteArray command;
     command.reserve(7);
     command.append(char(PC_SYN));
@@ -717,6 +755,8 @@ QByteArray AmplifierController::buildKeyCommand(quint8 keyCode) const
 
 QByteArray AmplifierController::buildRcuCommand(bool enabled) const
 {
+    FCT_IDENTIFICATION;
+
     const quint8 cmd = enabled ? CMD_RCU_ON : CMD_RCU_OFF;
     QByteArray command;
     command.reserve(6);
@@ -731,14 +771,16 @@ QByteArray AmplifierController::buildRcuCommand(bool enabled) const
 
 void AmplifierController::writeCommand(const QByteArray &command)
 {
-    if (activeProfile.connectionType == AmplifierProfile::Network && socket->state() == QAbstractSocket::ConnectedState)
+    FCT_IDENTIFICATION;
+
+    if ( activeProfile.connectionType == AmplifierProfile::Network && socket->state() == QAbstractSocket::ConnectedState )
     {
         qCDebug(runtime) << "Writing amplifier network command"
                          << command.size()
                          << command.toHex(' ');
         socket->write(command);
     }
-    else if (activeProfile.connectionType == AmplifierProfile::Serial && serial->isOpen())
+    else if ( activeProfile.connectionType == AmplifierProfile::Serial && serial->isOpen() )
     {
         qCDebug(runtime) << "Writing amplifier serial command"
                          << command.size()
@@ -757,14 +799,16 @@ void AmplifierController::writeCommand(const QByteArray &command)
 
 void AmplifierController::processBytes(const QByteArray &data)
 {
-    for (const char ch : data)
+    FCT_IDENTIFICATION;
+
+    for ( const char ch : data )
     {
         const quint8 byte = static_cast<quint8>(ch);
 
-        switch (parseState)
+        switch ( parseState )
         {
         case ParseState::WaitSyn1:
-            if (byte == AMP_SYN)
+            if ( byte == AMP_SYN )
             {
                 packetBuffer.clear();
                 packetBuffer.append(ch);
@@ -772,7 +816,7 @@ void AmplifierController::processBytes(const QByteArray &data)
             }
             break;
         case ParseState::WaitSyn2:
-            if (byte == AMP_SYN)
+            if ( byte == AMP_SYN )
             {
                 packetBuffer.append(ch);
                 parseState = ParseState::WaitSyn3;
@@ -781,7 +825,7 @@ void AmplifierController::processBytes(const QByteArray &data)
                 parseState = ParseState::WaitSyn1;
             break;
         case ParseState::WaitSyn3:
-            if (byte == AMP_SYN)
+            if ( byte == AMP_SYN )
             {
                 packetBuffer.append(ch);
                 parseState = ParseState::ReadCount;
@@ -798,7 +842,7 @@ void AmplifierController::processBytes(const QByteArray &data)
             break;
         case ParseState::ReadData:
             packetBuffer.append(ch);
-            if (packetBuffer.size() == static_cast<int>(4 + expectedCount))
+            if ( packetBuffer.size() == static_cast<int>(4 + expectedCount) )
                 parseState = ParseState::ReadChecksum;
             break;
         case ParseState::ReadChecksum:
@@ -812,7 +856,9 @@ void AmplifierController::processBytes(const QByteArray &data)
 
 void AmplifierController::dispatchPacket(const QByteArray &packet)
 {
-    if (expectedCount == STATUS_COUNT && packet.size() == 35 && parseSpeStatus(packet))
+    FCT_IDENTIFICATION;
+
+    if ( expectedCount == STATUS_COUNT && packet.size() == 35 && parseSpeStatus(packet) )
     {
         qCDebug(runtime) << "Amplifier status packet parsed"
                          << "operate" << currentStatus.operate
@@ -838,17 +884,19 @@ void AmplifierController::dispatchPacket(const QByteArray &packet)
 
 bool AmplifierController::parseSpeStatus(const QByteArray &packet)
 {
-    if (packet.size() < 35)
+    FCT_IDENTIFICATION;
+
+    if ( packet.size() < 35 )
     {
         qCWarning(runtime) << "Amplifier status packet is too short" << packet.size();
         return false;
     }
 
     quint8 checksum = 0;
-    for (int i = 4; i <= 33; ++i)
+    for ( int i = 4; i <= 33; ++i )
         checksum = (checksum + static_cast<quint8>(packet[i])) & 0xff;
 
-    if (checksum != static_cast<quint8>(packet[34]))
+    if ( checksum != static_cast<quint8>(packet[34]) )
     {
         qCWarning(runtime) << "Amplifier status checksum mismatch"
                            << "calculated" << checksum
@@ -873,7 +921,7 @@ bool AmplifierController::parseSpeStatus(const QByteArray &packet)
     currentStatus.freqKHz = quint16(static_cast<quint8>(packet[20])) | (quint16(static_cast<quint8>(packet[21])) << 8);
     currentStatus.antenna = static_cast<quint8>(packet[22]) & 0x0f;
     currentStatus.cat = (static_cast<quint8>(packet[22]) >> 4) & 0x0f;
-    if (currentStatus.input != previousInput || currentStatus.cat != previousCat)
+    if ( currentStatus.input != previousInput || currentStatus.cat != previousCat )
         lastReportedFrequencyKHz = 0;
 
     const quint16 swrGain = quint16(static_cast<quint8>(packet[23])) | (quint16(static_cast<quint8>(packet[24])) << 8);
@@ -898,13 +946,15 @@ bool AmplifierController::parseSpeStatus(const QByteArray &packet)
 
 void AmplifierController::setConnected(bool state)
 {
-    if (connectedState == state)
+    FCT_IDENTIFICATION;
+
+    if ( connectedState == state )
         return;
 
     qCDebug(runtime) << "Amplifier connection state changed" << connectedState << "->" << state;
     lastReportedFrequencyKHz = 0;
     connectedState = state;
-    if (connectedState)
+    if ( connectedState )
     {
         writeCommand(buildRcuCommand(true));
         rcuRetryTimer->start();
@@ -920,6 +970,8 @@ void AmplifierController::setConnected(bool state)
 
 void AmplifierController::resetStatus()
 {
+    FCT_IDENTIFICATION;
+
     currentStatus = AmplifierStatus();
     emit statusChanged(currentStatus);
 }

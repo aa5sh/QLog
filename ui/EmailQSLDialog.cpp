@@ -19,8 +19,8 @@ MODULE_IDENTIFICATION("qlog.ui.emailqsldialog");
 EmailQSLDialog::EmailQSLDialog(const QSqlRecord &record, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::EmailQSLDialog),
-      m_record(record),
-      m_service(new EmailQSLService(this))
+      qsoRecord(record),
+      emailService(new EmailQSLService(this))
 {
     FCT_IDENTIFICATION;
 
@@ -32,7 +32,7 @@ EmailQSLDialog::EmailQSLDialog(const QSqlRecord &record, QWidget *parent)
 
     QPushButton *sendBtn = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendBtn, &QPushButton::clicked, this, &EmailQSLDialog::sendClicked);
-    connect(m_service, &EmailQSLService::sendFinished,
+    connect(emailService, &EmailQSLService::sendFinished,
             this, &EmailQSLDialog::onSendFinished);
 
     populateInfo();
@@ -41,6 +41,8 @@ EmailQSLDialog::EmailQSLDialog(const QSqlRecord &record, QWidget *parent)
 
 EmailQSLDialog::~EmailQSLDialog()
 {
+    FCT_IDENTIFICATION;
+
     delete ui;
 }
 
@@ -48,11 +50,11 @@ void EmailQSLDialog::populateInfo()
 {
     FCT_IDENTIFICATION;
 
-    const QString callsign = m_record.value(QStringLiteral("callsign")).toString().toUpper();
-    const QString email    = m_record.value(QStringLiteral("email")).toString();
-    const QDateTime dt     = m_record.value(QStringLiteral("start_time")).toDateTime().toUTC();
-    const QString band     = m_record.value(QStringLiteral("band")).toString().toUpper();
-    const QString mode     = m_record.value(QStringLiteral("mode")).toString().toUpper();
+    const QString callsign = qsoRecord.value(QStringLiteral("callsign")).toString().toUpper();
+    const QString email    = qsoRecord.value(QStringLiteral("email")).toString();
+    const QDateTime dt     = qsoRecord.value(QStringLiteral("start_time")).toDateTime().toUTC();
+    const QString band     = qsoRecord.value(QStringLiteral("band")).toString().toUpper();
+    const QString mode     = qsoRecord.value(QStringLiteral("mode")).toString().toUpper();
 
     ui->callValueLabel->setText(callsign.isEmpty() ? tr("(unknown)") : callsign);
     ui->emailValueLabel->setText(email.isEmpty()
@@ -65,13 +67,13 @@ void EmailQSLDialog::populateInfo()
 
     // Subject / body previews
     ui->subjectPreviewLabel->setText(
-        EmailQSLBase::applyMergeFields(EmailQSLBase::getSubjectTemplate(), m_record));
+        EmailQSLBase::applyMergeFields(EmailQSLBase::getSubjectTemplate(), qsoRecord));
     ui->bodyPreviewEdit->setPlainText(
-        EmailQSLBase::applyMergeFields(EmailQSLBase::getBodyTemplate(), m_record));
+        EmailQSLBase::applyMergeFields(EmailQSLBase::getBodyTemplate(), qsoRecord));
 
     // Card thumbnail
-    const QPixmap card = EmailQSLBase::renderCard(m_record);
-    if (!card.isNull())
+    const QPixmap card = EmailQSLBase::renderCard(qsoRecord);
+    if ( !card.isNull() )
         ui->cardPreviewLabel->setPixmap(card.scaled(
             ui->cardPreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     else
@@ -85,38 +87,38 @@ void EmailQSLDialog::buildWarnings()
     QStringList warnings;
 
     // 1) No email address
-    const QString emailAddr = m_record.value(QStringLiteral("email")).toString().trimmed();
-    if (emailAddr.isEmpty())
+    const QString emailAddr = qsoRecord.value(QStringLiteral("email")).toString().trimmed();
+    if ( emailAddr.isEmpty() )
     {
         warnings << tr("This contact has no email address — the message cannot be sent.");
         // Disable the Send button
-        for (QAbstractButton *btn : ui->buttonBox->buttons())
-            if (ui->buttonBox->buttonRole(btn) == QDialogButtonBox::AcceptRole)
+        for ( QAbstractButton *btn : ui->buttonBox->buttons() )
+            if ( ui->buttonBox->buttonRole(btn) == QDialogButtonBox::AcceptRole )
                 btn->setEnabled(false);
     }
 
     // 2) Already sent for this specific QSO
-    const QDateTime prevSent = EmailQSLBase::getEmailSentDateTime(m_record);
-    if (prevSent.isValid())
+    const QDateTime prevSent = EmailQSLBase::getEmailSentDateTime(qsoRecord);
+    if ( prevSent.isValid() )
     {
         warnings << tr("An Email QSL was already sent for this QSO on %1 UTC.")
                     .arg(prevSent.toString(Qt::RFC2822Date));
     }
 
     // 3) Previously sent to the same callsign (different QSO)
-    const QString callsign = m_record.value(QStringLiteral("callsign")).toString().toUpper();
-    const int     id       = m_record.value(QStringLiteral("id")).toInt();
-    if (!callsign.isEmpty() && EmailQSLBase::hasEmailBeenSentToCallsign(callsign, id))
+    const QString callsign = qsoRecord.value(QStringLiteral("callsign")).toString().toUpper();
+    const int     id       = qsoRecord.value(QStringLiteral("id")).toInt();
+    if ( !callsign.isEmpty() && EmailQSLBase::hasEmailBeenSentToCallsign(callsign, id) )
     {
         warnings << tr("Note: you have previously sent an Email QSL to %1 for a different QSO.")
                     .arg(callsign);
     }
 
     // 4) No SMTP host configured
-    if (EmailQSLBase::getSmtpHost().isEmpty())
+    if ( EmailQSLBase::getSmtpHost().isEmpty() )
         warnings << tr("SMTP server is not configured. Go to Settings → Email QSL.");
 
-    if (!warnings.isEmpty())
+    if ( !warnings.isEmpty() )
         ui->warningLabel->setText(warnings.join(QStringLiteral("\n")));
 }
 
@@ -125,19 +127,19 @@ void EmailQSLDialog::sendClicked()
     FCT_IDENTIFICATION;
 
     // Disable buttons while sending
-    for (QAbstractButton *btn : ui->buttonBox->buttons())
+    for ( QAbstractButton *btn : ui->buttonBox->buttons() )
         btn->setEnabled(false);
 
     ui->statusLabel->setText(tr("Sending…"));
 
-    m_service->sendEmailQSL(m_record);
+    emailService->sendEmailQSL(qsoRecord);
 }
 
 void EmailQSLDialog::onSendFinished(bool success, const QString &message)
 {
     FCT_IDENTIFICATION;
 
-    if (success)
+    if ( success )
     {
         // EmailQSLService has already recorded the send in contacts.fields.
         // Auto-close — the log table refresh is handled by the finished() signal
@@ -149,10 +151,10 @@ void EmailQSLDialog::onSendFinished(bool success, const QString &message)
         ui->statusLabel->setText(tr("Send failed: %1").arg(message));
 
         // Rename Cancel → Close and disable Send so the user can only dismiss
-        for (QAbstractButton *btn : ui->buttonBox->buttons())
+        for ( QAbstractButton *btn : ui->buttonBox->buttons() )
         {
             const QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(btn);
-            if (role == QDialogButtonBox::RejectRole)
+            if ( role == QDialogButtonBox::RejectRole )
             {
                 btn->setText(tr("Close"));
                 btn->setEnabled(true);
@@ -169,8 +171,8 @@ void EmailQSLDialog::previewAndPrintCard()
 {
     FCT_IDENTIFICATION;
 
-    const QPixmap card = EmailQSLBase::renderCard(m_record);
-    if (card.isNull())
+    const QPixmap card = EmailQSLBase::renderCard(qsoRecord);
+    if ( card.isNull() )
     {
         QMessageBox::warning(this, tr("Preview"),
                              tr("Could not render the card image.\n"
@@ -181,7 +183,7 @@ void EmailQSLDialog::previewAndPrintCard()
     QDialog *dlg = new QDialog(this);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setWindowTitle(tr("Card Preview — %1")
-                        .arg(m_record.value(QStringLiteral("callsign")).toString().toUpper()));
+                        .arg(qsoRecord.value(QStringLiteral("callsign")).toString().toUpper()));
     QVBoxLayout *lay = new QVBoxLayout(dlg);
 
     QScrollArea *scroll = new QScrollArea(dlg);
@@ -199,13 +201,13 @@ void EmailQSLDialog::previewAndPrintCard()
 
     connect(saveBtn, &QPushButton::clicked, dlg, [card, this]()
     {
-        const QString callsign = m_record.value(QStringLiteral("callsign")).toString().toUpper();
-        const QString rawDate  = m_record.value(QStringLiteral("start_time")).toString();
+        const QString callsign = qsoRecord.value(QStringLiteral("callsign")).toString().toUpper();
+        const QString rawDate  = qsoRecord.value(QStringLiteral("start_time")).toString();
         const QDateTime dt     = QDateTime::fromString(rawDate, Qt::ISODate);
         const QString date     = dt.isValid() ? dt.toUTC().toString(QStringLiteral("yyyyMMdd")) : QStringLiteral("date");
         const QString time     = dt.isValid() ? dt.toUTC().toString(QStringLiteral("HHmm"))     : QStringLiteral("time");
-        const QString band     = m_record.value(QStringLiteral("band")).toString().toUpper().replace(QLatin1Char(' '), QLatin1Char('_'));
-        const QString mode     = m_record.value(QStringLiteral("mode")).toString().toUpper();
+        const QString band     = qsoRecord.value(QStringLiteral("band")).toString().toUpper().replace(QLatin1Char(' '), QLatin1Char('_'));
+        const QString mode     = qsoRecord.value(QStringLiteral("mode")).toString().toUpper();
         const QString defaultName = QStringLiteral("QSL_%1_%2_%3_%4_%5.png")
                                     .arg(callsign, date, time, band, mode);
         const QString defaultDir  = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
@@ -215,10 +217,10 @@ void EmailQSLDialog::previewAndPrintCard()
             defaultDir + QStringLiteral("/") + defaultName,
             tr("PNG Image (*.png);;JPEG Image (*.jpg *.jpeg)"));
 
-        if (path.isEmpty())
+        if ( path.isEmpty() )
             return;
 
-        if (!card.save(path))
+        if ( !card.save(path) )
         {
             QMessageBox::warning(this, tr("Save Failed"),
                                  tr("Could not save the card image to:\n%1").arg(path));

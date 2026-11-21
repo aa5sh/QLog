@@ -46,11 +46,15 @@ WaveshareSettingsWidget::WaveshareSettingsWidget(QWidget *parent) :
 
 WaveshareSettingsWidget::~WaveshareSettingsWidget()
 {
+    FCT_IDENTIFICATION;
+
     delete ui;
 }
 
 void WaveshareSettingsWidget::loadSettings()
 {
+    FCT_IDENTIFICATION;
+
     ui->actionsTable->setRowCount(0);
 
     const QList<WaveshareAction> actions = WaveshareControl::loadActions();
@@ -60,6 +64,8 @@ void WaveshareSettingsWidget::loadSettings()
 
 void WaveshareSettingsWidget::saveSettings() const
 {
+    FCT_IDENTIFICATION;
+
     QList<WaveshareAction> actions;
 
     for ( int row = 0; row < ui->actionsTable->rowCount(); ++row )
@@ -74,6 +80,8 @@ void WaveshareSettingsWidget::saveSettings() const
 
 void WaveshareSettingsWidget::appendActionRow(const WaveshareAction &action)
 {
+    FCT_IDENTIFICATION;
+
     const int row = ui->actionsTable->rowCount();
     ui->actionsTable->insertRow(row);
 
@@ -118,6 +126,8 @@ void WaveshareSettingsWidget::appendActionRow(const WaveshareAction &action)
 
 WaveshareAction WaveshareSettingsWidget::actionFromRow(int row) const
 {
+    FCT_IDENTIFICATION;
+
     WaveshareAction action;
 
     QTableWidgetItem *enabledItem = ui->actionsTable->item(row, 0);
@@ -156,6 +166,8 @@ WaveshareAction WaveshareSettingsWidget::actionFromRow(int row) const
 
 void WaveshareSettingsWidget::addAction()
 {
+    FCT_IDENTIFICATION;
+
     WaveshareAction action;
     action.label = tr("New Relay");
     appendActionRow(action);
@@ -164,6 +176,8 @@ void WaveshareSettingsWidget::addAction()
 
 void WaveshareSettingsWidget::removeAction()
 {
+    FCT_IDENTIFICATION;
+
     const int row = ui->actionsTable->currentRow();
     if ( row >= 0 )
         ui->actionsTable->removeRow(row);

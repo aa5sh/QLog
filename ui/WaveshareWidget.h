@@ -55,6 +55,11 @@ private:
     void processNextRtuRequest();
     QString actionLabel(const WaveshareAction &action) const;
 
+    // Modbus RTU framing (Waveshare relay boards in "RTU over TCP" mode).
+    static quint16 crc16Modbus(const QByteArray &data);
+    static QByteArray rtuFrame(quint8 unitId, const QByteArray &pdu);
+    static bool hasValidCrc(const QByteArray &frame);
+
     Ui::WaveshareWidget *ui;
     QList<Row> rows;
     QList<WaveshareAction> actions;

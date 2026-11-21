@@ -6,6 +6,9 @@
 #include <QTcpSocket>
 #include <QSerialPort>
 
+class QJsonObject;
+class QSerialPortInfo;
+
 struct AmplifierProfile
 {
     enum AmplifierModel
@@ -77,6 +80,10 @@ public:
     static void remove(const QString &profileName);
     static QString currentProfileName();
     static void setCurrentProfileName(const QString &profileName);
+
+private:
+    static QJsonObject toJson(const AmplifierProfile &profile);
+    static AmplifierProfile fromJson(const QJsonObject &obj);
 };
 
 class AmplifierController : public QObject
@@ -129,6 +136,42 @@ private slots:
     void rcuRetry();
 
 private:
+    // SPE Expert serial protocol.
+    static constexpr quint8 PC_SYN = 0x55;
+    static constexpr quint8 AMP_SYN = 0xaa;
+    static constexpr quint8 STATUS_COUNT = 0x1e;
+
+    static constexpr quint8 CMD_KEY_ON = 0x10;
+    static constexpr quint8 CMD_RCU_ON = 0x80;
+    static constexpr quint8 CMD_RCU_OFF = 0x81;
+    static constexpr int CAT_RS232 = 6;
+
+    static constexpr quint8 KEY_OFF = 0x18;
+    static constexpr quint8 KEY_MODE = 0x1a;
+    static constexpr quint8 KEY_OPERATE = 0x1c;
+    static constexpr quint8 KEY_INPUT = 0x28;
+    static constexpr quint8 KEY_BAND_MINUS = 0x29;
+    static constexpr quint8 KEY_BAND_PLUS = 0x2a;
+    static constexpr quint8 KEY_ANTENNA = 0x2b;
+    static constexpr quint8 KEY_LEFT = 0x2d;
+    static constexpr quint8 KEY_RIGHT = 0x2e;
+    static constexpr quint8 KEY_TUNE = 0x34;
+
+    static constexpr quint8 FLAG_TUNE = 0x01;
+    static constexpr quint8 FLAG_OPERATE = 0x02;
+    static constexpr quint8 FLAG_TX = 0x04;
+    static constexpr quint8 FLAG_ALARM = 0x08;
+    static constexpr quint8 FLAG_FULL_MODE = 0x10;
+    static constexpr quint8 FLAG_TEMP_CELSIUS = 0x80;
+
+    static QString connectionTypeName(AmplifierProfile::ConnectionType type);
+    static QString serialErrorName(QSerialPort::SerialPortError error);
+    static QStringList availableSerialPorts();
+    static QSerialPortInfo serialPortInfoForName(const QString &configuredPort);
+    static QString normalizedSerialPort(const QString &configuredPort);
+    static QStringList serialPortOpenCandidates(const QString &primaryPort);
+    static quint8 keyCodeForCommand(AmplifierController::Command command);
+
     explicit AmplifierController(QObject *parent = nullptr);
     ~AmplifierController();
 

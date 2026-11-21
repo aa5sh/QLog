@@ -34,13 +34,13 @@ private:
     static QString zoneKindLabel();
     static QString workedLabel();
 
-    QComboBox *m_profile = nullptr;
-    QComboBox *m_profileMatch = nullptr;
-    QSpinBox *m_year = nullptr;
-    QLabel *m_score = nullptr;
-    QTableView *m_table = nullptr;
-    QSqlQueryModel *m_model = nullptr;
-    QString m_userFilter;
+    QComboBox *profileCombo = nullptr;
+    QComboBox *profileMatchCombo = nullptr;
+    QSpinBox *yearSpin = nullptr;
+    QLabel *scoreLabel = nullptr;
+    QTableView *resultTable = nullptr;
+    QSqlQueryModel *resultModel = nullptr;
+    QString userFilter;
 };
 
 #endif

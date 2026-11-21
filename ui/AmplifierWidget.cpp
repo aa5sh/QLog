@@ -8,14 +8,6 @@
 
 MODULE_IDENTIFICATION("qlog.ui.amplifierwidget");
 
-namespace
-{
-    const char *const BAND_NAMES[] =
-    {
-        "160m", "80m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m"
-    };
-}
-
 AmplifierWidget::AmplifierWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AmplifierWidget)
@@ -64,39 +56,51 @@ AmplifierWidget::AmplifierWidget(QWidget *parent) :
 
 AmplifierWidget::~AmplifierWidget()
 {
+    FCT_IDENTIFICATION;
+
     delete ui;
 }
 
 void AmplifierWidget::setConnectAction(QAction *action)
 {
+    FCT_IDENTIFICATION;
+
     ui->connectButton->setDefaultAction(action);
 }
 
 void AmplifierWidget::reloadSettings()
 {
+    FCT_IDENTIFICATION;
+
     refreshProfiles();
     AmplifierController::instance()->reloadSettings();
 }
 
 void AmplifierWidget::refreshProfiles()
 {
+    FCT_IDENTIFICATION;
+
     const QSignalBlocker blocker(ui->profileCombo);
     ui->profileCombo->clear();
     ui->profileCombo->addItems(AmplifierProfiles::profileNames());
 
     const int index = ui->profileCombo->findText(AmplifierProfiles::currentProfileName());
-    if (index >= 0)
+    if ( index >= 0 )
         ui->profileCombo->setCurrentIndex(index);
 }
 
 void AmplifierWidget::setProfile(const QString &profileName)
 {
+    FCT_IDENTIFICATION;
+
     AmplifierProfiles::setCurrentProfileName(profileName);
     emit profileChanged();
 }
 
 void AmplifierWidget::amplifierConnected()
 {
+    FCT_IDENTIFICATION;
+
     ui->connectButton->setStyleSheet(QStringLiteral("QToolButton {background-color: green}"));
     ui->connectedIndicator->setStyleSheet(ledStyle("#00c853"));
     ui->connectedIndicator->setToolTip(tr("Connected"));
@@ -105,6 +109,8 @@ void AmplifierWidget::amplifierConnected()
 
 void AmplifierWidget::amplifierDisconnected()
 {
+    FCT_IDENTIFICATION;
+
     ui->connectButton->setStyleSheet(QString());
     ui->connectedIndicator->setStyleSheet(ledStyle("#d50000"));
     ui->connectedIndicator->setToolTip(tr("Disconnected"));
@@ -114,6 +120,8 @@ void AmplifierWidget::amplifierDisconnected()
 
 void AmplifierWidget::statusChanged(const AmplifierStatus &status)
 {
+    FCT_IDENTIFICATION;
+
     setStyleIfChanged(ui->connectButton, AmplifierController::instance()->isConnected()
                                      ? QStringLiteral("QToolButton {background-color: green}")
                                      : QString());
@@ -150,9 +158,17 @@ void AmplifierWidget::statusChanged(const AmplifierStatus &status)
 
 QString AmplifierWidget::bandName(int band)
 {
-    if (band >= 0 && band < 10)
+    FCT_IDENTIFICATION;
+
+    // Band index as reported in the SPE Expert status packet.
+    static const char *const BAND_NAMES[] =
+    {
+        "160m", "80m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m"
+    };
+
+    if ( band >= 0 && band < 10 )
         return BAND_NAMES[band];
-    return "--";
+    return QStringLiteral("--");
 }
 
 void AmplifierWidget::setStyleIfChanged(QWidget *widget, const QString &style)
@@ -167,12 +183,16 @@ void AmplifierWidget::setStyleIfChanged(QWidget *widget, const QString &style)
 
 QString AmplifierWidget::ledStyle(const QString &color)
 {
+    FCT_IDENTIFICATION;
+
     return QStringLiteral("border-radius:6px; min-width:12px; max-width:12px; min-height:12px; max-height:12px; background:%1;")
             .arg(color);
 }
 
 void AmplifierWidget::updateControlsEnabled(bool enabled)
 {
+    FCT_IDENTIFICATION;
+
     const QList<QPushButton *> buttons =
     {
         ui->standbyButton,
@@ -186,12 +206,14 @@ void AmplifierWidget::updateControlsEnabled(bool enabled)
         ui->bandUpButton
     };
 
-    for (QPushButton *button : buttons)
+    for ( QPushButton *button : buttons )
         button->setEnabled(enabled);
 }
 
 void AmplifierWidget::resetStatus()
 {
+    FCT_IDENTIFICATION;
+
     ui->connectedIndicator->setStyleSheet(ledStyle("#d50000"));
     ui->connectedIndicator->setToolTip(tr("Disconnected"));
     ui->tuningIndicator->setStyleSheet(ledStyle("#9e9e9e"));

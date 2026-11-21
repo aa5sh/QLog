@@ -323,11 +323,15 @@ bool LogParam::getDxccConfirmedByEqslState()
 
 bool LogParam::getDXMarathonAlertByCallsign()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("others/dxmarathonalertbycallsign", false).toBool();
 }
 
 bool LogParam::setDXMarathonAlertByCallsign(bool state)
 {
+    FCT_IDENTIFICATION;
+
     return setParam("others/dxmarathonalertbycallsign", state);
 }
 
@@ -1006,31 +1010,43 @@ void LogParam::setKSTChatUsername(const QString &username)
 
 QString LogParam::getEmailQSLSmtpHost()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/smtpHost").toString();
 }
 
 void LogParam::setEmailQSLSmtpHost(const QString &host)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/smtpHost", host);
 }
 
 int LogParam::getEmailQSLSmtpPort()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/smtpPort", 587).toInt();
 }
 
 void LogParam::setEmailQSLSmtpPort(int port)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/smtpPort", port);
 }
 
 int LogParam::getEmailQSLSmtpEncryption()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/smtpEncryption", 2).toInt();
 }
 
 void LogParam::setEmailQSLSmtpEncryption(int enc)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/smtpEncryption", enc);
 }
 
@@ -1051,71 +1067,99 @@ void LogParam::setEmailQSLSmtpAllowInvalidCert(bool allow)
 
 QString LogParam::getEmailQSLSmtpUsername()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/smtpUsername").toString();
 }
 
 void LogParam::setEmailQSLSmtpUsername(const QString &username)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/smtpUsername", username);
 }
 
 QString LogParam::getEmailQSLFromAddress()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/fromAddress").toString();
 }
 
 void LogParam::setEmailQSLFromAddress(const QString &addr)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/fromAddress", addr);
 }
 
 QString LogParam::getEmailQSLFromName()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/fromName").toString();
 }
 
 void LogParam::setEmailQSLFromName(const QString &name)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/fromName", name);
 }
 
 QString LogParam::getEmailQSLSubjectTemplate(const QString &defaultValue)
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/subjectTemplate", defaultValue).toString();
 }
 
 void LogParam::setEmailQSLSubjectTemplate(const QString &tmpl)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/subjectTemplate", tmpl);
 }
 
 QString LogParam::getEmailQSLBodyTemplate(const QString &defaultValue)
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/bodyTemplate", defaultValue).toString();
 }
 
 void LogParam::setEmailQSLBodyTemplate(const QString &tmpl)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/bodyTemplate", tmpl);
 }
 
 QString LogParam::getEmailQSLCardImagePath()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/cardImagePath").toString();
 }
 
 void LogParam::setEmailQSLCardImagePath(const QString &path)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/cardImagePath", path);
 }
 
 QByteArray LogParam::getEmailQSLCardOverlays()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("services/emailqsl/cardOverlays").toByteArray();
 }
 
 void LogParam::setEmailQSLCardOverlays(const QByteArray &json)
 {
+    FCT_IDENTIFICATION;
+
     setParam("services/emailqsl/cardOverlays", json);
 }
 
@@ -2082,11 +2126,15 @@ void LogParam::setMainWindowBandmapWidgets(const QString &value)
 
 QString LogParam::getWaveshareActions()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("waveshare/actions", QString()).toString();
 }
 
 void LogParam::setWaveshareActions(const QString &json)
 {
+    FCT_IDENTIFICATION;
+
     setParam("waveshare/actions", json);
 }
 
@@ -2097,41 +2145,57 @@ void LogParam::removeMainWindowBandmapWidgets()
 
 QString LogParam::getSteppirProfiles()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("steppir/profiles", QString()).toString();
 }
 
 void LogParam::setSteppirProfiles(const QString &profilesJson)
 {
+    FCT_IDENTIFICATION;
+
     setParam("steppir/profiles", profilesJson);
 }
 
 QString LogParam::getSteppirCurrentProfile()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("steppir/currentprofile", QString()).toString();
 }
 
 void LogParam::setSteppirCurrentProfile(const QString &profileName)
 {
+    FCT_IDENTIFICATION;
+
     setParam("steppir/currentprofile", profileName);
 }
 
 QString LogParam::getAmplifierProfiles()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("amplifier/profiles", "[]").toString();
 }
 
 void LogParam::setAmplifierProfiles(const QString &profilesJson)
 {
+    FCT_IDENTIFICATION;
+
     setParam("amplifier/profiles", profilesJson);
 }
 
 QString LogParam::getAmplifierCurrentProfile()
 {
+    FCT_IDENTIFICATION;
+
     return getParam("amplifier/currentprofile", "").toString();
 }
 
 void LogParam::setAmplifierCurrentProfile(const QString &profileName)
 {
+    FCT_IDENTIFICATION;
+
     setParam("amplifier/currentprofile", profileName);
 }
 

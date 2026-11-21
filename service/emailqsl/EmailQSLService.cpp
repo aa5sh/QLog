@@ -25,6 +25,8 @@ MODULE_IDENTIFICATION("qlog.service.emailqsl");
 
 QJsonObject EmailQSLFieldOverlay::toJson() const
 {
+    FCT_IDENTIFICATION;
+
     QJsonObject o;
     o["type"]         = type;
     o["fieldName"]    = fieldName;
@@ -45,6 +47,8 @@ QJsonObject EmailQSLFieldOverlay::toJson() const
 
 EmailQSLFieldOverlay EmailQSLFieldOverlay::fromJson(const QJsonObject &obj)
 {
+    FCT_IDENTIFICATION;
+
     EmailQSLFieldOverlay f;
     f.type         = obj.value("type").toString(QStringLiteral("TEXT"));
     f.fieldName    = obj.value("fieldName").toString();
@@ -72,6 +76,8 @@ REGISTRATION_SECURE_SERVICE(EmailQSLBase);
 
 void EmailQSLBase::registerCredentials()
 {
+    FCT_IDENTIFICATION;
+
     CredentialRegistry::instance().add(SECURE_STORAGE_KEY, []()
     {
         return QList<CredentialDescriptor>
@@ -87,21 +93,29 @@ void EmailQSLBase::registerCredentials()
 
 QString EmailQSLBase::getSmtpHost()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLSmtpHost();
 }
 
 void EmailQSLBase::setSmtpHost(const QString &host)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLSmtpHost(host);
 }
 
 int EmailQSLBase::getSmtpPort()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLSmtpPort();
 }
 
 void EmailQSLBase::setSmtpPort(int port)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLSmtpPort(port);
 }
 
@@ -122,33 +136,45 @@ void EmailQSLBase::setSmtpAllowInvalidCert(bool allow)
 
 int EmailQSLBase::getSmtpEncryption()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLSmtpEncryption();
 }
 
 void EmailQSLBase::setSmtpEncryption(int enc)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLSmtpEncryption(enc);
 }
 
 QString EmailQSLBase::getSmtpUsername()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLSmtpUsername();
 }
 
 void EmailQSLBase::setSmtpUsername(const QString &username)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLSmtpUsername(username);
 }
 
 QString EmailQSLBase::getSmtpPassword()
 {
+    FCT_IDENTIFICATION;
+
     return getPassword(SECURE_STORAGE_KEY, getSmtpUsername());
 }
 
 void EmailQSLBase::saveSmtpCredentials(const QString &username, const QString &password)
 {
+    FCT_IDENTIFICATION;
+
     const QString oldUsername = getSmtpUsername();
-    if (oldUsername != username && !oldUsername.isEmpty())
+    if ( oldUsername != username && !oldUsername.isEmpty() )
         deletePassword(SECURE_STORAGE_KEY, oldUsername);
     setSmtpUsername(username);
     savePassword(SECURE_STORAGE_KEY, username, password);
@@ -156,37 +182,51 @@ void EmailQSLBase::saveSmtpCredentials(const QString &username, const QString &p
 
 QString EmailQSLBase::getFromAddress()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLFromAddress();
 }
 
 void EmailQSLBase::setFromAddress(const QString &addr)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLFromAddress(addr);
 }
 
 QString EmailQSLBase::getFromName()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLFromName();
 }
 
 void EmailQSLBase::setFromName(const QString &name)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLFromName(name);
 }
 
 QString EmailQSLBase::getSubjectTemplate()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLSubjectTemplate(
         QStringLiteral("QSL Card from {MY_CALLSIGN} for our QSO on {QSO_DATE}"));
 }
 
 void EmailQSLBase::setSubjectTemplate(const QString &tmpl)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLSubjectTemplate(tmpl);
 }
 
 QString EmailQSLBase::getBodyTemplate()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLBodyTemplate(
         QStringLiteral("Dear {NAME},\n\nPlease find my QSL card attached confirming our contact.\n\n"
                        "Callsign: {MY_CALLSIGN}\n"
@@ -198,32 +238,42 @@ QString EmailQSLBase::getBodyTemplate()
 
 void EmailQSLBase::setBodyTemplate(const QString &tmpl)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLBodyTemplate(tmpl);
 }
 
 QString EmailQSLBase::getCardImagePath()
 {
+    FCT_IDENTIFICATION;
+
     return LogParam::getEmailQSLCardImagePath();
 }
 
 void EmailQSLBase::setCardImagePath(const QString &path)
 {
+    FCT_IDENTIFICATION;
+
     LogParam::setEmailQSLCardImagePath(path);
 }
 
 QList<EmailQSLFieldOverlay> EmailQSLBase::getCardFieldOverlays()
 {
+    FCT_IDENTIFICATION;
+
     QList<EmailQSLFieldOverlay> result;
     const QJsonArray arr = QJsonDocument::fromJson(LogParam::getEmailQSLCardOverlays()).array();
-    for (const QJsonValue &v : arr)
+    for ( const QJsonValue &v : arr )
         result.append(EmailQSLFieldOverlay::fromJson(v.toObject()));
     return result;
 }
 
 void EmailQSLBase::setCardFieldOverlays(const QList<EmailQSLFieldOverlay> &overlays)
 {
+    FCT_IDENTIFICATION;
+
     QJsonArray arr;
-    for (const EmailQSLFieldOverlay &o : overlays)
+    for ( const EmailQSLFieldOverlay &o : overlays )
         arr.append(o.toJson());
     LogParam::setEmailQSLCardOverlays(QJsonDocument(arr).toJson(QJsonDocument::Compact));
 }
@@ -236,6 +286,8 @@ static const QString EMAIL_QSL_SENT_KEY = QStringLiteral("email_qsl_sent_dt");
 
 QDateTime EmailQSLBase::getEmailSentDateTime(const QSqlRecord &record)
 {
+    FCT_IDENTIFICATION;
+
     const QByteArray raw = record.value(QStringLiteral("fields")).toByteArray();
     const QJsonObject fields = QJsonDocument::fromJson(raw).object();
     const QString dtStr = fields.value(EMAIL_QSL_SENT_KEY).toString();
@@ -244,18 +296,20 @@ QDateTime EmailQSLBase::getEmailSentDateTime(const QSqlRecord &record)
 
 bool EmailQSLBase::hasEmailBeenSentToCallsign(const QString &callsign, int excludeId)
 {
+    FCT_IDENTIFICATION;
+
     QSqlQuery q;
     q.prepare(QStringLiteral("SELECT fields FROM contacts WHERE callsign = :cs AND id != :ex"));
     q.bindValue(":cs", callsign.toUpper());
     q.bindValue(":ex", excludeId);
-    if (!q.exec())
+    if ( !q.exec() )
         return false;
 
-    while (q.next())
+    while ( q.next() )
     {
         const QByteArray raw = q.value(0).toByteArray();
         const QJsonObject fields = QJsonDocument::fromJson(raw).object();
-        if (fields.contains(EMAIL_QSL_SENT_KEY))
+        if ( fields.contains(EMAIL_QSL_SENT_KEY) )
             return true;
     }
     return false;
@@ -306,74 +360,96 @@ bool EmailQSLBase::recordEmailSent(int contactId)
 
 QString EmailQSLBase::fieldValue(const QString &key, const QSqlRecord &record)
 {
-    if (key == QLatin1String("CALLSIGN"))
+    FCT_IDENTIFICATION;
+
+    if ( key == QLatin1String("CALLSIGN") )
         return record.value(QStringLiteral("callsign")).toString().toUpper();
 
-    if (key == QLatin1String("QSO_DATE"))
+    if ( key == QLatin1String("QSO_DATE") )
     {
         const QDateTime dt = record.value(QStringLiteral("start_time")).toDateTime();
         return dt.isValid() ? dt.toUTC().toString(QStringLiteral("dd-MMM-yyyy")).toUpper() : QString();
     }
-    if (key == QLatin1String("QSO_DATE_ISO"))
+    if ( key == QLatin1String("QSO_DATE_ISO") )
     {
         const QDateTime dt = record.value(QStringLiteral("start_time")).toDateTime();
         return dt.isValid() ? dt.toUTC().toString(QStringLiteral("yyyyMMdd")) : QString();
     }
-    if (key == QLatin1String("TIME_ON"))
+    if ( key == QLatin1String("TIME_ON") )
     {
         const QDateTime dt = record.value(QStringLiteral("start_time")).toDateTime();
         return dt.isValid() ? dt.toUTC().toString(QStringLiteral("HHmm")) : QString();
     }
-    if (key == QLatin1String("FREQ"))
+    if ( key == QLatin1String("FREQ") )
     {
         bool ok;
         double mhz = record.value(QStringLiteral("freq")).toDouble(&ok);
         return ok ? QString::number(mhz, 'f', 3) : QString();
     }
-    if (key == QLatin1String("BAND"))        return record.value(QStringLiteral("band")).toString().toUpper();
-    if (key == QLatin1String("MODE"))        return record.value(QStringLiteral("mode")).toString().toUpper();
-    if (key == QLatin1String("SUBMODE"))     return record.value(QStringLiteral("submode")).toString().toUpper();
-    if (key == QLatin1String("RST_SENT"))    return record.value(QStringLiteral("rst_sent")).toString();
-    if (key == QLatin1String("RST_RCVD"))    return record.value(QStringLiteral("rst_rcvd")).toString();
-    if (key == QLatin1String("NAME"))
+    if ( key == QLatin1String("BAND") )
+        return record.value(QStringLiteral("band")).toString().toUpper();
+    if ( key == QLatin1String("MODE") )
+        return record.value(QStringLiteral("mode")).toString().toUpper();
+    if ( key == QLatin1String("SUBMODE") )
+        return record.value(QStringLiteral("submode")).toString().toUpper();
+    if ( key == QLatin1String("RST_SENT") )
+        return record.value(QStringLiteral("rst_sent")).toString();
+    if ( key == QLatin1String("RST_RCVD") )
+        return record.value(QStringLiteral("rst_rcvd")).toString();
+    if ( key == QLatin1String("NAME") )
     {
         const QString n = record.value(QStringLiteral("name_intl")).toString();
         return n.isEmpty() ? record.value(QStringLiteral("name")).toString() : n;
     }
-    if (key == QLatin1String("QTH"))
+    if ( key == QLatin1String("QTH") )
     {
         const QString q = record.value(QStringLiteral("qth_intl")).toString();
         return q.isEmpty() ? record.value(QStringLiteral("qth")).toString() : q;
     }
-    if (key == QLatin1String("COUNTRY"))
+    if ( key == QLatin1String("COUNTRY") )
     {
         const QString c = record.value(QStringLiteral("country_intl")).toString();
         return c.isEmpty() ? record.value(QStringLiteral("country")).toString() : c;
     }
-    if (key == QLatin1String("GRIDSQUARE"))  return record.value(QStringLiteral("gridsquare")).toString().toUpper();
-    if (key == QLatin1String("DXCC"))        return record.value(QStringLiteral("dxcc")).toString();
-    if (key == QLatin1String("CQZ"))         return record.value(QStringLiteral("cqz")).toString();
-    if (key == QLatin1String("ITUZ"))        return record.value(QStringLiteral("ituz")).toString();
-    if (key == QLatin1String("TX_PWR"))      return record.value(QStringLiteral("tx_pwr")).toString();
-    if (key == QLatin1String("EMAIL"))       return record.value(QStringLiteral("email")).toString();
-    if (key == QLatin1String("MY_CALLSIGN")) return record.value(QStringLiteral("station_callsign")).toString().toUpper();
-    if (key == QLatin1String("MY_GRIDSQUARE")) return record.value(QStringLiteral("my_gridsquare")).toString().toUpper();
-    if (key == QLatin1String("OPERATOR"))    return record.value(QStringLiteral("operator")).toString().toUpper();
-    if (key == QLatin1String("COMMENT"))
+    if ( key == QLatin1String("GRIDSQUARE") )
+        return record.value(QStringLiteral("gridsquare")).toString().toUpper();
+    if ( key == QLatin1String("DXCC") )
+        return record.value(QStringLiteral("dxcc")).toString();
+    if ( key == QLatin1String("CQZ") )
+        return record.value(QStringLiteral("cqz")).toString();
+    if ( key == QLatin1String("ITUZ") )
+        return record.value(QStringLiteral("ituz")).toString();
+    if ( key == QLatin1String("TX_PWR") )
+        return record.value(QStringLiteral("tx_pwr")).toString();
+    if ( key == QLatin1String("EMAIL") )
+        return record.value(QStringLiteral("email")).toString();
+    if ( key == QLatin1String("MY_CALLSIGN") )
+        return record.value(QStringLiteral("station_callsign")).toString().toUpper();
+    if ( key == QLatin1String("MY_GRIDSQUARE") )
+        return record.value(QStringLiteral("my_gridsquare")).toString().toUpper();
+    if ( key == QLatin1String("OPERATOR") )
+        return record.value(QStringLiteral("operator")).toString().toUpper();
+    if ( key == QLatin1String("COMMENT") )
     {
         const QString c = record.value(QStringLiteral("comment_intl")).toString();
         return c.isEmpty() ? record.value(QStringLiteral("comment")).toString() : c;
     }
-    if (key == QLatin1String("SOTA_REF"))    return record.value(QStringLiteral("sota_ref")).toString();
-    if (key == QLatin1String("POTA_REF"))    return record.value(QStringLiteral("pota_ref")).toString();
-    if (key == QLatin1String("WWFF_REF"))    return record.value(QStringLiteral("wwff_ref")).toString();
-    if (key == QLatin1String("IOTA"))        return record.value(QStringLiteral("iota")).toString();
-    if (key == QLatin1String("SIG"))         return record.value(QStringLiteral("sig_intl")).toString();
-    if (key == QLatin1String("CONTEST_ID"))  return record.value(QStringLiteral("contest_id")).toString();
+    if ( key == QLatin1String("SOTA_REF") )
+        return record.value(QStringLiteral("sota_ref")).toString();
+    if ( key == QLatin1String("POTA_REF") )
+        return record.value(QStringLiteral("pota_ref")).toString();
+    if ( key == QLatin1String("WWFF_REF") )
+        return record.value(QStringLiteral("wwff_ref")).toString();
+    if ( key == QLatin1String("IOTA") )
+        return record.value(QStringLiteral("iota")).toString();
+    if ( key == QLatin1String("SIG") )
+        return record.value(QStringLiteral("sig_intl")).toString();
+    if ( key == QLatin1String("CONTEST_ID") )
+        return record.value(QStringLiteral("contest_id")).toString();
 
     // Fallback: try direct lowercase column name
     const QString col = key.toLower();
-    if (record.indexOf(col) >= 0)
+    if ( record.indexOf(col) >= 0 )
         return record.value(col).toString();
 
     return QString();
@@ -381,10 +457,12 @@ QString EmailQSLBase::fieldValue(const QString &key, const QSqlRecord &record)
 
 QString EmailQSLBase::applyMergeFields(const QString &tmpl, const QSqlRecord &record)
 {
+    FCT_IDENTIFICATION;
+
     QString result = tmpl;
     static const QRegularExpression rx(QStringLiteral("\\{([A-Z0-9_]+)\\}"));
     QRegularExpressionMatchIterator it = rx.globalMatch(tmpl);
-    while (it.hasNext())
+    while ( it.hasNext() )
     {
         const QRegularExpressionMatch m = it.next();
         const QString key   = m.captured(1);
@@ -396,6 +474,8 @@ QString EmailQSLBase::applyMergeFields(const QString &tmpl, const QSqlRecord &re
 
 QList<EmailQSLBase::MergeField> EmailQSLBase::availableMergeFields()
 {
+    FCT_IDENTIFICATION;
+
     return {
         { "CALLSIGN",      QObject::tr("Contact callsign") },
         { "QSO_DATE",      QObject::tr("QSO date (dd-MMM-yyyy)") },
@@ -446,7 +526,7 @@ QPixmap EmailQSLBase::renderCard(const QString &imagePath,
     FCT_IDENTIFICATION;
 
     QPixmap pixmap(imagePath);
-    if (pixmap.isNull())
+    if ( pixmap.isNull() )
     {
         qCWarning(runtime) << "renderCard: could not load image:" << imagePath;
         return QPixmap();
@@ -461,9 +541,9 @@ QPixmap EmailQSLBase::renderCard(const QString &imagePath,
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::TextAntialiasing);
 
-    for (const EmailQSLFieldOverlay &ov : overlays)
+    for ( const EmailQSLFieldOverlay &ov : overlays )
     {
-        if (ov.type == QLatin1String("BOX"))
+        if ( ov.type == QLatin1String("BOX") )
         {
             QColor fill(ov.fillColor);
             fill.setAlphaF(ov.opacity / 100.0);
@@ -472,7 +552,7 @@ QPixmap EmailQSLBase::renderCard(const QString &imagePath,
             painter.drawRoundedRect(ov.x, ov.y, ov.width, ov.height,
                                     ov.cornerRadius, ov.cornerRadius);
 
-            if (!ov.fieldName.isEmpty())
+            if ( !ov.fieldName.isEmpty() )
             {
                 QFont font(ov.fontFamily, ov.fontSize > 0 ? ov.fontSize : 11);
                 font.setBold(ov.bold);
@@ -483,9 +563,9 @@ QPixmap EmailQSLBase::renderCard(const QString &imagePath,
                 painter.drawText(ov.x, ov.y - fm.descent() - 2, ov.fieldName);
             }
         }
-        else if (ov.type == QLatin1String("LABEL"))
+        else if ( ov.type == QLatin1String("LABEL") )
         {
-            if (ov.fieldName.isEmpty())
+            if ( ov.fieldName.isEmpty() )
                 continue;
 
             QFont font(ov.fontFamily, ov.fontSize);
@@ -499,7 +579,7 @@ QPixmap EmailQSLBase::renderCard(const QString &imagePath,
         else // TEXT — merge-field substitution
         {
             const QString value = fieldValue(ov.fieldName, record);
-            if (value.isEmpty())
+            if ( value.isEmpty() )
                 continue;
 
             QFont font(ov.fontFamily, ov.fontSize);
@@ -527,14 +607,15 @@ SmtpWorker::SmtpWorker(const QString &host, int port, int encryption, bool allow
                        const QByteArray &imageData, const QString &imageName,
                        QObject *parent)
     : QObject(parent),
-      m_host(host), m_port(port), m_encryption(encryption), m_allowInvalidCert(allowInvalidCert),
-      m_testOnly(false),
-      m_username(username), m_password(password),
-      m_fromAddress(fromAddress), m_fromName(fromName),
-      m_toAddress(toAddress),
-      m_subject(subject), m_body(body),
-      m_imageData(imageData), m_imageName(imageName)
+      smtpHost(host), smtpPort(port), smtpEncryption(encryption), smtpAllowInvalidCert(allowInvalidCert),
+      testOnlyMode(false),
+      smtpUsername(username), smtpPassword(password),
+      mailFromAddress(fromAddress), mailFromName(fromName),
+      mailToAddress(toAddress),
+      mailSubject(subject), mailBody(body),
+      attachmentData(imageData), attachmentName(imageName)
 {
+    FCT_IDENTIFICATION;
 }
 
 void SmtpWorker::setTestOnly(bool testOnly)
@@ -542,7 +623,7 @@ void SmtpWorker::setTestOnly(bool testOnly)
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << testOnly;
 
-    m_testOnly = testOnly;
+    testOnlyMode = testOnly;
 }
 
 bool SmtpWorker::hasFinalReplyLine(const QByteArray &data)
@@ -585,16 +666,18 @@ bool SmtpWorker::waitForResponse(QSslSocket *socket, QByteArray &out, int timeou
 
 int SmtpWorker::responseCode(const QByteArray &response)
 {
+    FCT_IDENTIFICATION;
+
     // Find the last "NNN " line
     const QList<QByteArray> lines = response.split('\n');
-    for (int i = lines.size() - 1; i >= 0; --i)
+    for ( int i = lines.size() - 1; i >= 0; --i )
     {
         const QByteArray &line = lines.at(i).trimmed();
-        if (line.length() >= 3)
+        if ( line.length() >= 3 )
         {
             bool ok;
             int code = line.left(3).toInt(&ok);
-            if (ok)
+            if ( ok )
                 return code;
         }
     }
@@ -604,10 +687,12 @@ int SmtpWorker::responseCode(const QByteArray &response)
 bool SmtpWorker::sendCommand(QSslSocket *socket, const QByteArray &cmd,
                              int expectedCode, QByteArray &response)
 {
+    FCT_IDENTIFICATION;
+
     socket->write(cmd);
-    if (!socket->waitForBytesWritten(10000))
+    if ( !socket->waitForBytesWritten(10000) )
         return false;
-    if (!waitForResponse(socket, response))
+    if ( !waitForResponse(socket, response) )
         return false;
     return responseCode(response) == expectedCode;
 }
@@ -646,21 +731,23 @@ bool SmtpWorker::isSafeAddress(const QString &address)
 
 QByteArray SmtpWorker::buildMimeMessage()
 {
+    FCT_IDENTIFICATION;
+
     const QString boundary = QStringLiteral("----QLogEmailQSL_%1")
         .arg(QDateTime::currentMSecsSinceEpoch());
 
     QByteArray msg;
 
     // RFC 5322 requires Date; Message-ID is expected by most spam filters.
-    const QString domain = m_fromAddress.mid(m_fromAddress.indexOf('@') + 1);
+    const QString domain = mailFromAddress.mid(mailFromAddress.indexOf('@') + 1);
     msg += "MIME-Version: 1.0\r\n";
     msg += "Date: " + QDateTime::currentDateTime().toString(Qt::RFC2822Date).toLatin1() + "\r\n";
     msg += "Message-ID: <" + QUuid::createUuid().toString(QUuid::WithoutBraces).toLatin1()
            + "@" + domain.toUtf8() + ">\r\n";
-    msg += "From: " + ( m_fromName.isEmpty() ? QByteArray() : encodeHeaderText(m_fromName) + " " )
-           + "<" + m_fromAddress.toUtf8() + ">\r\n";
-    msg += "To: <" + m_toAddress.toUtf8() + ">\r\n";
-    msg += "Subject: " + encodeHeaderText(m_subject) + "\r\n";
+    msg += "From: " + ( mailFromName.isEmpty() ? QByteArray() : encodeHeaderText(mailFromName) + " " )
+           + "<" + mailFromAddress.toUtf8() + ">\r\n";
+    msg += "To: <" + mailToAddress.toUtf8() + ">\r\n";
+    msg += "Subject: " + encodeHeaderText(mailSubject) + "\r\n";
     msg += "Content-Type: multipart/mixed; boundary=\"" + boundary.toUtf8() + "\"\r\n";
     msg += "\r\n";
 
@@ -669,25 +756,25 @@ QByteArray SmtpWorker::buildMimeMessage()
     msg += "Content-Type: text/plain; charset=UTF-8\r\n";
     msg += "Content-Transfer-Encoding: base64\r\n";
     msg += "\r\n";
-    const QByteArray bodyB64 = m_body.toUtf8().toBase64();
-    for (int i = 0; i < bodyB64.size(); i += 76)
+    const QByteArray bodyB64 = mailBody.toUtf8().toBase64();
+    for ( int i = 0; i < bodyB64.size(); i += 76 )
         msg += bodyB64.mid(i, 76) + "\r\n";
 
     // --- Image attachment (if present) ---
-    if (!m_imageData.isEmpty())
+    if ( !attachmentData.isEmpty() )
     {
         msg += "\r\n--" + boundary.toUtf8() + "\r\n";
-        const QString mimeType = m_imageName.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
+        const QString mimeType = attachmentName.endsWith(QLatin1String(".png"), Qt::CaseInsensitive)
                                  ? QStringLiteral("image/png")
                                  : QStringLiteral("image/jpeg");
         msg += "Content-Type: " + mimeType.toUtf8()
-               + "; name=\"" + m_imageName.toUtf8() + "\"\r\n";
+               + "; name=\"" + attachmentName.toUtf8() + "\"\r\n";
         msg += "Content-Transfer-Encoding: base64\r\n";
         msg += "Content-Disposition: attachment; filename=\""
-               + m_imageName.toUtf8() + "\"\r\n";
+               + attachmentName.toUtf8() + "\"\r\n";
         msg += "\r\n";
-        const QByteArray imgB64 = m_imageData.toBase64();
-        for (int i = 0; i < imgB64.size(); i += 76)
+        const QByteArray imgB64 = attachmentData.toBase64();
+        for ( int i = 0; i < imgB64.size(); i += 76 )
             msg += imgB64.mid(i, 76) + "\r\n";
     }
 
@@ -699,14 +786,14 @@ void SmtpWorker::run()
 {
     FCT_IDENTIFICATION;
 
-    if ( !m_testOnly && !isSafeAddress(m_fromAddress) )
+    if ( !testOnlyMode && !isSafeAddress(mailFromAddress) )
     {
-        emit finished(false, tr("The sender address is not valid: %1").arg(m_fromAddress));
+        emit finished(false, tr("The sender address is not valid: %1").arg(mailFromAddress));
         return;
     }
-    if ( !m_testOnly && !isSafeAddress(m_toAddress) )
+    if ( !testOnlyMode && !isSafeAddress(mailToAddress) )
     {
-        emit finished(false, tr("The recipient address is not valid: %1").arg(m_toAddress));
+        emit finished(false, tr("The recipient address is not valid: %1").arg(mailToAddress));
         return;
     }
 
@@ -715,13 +802,13 @@ void SmtpWorker::run()
     // Verify the certificate and host name unless the user explicitly
     // allowed an invalid one; otherwise the SMTP password could be sent to
     // anyone able to intercept the connection.
-    socket.setPeerVerifyMode(m_allowInvalidCert ? QSslSocket::VerifyNone : QSslSocket::VerifyPeer);
+    socket.setPeerVerifyMode(smtpAllowInvalidCert ? QSslSocket::VerifyNone : QSslSocket::VerifyPeer);
 
     // ---- Connect ----
-    if (m_encryption == EmailQSLBase::ENCRYPTION_SSL_TLS)
+    if ( smtpEncryption == EmailQSLBase::ENCRYPTION_SSL_TLS )
     {
-        socket.connectToHostEncrypted(m_host, static_cast<quint16>(m_port));
-        if (!socket.waitForEncrypted(15000))
+        socket.connectToHostEncrypted(smtpHost, static_cast<quint16>(smtpPort));
+        if ( !socket.waitForEncrypted(15000) )
         {
             emit finished(false, tr("SSL/TLS connection failed: %1").arg(socket.errorString()));
             return;
@@ -729,18 +816,18 @@ void SmtpWorker::run()
     }
     else
     {
-        socket.connectToHost(m_host, static_cast<quint16>(m_port));
-        if (!socket.waitForConnected(15000))
+        socket.connectToHost(smtpHost, static_cast<quint16>(smtpPort));
+        if ( !socket.waitForConnected(15000) )
         {
             emit finished(false, tr("Could not connect to %1:%2 — %3")
-                          .arg(m_host).arg(m_port).arg(socket.errorString()));
+                          .arg(smtpHost).arg(smtpPort).arg(socket.errorString()));
             return;
         }
     }
 
     // ---- Read greeting (220) ----
     QByteArray resp;
-    if (!waitForResponse(&socket, resp) || responseCode(resp) != 220)
+    if ( !waitForResponse(&socket, resp) || responseCode(resp) != 220 )
     {
         emit finished(false, tr("Server did not send a valid greeting (expected 220)."));
         return;
@@ -748,10 +835,10 @@ void SmtpWorker::run()
 
     // ---- EHLO ----
     const QByteArray localHost = QHostInfo::localHostName().toUtf8();
-    if (!sendCommand(&socket, "EHLO " + localHost + "\r\n", 250, resp))
+    if ( !sendCommand(&socket, "EHLO " + localHost + "\r\n", 250, resp) )
     {
         // Try HELO as fallback
-        if (!sendCommand(&socket, "HELO " + localHost + "\r\n", 250, resp))
+        if ( !sendCommand(&socket, "HELO " + localHost + "\r\n", 250, resp) )
         {
             emit finished(false, tr("EHLO/HELO rejected by server."));
             return;
@@ -759,21 +846,21 @@ void SmtpWorker::run()
     }
 
     // ---- STARTTLS upgrade ----
-    if (m_encryption == EmailQSLBase::ENCRYPTION_STARTTLS)
+    if ( smtpEncryption == EmailQSLBase::ENCRYPTION_STARTTLS )
     {
-        if (!sendCommand(&socket, "STARTTLS\r\n", 220, resp))
+        if ( !sendCommand(&socket, "STARTTLS\r\n", 220, resp) )
         {
             emit finished(false, tr("STARTTLS not accepted by server."));
             return;
         }
         socket.startClientEncryption();
-        if (!socket.waitForEncrypted(15000))
+        if ( !socket.waitForEncrypted(15000) )
         {
             emit finished(false, tr("TLS handshake failed: %1").arg(socket.errorString()));
             return;
         }
         // Re-EHLO after TLS negotiation
-        if (!sendCommand(&socket, "EHLO " + localHost + "\r\n", 250, resp))
+        if ( !sendCommand(&socket, "EHLO " + localHost + "\r\n", 250, resp) )
         {
             emit finished(false, tr("EHLO after STARTTLS rejected."));
             return;
@@ -781,26 +868,26 @@ void SmtpWorker::run()
     }
 
     // ---- AUTH LOGIN ----
-    if (!m_username.isEmpty())
+    if ( !smtpUsername.isEmpty() )
     {
-        if (!sendCommand(&socket, "AUTH LOGIN\r\n", 334, resp))
+        if ( !sendCommand(&socket, "AUTH LOGIN\r\n", 334, resp) )
         {
             emit finished(false, tr("AUTH LOGIN not supported by server."));
             return;
         }
-        if (!sendCommand(&socket, m_username.toUtf8().toBase64() + "\r\n", 334, resp))
+        if ( !sendCommand(&socket, smtpUsername.toUtf8().toBase64() + "\r\n", 334, resp) )
         {
             emit finished(false, tr("Username rejected by server."));
             return;
         }
-        if (!sendCommand(&socket, m_password.toUtf8().toBase64() + "\r\n", 235, resp))
+        if ( !sendCommand(&socket, smtpPassword.toUtf8().toBase64() + "\r\n", 235, resp) )
         {
             emit finished(false, tr("Authentication failed — check your username and password."));
             return;
         }
     }
 
-    if ( m_testOnly )
+    if ( testOnlyMode )
     {
         socket.write("QUIT\r\n");
         socket.waitForBytesWritten(5000);
@@ -810,21 +897,21 @@ void SmtpWorker::run()
     }
 
     // ---- MAIL FROM ----
-    if (!sendCommand(&socket, "MAIL FROM:<" + m_fromAddress.toUtf8() + ">\r\n", 250, resp))
+    if ( !sendCommand(&socket, "MAIL FROM:<" + mailFromAddress.toUtf8() + ">\r\n", 250, resp) )
     {
         emit finished(false, tr("MAIL FROM rejected: %1").arg(QString::fromUtf8(resp)));
         return;
     }
 
     // ---- RCPT TO ----
-    if (!sendCommand(&socket, "RCPT TO:<" + m_toAddress.toUtf8() + ">\r\n", 250, resp))
+    if ( !sendCommand(&socket, "RCPT TO:<" + mailToAddress.toUtf8() + ">\r\n", 250, resp) )
     {
         emit finished(false, tr("Recipient address not accepted: %1").arg(QString::fromUtf8(resp)));
         return;
     }
 
     // ---- DATA ----
-    if (!sendCommand(&socket, "DATA\r\n", 354, resp))
+    if ( !sendCommand(&socket, "DATA\r\n", 354, resp) )
     {
         emit finished(false, tr("DATA command rejected."));
         return;
@@ -836,7 +923,7 @@ void SmtpWorker::run()
     socket.write(mime);
     socket.flush();
 
-    if (!waitForResponse(&socket, resp) || responseCode(resp) != 250)
+    if ( !waitForResponse(&socket, resp) || responseCode(resp) != 250 )
     {
         emit finished(false, tr("Message rejected by server: %1").arg(QString::fromUtf8(resp)));
         return;
@@ -858,6 +945,7 @@ void SmtpWorker::run()
 EmailQSLService::EmailQSLService(QObject *parent)
     : QObject(parent)
 {
+    FCT_IDENTIFICATION;
 }
 
 void EmailQSLService::sendEmailQSL(const QSqlRecord &record)
@@ -868,7 +956,7 @@ void EmailQSLService::sendEmailQSL(const QSqlRecord &record)
     const QPixmap cardPixmap = EmailQSLBase::renderCard(record);
     QByteArray imageData;
     QString imageName;
-    if (!cardPixmap.isNull())
+    if ( !cardPixmap.isNull() )
     {
         // Scale down to EMAIL_WIDTH for the attachment — keeps file size reasonable
         // while still looking sharp on any screen.  The full-res pixmap is only

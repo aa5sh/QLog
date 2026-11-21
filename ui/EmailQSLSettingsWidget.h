@@ -54,10 +54,10 @@ private:
     void listToOverlayTable();
 
     Ui::EmailQSLSettingsWidget *ui;
-    QList<EmailQSLFieldOverlay> m_overlays;
-    QStandardItemModel         *m_overlayModel;
-    EmailQSLService            *m_testService;
-    bool                        m_syncing;
+    QList<EmailQSLFieldOverlay> overlayList;
+    QStandardItemModel         *overlayModel;
+    EmailQSLService            *testService;
+    bool                        syncing;
 };
 
 #endif // QLOG_UI_EMAILQSLSETTINGSWIDGET_H

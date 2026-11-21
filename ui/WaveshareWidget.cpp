@@ -15,10 +15,10 @@
 
 MODULE_IDENTIFICATION("qlog.ui.wavesharewidget");
 
-namespace
+quint16 WaveshareWidget::crc16Modbus(const QByteArray &data)
 {
-quint16 crc16Modbus(const QByteArray &data)
-{
+    FCT_IDENTIFICATION;
+
     quint16 crc = 0xffff;
     for ( unsigned char b : data )
     {
@@ -34,8 +34,10 @@ quint16 crc16Modbus(const QByteArray &data)
     return crc;
 }
 
-QByteArray rtuFrame(quint8 unitId, const QByteArray &pdu)
+QByteArray WaveshareWidget::rtuFrame(quint8 unitId, const QByteArray &pdu)
 {
+    FCT_IDENTIFICATION;
+
     QByteArray frame;
     frame.reserve(pdu.size() + 3);
     frame.append(char(unitId));
@@ -47,8 +49,10 @@ QByteArray rtuFrame(quint8 unitId, const QByteArray &pdu)
     return frame;
 }
 
-bool hasValidCrc(const QByteArray &frame)
+bool WaveshareWidget::hasValidCrc(const QByteArray &frame)
 {
+    FCT_IDENTIFICATION;
+
     if ( frame.size() < 4 )
         return false;
 
@@ -58,7 +62,7 @@ bool hasValidCrc(const QByteArray &frame)
                            | (quint16(quint8(frame.at(frame.size() - 1))) << 8);
     return expected == actual;
 }
-}
+
 
 WaveshareWidget::WaveshareWidget(QWidget *parent) :
     QWidget(parent),
@@ -77,6 +81,8 @@ WaveshareWidget::WaveshareWidget(QWidget *parent) :
 
 WaveshareWidget::~WaveshareWidget()
 {
+    FCT_IDENTIFICATION;
+
     shuttingDown = true;
     refreshTimer->stop();
     rtuQueue.clear();
@@ -119,6 +125,8 @@ void WaveshareWidget::reloadSettings()
 
 QString WaveshareWidget::actionLabel(const WaveshareAction &action) const
 {
+    FCT_IDENTIFICATION;
+
     if ( !action.label.isEmpty() )
         return action.label;
 
@@ -130,6 +138,8 @@ QString WaveshareWidget::actionLabel(const WaveshareAction &action) const
 
 void WaveshareWidget::rebuild()
 {
+    FCT_IDENTIFICATION;
+
     while ( QLayoutItem *item = ui->actionsLayout->takeAt(0) )
     {
         if ( item->widget() )
@@ -195,6 +205,8 @@ void WaveshareWidget::rebuild()
 
 void WaveshareWidget::refreshAll()
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown )
         return;
 
@@ -209,6 +221,8 @@ void WaveshareWidget::refreshAll()
 
 void WaveshareWidget::setStatus(Row &row, bool ok, const QString &text)
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown || !row.status )
         return;
 
@@ -220,6 +234,8 @@ void WaveshareWidget::setStatus(Row &row, bool ok, const QString &text)
 
 void WaveshareWidget::refreshRelay(int rowIndex)
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown )
         return;
 
@@ -240,6 +256,8 @@ void WaveshareWidget::refreshRelay(int rowIndex)
 
 void WaveshareWidget::refreshPing(int rowIndex)
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown )
         return;
 
@@ -297,6 +315,8 @@ void WaveshareWidget::refreshPing(int rowIndex)
 
 void WaveshareWidget::runRelayAction(int rowIndex)
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown )
         return;
 
@@ -333,6 +353,8 @@ void WaveshareWidget::runRelayAction(int rowIndex)
 
 void WaveshareWidget::writeRelay(const WaveshareAction &action, bool on)
 {
+    FCT_IDENTIFICATION;
+
     const quint16 relayAddress = qBound(1, action.relay, 255) - 1;
     QByteArray pdu;
     pdu.append(char(0x05));
@@ -348,6 +370,8 @@ void WaveshareWidget::writeRelay(const WaveshareAction &action, bool on)
 
 void WaveshareWidget::flashRelay(const WaveshareAction &action)
 {
+    FCT_IDENTIFICATION;
+
     const quint16 flashAddress = quint16(0x0200 + qBound(1, action.relay, 255) - 1);
     const quint16 ticks = quint16(qMax(1, qRound(action.pulseMs / 100.0)));
     QByteArray pdu;
@@ -364,6 +388,8 @@ void WaveshareWidget::flashRelay(const WaveshareAction &action)
 
 void WaveshareWidget::readRelay(const WaveshareAction &action, std::function<void(bool, bool)> callback)
 {
+    FCT_IDENTIFICATION;
+
     const quint16 relayAddress = qBound(1, action.relay, 255) - 1;
     const quint16 coilCount = qMax(action.relay, 8);
     QByteArray pdu;
@@ -397,6 +423,8 @@ void WaveshareWidget::sendRtuRequest(const WaveshareAction &action,
                                      const QByteArray &pdu,
                                      std::function<void(bool, const QByteArray &)> callback)
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown )
         return;
 
@@ -406,6 +434,8 @@ void WaveshareWidget::sendRtuRequest(const WaveshareAction &action,
 
 void WaveshareWidget::processNextRtuRequest()
 {
+    FCT_IDENTIFICATION;
+
     if ( shuttingDown || rtuRequestActive || rtuQueue.isEmpty() )
         return;
 

@@ -5,10 +5,24 @@
 #include <QCursor>
 
 #include "CardEditorWidget.h"
+#include "core/debug.h"
+
+MODULE_IDENTIFICATION("qlog.ui.component.cardeditorwidget");
+
+QPointF CardEditorWidget::eventPosition(const QMouseEvent *event)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    return event->position();
+#else
+    return event->localPos();
+#endif
+}
 
 CardEditorWidget::CardEditorWidget(QWidget *parent)
     : QWidget(parent)
 {
+    FCT_IDENTIFICATION;
+
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setMinimumSize(300, 200);
@@ -20,40 +34,50 @@ CardEditorWidget::CardEditorWidget(QWidget *parent)
 
 void CardEditorWidget::setImage(const QPixmap &pm)
 {
-    m_image = pm;
-    m_displayImage = QPixmap();
+    FCT_IDENTIFICATION;
+
+    cardImage = pm;
+    displayImage = QPixmap();
     update();
 }
 
 void CardEditorWidget::setOverlays(const QList<EmailQSLFieldOverlay> &overlays)
 {
-    m_overlays = overlays;
-    if (m_selectedIndex >= m_overlays.size())
-        m_selectedIndex = -1;
+    FCT_IDENTIFICATION;
+
+    overlayList = overlays;
+    if ( selectedOverlayIndex >= overlayList.size() )
+        selectedOverlayIndex = -1;
     update();
 }
 
 void CardEditorWidget::updateOverlay(int index, const EmailQSLFieldOverlay &ov)
 {
-    if (index < 0 || index >= m_overlays.size())
+    FCT_IDENTIFICATION;
+
+    if ( index < 0 || index >= overlayList.size() )
         return;
-    m_overlays[index] = ov;
+    overlayList[index] = ov;
     update();
 }
 
 void CardEditorWidget::setSelectedIndex(int index)
 {
-    if (m_selectedIndex == index)
+    FCT_IDENTIFICATION;
+
+    if ( selectedOverlayIndex == index )
         return;
-    m_selectedIndex = index;
+    selectedOverlayIndex = index;
     update();
 }
 
 QSize CardEditorWidget::sizeHint() const
 {
-    if (m_image.isNull())
+    FCT_IDENTIFICATION;
+
+    if ( cardImage.isNull() )
         return QSize(500, 320);
-    return m_image.size().scaled(640, 420, Qt::KeepAspectRatio);
+    return cardImage.size().scaled(640, 420, Qt::KeepAspectRatio);
 }
 
 QSize CardEditorWidget::minimumSizeHint() const { return QSize(300, 200); }
@@ -64,9 +88,11 @@ QSize CardEditorWidget::minimumSizeHint() const { return QSize(300, 200); }
 
 QRectF CardEditorWidget::imageRect() const
 {
-    if (m_image.isNull())
+    FCT_IDENTIFICATION;
+
+    if ( cardImage.isNull() )
         return QRectF(rect());
-    QSizeF sz = m_image.size();
+    QSizeF sz = cardImage.size();
     sz.scale(size(), Qt::KeepAspectRatio);
     return QRectF(QPointF((width()  - sz.width())  / 2.0,
                           (height() - sz.height()) / 2.0), sz);
@@ -74,35 +100,46 @@ QRectF CardEditorWidget::imageRect() const
 
 double CardEditorWidget::displayScale() const
 {
-    if (m_image.isNull() || m_image.width() == 0) return 1.0;
-    return imageRect().width() / m_image.width();
+    FCT_IDENTIFICATION;
+
+    if ( cardImage.isNull() || cardImage.width() == 0 )
+        return 1.0;
+    return imageRect().width() / cardImage.width();
 }
 
 QPointF CardEditorWidget::imageToWidget(const QPointF &ip) const
 {
+    FCT_IDENTIFICATION;
+
     const QRectF r = imageRect();
-    const double sx = r.width()  / (m_image.isNull() ? 1 : m_image.width());
-    const double sy = r.height() / (m_image.isNull() ? 1 : m_image.height());
+    const double sx = r.width()  / (cardImage.isNull() ? 1 : cardImage.width());
+    const double sy = r.height() / (cardImage.isNull() ? 1 : cardImage.height());
     return QPointF(r.left() + ip.x() * sx, r.top() + ip.y() * sy);
 }
 
 QPointF CardEditorWidget::widgetToImage(const QPointF &wp) const
 {
+    FCT_IDENTIFICATION;
+
     const QRectF r = imageRect();
-    if (r.width() == 0 || r.height() == 0) return wp;
-    const double sx = (m_image.isNull() ? 1 : m_image.width())  / r.width();
-    const double sy = (m_image.isNull() ? 1 : m_image.height()) / r.height();
+    if ( r.width() == 0 || r.height() == 0 )
+        return wp;
+    const double sx = (cardImage.isNull() ? 1 : cardImage.width())  / r.width();
+    const double sy = (cardImage.isNull() ? 1 : cardImage.height()) / r.height();
     return QPointF((wp.x() - r.left()) * sx, (wp.y() - r.top()) * sy);
 }
 
 QRectF CardEditorWidget::overlayWidgetRect(int idx) const
 {
-    if (idx < 0 || idx >= m_overlays.size()) return {};
-    const EmailQSLFieldOverlay &ov = m_overlays.at(idx);
+    FCT_IDENTIFICATION;
+
+    if ( idx < 0 || idx >= overlayList.size() )
+        return {};
+    const EmailQSLFieldOverlay &ov = overlayList.at(idx);
     const QPointF tl = imageToWidget(QPointF(ov.x, ov.y));
     const double  sc = displayScale();
 
-    if (ov.type == QLatin1String("BOX"))
+    if ( ov.type == QLatin1String("BOX") )
     {
         return QRectF(tl, QSizeF(ov.width * sc, ov.height * sc));
     }
@@ -119,26 +156,36 @@ QRectF CardEditorWidget::overlayWidgetRect(int idx) const
 
 QRectF CardEditorWidget::resizeHandleRect(int idx) const
 {
+    FCT_IDENTIFICATION;
+
     const QRectF r = overlayWidgetRect(idx);
-    if (r.isNull()) return {};
+    if ( r.isNull() )
+        return {};
     const double h = RESIZE_HANDLE_PX;
     return QRectF(r.right() - h, r.bottom() - h, h * 2, h * 2);
 }
 
 bool CardEditorWidget::isOnResizeHandle(int idx, const QPointF &wPt) const
 {
-    if (idx < 0 || idx >= m_overlays.size()) return false;
-    if (m_overlays.at(idx).type != QLatin1String("BOX")) return false;
+    FCT_IDENTIFICATION;
+
+    if ( idx < 0 || idx >= overlayList.size() )
+        return false;
+    if ( overlayList.at(idx).type != QLatin1String("BOX") )
+        return false;
     return resizeHandleRect(idx).contains(wPt);
 }
 
 int CardEditorWidget::overlayAt(const QPointF &wPt) const
 {
+    FCT_IDENTIFICATION;
+
     // Iterate in reverse so top-drawn items (higher index) are hit first
-    for (int i = m_overlays.size() - 1; i >= 0; --i)
+    for ( int i = overlayList.size() - 1; i >= 0; --i )
     {
         const QRectF r = overlayWidgetRect(i).adjusted(-4, -4, 4, 4);
-        if (r.contains(wPt)) return i;
+        if ( r.contains(wPt) )
+            return i;
     }
     return -1;
 }
@@ -157,7 +204,7 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
     // Background
     p.fillRect(rect(), palette().window());
 
-    if (m_image.isNull())
+    if ( cardImage.isNull() )
     {
         p.setPen(QColor(0x88, 0x88, 0x88));
         p.drawText(rect(), Qt::AlignCenter,
@@ -171,22 +218,22 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
     const QRect target = imageRect().toRect();
     const qreal ratio = devicePixelRatioF();
     const QSize pixelSize = target.size() * ratio;
-    if ( m_displayImage.size() != pixelSize )
+    if ( displayImage.size() != pixelSize )
     {
-        m_displayImage = m_image.scaled(pixelSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        m_displayImage.setDevicePixelRatio(ratio);
+        displayImage = cardImage.scaled(pixelSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        displayImage.setDevicePixelRatio(ratio);
     }
-    p.drawPixmap(target.topLeft(), m_displayImage);
+    p.drawPixmap(target.topLeft(), displayImage);
 
     const double sc = displayScale();
 
-    for (int i = 0; i < m_overlays.size(); ++i)
+    for ( int i = 0; i < overlayList.size(); ++i )
     {
-        const EmailQSLFieldOverlay &ov = m_overlays.at(i);
-        const bool sel = (i == m_selectedIndex);
+        const EmailQSLFieldOverlay &ov = overlayList.at(i);
+        const bool sel = (i == selectedOverlayIndex);
         const QRectF wr = overlayWidgetRect(i);
 
-        if (ov.type == QLatin1String("BOX"))
+        if ( ov.type == QLatin1String("BOX") )
         {
             // --- Fill ---
             QColor fill(ov.fillColor);
@@ -198,7 +245,7 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
             p.drawRoundedRect(wr, cr, cr);
 
             // --- Caption above box ---
-            if (!ov.fieldName.isEmpty())
+            if ( !ov.fieldName.isEmpty() )
             {
                 const int dispSz = qMax(8, qRound((ov.fontSize > 0 ? ov.fontSize : 11) * sc));
                 QFont f(ov.fontFamily, dispSz);
@@ -211,7 +258,7 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
             }
 
             // --- Selection decoration ---
-            if (sel)
+            if ( sel )
             {
                 p.save();
                 p.setPen(QPen(QColor(0, 120, 215), 1.5, Qt::DashLine));
@@ -247,7 +294,7 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
             const QPointF anchor(wr.left(), wr.top() + fm.ascent());
 
             // Selection box
-            if (sel)
+            if ( sel )
             {
                 p.save();
                 p.setPen(QPen(QColor(0, 120, 215), 1.5, Qt::DashLine));
@@ -295,25 +342,31 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
 
 void CardEditorWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) { QWidget::mousePressEvent(event); return; }
+    FCT_IDENTIFICATION;
 
-    const QPointF wPos = event->pos();
+    if ( event->button() != Qt::LeftButton )
+    {
+        QWidget::mousePressEvent(event);
+        return;
+    }
+
+    const QPointF wPos = eventPosition(event);
     const int idx = overlayAt(wPos);
 
-    m_selectedIndex = idx;
-    m_dragIndex     = -1;
-    m_resizing      = false;
+    selectedOverlayIndex = idx;
+    dragIndex     = -1;
+    resizing      = false;
 
-    if (idx >= 0)
+    if ( idx >= 0 )
     {
-        m_dragIndex     = idx;
-        m_dragStartImg  = widgetToImage(wPos);
-        m_dragAnchorImg = QPointF(m_overlays.at(idx).x, m_overlays.at(idx).y);
+        dragIndex     = idx;
+        dragStartImage  = widgetToImage(wPos);
+        dragAnchorImage = QPointF(overlayList.at(idx).x, overlayList.at(idx).y);
 
-        if (isOnResizeHandle(idx, wPos))
+        if ( isOnResizeHandle(idx, wPos) )
         {
-            m_resizing = true;
-            m_dragSizeAtPress = QSizeF(m_overlays.at(idx).width, m_overlays.at(idx).height);
+            resizing = true;
+            dragSizeAtPress = QSizeF(overlayList.at(idx).width, overlayList.at(idx).height);
             setCursor(Qt::SizeFDiagCursor);
         }
         else
@@ -322,34 +375,34 @@ void CardEditorWidget::mousePressEvent(QMouseEvent *event)
         }
     }
 
-    emit overlaySelected(m_selectedIndex);
+    emit overlaySelected(selectedOverlayIndex);
     update();
 }
 
 void CardEditorWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    const QPointF wPos = event->pos();
+    const QPointF wPos = eventPosition(event);
 
-    if (m_dragIndex >= 0 && (event->buttons() & Qt::LeftButton))
+    if ( dragIndex >= 0 && (event->buttons() & Qt::LeftButton) )
     {
         const QPointF curImg = widgetToImage(wPos);
-        const QPointF delta  = curImg - m_dragStartImg;
+        const QPointF delta  = curImg - dragStartImage;
 
-        EmailQSLFieldOverlay &ov = m_overlays[m_dragIndex];
-        const int imgW = m_image.isNull() ? 99999 : m_image.width();
-        const int imgH = m_image.isNull() ? 99999 : m_image.height();
+        EmailQSLFieldOverlay &ov = overlayList[dragIndex];
+        const int imgW = cardImage.isNull() ? 99999 : cardImage.width();
+        const int imgH = cardImage.isNull() ? 99999 : cardImage.height();
 
-        if (m_resizing)
+        if ( resizing )
         {
-            const int newW = qMax(20, qRound(m_dragSizeAtPress.width()  + delta.x()));
-            const int newH = qMax(10, qRound(m_dragSizeAtPress.height() + delta.y()));
+            const int newW = qMax(20, qRound(dragSizeAtPress.width()  + delta.x()));
+            const int newH = qMax(10, qRound(dragSizeAtPress.height() + delta.y()));
             ov.width  = qMin(newW, imgW - ov.x);
             ov.height = qMin(newH, imgH - ov.y);
         }
         else
         {
-            ov.x = qBound(0, qRound(m_dragAnchorImg.x() + delta.x()), imgW - 1);
-            ov.y = qBound(0, qRound(m_dragAnchorImg.y() + delta.y()), imgH - 1);
+            ov.x = qBound(0, qRound(dragAnchorImage.x() + delta.x()), imgW - 1);
+            ov.y = qBound(0, qRound(dragAnchorImage.y() + delta.y()), imgH - 1);
         }
         update();
     }
@@ -357,9 +410,9 @@ void CardEditorWidget::mouseMoveEvent(QMouseEvent *event)
     {
         // Cursor feedback
         const int hov = overlayAt(wPos);
-        if (hov >= 0)
+        if ( hov >= 0 )
         {
-            if (isOnResizeHandle(hov, wPos))
+            if ( isOnResizeHandle(hov, wPos) )
                 setCursor(Qt::SizeFDiagCursor);
             else
                 setCursor(Qt::OpenHandCursor);
@@ -373,16 +426,18 @@ void CardEditorWidget::mouseMoveEvent(QMouseEvent *event)
 
 void CardEditorWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && m_dragIndex >= 0)
-    {
-        const EmailQSLFieldOverlay &ov = m_overlays.at(m_dragIndex);
-        if (m_resizing)
-            emit overlaySizeChanged(m_dragIndex, ov.width, ov.height);
-        else
-            emit overlayPositionChanged(m_dragIndex, ov.x, ov.y);
+    FCT_IDENTIFICATION;
 
-        m_dragIndex = -1;
-        m_resizing  = false;
+    if ( event->button() == Qt::LeftButton && dragIndex >= 0 )
+    {
+        const EmailQSLFieldOverlay &ov = overlayList.at(dragIndex);
+        if ( resizing )
+            emit overlaySizeChanged(dragIndex, ov.width, ov.height);
+        else
+            emit overlayPositionChanged(dragIndex, ov.x, ov.y);
+
+        dragIndex = -1;
+        resizing  = false;
         setCursor(Qt::ArrowCursor);
         update();
     }

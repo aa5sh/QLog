@@ -5,14 +5,21 @@
 #include <QJsonObject>
 
 #include "core/LogParam.h"
+#include "core/debug.h"
+
+MODULE_IDENTIFICATION("qlog.core.wavesharecontrol");
 
 QString WaveshareControl::typeToString(WaveshareAction::Type type)
 {
+    FCT_IDENTIFICATION;
+
     return type == WaveshareAction::Ping ? QStringLiteral("ping") : QStringLiteral("relay");
 }
 
 WaveshareAction::Type WaveshareControl::typeFromString(const QString &value)
 {
+    FCT_IDENTIFICATION;
+
     return value.compare(QStringLiteral("ping"), Qt::CaseInsensitive) == 0
            ? WaveshareAction::Ping
            : WaveshareAction::Relay;
@@ -20,7 +27,9 @@ WaveshareAction::Type WaveshareControl::typeFromString(const QString &value)
 
 QString WaveshareControl::relayModeToString(WaveshareAction::RelayMode mode)
 {
-    switch (mode)
+    FCT_IDENTIFICATION;
+
+    switch ( mode )
     {
     case WaveshareAction::On:
         return QStringLiteral("on");
@@ -36,6 +45,8 @@ QString WaveshareControl::relayModeToString(WaveshareAction::RelayMode mode)
 
 WaveshareAction::RelayMode WaveshareControl::relayModeFromString(const QString &value)
 {
+    FCT_IDENTIFICATION;
+
     if ( value.compare(QStringLiteral("on"), Qt::CaseInsensitive) == 0 )
         return WaveshareAction::On;
     if ( value.compare(QStringLiteral("off"), Qt::CaseInsensitive) == 0 )
@@ -48,6 +59,8 @@ WaveshareAction::RelayMode WaveshareControl::relayModeFromString(const QString &
 
 QList<WaveshareAction> WaveshareControl::loadActions()
 {
+    FCT_IDENTIFICATION;
+
     QList<WaveshareAction> actions;
     const QJsonDocument doc = QJsonDocument::fromJson(LogParam::getWaveshareActions().toUtf8());
 
@@ -80,6 +93,8 @@ QList<WaveshareAction> WaveshareControl::loadActions()
 
 void WaveshareControl::saveActions(const QList<WaveshareAction> &actions)
 {
+    FCT_IDENTIFICATION;
+
     QJsonArray array;
 
     for ( const WaveshareAction &action : actions )

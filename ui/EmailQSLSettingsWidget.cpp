@@ -99,7 +99,7 @@ public:
     {
         QComboBox *cb = new QComboBox(parent);
         cb->setEditable(true);  // also allow free text (for BOX captions)
-        for (const EmailQSLBase::MergeField &f : EmailQSLBase::availableMergeFields())
+        for ( const EmailQSLBase::MergeField &f : EmailQSLBase::availableMergeFields() )
             cb->addItem(f.key);
         return cb;
     }
@@ -108,7 +108,8 @@ public:
         QComboBox *cb = static_cast<QComboBox *>(editor);
         const QString v = index.data(Qt::DisplayRole).toString();
         const int idx = cb->findText(v);
-        if (idx >= 0) cb->setCurrentIndex(idx);
+        if ( idx >= 0 )
+            cb->setCurrentIndex(idx);
         else          cb->setEditText(v);
     }
     void setModelData(QWidget *editor, QAbstractItemModel *model,
@@ -175,12 +176,13 @@ public:
     bool editorEvent(QEvent *event, QAbstractItemModel *model,
                      const QStyleOptionViewItem &, const QModelIndex &index) override
     {
-        if (event->type() != QEvent::MouseButtonDblClick) return false;
+        if ( event->type() != QEvent::MouseButtonDblClick )
+            return false;
         const QString cur = index.data(Qt::DisplayRole).toString();
         const QColor chosen = QColorDialog::getColor(
             QColor(cur.isEmpty() ? QStringLiteral("#000000") : cur),
             nullptr, tr("Choose Color"));
-        if (chosen.isValid())
+        if ( chosen.isValid() )
             model->setData(index, chosen.name(), Qt::EditRole);
         return true;
     }
@@ -191,16 +193,16 @@ public:
 // ---------------------------------------------------------------------------
 class SpinBoxDelegate : public QStyledItemDelegate
 {
-    int m_min, m_max;
+    int minimum, maximum;
 public:
     SpinBoxDelegate(int min, int max, QObject *parent)
-        : QStyledItemDelegate(parent), m_min(min), m_max(max) {}
+        : QStyledItemDelegate(parent), minimum(min), maximum(max) {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &) const override
     {
         QSpinBox *sb = new QSpinBox(parent);
-        sb->setRange(m_min, m_max);
+        sb->setRange(minimum, maximum);
         // Constrain width so the spinbox doesn't expand beyond the cell
         sb->setFixedWidth(option.rect.width());
         sb->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
@@ -274,7 +276,7 @@ static QSqlRecord buildDummyRecord()
         "iota","sig_intl","contest_id"
     };
     QSqlRecord r;
-    for (const QString &c : cols)
+    for ( const QString &c : cols )
     {
         QSqlField f(c, QVariant::String);
         r.append(f);
@@ -322,23 +324,23 @@ static EmailQSLFieldOverlay makeOverlay(const QString &field,
 EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
     : QWidget(parent),
       ui(new Ui::EmailQSLSettingsWidget),
-      m_overlayModel(new QStandardItemModel(0, OC_COUNT, this)),
-      m_testService(new EmailQSLService(this)),
-      m_syncing(false)
+      overlayModel(new QStandardItemModel(0, OC_COUNT, this)),
+      testService(new EmailQSLService(this)),
+      syncing(false)
 {
     FCT_IDENTIFICATION;
 
     ui->setupUi(this);
 
     // ---- Overlay table ----
-    m_overlayModel->setHorizontalHeaderLabels({
+    overlayModel->setHorizontalHeaderLabels({
         tr("Type"), tr("Field / Caption"),
         tr("X"), tr("Y"),
         tr("Font"), tr("Pt"),
         tr("Color"), tr("B"), tr("I"),
         tr("W"), tr("H"), tr("Fill"), tr("Opacity%"), tr("Radius")
     });
-    ui->overlayTableView->setModel(m_overlayModel);
+    ui->overlayTableView->setModel(overlayModel);
 
     // Delegates
     auto *spinCoord  = new SpinBoxDelegate(0,     99999, this);
@@ -392,7 +394,7 @@ EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
     // ---- Merge field reference table ----
     const auto fields = EmailQSLBase::availableMergeFields();
     ui->mergeFieldRefTable->setRowCount(fields.size());
-    for (int i = 0; i < fields.size(); ++i)
+    for ( int i = 0; i < fields.size(); ++i )
     {
         ui->mergeFieldRefTable->setItem(
             i, 0, new QTableWidgetItem(QLatin1Char('{') + fields[i].key + QLatin1Char('}')));
@@ -403,7 +405,7 @@ EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
     ui->mergeFieldRefTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
     // ---- Merge field combos (subject/body insert) ----
-    for (const EmailQSLBase::MergeField &f : fields)
+    for ( const EmailQSLBase::MergeField &f : fields )
     {
         const QString display = QLatin1Char('{') + f.key + QLatin1Char('}');
         ui->bodyFieldCombo->addItem(display);
@@ -412,7 +414,7 @@ EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
 
     // ---- SMTP presets ----
     ui->smtpPresetCombo->blockSignals(true);
-    for (const SmtpPreset &p : smtpPresets())
+    for ( const SmtpPreset &p : smtpPresets() )
         ui->smtpPresetCombo->addItem(p.label);
     ui->smtpPresetCombo->blockSignals(false);
 
@@ -426,7 +428,7 @@ EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
             this, &EmailQSLSettingsWidget::onSmtpPresetChanged);
     connect(ui->testConnectionButton, &QPushButton::clicked,
             this, &EmailQSLSettingsWidget::testConnection);
-    connect(m_testService, &EmailQSLService::testFinished,
+    connect(testService, &EmailQSLService::testFinished,
             this, &EmailQSLSettingsWidget::onTestFinished);
 
     connect(ui->addOverlayButton,        &QPushButton::clicked,
@@ -448,9 +450,9 @@ EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
             this, &EmailQSLSettingsWidget::insertMergeFieldSubject);
 
     // Table ↔ editor bidirectional sync
-    connect(m_overlayModel, &QStandardItemModel::dataChanged,
+    connect(overlayModel, &QStandardItemModel::dataChanged,
             this, &EmailQSLSettingsWidget::onTableDataChanged);
-    connect(m_overlayModel, &QStandardItemModel::rowsRemoved,
+    connect(overlayModel, &QStandardItemModel::rowsRemoved,
             this, &EmailQSLSettingsWidget::onTableDataChanged);
 
     connect(ui->cardEditorWidget, &CardEditorWidget::overlayPositionChanged,
@@ -471,6 +473,8 @@ EmailQSLSettingsWidget::EmailQSLSettingsWidget(QWidget *parent)
 
 EmailQSLSettingsWidget::~EmailQSLSettingsWidget()
 {
+    FCT_IDENTIFICATION;
+
     delete ui;
 }
 
@@ -494,7 +498,7 @@ void EmailQSLSettingsWidget::readSettings()
     ui->bodyTemplateEdit->setPlainText(EmailQSLBase::getBodyTemplate());
     ui->cardImagePathEdit->setText(EmailQSLBase::getCardImagePath());
 
-    m_overlays = EmailQSLBase::getCardFieldOverlays();
+    overlayList = EmailQSLBase::getCardFieldOverlays();
     listToOverlayTable();
 
     // Trigger image load into the editor (textChanged may not fire if value unchanged)
@@ -518,11 +522,11 @@ void EmailQSLSettingsWidget::writeSettings()
     EmailQSLBase::setCardImagePath(ui->cardImagePathEdit->text().trimmed());
 
     overlayTableToList();
-    EmailQSLBase::setCardFieldOverlays(m_overlays);
+    EmailQSLBase::setCardFieldOverlays(overlayList);
 }
 
 // ---------------------------------------------------------------------------
-// Overlay table ↔ m_overlays ↔ card editor
+// Overlay table ↔ overlayList ↔ card editor
 // ---------------------------------------------------------------------------
 
 // Helper — make a greyed-out non-editable placeholder for N/A cells
@@ -537,11 +541,13 @@ static QStandardItem *naItem()
 
 void EmailQSLSettingsWidget::listToOverlayTable()
 {
+    FCT_IDENTIFICATION;
+
     // Guard against re-entrant onTableDataChanged() firing during setRowCount(0)
-    // which would wipe m_overlays before we finish rebuilding the table.
-    m_syncing = true;
-    m_overlayModel->setRowCount(0);
-    for (const EmailQSLFieldOverlay &ov : m_overlays)
+    // which would wipe overlayList before we finish rebuilding the table.
+    syncing = true;
+    overlayModel->setRowCount(0);
+    for ( const EmailQSLFieldOverlay &ov : overlayList )
     {
         const bool isBox = (ov.type == QLatin1String("BOX"));
 
@@ -573,19 +579,21 @@ void EmailQSLSettingsWidget::listToOverlayTable()
         row << (isBox ? item(QString::number(ov.opacity)): naItem()); // OC_OPACITY
         row << (isBox ? item(QString::number(ov.cornerRadius)) : naItem()); // OC_RADIUS
 
-        m_overlayModel->appendRow(row);
+        overlayModel->appendRow(row);
     }
-    m_syncing = false;
-    ui->cardEditorWidget->setOverlays(m_overlays);
+    syncing = false;
+    ui->cardEditorWidget->setOverlays(overlayList);
 }
 
 void EmailQSLSettingsWidget::overlayTableToList()
 {
-    m_overlays.clear();
-    for (int r = 0; r < m_overlayModel->rowCount(); ++r)
+    FCT_IDENTIFICATION;
+
+    overlayList.clear();
+    for ( int r = 0; r < overlayModel->rowCount(); ++r )
     {
         EmailQSLFieldOverlay ov;
-        auto txt = [&](int col) { return m_overlayModel->item(r, col)->text(); };
+        auto txt = [&](int col) { return overlayModel->item(r, col)->text(); };
 
         ov.type       = txt(OC_TYPE);
         ov.fieldName  = txt(OC_FIELD);
@@ -593,7 +601,7 @@ void EmailQSLSettingsWidget::overlayTableToList()
         ov.y          = txt(OC_Y).toInt();
         ov.color      = txt(OC_COLOR);
 
-        if (ov.type == QLatin1String("BOX"))
+        if ( ov.type == QLatin1String("BOX") )
         {
             ov.fontFamily   = QStringLiteral("Arial");
             ov.fontSize     = txt(OC_SIZE) == QStringLiteral("—") ? 11 : txt(OC_SIZE).toInt();
@@ -607,10 +615,10 @@ void EmailQSLSettingsWidget::overlayTableToList()
         {
             ov.fontFamily   = txt(OC_FONT);
             ov.fontSize     = txt(OC_SIZE).toInt();
-            ov.bold   = m_overlayModel->item(r, OC_BOLD)->checkState()   == Qt::Checked;
-            ov.italic = m_overlayModel->item(r, OC_ITALIC)->checkState() == Qt::Checked;
+            ov.bold   = overlayModel->item(r, OC_BOLD)->checkState()   == Qt::Checked;
+            ov.italic = overlayModel->item(r, OC_ITALIC)->checkState() == Qt::Checked;
         }
-        m_overlays.append(ov);
+        overlayList.append(ov);
     }
 }
 
@@ -618,44 +626,51 @@ void EmailQSLSettingsWidget::onTableDataChanged()
 {
     FCT_IDENTIFICATION;
 
-    if (m_syncing) return;
-    m_syncing = true;
+    if ( syncing )
+        return;
+    syncing = true;
     overlayTableToList();
-    ui->cardEditorWidget->setOverlays(m_overlays);
-    m_syncing = false;
+    ui->cardEditorWidget->setOverlays(overlayList);
+    syncing = false;
 }
 
 void EmailQSLSettingsWidget::onEditorPositionChanged(int index, int x, int y)
 {
     FCT_IDENTIFICATION;
 
-    if (m_syncing || index < 0 || index >= m_overlayModel->rowCount()) return;
-    m_syncing = true;
-    m_overlayModel->item(index, OC_X)->setText(QString::number(x));
-    m_overlayModel->item(index, OC_Y)->setText(QString::number(y));
-    if (index < m_overlays.size())
-    { m_overlays[index].x = x; m_overlays[index].y = y; }
-    m_syncing = false;
+    if ( syncing || index < 0 || index >= overlayModel->rowCount() )
+        return;
+    syncing = true;
+    overlayModel->item(index, OC_X)->setText(QString::number(x));
+    overlayModel->item(index, OC_Y)->setText(QString::number(y));
+    if ( index < overlayList.size() )
+    { overlayList[index].x = x; overlayList[index].y = y; }
+    syncing = false;
 }
 
 void EmailQSLSettingsWidget::onEditorSizeChanged(int index, int w, int h)
 {
     FCT_IDENTIFICATION;
 
-    if (m_syncing || index < 0 || index >= m_overlayModel->rowCount()) return;
-    m_syncing = true;
-    auto *wi = m_overlayModel->item(index, OC_W);
-    auto *hi = m_overlayModel->item(index, OC_H);
-    if (wi && wi->text() != QStringLiteral("—")) wi->setText(QString::number(w));
-    if (hi && hi->text() != QStringLiteral("—")) hi->setText(QString::number(h));
-    if (index < m_overlays.size())
-    { m_overlays[index].width = w; m_overlays[index].height = h; }
-    m_syncing = false;
+    if ( syncing || index < 0 || index >= overlayModel->rowCount() )
+        return;
+    syncing = true;
+    auto *wi = overlayModel->item(index, OC_W);
+    auto *hi = overlayModel->item(index, OC_H);
+    if ( wi && wi->text() != QStringLiteral("—") )
+        wi->setText(QString::number(w));
+    if ( hi && hi->text() != QStringLiteral("—") )
+        hi->setText(QString::number(h));
+    if ( index < overlayList.size() )
+    { overlayList[index].width = w; overlayList[index].height = h; }
+    syncing = false;
 }
 
 void EmailQSLSettingsWidget::onEditorOverlaySelected(int index)
 {
-    if (index >= 0)
+    FCT_IDENTIFICATION;
+
+    if ( index >= 0 )
         ui->overlayTableView->selectRow(index);
     else
         ui->overlayTableView->clearSelection();
@@ -674,7 +689,7 @@ void EmailQSLSettingsWidget::browseCardImage()
         this, tr("Select QSL Card Image"),
         ui->cardImagePathEdit->text(),
         tr("Images (*.jpg *.jpeg *.png *.bmp);;All files (*)"));
-    if (!path.isEmpty())
+    if ( !path.isEmpty() )
         ui->cardImagePathEdit->setText(path);
 }
 
@@ -688,23 +703,23 @@ void EmailQSLSettingsWidget::onCardImageChanged(const QString &path)
     // pixel values (positions, font sizes, box dimensions) proportionally so
     // the layout stays in the same visual position on the new image.
     const QPixmap &prev = ui->cardEditorWidget->image();
-    if (!prev.isNull() && !pm.isNull()
-        && prev.size() != pm.size())
+    if ( !prev.isNull() && !pm.isNull()
+        && prev.size() != pm.size() )
     {
-        overlayTableToList(); // make sure m_overlays is current
+        overlayTableToList(); // make sure overlayList is current
 
-        if (!m_overlays.isEmpty())
+        if ( !overlayList.isEmpty() )
         {
             const double sx = static_cast<double>(pm.width())  / prev.width();
             const double sy = static_cast<double>(pm.height()) / prev.height();
 
-            for (EmailQSLFieldOverlay &ov : m_overlays)
+            for ( EmailQSLFieldOverlay &ov : overlayList )
             {
                 ov.x        = qRound(ov.x * sx);
                 ov.y        = qRound(ov.y * sy);
                 // Font size tracks horizontal scale (same axis as card width)
                 ov.fontSize = qMax(1, qRound(ov.fontSize * sx));
-                if (ov.type == QLatin1String("BOX"))
+                if ( ov.type == QLatin1String("BOX") )
                 {
                     ov.width  = qMax(20, qRound(ov.width  * sx));
                     ov.height = qMax(10, qRound(ov.height * sy));
@@ -732,11 +747,11 @@ void EmailQSLSettingsWidget::addOverlay()
     const int cy = img.isNull() ? 50 : img.height() / 4;
 
     overlayTableToList();
-    m_overlays.append(makeOverlay(QStringLiteral("CALLSIGN"), cx, cy, 14, false));
+    overlayList.append(makeOverlay(QStringLiteral("CALLSIGN"), cx, cy, 14, false));
     listToOverlayTable();
 
-    const int newRow = m_overlayModel->rowCount() - 1;
-    ui->overlayTableView->setCurrentIndex(m_overlayModel->index(newRow, 0));
+    const int newRow = overlayModel->rowCount() - 1;
+    ui->overlayTableView->setCurrentIndex(overlayModel->index(newRow, 0));
     ui->overlayTableView->scrollToBottom();
     ui->cardEditorWidget->setSelectedIndex(newRow);
 }
@@ -763,11 +778,11 @@ void EmailQSLSettingsWidget::addBox()
     ov.fontSize     = 0;  // no caption
 
     overlayTableToList();
-    m_overlays.append(ov);
+    overlayList.append(ov);
     listToOverlayTable();
 
-    const int newRow = m_overlayModel->rowCount() - 1;
-    ui->overlayTableView->setCurrentIndex(m_overlayModel->index(newRow, 0));
+    const int newRow = overlayModel->rowCount() - 1;
+    ui->overlayTableView->setCurrentIndex(overlayModel->index(newRow, 0));
     ui->overlayTableView->scrollToBottom();
     ui->cardEditorWidget->setSelectedIndex(newRow);
 }
@@ -792,11 +807,11 @@ void EmailQSLSettingsWidget::addLabel()
     ov.italic     = false;
 
     overlayTableToList();
-    m_overlays.append(ov);
+    overlayList.append(ov);
     listToOverlayTable();
 
-    const int newRow = m_overlayModel->rowCount() - 1;
-    ui->overlayTableView->setCurrentIndex(m_overlayModel->index(newRow, 0));
+    const int newRow = overlayModel->rowCount() - 1;
+    ui->overlayTableView->setCurrentIndex(overlayModel->index(newRow, 0));
     ui->overlayTableView->scrollToBottom();
     ui->cardEditorWidget->setSelectedIndex(newRow);
 }
@@ -885,8 +900,8 @@ void EmailQSLSettingsWidget::addDefaultOverlays()
     };
 
     overlayTableToList();
-    for (const EmailQSLFieldOverlay &ov : defaults)
-        m_overlays.append(ov);
+    for ( const EmailQSLFieldOverlay &ov : defaults )
+        overlayList.append(ov);
     listToOverlayTable();
     ui->overlayTableView->scrollToBottom();
 }
@@ -896,11 +911,11 @@ void EmailQSLSettingsWidget::removeOverlay()
     FCT_IDENTIFICATION;
 
     const QModelIndexList sel = ui->overlayTableView->selectionModel()->selectedRows();
-    if (sel.isEmpty())
+    if ( sel.isEmpty() )
         return;
 
     overlayTableToList();
-    m_overlays.removeAt(sel.first().row());
+    overlayList.removeAt(sel.first().row());
     listToOverlayTable();
 }
 
@@ -914,7 +929,7 @@ QPixmap EmailQSLSettingsWidget::renderPreviewPixmap(const QSqlRecord &record)
 
     overlayTableToList();
     return EmailQSLBase::renderCard(ui->cardImagePathEdit->text().trimmed(),
-                                    record, m_overlays);
+                                    record, overlayList);
 }
 
 void EmailQSLSettingsWidget::previewCard()
@@ -924,7 +939,7 @@ void EmailQSLSettingsWidget::previewCard()
     const QSqlRecord dummy = buildDummyRecord();
     const QPixmap preview  = renderPreviewPixmap(dummy);
 
-    if (preview.isNull())
+    if ( preview.isNull() )
     {
         QMessageBox::warning(this, tr("Preview"),
                              tr("Could not load the card image.\n"
@@ -960,10 +975,10 @@ void EmailQSLSettingsWidget::previewCard()
             defaultDir + QStringLiteral("/QSL_preview.png"),
             tr("PNG Image (*.png);;JPEG Image (*.jpg *.jpeg)"));
 
-        if (path.isEmpty())
+        if ( path.isEmpty() )
             return;
 
-        if (!preview.save(path))
+        if ( !preview.save(path) )
         {
             QMessageBox::warning(this, tr("Save Failed"),
                                  tr("Could not save the card image to:\n%1").arg(path));
@@ -984,17 +999,17 @@ void EmailQSLSettingsWidget::onSmtpPresetChanged(int index)
     FCT_IDENTIFICATION;
 
     const QList<SmtpPreset> presets = smtpPresets();
-    if (index <= 0 || index >= presets.size())
+    if ( index <= 0 || index >= presets.size() )
         return;
 
     const SmtpPreset &p = presets.at(index);
-    if (!p.host.isEmpty())
+    if ( !p.host.isEmpty() )
     {
         ui->smtpHostEdit->setText(p.host);
         ui->smtpPortSpin->setValue(p.port);
         ui->encryptionCombo->setCurrentIndex(p.encryption);
     }
-    if (!p.hint.isEmpty())
+    if ( !p.hint.isEmpty() )
         QMessageBox::information(this, tr("Provider Notes"), p.hint);
 }
 
@@ -1005,7 +1020,7 @@ void EmailQSLSettingsWidget::testConnection()
     ui->testResultLabel->setText(tr("Testing…"));
     ui->testConnectionButton->setEnabled(false);
 
-    m_testService->testConnection(
+    testService->testConnection(
         ui->smtpHostEdit->text().trimmed(),
         ui->smtpPortSpin->value(),
         ui->encryptionCombo->currentIndex(),
@@ -1019,7 +1034,7 @@ void EmailQSLSettingsWidget::onTestFinished(bool success, const QString &message
     FCT_IDENTIFICATION;
 
     ui->testConnectionButton->setEnabled(true);
-    if (success)
+    if ( success )
     {
         ui->testResultLabel->setStyleSheet(QStringLiteral("color: green; font-weight: bold;"));
         ui->testResultLabel->setText(tr("Connection OK"));
@@ -1040,7 +1055,7 @@ void EmailQSLSettingsWidget::insertMergeFieldBody()
     FCT_IDENTIFICATION;
 
     const QString text = ui->bodyFieldCombo->currentText();
-    if (!text.isEmpty())
+    if ( !text.isEmpty() )
         ui->bodyTemplateEdit->insertPlainText(text);
 }
 
@@ -1049,6 +1064,6 @@ void EmailQSLSettingsWidget::insertMergeFieldSubject()
     FCT_IDENTIFICATION;
 
     const QString text = ui->subjectFieldCombo->currentText();
-    if (!text.isEmpty())
+    if ( !text.isEmpty() )
         ui->subjectTemplateEdit->insert(text);
 }

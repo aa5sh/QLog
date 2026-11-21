@@ -80,12 +80,6 @@
 
 MODULE_IDENTIFICATION("qlog.ui.mainwindow");
 
-namespace
-{
-constexpr int STEPPIR_AUTOCONNECT_RETRY_ATTEMPTS = 2;
-constexpr int STEPPIR_AUTOCONNECT_RETRY_INTERVAL_MS = 5000;
-}
-
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -108,7 +102,7 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->setupUi(this);
 
     setDockNestingEnabled(true);
-    
+
     ui->rigWidget->setConnectAction(ui->actionConnectRig);
     ui->rotatorWidget->setConnectAction(ui->actionConnectRotator);
     ui->cwconsoleWidget->setConnectAction(ui->actionConnectCWKeyer);
@@ -950,7 +944,7 @@ void MainWindow::steppirErrorHandler(const QString &error, const QString &errorD
 
     actionConnectSteppir->setChecked(false);
 
-    if (warningVisible)
+    if ( warningVisible )
         return;
 
     warningVisible = true;
@@ -2342,6 +2336,8 @@ void MainWindow::handleActivityChange(const QString name)
 
 void MainWindow::scheduleSteppirConnectRetry(int remainingAttempts)
 {
+    FCT_IDENTIFICATION;
+
     if ( remainingAttempts <= 0 )
         return;
 

@@ -30,8 +30,8 @@ private:
     void buildWarnings();
 
     Ui::EmailQSLDialog *ui;
-    QSqlRecord          m_record;
-    EmailQSLService    *m_service;
+    QSqlRecord          qsoRecord;
+    EmailQSLService    *emailService;
 };
 
 #endif // QLOG_UI_EMAILQSLDIALOG_H
