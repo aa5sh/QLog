@@ -3,6 +3,9 @@
 #include <QtSql>
 #include <QDebug>
 #include <QUuid>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <sqlite3.h>
 #include <QHostInfo>
 #include "core/Migration.h"
@@ -329,8 +332,12 @@ bool DBSchemaMigration::migrateMyFeatures(int toVersion)
         return false;
     }
 
+    // Version 3 only rewrites JSON stored in activity_profiles. Upstream
+    // never relies on SQLite's JSON functions, so it is done in C++ and has
+    // no SQL file.
+    const bool cppOnly = ( toVersion == 3 );
     QString migration_file = QString(":/res/sql/myfeatures_migration_%1.sql").arg(toVersion, 3, 10, QChar('0'));
-    bool result = runSqlFile(migration_file);
+    bool result = cppOnly || runSqlFile(migration_file);
 
     // C++ steps for MyFeatures versions (runSqlFile splits on ';', so
     // trigger bodies can't live in the .sql file).
@@ -340,6 +347,9 @@ bool DBSchemaMigration::migrateMyFeatures(int toVersion)
         {
         case 2:
             result = setupContactSync();
+            break;
+        case 3:
+            result = remapForkActivityProfileTypes();
             break;
         default:
             break;
@@ -653,6 +663,60 @@ bool DBSchemaMigration::createTriggers()
                                  .arg(QSqlDatabase::database().databaseName(), query.lastError().text()));
     }
 
+    return true;
+}
+
+bool DBSchemaMigration::remapForkActivityProfileTypes()
+{
+    FCT_IDENTIFICATION;
+
+    // MyFeatures stored SteppIR/amplifier activity profiles as types 6 and
+    // 7, the next values upstream would assign. Move them to 100/101.
+    static const QHash<int, int> remap = { { 6, 100 }, { 7, 101 } };
+
+    QSqlQuery select;
+    if ( !select.exec(QStringLiteral("SELECT profile_name, config FROM activity_profiles")) )
+        return failMigration(tr("Cannot read activity profiles in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), select.lastError().text()));
+
+    QSqlQuery update;
+    if ( !update.prepare(QStringLiteral("UPDATE activity_profiles SET config = :config WHERE profile_name = :name")) )
+        return failMigration(tr("Cannot prepare the activity profile update in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), update.lastError().text()));
+
+    while ( select.next() )
+    {
+        QJsonObject config = QJsonDocument::fromJson(select.value(1).toByteArray()).object();
+        QJsonArray profiles = config.value(QStringLiteral("profiles")).toArray();
+        bool changed = false;
+
+        for ( int i = 0; i < profiles.size(); ++i )
+        {
+            QJsonObject profile = profiles.at(i).toObject();
+            const int type = profile.value(QStringLiteral("profileType")).toInt(-1);
+            if ( !remap.contains(type) )
+                continue;
+            profile[QStringLiteral("profileType")] = remap.value(type);
+            profiles[i] = profile;
+            changed = true;
+        }
+
+        if ( !changed )
+            continue;
+
+        config[QStringLiteral("profiles")] = profiles;
+        update.bindValue(QStringLiteral(":config"), QJsonDocument(config).toJson());
+        update.bindValue(QStringLiteral(":name"), select.value(0));
+        if ( !update.exec() )
+            return failMigration(tr("Cannot update activity profile %1 in %2:\n%3")
+                                     .arg(select.value(0).toString(),
+                                          QSqlDatabase::database().databaseName(),
+                                          update.lastError().text()));
+    }
+
+    if ( select.lastError().isValid() )
+        return failMigration(tr("Cannot read activity profiles in %1:\n%2")
+                                 .arg(QSqlDatabase::database().databaseName(), select.lastError().text()));
     return true;
 }
 

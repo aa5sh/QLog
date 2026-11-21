@@ -8,6 +8,9 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QUuid>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 
 #include "core/Migration.h"
@@ -18,6 +21,7 @@ class MigrationSqlTest_FriendAccessor
 public:
     static int latestVersion() { return DBSchemaMigration::latestVersion; }
     static int latestMyFeaturesVersion() { return DBSchemaMigration::latestMyFeaturesVersion; }
+    static bool migrateMyFeatures(DBSchemaMigration &migration, int version) { return migration.migrateMyFeatures(version); }
     static bool migrate(DBSchemaMigration &migration, int version) { return migration.migrate(version); }
     static bool runSqlFile(DBSchemaMigration &migration, const QString &path) { return migration.runSqlFile(path); }
     static bool setForeignKeysEnabled(DBSchemaMigration &migration, bool enabled) { return migration.setForeignKeysEnabled(enabled); }
@@ -34,6 +38,7 @@ private slots:
     void migrateVersion();
     void migrateMyFeaturesVersion_data();
     void migrateMyFeaturesVersion();
+    void remapsForkActivityProfileTypes();
     void upgradesLegacyDatabase_data();
     void upgradesLegacyDatabase();
     void rejectsForeignKeyViolation();
@@ -158,15 +163,19 @@ bool MigrationSqlTest::executeMyFeaturesSqlFile(int version)
 {
     const QString resourceName = QStringLiteral(":/res/sql/myfeatures_migration_%1.sql")
                                      .arg(version, 3, 10, QChar('0'));
-    QFile sqlFile(resourceName);
-    if (!sqlFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    // MyFeatures version 3 is a C++-only data migration without an SQL file.
+    QString sqlContent;
+    if ( version != 3 )
     {
-        QWARN(qPrintable(QStringLiteral("Cannot open %1").arg(resourceName)));
-        return false;
+        QFile sqlFile(resourceName);
+        if (!sqlFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QWARN(qPrintable(QStringLiteral("Cannot open %1").arg(resourceName)));
+            return false;
+        }
+        sqlContent = QTextStream(&sqlFile).readAll();
+        sqlFile.close();
     }
-
-    const QString sqlContent = QTextStream(&sqlFile).readAll();
-    sqlFile.close();
 
     const QStringList statements = sqlContent.split('\n').join(QStringLiteral(" ")).split(';');
 
@@ -563,6 +572,42 @@ void MigrationSqlTest::migrateMyFeaturesVersion()
     QVERIFY2(executeMyFeaturesSqlFile(targetVersion),
              qPrintable(QStringLiteral("MyFeatures migration SQL file %1 failed").arg(targetVersion, 3, 10, QChar('0'))));
     QCOMPARE(currentMyFeaturesVersion(), targetVersion);
+}
+
+void MigrationSqlTest::remapsForkActivityProfileTypes()
+{
+    // Types 6/7 were the fork's SteppIR/amplifier activity profile types
+    // before they were moved out of upstream's range.
+    createDatabase(MigrationSqlTest_FriendAccessor::latestVersion());
+    {
+        DBSchemaMigration migration;
+        QVERIFY(MigrationSqlTest_FriendAccessor::migrateMyFeatures(migration, 1));
+        QVERIFY(MigrationSqlTest_FriendAccessor::migrateMyFeatures(migration, 2));
+    }
+
+    const QByteArray config =
+        "{\"profiles\":[{\"name\":\"Station\",\"profileType\":1},"
+        "{\"name\":\"Tower\",\"profileType\":6,\"params\":[{\"paramType\":0,\"value\":true}]},"
+        "{\"name\":\"Expert\",\"profileType\":7}],\"fieldValues\":[]}";
+    {
+        QSqlQuery insert;
+        QVERIFY(insert.prepare(QStringLiteral("INSERT INTO activity_profiles(profile_name, config, selected) VALUES ('Cottage', :c, 0)")));
+        insert.bindValue(QStringLiteral(":c"), config);
+        QVERIFY2(insert.exec(), qPrintable(insert.lastError().text()));
+    }
+
+    DBSchemaMigration migration;
+    QVERIFY2(migration.run(), qPrintable(migration.errorString()));
+    QCOMPARE(currentMyFeaturesVersion(), MigrationSqlTest_FriendAccessor::latestMyFeaturesVersion());
+
+    QSqlQuery query(QStringLiteral("SELECT config FROM activity_profiles WHERE profile_name = 'Cottage'"));
+    QVERIFY(query.next());
+    const QJsonArray profiles = QJsonDocument::fromJson(query.value(0).toByteArray()).object().value(QStringLiteral("profiles")).toArray();
+    QCOMPARE(profiles.size(), 3);
+    QCOMPARE(profiles.at(0).toObject().value(QStringLiteral("profileType")).toInt(), 1);
+    QCOMPARE(profiles.at(1).toObject().value(QStringLiteral("profileType")).toInt(), 100);
+    QCOMPARE(profiles.at(1).toObject().value(QStringLiteral("params")).toArray().size(), 1);
+    QCOMPARE(profiles.at(2).toObject().value(QStringLiteral("profileType")).toInt(), 101);
 }
 
 QTEST_MAIN(MigrationSqlTest)

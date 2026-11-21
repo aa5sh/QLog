@@ -1019,6 +1019,21 @@ void LogParam::setEmailQSLSmtpEncryption(int enc)
     setParam("services/emailqsl/smtpEncryption", enc);
 }
 
+bool LogParam::getEmailQSLSmtpAllowInvalidCert()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("services/emailqsl/smtpAllowInvalidCert", false).toBool();
+}
+
+void LogParam::setEmailQSLSmtpAllowInvalidCert(bool allow)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << allow;
+
+    setParam("services/emailqsl/smtpAllowInvalidCert", allow);
+}
+
 QString LogParam::getEmailQSLSmtpUsername()
 {
     return getParam("services/emailqsl/smtpUsername").toString();

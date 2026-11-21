@@ -485,6 +485,7 @@ void EmailQSLSettingsWidget::readSettings()
     ui->smtpHostEdit->setText(EmailQSLBase::getSmtpHost());
     ui->smtpPortSpin->setValue(EmailQSLBase::getSmtpPort());
     ui->encryptionCombo->setCurrentIndex(EmailQSLBase::getSmtpEncryption());
+    ui->allowInvalidCertCheckBox->setChecked(EmailQSLBase::getSmtpAllowInvalidCert());
     ui->smtpUsernameEdit->setText(EmailQSLBase::getSmtpUsername());
     ui->smtpPasswordEdit->setText(EmailQSLBase::getSmtpPassword());
     ui->fromAddressEdit->setText(EmailQSLBase::getFromAddress());
@@ -507,6 +508,7 @@ void EmailQSLSettingsWidget::writeSettings()
     EmailQSLBase::setSmtpHost(ui->smtpHostEdit->text().trimmed());
     EmailQSLBase::setSmtpPort(ui->smtpPortSpin->value());
     EmailQSLBase::setSmtpEncryption(ui->encryptionCombo->currentIndex());
+    EmailQSLBase::setSmtpAllowInvalidCert(ui->allowInvalidCertCheckBox->isChecked());
     EmailQSLBase::saveSmtpCredentials(ui->smtpUsernameEdit->text().trimmed(),
                                       ui->smtpPasswordEdit->text());
     EmailQSLBase::setFromAddress(ui->fromAddressEdit->text().trimmed());
@@ -1007,6 +1009,7 @@ void EmailQSLSettingsWidget::testConnection()
         ui->smtpHostEdit->text().trimmed(),
         ui->smtpPortSpin->value(),
         ui->encryptionCombo->currentIndex(),
+        ui->allowInvalidCertCheckBox->isChecked(),
         ui->smtpUsernameEdit->text().trimmed(),
         ui->smtpPasswordEdit->text());
 }

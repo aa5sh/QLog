@@ -326,6 +326,9 @@ void WsjtxWidget::decodeReceived(WsjtxDecode decode)
             if (wsjtxTableModel->callsignExists(entry))
             {
                 initializeEntry(entry);
+                // Keep replying to the station's CQ: an empty replyDecode
+                // tells addOrReplaceEntry to keep the stored one.
+                entry.replyDecode = WsjtxDecode();
 
                 const WsjtxEntry previous =
                     wsjtxTableModel->getEntry(

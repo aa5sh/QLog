@@ -784,7 +784,9 @@ void AmplifierController::processBytes(const QByteArray &data)
         case ParseState::ReadCount:
             expectedCount = byte;
             packetBuffer.append(ch);
-            parseState = ParseState::ReadData;
+            // A zero count has no data bytes; ReadData would never see the
+            // end of the packet and the parser would never resync.
+            parseState = ( expectedCount == 0 ) ? ParseState::ReadChecksum : ParseState::ReadData;
             break;
         case ParseState::ReadData:
             packetBuffer.append(ch);

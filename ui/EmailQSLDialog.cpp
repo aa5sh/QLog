@@ -139,10 +139,7 @@ void EmailQSLDialog::onSendFinished(bool success, const QString &message)
 
     if (success)
     {
-        // Record the sent timestamp in contacts.fields
-        const int id = m_record.value(QStringLiteral("id")).toInt();
-        EmailQSLBase::recordEmailSent(id, m_record);
-
+        // EmailQSLService has already recorded the send in contacts.fields.
         // Auto-close — the log table refresh is handled by the finished() signal
         accept();
     }

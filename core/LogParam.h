@@ -266,6 +266,8 @@ public:
     static void    setEmailQSLSmtpPort(int port);
     static int     getEmailQSLSmtpEncryption();
     static void    setEmailQSLSmtpEncryption(int enc);
+    static bool    getEmailQSLSmtpAllowInvalidCert();
+    static void    setEmailQSLSmtpAllowInvalidCert(bool allow);
     static QString getEmailQSLSmtpUsername();
     static void    setEmailQSLSmtpUsername(const QString &username);
     static QString getEmailQSLFromAddress();

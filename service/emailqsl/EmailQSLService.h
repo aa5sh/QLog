@@ -65,6 +65,10 @@ public:
     static void    setSmtpPort(int port);
     static int     getSmtpEncryption();
     static void    setSmtpEncryption(int enc);
+    // Off by default: certificate and host name are verified. Only for
+    // private servers with self-signed certificates.
+    static bool    getSmtpAllowInvalidCert();
+    static void    setSmtpAllowInvalidCert(bool allow);
     static QString getSmtpUsername();
     static void    setSmtpUsername(const QString &username);
     static QString getSmtpPassword();
@@ -114,7 +118,7 @@ class SmtpWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit SmtpWorker(const QString &host, int port, int encryption,
+    explicit SmtpWorker(const QString &host, int port, int encryption, bool allowInvalidCert,
                         const QString &username, const QString &password,
                         const QString &fromAddress, const QString &fromName,
                         const QString &toAddress,
@@ -138,6 +142,7 @@ private:
     QString    m_host;
     int        m_port;
     int        m_encryption;
+    bool       m_allowInvalidCert;
     QString    m_username;
     QString    m_password;
     QString    m_fromAddress;
@@ -158,12 +163,15 @@ public:
     explicit EmailQSLService(QObject *parent = nullptr);
 
     void sendEmailQSL(const QSqlRecord &record);
-    void testConnection(const QString &host, int port, int encryption,
+    void testConnection(const QString &host, int port, int encryption, bool allowInvalidCert,
                         const QString &username, const QString &password);
 
 signals:
     void sendFinished(bool success, const QString &message);
     void testFinished(bool success, const QString &message);
+
+private:
+    static void startWorker(SmtpWorker *worker);
 };
 
 #endif // QLOG_SERVICE_EMAILQSLSERVICE_H

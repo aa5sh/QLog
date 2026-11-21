@@ -9,6 +9,7 @@
 #include <QBuffer>
 #include <QImageWriter>
 #include <QHostInfo>
+#include <QCoreApplication>
 
 #include "EmailQSLService.h"
 #include "core/debug.h"
@@ -100,6 +101,21 @@ int EmailQSLBase::getSmtpPort()
 void EmailQSLBase::setSmtpPort(int port)
 {
     LogParam::setEmailQSLSmtpPort(port);
+}
+
+bool EmailQSLBase::getSmtpAllowInvalidCert()
+{
+    FCT_IDENTIFICATION;
+
+    return LogParam::getEmailQSLSmtpAllowInvalidCert();
+}
+
+void EmailQSLBase::setSmtpAllowInvalidCert(bool allow)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << allow;
+
+    LogParam::setEmailQSLSmtpAllowInvalidCert(allow);
 }
 
 int EmailQSLBase::getSmtpEncryption()
@@ -478,7 +494,7 @@ QPixmap EmailQSLBase::renderCard(const QString &imagePath,
 // SmtpWorker
 // ---------------------------------------------------------------------------
 
-SmtpWorker::SmtpWorker(const QString &host, int port, int encryption,
+SmtpWorker::SmtpWorker(const QString &host, int port, int encryption, bool allowInvalidCert,
                        const QString &username, const QString &password,
                        const QString &fromAddress, const QString &fromName,
                        const QString &toAddress,
@@ -486,7 +502,7 @@ SmtpWorker::SmtpWorker(const QString &host, int port, int encryption,
                        const QByteArray &imageData, const QString &imageName,
                        QObject *parent)
     : QObject(parent),
-      m_host(host), m_port(port), m_encryption(encryption),
+      m_host(host), m_port(port), m_encryption(encryption), m_allowInvalidCert(allowInvalidCert),
       m_username(username), m_password(password),
       m_fromAddress(fromAddress), m_fromName(fromName),
       m_toAddress(toAddress),
@@ -602,7 +618,10 @@ void SmtpWorker::run()
 
     QSslSocket socket;
     socket.setProtocol(QSsl::AnyProtocol);
-    socket.setPeerVerifyMode(QSslSocket::VerifyNone); // tolerate self-signed certs
+    // Verify the certificate and host name unless the user explicitly
+    // allowed an invalid one; otherwise the SMTP password could be sent to
+    // anyone able to intercept the connection.
+    socket.setPeerVerifyMode(m_allowInvalidCert ? QSslSocket::VerifyNone : QSslSocket::VerifyPeer);
 
     // ---- Connect ----
     if (m_encryption == EmailQSLBase::ENCRYPTION_SSL_TLS)
@@ -770,11 +789,11 @@ void EmailQSLService::sendEmailQSL(const QSqlRecord &record)
 
     const QString toAddress = record.value(QStringLiteral("email")).toString().trimmed();
 
-    QThread *thread = new QThread(this);
     SmtpWorker *worker = new SmtpWorker(
         EmailQSLBase::getSmtpHost(),
         EmailQSLBase::getSmtpPort(),
         EmailQSLBase::getSmtpEncryption(),
+        EmailQSLBase::getSmtpAllowInvalidCert(),
         EmailQSLBase::getSmtpUsername(),
         EmailQSLBase::getSmtpPassword(),
         EmailQSLBase::getFromAddress(),
@@ -783,39 +802,51 @@ void EmailQSLService::sendEmailQSL(const QSqlRecord &record)
         subject, body,
         imageData, imageName);
 
-    worker->moveToThread(thread);
-
-    connect(thread, &QThread::started,   worker, &SmtpWorker::run);
-    connect(worker, &SmtpWorker::finished, this,
-            [this](bool ok, const QString &msg) { emit sendFinished(ok, msg); });
-    connect(worker, &SmtpWorker::finished, worker, &QObject::deleteLater);
-    connect(worker, &SmtpWorker::finished, thread, &QThread::quit);
-    connect(thread, &QThread::finished,   thread, &QObject::deleteLater);
-
-    thread->start();
+    // Record the send even if the dialog that started it is closed first:
+    // the application object, not this service, is the context.
+    const int contactId = record.value(QStringLiteral("id")).toInt();
+    connect(worker, &SmtpWorker::finished, QCoreApplication::instance(),
+            [contactId, record](bool ok, const QString &)
+    {
+        if ( ok )
+            EmailQSLBase::recordEmailSent(contactId, record);
+    });
+    // Delivered only while this service (and its dialog) still exists.
+    connect(worker, &SmtpWorker::finished, this, &EmailQSLService::sendFinished);
+    startWorker(worker);
 }
 
-void EmailQSLService::testConnection(const QString &host, int port, int encryption,
+void EmailQSLService::testConnection(const QString &host, int port, int encryption, bool allowInvalidCert,
                                      const QString &username, const QString &password)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << host << port << encryption << allowInvalidCert << username;
 
     // Send a dummy message to a no-op address just to verify auth works —
     // actually we just connect + EHLO + AUTH and then QUIT.
-    QThread *thread = new QThread(this);
     SmtpWorker *worker = new SmtpWorker(
-        host, port, encryption, username, password,
+        host, port, encryption, allowInvalidCert, username, password,
         username, QStringLiteral("Test"),
         username,  // to = from (won't actually be sent)
         QStringLiteral("QLog connection test"),
         QStringLiteral("Connection test only — no message will be sent."),
         QByteArray(), QString());
 
+    connect(worker, &SmtpWorker::finished, this, &EmailQSLService::testFinished);
+    startWorker(worker);
+}
+
+void EmailQSLService::startWorker(SmtpWorker *worker)
+{
+    FCT_IDENTIFICATION;
+
+    // The thread must not be a child of the service: the service lives in a
+    // dialog the user can close mid-send, and destroying a running QThread
+    // is fatal. Thread and worker delete themselves when the worker is done.
+    QThread *thread = new QThread;
     worker->moveToThread(thread);
 
     connect(thread, &QThread::started,   worker, &SmtpWorker::run);
-    connect(worker, &SmtpWorker::finished, this,
-            [this](bool ok, const QString &msg) { emit testFinished(ok, msg); });
     connect(worker, &SmtpWorker::finished, worker, &QObject::deleteLater);
     connect(worker, &SmtpWorker::finished, thread, &QThread::quit);
     connect(thread, &QThread::finished,   thread, &QObject::deleteLater);

@@ -18,8 +18,12 @@ public:
         ROT_PROFILE = 3,
         MAIN_LAYOUT_PROFILE = 4,
         BANDMAP_GUIDE_PROFILE = 5,
-        STEPPIR_PROFILE = 6,
-        AMPLIFIER_PROFILE = 7
+
+        // MyFeatures-only types. These values are persisted in
+        // activity_profiles.config, so they stay far from upstream's range;
+        // myfeatures migration 003 moved the original 6/7.
+        STEPPIR_PROFILE = 100,
+        AMPLIFIER_PROFILE = 101
     };
 
     enum ProfileParamType

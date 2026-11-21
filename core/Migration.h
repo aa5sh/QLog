@@ -20,7 +20,7 @@ public:
     // Fork-private schema track for MyFeatures-only changes. Kept separate
     // from latestVersion/migration_0NN.sql so upstream syncs never collide
     // with personal-branch schema changes.
-    static constexpr int latestMyFeaturesVersion = 2;
+    static constexpr int latestMyFeaturesVersion = 3;
 
 private:
     bool failMigration(const QString &message);
@@ -39,6 +39,7 @@ private:
     bool fillMyDXCC();
     bool createTriggers();
     bool setupContactSync();
+    bool remapForkActivityProfileTypes();
     bool importQSLCards2DB();
     bool fillCQITUZStationProfiles();
     bool resetConfigs();
