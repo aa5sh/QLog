@@ -120,8 +120,10 @@ MainWindow::MainWindow(QWidget* parent) :
     actionConnectSteppir->setCheckable(true);
     steppirWidget->setConnectAction(actionConnectSteppir);
 
-    actionSteppirWindow = steppirDockWidget->toggleViewAction();
-    actionSteppirWindow->setText(tr("SteppIR"));
+    // Like upstream's Window entries: show the dock, no checkmark.
+    actionSteppirWindow = new QAction(tr("SteppIR"), this);
+    actionSteppirWindow->setMenuRole(QAction::NoRole);
+    connect(actionSteppirWindow, &QAction::triggered, steppirDockWidget, &QDockWidget::show);
     ui->menuWindow->addAction(actionSteppirWindow);
 
     restoreContestMenuSeqnoType();
@@ -186,8 +188,9 @@ MainWindow::MainWindow(QWidget* parent) :
     actionConnectAmplifier->setCheckable(true);
     amplifierWidget->setConnectAction(actionConnectAmplifier);
 
-    actionAmplifierWindow = amplifierDockWidget->toggleViewAction();
-    actionAmplifierWindow->setText(tr("Amplifier"));
+    actionAmplifierWindow = new QAction(tr("Amplifier"), this);
+    actionAmplifierWindow->setMenuRole(QAction::NoRole);
+    connect(actionAmplifierWindow, &QAction::triggered, amplifierDockWidget, &QDockWidget::show);
     ui->menuWindow->addAction(actionAmplifierWindow);
 
     ui->cwconsoleWidget->registerContactWidget(ui->newContactWidget);
@@ -200,7 +203,10 @@ MainWindow::MainWindow(QWidget* parent) :
     waveshareDockWidget->setAttribute(Qt::WA_MacAlwaysShowToolWindow, true);
     waveshareDockWidget->setWidget(waveshareWidget);
     addDockWidget(Qt::RightDockWidgetArea, waveshareDockWidget);
-    ui->menuWindow->addAction(waveshareDockWidget->toggleViewAction());
+    QAction *actionWaveshareWindow = new QAction(tr("Waveshare"), this);
+    actionWaveshareWindow->setMenuRole(QAction::NoRole);
+    connect(actionWaveshareWindow, &QAction::triggered, waveshareDockWidget, &QDockWidget::show);
+    ui->menuWindow->addAction(actionWaveshareWindow);
     waveshareDockWidget->hide();
 
     const QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
