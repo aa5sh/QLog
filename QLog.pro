@@ -388,6 +388,7 @@ HEADERS += \
         data/Data.h \
         data/DxServerString.h \
         data/DxSpot.h \
+        data/DXMarathon.h \
         data/Dxcc.h \
         data/DxccConfirmation.h \
         data/DxccLogStatusCondition.h \

@@ -10,7 +10,7 @@
 #include "data/BandPlan.h"
 #include "data/StationProfile.h"
 #include "core/LogParam.h"
-#include <QDate>
+#include "data/DXMarathon.h"
 
 MODULE_IDENTIFICATION("qlog.ui.alertevaluator");
 
@@ -535,32 +535,50 @@ AlertRule::operator QString() const
 
 bool AlertRule::isDXMarathonNew(int dxcc, int cqz, const QString &spotBand, const QString &callsign) const
 {
-    static const QStringList eligibleBands = {"160m","80m","60m","40m","30m","20m","17m","15m","12m","10m","6m"};
-    if (dxcc <= 0 || cqz <= 0 || !eligibleBands.contains(spotBand)
-        || callsign.endsWith("/AM", Qt::CaseInsensitive) || callsign.endsWith("/MM", Qt::CaseInsensitive))
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << dxcc << cqz << spotBand << callsign;
+
+    if ( dxcc <= 0 || cqz <= 0
+         || !DXMarathon::eligibleBands().contains(spotBand)
+         || !DXMarathon::isEligibleCallsign(callsign) )
         return false;
+
     const StationProfile profile = StationProfilesManager::instance()->getCurProfile1();
-    QSqlQuery query;
     const bool callsignOnly = LogParam::getDXMarathonAlertByCallsign();
+    // getContactInnerJoin() is upstream's station-profile matching SQL.
     const QString stationCondition = callsignOnly
-        ? QStringLiteral("UPPER(station_callsign)=UPPER(:stationCallsign)")
-        : QString("EXISTS (SELECT 1 FROM station_profiles WHERE profile_name=:profile AND %1)").arg(profile.getContactInnerJoin());
-    const QString marathonEligible = QStringLiteral(
-        "band IN ('160m','80m','60m','40m','30m','20m','17m','15m','12m','10m','6m') "
-        "AND UPPER(callsign) NOT LIKE '%/AM' AND UPPER(callsign) NOT LIKE '%/MM'");
-    const QString sql = QString("SELECT EXISTS(SELECT 1 FROM contacts WHERE %1 "
-                                "AND start_time>=:start AND start_time<:end AND dxcc=:dxcc AND %2), "
-                                "EXISTS(SELECT 1 FROM contacts WHERE %1 "
-                                "AND start_time>=:start AND start_time<:end AND cqz=:cqz AND %2)")
-                            .arg(stationCondition, marathonEligible);
-    if (!query.prepare(sql)) { qCWarning(runtime) << "DX Marathon alert prepare error:" << query.lastError(); return false; }
-    query.bindValue(":stationCallsign", profile.callsign);
-    query.bindValue(":profile", profile.profileName);
-    query.bindValue(":start", QString("%1-01-01T00:00:00").arg(QDate::currentDate().year()));
-    query.bindValue(":end", QString("%1-01-01T00:00:00").arg(QDate::currentDate().year()+1));
-    query.bindValue(":dxcc", dxcc);
-    query.bindValue(":cqz", cqz);
-    if (!query.exec() || !query.next()) { qCWarning(runtime) << "DX Marathon alert query error:" << query.lastError(); return false; }
+        ? QStringLiteral("UPPER(station_callsign) = UPPER(:stationCallsign)")
+        : QStringLiteral("EXISTS (SELECT 1 FROM station_profiles WHERE profile_name = :profile AND %1)")
+              .arg(profile.getContactInnerJoin());
+    const QString yearCondition = QStringLiteral("start_time >= :start AND start_time < :end AND ")
+                                + DXMarathon::eligibleContactsCondition();
+    const QString sql = QStringLiteral("SELECT EXISTS(SELECT 1 FROM contacts WHERE %1 AND %2 AND dxcc = :dxcc), "
+                                       "EXISTS(SELECT 1 FROM contacts WHERE %1 AND %2 AND cqz = :cqz)")
+                            .arg(stationCondition, yearCondition);
+
+    QSqlQuery query;
+    if ( !query.prepare(sql) )
+    {
+        qCWarning(runtime) << "DX Marathon alert prepare error:" << query.lastError();
+        return false;
+    }
+
+    const int year = DXMarathon::currentYear();
+    if ( callsignOnly )
+        query.bindValue(QStringLiteral(":stationCallsign"), profile.callsign);
+    else
+        query.bindValue(QStringLiteral(":profile"), profile.profileName);
+    query.bindValue(QStringLiteral(":start"), DXMarathon::yearStart(year));
+    query.bindValue(QStringLiteral(":end"), DXMarathon::yearStart(year + 1));
+    query.bindValue(QStringLiteral(":dxcc"), dxcc);
+    query.bindValue(QStringLiteral(":cqz"), cqz);
+
+    if ( !query.exec() || !query.next() )
+    {
+        qCWarning(runtime) << "DX Marathon alert query error:" << query.lastError();
+        return false;
+    }
+
     const bool entityWorked = query.value(0).toBool();
     const bool zoneWorked = query.value(1).toBool();
     const bool isNew = !entityWorked || !zoneWorked;

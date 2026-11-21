@@ -5712,6 +5712,16 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="backupOnExitCheckBox">
+            <property name="text">
+             <string>Also back up every time QLog exits</string>
+            </property>
+            <property name="toolTip">
+             <string>Takes a quick copy of the logbook when QLog closes. It is exported and copied to the backup folder the next time QLog starts.</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -6121,6 +6131,7 @@
   <tabstop>backupDirectoryEdit</tabstop>
   <tabstop>backupBrowseButton</tabstop>
   <tabstop>backupCopiesSpinBox</tabstop>
+  <tabstop>backupOnExitCheckBox</tabstop>
   <tabstop>backupOpenFolderButton</tabstop>
   <tabstop>backupOpenInternalFolderButton</tabstop>
  </tabstops>

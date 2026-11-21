@@ -93,7 +93,7 @@ public:
     // --- Sent-tracking (stored in contacts.fields JSON) ---
     static QDateTime getEmailSentDateTime(const QSqlRecord &record);
     static bool      hasEmailBeenSentToCallsign(const QString &callsign, int excludeId = -1);
-    static void      recordEmailSent(int contactId, const QSqlRecord &currentRecord);
+    static bool      recordEmailSent(int contactId);
 
     // --- Rendering helpers ---
     // Full render using saved settings from LogParam (used when sending).
@@ -126,6 +126,16 @@ public:
                         const QByteArray &imageData, const QString &imageName,
                         QObject *parent = nullptr);
 
+    // Stop after authentication instead of sending a message.
+    void setTestOnly(bool testOnly);
+
+    // RFC 2047 encoded-words, folded so each stays within 75 characters.
+    static QByteArray encodeHeaderText(const QString &text);
+    // An address placed inside <...> on the SMTP command line and in headers.
+    static bool isSafeAddress(const QString &address);
+    // True once data holds a complete final reply line ("NNN text\r\n").
+    static bool hasFinalReplyLine(const QByteArray &data);
+
 public slots:
     void run();
 
@@ -143,6 +153,7 @@ private:
     int        m_port;
     int        m_encryption;
     bool       m_allowInvalidCert;
+    bool       m_testOnly;
     QString    m_username;
     QString    m_password;
     QString    m_fromAddress;

@@ -953,7 +953,8 @@ void SettingsDialog::save()
             return;
         }
     }
-    if ( !LogParam::setBackupConfig(backupConfig) )
+    if ( !LogParam::setBackupConfig(backupConfig)
+         || !LogParam::setBackupOnExit(ui->backupOnExitCheckBox->isChecked()) )
     {
         ui->backupErrorLabel->setText(tr("Could not save the backup settings."));
         ui->backupErrorLabel->show();
@@ -1802,9 +1803,20 @@ void SettingsDialog::addSteppirProfile()
         return;
     }
 
-    SteppirProfiles::addOrReplace(profile);
-    if (SteppirProfiles::currentProfileName().isEmpty())
-        SteppirProfiles::setCurrentProfileName(profile.name);
+    bool replaced = false;
+    for ( SteppirProfile &existing : steppirProfilesDraft )
+    {
+        if ( existing.name == profile.name )
+        {
+            existing = profile;
+            replaced = true;
+            break;
+        }
+    }
+    if ( !replaced )
+        steppirProfilesDraft << profile;
+    if ( steppirCurrentProfileDraft.isEmpty() )
+        steppirCurrentProfileDraft = profile.name;
 
     refreshSteppirProfilesView();
     clearSteppirProfileForm();
@@ -1814,24 +1826,52 @@ void SettingsDialog::delSteppirProfile()
 {
     FCT_IDENTIFICATION;
 
-    deleteSelectedProfiles(ui->steppirProfilesListView, [](const QString &name) {
-        SteppirProfiles::remove(name);
+    deleteSelectedProfiles(ui->steppirProfilesListView, [this](const QString &name) {
+        for ( int i = steppirProfilesDraft.size() - 1; i >= 0; --i )
+            if ( steppirProfilesDraft.at(i).name == name )
+                steppirProfilesDraft.removeAt(i);
+        if ( steppirCurrentProfileDraft == name )
+            steppirCurrentProfileDraft.clear();
     });
     clearSteppirProfileForm();
+}
+
+QStringList SettingsDialog::steppirDraftNames() const
+{
+    FCT_IDENTIFICATION;
+
+    QStringList names;
+    for ( const SteppirProfile &profile : steppirProfilesDraft )
+        names << profile.name;
+    return names;
+}
+
+QStringList SettingsDialog::amplifierDraftNames() const
+{
+    FCT_IDENTIFICATION;
+
+    QStringList names;
+    for ( const AmplifierProfile &profile : amplifierProfilesDraft )
+        names << profile.profileName;
+    return names;
 }
 
 void SettingsDialog::refreshSteppirProfilesView()
 {
     FCT_IDENTIFICATION;
 
-    refreshProfileView(ui->steppirProfilesListView, SteppirProfiles::profileNames());
+    refreshProfileView(ui->steppirProfilesListView, steppirDraftNames());
 }
 
 void SettingsDialog::doubleClickSteppirProfile(QModelIndex i)
 {
     FCT_IDENTIFICATION;
 
-    const SteppirProfile profile = SteppirProfiles::profile(ui->steppirProfilesListView->model()->data(i).toString());
+    const QString name = ui->steppirProfilesListView->model()->data(i).toString();
+    SteppirProfile profile;
+    for ( const SteppirProfile &draft : steppirProfilesDraft )
+        if ( draft.name == name )
+            profile = draft;
     ui->steppirProfileNameEdit->setText(profile.name);
     ui->steppirConnectionTypeCombo->setCurrentIndex(ui->steppirConnectionTypeCombo->findData(profile.type));
     ui->steppirHostEdit->setText(profile.host);
@@ -1892,8 +1932,19 @@ void SettingsDialog::addAmplifierProfile()
     profile.host = ui->amplifierHostEdit->text();
     profile.port = ui->amplifierPortSpin->value();
 
-    AmplifierProfiles::addOrReplace(profile);
-    AmplifierProfiles::setCurrentProfileName(profile.profileName);
+    bool replaced = false;
+    for ( AmplifierProfile &existing : amplifierProfilesDraft )
+    {
+        if ( existing.profileName == profile.profileName )
+        {
+            existing = profile;
+            replaced = true;
+            break;
+        }
+    }
+    if ( !replaced )
+        amplifierProfilesDraft << profile;
+    amplifierCurrentProfileDraft = profile.profileName;
     refreshAmplifierProfilesView();
     clearAmplifierProfileForm();
 }
@@ -1901,8 +1952,12 @@ void SettingsDialog::addAmplifierProfile()
 void SettingsDialog::delAmplifierProfile()
 {
     FCT_IDENTIFICATION;
-    deleteSelectedProfiles(ui->amplifierProfilesListView, [](const QString &name) {
-        AmplifierProfiles::remove(name);
+    deleteSelectedProfiles(ui->amplifierProfilesListView, [this](const QString &name) {
+        for ( int i = amplifierProfilesDraft.size() - 1; i >= 0; --i )
+            if ( amplifierProfilesDraft.at(i).profileName == name )
+                amplifierProfilesDraft.removeAt(i);
+        if ( amplifierCurrentProfileDraft == name )
+            amplifierCurrentProfileDraft.clear();
     });
     clearAmplifierProfileForm();
 }
@@ -1910,14 +1965,18 @@ void SettingsDialog::delAmplifierProfile()
 void SettingsDialog::refreshAmplifierProfilesView()
 {
     FCT_IDENTIFICATION;
-    refreshProfileView(ui->amplifierProfilesListView, AmplifierProfiles::profileNames());
+    refreshProfileView(ui->amplifierProfilesListView, amplifierDraftNames());
 }
 
 void SettingsDialog::doubleClickAmplifierProfile(QModelIndex i)
 {
     FCT_IDENTIFICATION;
 
-    const AmplifierProfile profile = AmplifierProfiles::profile(ui->amplifierProfilesListView->model()->data(i).toString());
+    const QString name = ui->amplifierProfilesListView->model()->data(i).toString();
+    AmplifierProfile profile;
+    for ( const AmplifierProfile &draft : amplifierProfilesDraft )
+        if ( draft.profileName == name )
+            profile = draft;
     ui->amplifierProfileNameEdit->setText(profile.profileName);
     setComboByData(ui->amplifierModelCombo, profile.model);
     setComboByData(ui->amplifierConnectionTypeCombo, profile.connectionType);
@@ -3253,6 +3312,7 @@ void SettingsDialog::readSettings()
     ui->backupOpenFolderButton->setEnabled(backupConfig.enabled);
     ui->backupDirectoryEdit->setText(backupConfig.directory);
     ui->backupCopiesSpinBox->setValue(backupConfig.copies);
+    ui->backupOnExitCheckBox->setChecked(LogParam::getBackupOnExit());
     refreshBackupStatus();
 
     refreshStationProfilesView();
@@ -3260,6 +3320,10 @@ void SettingsDialog::readSettings()
     refreshRotProfilesView();
     refreshRotUsrButtonsProfilesView();
     refreshAntProfilesView();
+    steppirProfilesDraft = SteppirProfiles::profiles();
+    steppirCurrentProfileDraft = SteppirProfiles::currentProfileName();
+    amplifierProfilesDraft = AmplifierProfiles::profiles();
+    amplifierCurrentProfileDraft = AmplifierProfiles::currentProfileName();
     refreshSteppirProfilesView();
     refreshAmplifierProfilesView();
     refreshCWKeyProfilesView();
@@ -3450,6 +3514,10 @@ void SettingsDialog::writeSettings()
     antProfManager->save();
     cwKeyProfManager->save();
     cwShortcutProfManager->save();
+    SteppirProfiles::saveProfiles(steppirProfilesDraft);
+    SteppirProfiles::setCurrentProfileName(steppirCurrentProfileDraft);
+    AmplifierProfiles::saveProfiles(amplifierProfilesDraft);
+    AmplifierProfiles::setCurrentProfileName(amplifierCurrentProfileDraft);
 
     /************/
     /* Callbook */

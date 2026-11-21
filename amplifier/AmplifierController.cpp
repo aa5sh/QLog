@@ -592,6 +592,14 @@ void AmplifierController::close()
 
     if (serial->isOpen())
     {
+        // QSerialPort::close() discards unwritten output, which would leave
+        // the amplifier in remote (RCU) mode. The frame is 6 bytes (~6 ms at
+        // 9600 baud), so this short wait is not noticeable. A TCP socket
+        // already flushes pending data in disconnectFromHost().
+        if (serial->bytesToWrite() > 0 && !serial->waitForBytesWritten(250))
+            qCWarning(runtime) << "Cannot flush amplifier RCU-off command before closing"
+                               << serialErrorName(serial->error())
+                               << serial->errorString();
         if (!serial->setDataTerminalReady(false))
             qCWarning(runtime) << "Cannot set amplifier serial DTR low"
                                << serialErrorName(serial->error())

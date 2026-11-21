@@ -21,6 +21,7 @@ CardEditorWidget::CardEditorWidget(QWidget *parent)
 void CardEditorWidget::setImage(const QPixmap &pm)
 {
     m_image = pm;
+    m_displayImage = QPixmap();
     update();
 }
 
@@ -167,7 +168,15 @@ void CardEditorWidget::paintEvent(QPaintEvent *)
     }
 
     // Card image
-    p.drawPixmap(imageRect().toRect(), m_image);
+    const QRect target = imageRect().toRect();
+    const qreal ratio = devicePixelRatioF();
+    const QSize pixelSize = target.size() * ratio;
+    if ( m_displayImage.size() != pixelSize )
+    {
+        m_displayImage = m_image.scaled(pixelSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        m_displayImage.setDevicePixelRatio(ratio);
+    }
+    p.drawPixmap(target.topLeft(), m_displayImage);
 
     const double sc = displayScale();
 

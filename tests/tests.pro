@@ -38,4 +38,5 @@ SUBDIRS += CallsignTest \
            RuntimeContextTest \
            RuntimeServerTest \
            WsjtxActivityTest \
-           ContactSyncTest
+           ContactSyncTest \
+           EmailQSLTest

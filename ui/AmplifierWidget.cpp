@@ -114,16 +114,16 @@ void AmplifierWidget::amplifierDisconnected()
 
 void AmplifierWidget::statusChanged(const AmplifierStatus &status)
 {
-    ui->connectButton->setStyleSheet(AmplifierController::instance()->isConnected()
+    setStyleIfChanged(ui->connectButton, AmplifierController::instance()->isConnected()
                                      ? QStringLiteral("QToolButton {background-color: green}")
                                      : QString());
-    ui->connectedIndicator->setStyleSheet(AmplifierController::instance()->isConnected()
+    setStyleIfChanged(ui->connectedIndicator, AmplifierController::instance()->isConnected()
                                           ? ledStyle("#00c853")
                                           : ledStyle("#d50000"));
-    ui->tuningIndicator->setStyleSheet(status.tuning ? ledStyle("#ffab00") : ledStyle("#9e9e9e"));
+    setStyleIfChanged(ui->tuningIndicator, status.tuning ? ledStyle("#ffab00") : ledStyle("#9e9e9e"));
     ui->tuningIndicator->setToolTip(status.tuning ? tr("Tuning") : tr("Idle"));
     ui->txLabel->setText(status.tx ? tr("TX") : tr("RX"));
-    ui->txLabel->setStyleSheet(status.tx
+    setStyleIfChanged(ui->txLabel, status.tx
                                ? QStringLiteral("background:#d50000; color:white; font-weight:bold; padding:1px 6px;")
                                : QStringLiteral("background:#eeeeee; color:#424242; font-weight:bold; padding:1px 6px;"));
     ui->modeButton->setText(status.fullMode ? tr("FULL") : tr("HALF"));
@@ -153,6 +153,16 @@ QString AmplifierWidget::bandName(int band)
     if (band >= 0 && band < 10)
         return BAND_NAMES[band];
     return "--";
+}
+
+void AmplifierWidget::setStyleIfChanged(QWidget *widget, const QString &style)
+{
+    FCT_IDENTIFICATION;
+
+    // Status packets arrive several times a second; setStyleSheet()
+    // re-polishes the widget even when the sheet is unchanged.
+    if ( widget->styleSheet() != style )
+        widget->setStyleSheet(style);
 }
 
 QString AmplifierWidget::ledStyle(const QString &color)

@@ -778,6 +778,11 @@ int main(int argc, char* argv[])
         w.checkNewVersion();
 #endif
         rc = app.exec();
+
+        // MyFeatures: the snapshot is a quick database copy; the backup job
+        // at the next start exports and copies it like any pending snapshot.
+        if ( LogParam::getBackupOnExit() && !DatabaseBackup::prepare(false, nullptr, true) )
+            qCWarning(runtime) << "Cannot take the backup on exit:" << LogParam::getBackupError();
     }
 
     stopWorkerThread(cwKeyerThreadHandle, "CWKeyer");

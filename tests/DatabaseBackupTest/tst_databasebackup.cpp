@@ -66,6 +66,7 @@ private slots:
     void cleanup();
     void firstLaunchDoesNotCreateBackup();
     void automaticBackupRespectsBuildMode();
+    void exitBackupIgnoresSchedule();
     void exportUsesSnapshotAndPreservesUnicode();
     void walSnapshotCanBeExported_data();
     void walSnapshotCanBeExported();
@@ -188,6 +189,27 @@ void DatabaseBackupTest::automaticBackupRespectsBuildMode()
     QVERIFY(snapshots().isEmpty());
 #endif
     QCOMPARE(readFile(existing.fileName()), QByteArray("previous backup"));
+}
+
+void DatabaseBackupTest::exitBackupIgnoresSchedule()
+{
+    // MyFeatures backup on exit: an ordinary snapshot even when today's
+    // backup is complete, finished by the next start like any other.
+    createLog();
+    QVERIFY(DatabaseBackup::prepare());
+    runBackup();
+    QCOMPARE(exports().size(), 1);
+    QVERIFY(snapshots().isEmpty());
+
+    QVERIFY(DatabaseBackup::prepare());
+    QVERIFY(snapshots().isEmpty());
+
+    QVERIFY(DatabaseBackup::prepare(false, nullptr, true));
+    QCOMPARE(snapshots().size(), 1);
+    QVERIFY(!snapshots().first().endsWith(".migration.db"));
+    runBackup();
+    QCOMPARE(exports().size(), 2);
+    QVERIFY(snapshots().isEmpty());
 }
 
 void DatabaseBackupTest::exportUsesSnapshotAndPreservesUnicode()

@@ -1,6 +1,8 @@
 #include <QtTest>
 #include "data/BandmapGuide.h"
 #include "data/RigProfile.h"
+#include "amplifier/AmplifierController.h"
+#include "antenna/SteppirController.h"
 
 // Reading Activity state must not apply a preset or change Bandmap Guide settings.
 RigProfilesManager::RigProfilesManager()
@@ -23,4 +25,15 @@ bool BandmapGuide::profileExists(const QString &)
 {
     QTest::qFail("Runtime collection must not apply a Bandmap Guide profile", __FILE__, __LINE__);
     return false;
+}
+
+// MyFeatures activity profile types follow the same rule.
+void SteppirProfiles::setCurrentProfileName(const QString &)
+{
+    QFAIL("Runtime collection must not select a SteppIR profile");
+}
+
+void AmplifierProfiles::setCurrentProfileName(const QString &)
+{
+    QFAIL("Runtime collection must not select an amplifier profile");
 }

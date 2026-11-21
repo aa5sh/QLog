@@ -24,6 +24,10 @@ AlertRuleDetail::AlertRuleDetail(const QString &ruleName, QWidget *parent, bool 
 
     ui->setupUi(this);
 
+    // A DX Marathon rule ignores DXCC Log Status (AlertRule::match), so show
+    // that instead of letting the selection look effective.
+    connect(ui->dxMarathonCheckbox, &QCheckBox::toggled, ui->logStatusWidget, &QWidget::setDisabled);
+
     ui->cqzEdit->setValidator(new QIntValidator(Data::getCQZMin(), Data::getCQZMax(), ui->cqzEdit));
     ui->ituEdit->setValidator(new QIntValidator(Data::getITUZMin(), Data::getITUZMax(), ui->ituEdit));
 

@@ -49,6 +49,21 @@ QDate LogParam::getLastBackupDate()
     return getParam("last_backup").toDate();
 }
 
+bool LogParam::getBackupOnExit()
+{
+    FCT_IDENTIFICATION;
+
+    return getParam("backup/onExit", true).toBool();
+}
+
+bool LogParam::setBackupOnExit(bool enabled)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << enabled;
+
+    return setParam("backup/onExit", enabled);
+}
+
 BackupConfig LogParam::getBackupConfig()
 {
     FCT_IDENTIFICATION;

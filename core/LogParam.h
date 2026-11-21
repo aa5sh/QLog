@@ -33,6 +33,9 @@ public:
      ********/
     static bool setLastBackupDate(const QDate date);
     static QDate getLastBackupDate();
+    // MyFeatures: also snapshot the database every time QLog exits.
+    static bool getBackupOnExit();
+    static bool setBackupOnExit(bool enabled);
     static BackupConfig getBackupConfig();
     static bool setBackupConfig(const BackupConfig &config);
     static QString getBackupError();

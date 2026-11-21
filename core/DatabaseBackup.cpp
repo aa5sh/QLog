@@ -38,10 +38,10 @@ DatabaseBackup::~DatabaseBackup()
     wait();
 }
 
-bool DatabaseBackup::prepare(bool force, QString *snapshotName)
+bool DatabaseBackup::prepare(bool force, QString *snapshotName, bool ignoreSchedule)
 {
     FCT_IDENTIFICATION;
-    qCDebug(function_parameters) << force;
+    qCDebug(function_parameters) << force << ignoreSchedule;
 
     if ( snapshotName )
         snapshotName->clear();
@@ -55,7 +55,7 @@ bool DatabaseBackup::prepare(bool force, QString *snapshotName)
 
     const QDir directory(LogDatabase::dbDirectory());
 
-    if ( !force )
+    if ( !force && !ignoreSchedule )
     {
         QDate lastBackupDate = LogParam::getLastBackupDate();
         const QDate today = QDate::currentDate();
@@ -88,7 +88,7 @@ bool DatabaseBackup::prepare(bool force, QString *snapshotName)
             }
         }
 #ifndef QLOG_FORCE_AUTO_BACKUP
-        if ( lastBackupDate.isValid() && lastBackupDate.addDays(0) > today )
+        if ( lastBackupDate.isValid() && lastBackupDate.addDays(7) > today )
             return true;
 
         const QString todayPrefix = QStringLiteral("qlog_backup_") + QDate::currentDate().toString("yyyyMMdd");

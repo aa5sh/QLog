@@ -22,7 +22,9 @@ public:
     explicit DatabaseBackup(const BackupConfig &config, const QString &snapshotName = QString(), QObject *parent = nullptr);
     ~DatabaseBackup() override;
 
-    static bool prepare(bool force = false, QString *snapshotName = nullptr);
+    // ignoreSchedule (MyFeatures backup on exit) takes an ordinary snapshot
+    // without the weekly/once-per-day check; the next start completes it.
+    static bool prepare(bool force = false, QString *snapshotName = nullptr, bool ignoreSchedule = false);
 
 protected:
     void run() override;

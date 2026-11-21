@@ -54,6 +54,10 @@ private:
     bool    isOnResizeHandle(int index, const QPointF &wPt) const;
 
     QPixmap                     m_image;
+    // m_image scaled to the on-screen rect. Rescaling a full-resolution card
+    // on every repaint made dragging overlays lag; rebuilt when the image
+    // or the display size changes.
+    QPixmap                     m_displayImage;
     QList<EmailQSLFieldOverlay> m_overlays;
     int     m_selectedIndex     = -1;
 

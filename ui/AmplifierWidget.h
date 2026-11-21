@@ -36,6 +36,7 @@ private slots:
 private:
     static QString bandName(int band);
     static QString ledStyle(const QString &color);
+    static void setStyleIfChanged(QWidget *widget, const QString &style);
     void updateControlsEnabled(bool enabled);
     void resetStatus();
 

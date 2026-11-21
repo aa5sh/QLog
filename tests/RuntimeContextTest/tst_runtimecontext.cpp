@@ -104,7 +104,9 @@ void RuntimeContextTest::initTestCase()
         {"profileType":1,"name":"Home"},
         {"profileType":2,"name":"Radio","params":[{"name":"connect","value":true}]},
         {"profileType":0,"name":"Beam"},
-        {"profileType":3,"name":"Roof","params":[{"name":"connect","value":false}]}
+        {"profileType":3,"name":"Roof","params":[{"name":"connect","value":false}]},
+        {"profileType":100,"name":"Tower","params":[{"name":"connect","value":true}]},
+        {"profileType":101,"name":"Expert"}
     ]})");
     QVERIFY(query.exec());
     QVERIFY(query.exec("INSERT INTO activity_profiles VALUES "
@@ -137,7 +139,7 @@ void RuntimeContextTest::activityStateTracksSelectedProfile()
     radio.addBoolean("rig_connected", "Actual radio connection", []() { return false; });
     QVERIFY(context.addProvider("rig", "Radio state", &radio));
     const QJsonObject fields = context.schema({"activity"}).value("fields").toObject();
-    QCOMPARE(fields.size(), 7);
+    QCOMPARE(fields.size(), 11);
     QVERIFY(!fields.contains("rig_connected"));
     for ( const QJsonValue &field : fields )
     {
@@ -155,7 +157,9 @@ void RuntimeContextTest::activityStateTracksSelectedProfile()
     const QJsonObject expected{{"activity_profile", "Home activity"},
                               {"activity_station_profile", "Home"}, {"activity_rig_profile", "Radio"},
                               {"activity_antenna_profile", "Beam"}, {"activity_rotator_profile", "Roof"},
-                              {"activity_rig_connect", true}, {"activity_rotator_connect", false}};
+                              {"activity_rig_connect", true}, {"activity_rotator_connect", false},
+                              {"activity_steppir_profile", "Tower"}, {"activity_steppir_connect", true},
+                              {"activity_amplifier_profile", "Expert"}, {"activity_amplifier_connect", QJsonValue()}};
     QCOMPARE(values, expected);
     QVERIFY(ready.last().at(1).toJsonObject().value("issues").toObject().isEmpty());
 
@@ -190,7 +194,7 @@ void RuntimeContextTest::activityStateTracksSelectedProfile()
     context.collect(5, 1000, {"activity"});
     QTRY_COMPARE(ready.count(), 5);
     values = ready.last().at(1).toJsonObject().value("values").toObject();
-    QCOMPARE(values.size(), 7);
+    QCOMPARE(values.size(), 11);
     for ( const QJsonValue &value : values )
         QVERIFY(value.isNull());
     QVERIFY(ready.last().at(1).toJsonObject().value("issues").toObject().isEmpty());

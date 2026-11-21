@@ -8,6 +8,7 @@ class QSpinBox;
 class QSqlQueryModel;
 class QTableView;
 class QLabel;
+class QSqlQuery;
 
 class AwardDXMarathon : public AwardDefinition
 {
@@ -24,7 +25,14 @@ public:
 private:
     void refresh();
     void exportAdif();
-    QString contactPredicate() const;
+    // SQL condition for eligible contacts. With inlineValues the station
+    // and year values are quoted into the text; otherwise they are
+    // placeholders that bindPredicate() fills.
+    QString contactPredicate(bool inlineValues) const;
+    void bindPredicate(QSqlQuery &query) const;
+    static QString entityKindLabel();
+    static QString zoneKindLabel();
+    static QString workedLabel();
 
     QComboBox *m_profile = nullptr;
     QComboBox *m_profileMatch = nullptr;

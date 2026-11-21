@@ -399,11 +399,20 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(AmplifierController::instance(), &AmplifierController::errorPresent, this,
             [this](const QString &error, const QString &errorDetail)
     {
+        // Serial and socket errors can repeat while a dialog is open; show
+        // one at a time instead of stacking modal dialogs.
+        static bool dialogVisible = false;
+
+        actionConnectAmplifier->setChecked(false);
+        if ( dialogVisible )
+            return;
+
+        dialogVisible = true;
         QMessageBox::critical(this,
                               QMessageBox::tr("QLog Error"),
                               QMessageBox::tr("<b>Amplifier Error:</b> ") + error
                               + "<br><br>" + errorDetail);
-        actionConnectAmplifier->setChecked(false);
+        dialogVisible = false;
     });
     connect(AmplifierController::instance(), &AmplifierController::connected, this, [this]() {
         actionConnectAmplifier->setChecked(true);

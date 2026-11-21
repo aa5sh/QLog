@@ -262,9 +262,14 @@ void WaveshareWidget::refreshPing(int rowIndex)
         if ( shuttingDown )
             return;
 
+        bool up = ( exitStatus == QProcess::NormalExit && exitCode == 0 );
+#ifdef Q_OS_WIN
+        // Windows ping exits 0 for "Destination host unreachable" replies
+        // from a router; only an echo reply carries "TTL=" (in every locale).
+        up = up && process->readAllStandardOutput().contains("TTL=");
+#endif
         if ( rowIndex >= 0 && rowIndex < rows.size() )
-            setStatus(rows[rowIndex], exitStatus == QProcess::NormalExit && exitCode == 0,
-                      exitStatus == QProcess::NormalExit && exitCode == 0 ? tr("UP") : tr("DOWN"));
+            setStatus(rows[rowIndex], up, up ? tr("UP") : tr("DOWN"));
         process->deleteLater();
     });
     connect(process, &QProcess::errorOccurred, this, [this, process, rowIndex](QProcess::ProcessError)
@@ -413,8 +418,9 @@ void WaveshareWidget::processNextRtuRequest()
     timeout->setSingleShot(true);
     timeout->setInterval(3000);
     const QSharedPointer<bool> completed(new bool(false));
+    const std::function<void(bool, const QByteArray &)> callback = pending.callback;
 
-    const auto finish = [this, socket, timeout, completed, callback = pending.callback](bool ok, const QByteArray &response)
+    const auto finish = [this, socket, timeout, completed, callback](bool ok, const QByteArray &response)
     {
         if ( *completed )
             return;

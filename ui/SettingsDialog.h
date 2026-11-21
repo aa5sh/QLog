@@ -1,6 +1,8 @@
 #ifndef QLOG_UI_SETTINGSDIALOG_H
 #define QLOG_UI_SETTINGSDIALOG_H
 
+#include "antenna/SteppirController.h"
+#include "amplifier/AmplifierController.h"
 #include <QAbstractItemView>
 #include <QDialog>
 #include <functional>
@@ -165,6 +167,15 @@ public slots:
     void openInternalBackupFolder();
 
 private:
+    // SteppIR and amplifier profiles have no profile manager, so the dialog
+    // stages edits here and stores them only when the user presses OK.
+    QStringList steppirDraftNames() const;
+    QStringList amplifierDraftNames() const;
+    QList<SteppirProfile> steppirProfilesDraft;
+    QString steppirCurrentProfileDraft;
+    QList<AmplifierProfile> amplifierProfilesDraft;
+    QString amplifierCurrentProfileDraft;
+
     void refreshBackupStatus();
     enum QsoStatusColorColumn
     {

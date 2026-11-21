@@ -9,6 +9,8 @@
 #include <QBuffer>
 #include <QImageWriter>
 #include <QHostInfo>
+#include <QDateTime>
+#include <QUuid>
 #include <QCoreApplication>
 
 #include "EmailQSLService.h"
@@ -259,20 +261,43 @@ bool EmailQSLBase::hasEmailBeenSentToCallsign(const QString &callsign, int exclu
     return false;
 }
 
-void EmailQSLBase::recordEmailSent(int contactId, const QSqlRecord &currentRecord)
+bool EmailQSLBase::recordEmailSent(int contactId)
 {
     FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << contactId;
 
-    const QByteArray raw = currentRecord.value(QStringLiteral("fields")).toByteArray();
-    QJsonObject fields   = QJsonDocument::fromJson(raw).object();
+    // Read the current value instead of the record captured when the send
+    // started, so edits made meanwhile are not overwritten.
+    QSqlQuery select;
+    if ( !select.prepare(QStringLiteral("SELECT fields FROM contacts WHERE id = :id")) )
+    {
+        qCWarning(runtime) << "Cannot prepare Email QSL sent lookup" << select.lastError();
+        return false;
+    }
+    select.bindValue(QStringLiteral(":id"), contactId);
+    if ( !select.exec() || !select.next() )
+    {
+        qCWarning(runtime) << "Cannot read contact" << contactId << "to record Email QSL" << select.lastError();
+        return false;
+    }
+
+    QJsonObject fields = QJsonDocument::fromJson(select.value(0).toByteArray()).object();
     fields[EMAIL_QSL_SENT_KEY] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
 
-    QSqlQuery q;
-    q.prepare(QStringLiteral("UPDATE contacts SET fields = :f WHERE id = :id"));
-    q.bindValue(":f",  QJsonDocument(fields).toJson(QJsonDocument::Compact));
-    q.bindValue(":id", contactId);
-    if (!q.exec())
-        qCWarning(runtime) << "recordEmailSent update failed:" << q.lastError().text();
+    QSqlQuery update;
+    if ( !update.prepare(QStringLiteral("UPDATE contacts SET fields = :f WHERE id = :id")) )
+    {
+        qCWarning(runtime) << "Cannot prepare Email QSL sent update" << update.lastError();
+        return false;
+    }
+    update.bindValue(QStringLiteral(":f"),  QJsonDocument(fields).toJson(QJsonDocument::Compact));
+    update.bindValue(QStringLiteral(":id"), contactId);
+    if ( !update.exec() )
+    {
+        qCWarning(runtime) << "Cannot record Email QSL for contact" << contactId << update.lastError();
+        return false;
+    }
+    return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -503,6 +528,7 @@ SmtpWorker::SmtpWorker(const QString &host, int port, int encryption, bool allow
                        QObject *parent)
     : QObject(parent),
       m_host(host), m_port(port), m_encryption(encryption), m_allowInvalidCert(allowInvalidCert),
+      m_testOnly(false),
       m_username(username), m_password(password),
       m_fromAddress(fromAddress), m_fromName(fromName),
       m_toAddress(toAddress),
@@ -511,28 +537,50 @@ SmtpWorker::SmtpWorker(const QString &host, int port, int encryption, bool allow
 {
 }
 
+void SmtpWorker::setTestOnly(bool testOnly)
+{
+    FCT_IDENTIFICATION;
+    qCDebug(function_parameters) << testOnly;
+
+    m_testOnly = testOnly;
+}
+
+bool SmtpWorker::hasFinalReplyLine(const QByteArray &data)
+{
+    FCT_IDENTIFICATION;
+
+    // A reply may arrive in several reads, and multi-line replies use
+    // "NNN-" on every line but the last, which is "NNN " (or bare "NNN").
+    // Only complete lines count.
+    int lineStart = 0;
+    while ( true )
+    {
+        const int lineEnd = data.indexOf('\n', lineStart);
+        if ( lineEnd < 0 )
+            return false;
+
+        const QByteArray line = data.mid(lineStart, lineEnd - lineStart).trimmed();
+        if ( line.size() >= 3
+             && QChar(line.at(0)).isDigit() && QChar(line.at(1)).isDigit() && QChar(line.at(2)).isDigit()
+             && ( line.size() == 3 || line.at(3) == ' ' ) )
+            return true;
+
+        lineStart = lineEnd + 1;
+    }
+}
+
 bool SmtpWorker::waitForResponse(QSslSocket *socket, QByteArray &out, int timeoutMs)
 {
-    out.clear();
-    // Multi-line responses end with "NNN " (space after code); single with "NNN "
-    // Keep reading until we get a line without a dash after the code.
-    do {
-        if (!socket->waitForReadyRead(timeoutMs))
+    FCT_IDENTIFICATION;
+
+    out = socket->readAll();
+    while ( !hasFinalReplyLine(out) )
+    {
+        if ( !socket->waitForReadyRead(timeoutMs) )
             return false;
         out += socket->readAll();
-    } while (out.size() > 3 && out[out.size()-2] != '\r' &&
-             (out.size() < 4 || out[3] == '-'));
-    // More robust: check if last complete line starts with "NNN " (no dash)
-    // Parse the last CRLF-terminated line
-    const QList<QByteArray> lines = out.split('\n');
-    for (const QByteArray &line : lines)
-    {
-        if (line.length() >= 4 && line[3] == ' ')
-            return true;  // found a final response line
-        if (line.length() >= 4 && line[3] == '-')
-            continue;     // continuation line
     }
-    return !out.isEmpty();
+    return true;
 }
 
 int SmtpWorker::responseCode(const QByteArray &response)
@@ -564,6 +612,38 @@ bool SmtpWorker::sendCommand(QSslSocket *socket, const QByteArray &cmd,
     return responseCode(response) == expectedCode;
 }
 
+QByteArray SmtpWorker::encodeHeaderText(const QString &text)
+{
+    FCT_IDENTIFICATION;
+
+    // "=?UTF-8?B?" + base64 + "?=" must stay within 75 characters, so encode
+    // at most 45 bytes per word, never splitting a UTF-8 sequence, and fold
+    // the words onto continuation lines.
+    static const int MAX_WORD_BYTES = 45;
+    const QByteArray utf8 = text.toUtf8();
+    QList<QByteArray> words;
+    int start = 0;
+    while ( start < utf8.size() )
+    {
+        int end = qMin(start + MAX_WORD_BYTES, utf8.size());
+        while ( end < utf8.size() && end > start && ( static_cast<quint8>(utf8.at(end)) & 0xC0 ) == 0x80 )
+            --end;
+        words << ( "=?UTF-8?B?" + utf8.mid(start, end - start).toBase64() + "?=" );
+        start = end;
+    }
+    return words.join("\r\n ");
+}
+
+bool SmtpWorker::isSafeAddress(const QString &address)
+{
+    FCT_IDENTIFICATION;
+
+    // The address comes from contact data (callbook lookups, ADIF imports).
+    // CR/LF or angle brackets would let it inject SMTP commands or headers.
+    static const QRegularExpression re(QStringLiteral("^[^\\s<>@]+@[^\\s<>@]+$"));
+    return re.match(address).hasMatch();
+}
+
 QByteArray SmtpWorker::buildMimeMessage()
 {
     const QString boundary = QStringLiteral("----QLogEmailQSL_%1")
@@ -571,13 +651,16 @@ QByteArray SmtpWorker::buildMimeMessage()
 
     QByteArray msg;
 
-    // Encode From display name safely
-    const QByteArray fromDisplay = ("\"" + m_fromName + "\" <" + m_fromAddress + ">").toUtf8();
+    // RFC 5322 requires Date; Message-ID is expected by most spam filters.
+    const QString domain = m_fromAddress.mid(m_fromAddress.indexOf('@') + 1);
     msg += "MIME-Version: 1.0\r\n";
-    msg += "From: " + fromDisplay + "\r\n";
+    msg += "Date: " + QDateTime::currentDateTime().toString(Qt::RFC2822Date).toLatin1() + "\r\n";
+    msg += "Message-ID: <" + QUuid::createUuid().toString(QUuid::WithoutBraces).toLatin1()
+           + "@" + domain.toUtf8() + ">\r\n";
+    msg += "From: " + ( m_fromName.isEmpty() ? QByteArray() : encodeHeaderText(m_fromName) + " " )
+           + "<" + m_fromAddress.toUtf8() + ">\r\n";
     msg += "To: <" + m_toAddress.toUtf8() + ">\r\n";
-    // RFC 2047 encoded subject
-    msg += "Subject: =?UTF-8?B?" + m_subject.toUtf8().toBase64() + "?=\r\n";
+    msg += "Subject: " + encodeHeaderText(m_subject) + "\r\n";
     msg += "Content-Type: multipart/mixed; boundary=\"" + boundary.toUtf8() + "\"\r\n";
     msg += "\r\n";
 
@@ -615,6 +698,17 @@ QByteArray SmtpWorker::buildMimeMessage()
 void SmtpWorker::run()
 {
     FCT_IDENTIFICATION;
+
+    if ( !m_testOnly && !isSafeAddress(m_fromAddress) )
+    {
+        emit finished(false, tr("The sender address is not valid: %1").arg(m_fromAddress));
+        return;
+    }
+    if ( !m_testOnly && !isSafeAddress(m_toAddress) )
+    {
+        emit finished(false, tr("The recipient address is not valid: %1").arg(m_toAddress));
+        return;
+    }
 
     QSslSocket socket;
     socket.setProtocol(QSsl::AnyProtocol);
@@ -704,6 +798,15 @@ void SmtpWorker::run()
             emit finished(false, tr("Authentication failed — check your username and password."));
             return;
         }
+    }
+
+    if ( m_testOnly )
+    {
+        socket.write("QUIT\r\n");
+        socket.waitForBytesWritten(5000);
+        socket.disconnectFromHost();
+        emit finished(true, QString());
+        return;
     }
 
     // ---- MAIL FROM ----
@@ -806,10 +909,10 @@ void EmailQSLService::sendEmailQSL(const QSqlRecord &record)
     // the application object, not this service, is the context.
     const int contactId = record.value(QStringLiteral("id")).toInt();
     connect(worker, &SmtpWorker::finished, QCoreApplication::instance(),
-            [contactId, record](bool ok, const QString &)
+            [contactId](bool ok, const QString &)
     {
-        if ( ok )
-            EmailQSLBase::recordEmailSent(contactId, record);
+        if ( ok && !EmailQSLBase::recordEmailSent(contactId) )
+            qCWarning(runtime) << "Email QSL was sent but could not be recorded for contact" << contactId;
     });
     // Delivered only while this service (and its dialog) still exists.
     connect(worker, &SmtpWorker::finished, this, &EmailQSLService::sendFinished);
@@ -822,15 +925,12 @@ void EmailQSLService::testConnection(const QString &host, int port, int encrypti
     FCT_IDENTIFICATION;
     qCDebug(function_parameters) << host << port << encryption << allowInvalidCert << username;
 
-    // Send a dummy message to a no-op address just to verify auth works —
-    // actually we just connect + EHLO + AUTH and then QUIT.
+    // Connect, EHLO, (STARTTLS), AUTH, then QUIT. No message is sent.
     SmtpWorker *worker = new SmtpWorker(
         host, port, encryption, allowInvalidCert, username, password,
-        username, QStringLiteral("Test"),
-        username,  // to = from (won't actually be sent)
-        QStringLiteral("QLog connection test"),
-        QStringLiteral("Connection test only — no message will be sent."),
+        QString(), QString(), QString(), QString(), QString(),
         QByteArray(), QString());
+    worker->setTestOnly(true);
 
     connect(worker, &SmtpWorker::finished, this, &EmailQSLService::testFinished);
     startWorker(worker);

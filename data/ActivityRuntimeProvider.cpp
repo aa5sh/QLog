@@ -123,5 +123,58 @@ RuntimeProvider *createActivityRuntimeProvider(ActivityProfilesManager *manager)
                              return value.isNull() ? QJsonValue() : QJsonValue(value.toBool());
                          });
 
+    provider->addString("activity_steppir_profile",
+                        QStringLiteral("SteppIR antenna controller profile configured in the selected "
+                                       "Activity. Activating the Activity makes it the current SteppIR "
+                                       "profile. Null means the Activity does not set one, or no Activity "
+                                       "is selected. No runtime source reports SteppIR connection or "
+                                       "tuning state."),
+                        [manager]()
+                        {
+                            const ActivityProfile profile = manager->getCurProfile1();
+                            return profile.profiles.contains(ActivityProfile::STEPPIR_PROFILE)
+                                   ? QJsonValue(profile.profiles.value(ActivityProfile::STEPPIR_PROFILE).name)
+                                   : QJsonValue();
+                        });
+
+    provider->addBoolean("activity_steppir_connect",
+                         QStringLiteral("Stored SteppIR connection request in the selected Activity: true "
+                                        "requests connection of activity_steppir_profile, false requests "
+                                        "disconnection. Null means no explicit request, or no Activity is "
+                                        "selected; it is not false. This is preset intent, not connection "
+                                        "success."),
+                         [manager]()
+                         {
+                             const QVariant value = manager->getCurProfile1().getProfileParam(
+                                 ActivityProfile::STEPPIR_PROFILE, ActivityProfile::CONNECT);
+                             return value.isNull() ? QJsonValue() : QJsonValue(value.toBool());
+                         });
+
+    provider->addString("activity_amplifier_profile",
+                        QStringLiteral("Amplifier profile configured in the selected Activity. Activating "
+                                       "the Activity makes it the current amplifier profile. Null means the "
+                                       "Activity does not set one, or no Activity is selected. No runtime "
+                                       "source reports amplifier connection, operate/standby or power state."),
+                        [manager]()
+                        {
+                            const ActivityProfile profile = manager->getCurProfile1();
+                            return profile.profiles.contains(ActivityProfile::AMPLIFIER_PROFILE)
+                                   ? QJsonValue(profile.profiles.value(ActivityProfile::AMPLIFIER_PROFILE).name)
+                                   : QJsonValue();
+                        });
+
+    provider->addBoolean("activity_amplifier_connect",
+                         QStringLiteral("Stored amplifier connection request in the selected Activity: true "
+                                        "requests connection of activity_amplifier_profile, false requests "
+                                        "disconnection. Null means no explicit request, or no Activity is "
+                                        "selected; it is not false. This is preset intent, not connection "
+                                        "success, and it never puts the amplifier into operate."),
+                         [manager]()
+                         {
+                             const QVariant value = manager->getCurProfile1().getProfileParam(
+                                 ActivityProfile::AMPLIFIER_PROFILE, ActivityProfile::CONNECT);
+                             return value.isNull() ? QJsonValue() : QJsonValue(value.toBool());
+                         });
+
     return provider;
 }
