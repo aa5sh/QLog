@@ -2914,6 +2914,25 @@
              </layout>
             </widget>
            </item>
+           <item>
+            <widget class="QGroupBox" name="rc28Group">
+             <property name="title">
+              <string>Icom RC-28 Remote Encoder</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_rc28">
+              <item>
+               <widget class="QCheckBox" name="rc28EnabledCheckBox">
+                <property name="toolTip">
+                 <string>When an RC-28 is plugged in, its knob tunes the connected rig and its TRANSMIT button keys PTT. F1 toggles fast tuning.</string>
+                </property>
+                <property name="text">
+                 <string>Use RC-28 when connected</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="rotsTab">

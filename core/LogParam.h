@@ -554,6 +554,12 @@ public:
     static QString getWaveshareActions();
     static void setWaveshareActions(const QString &json);
 
+    /*************
+     * Icom RC-28
+     *************/
+    static bool getRc28Enabled();
+    static void setRc28Enabled(bool enabled);
+
     /*********************
      * QSL Print Labels
      *********************/
