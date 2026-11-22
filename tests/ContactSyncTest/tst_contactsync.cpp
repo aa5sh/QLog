@@ -31,6 +31,9 @@ private slots:
     void conflictCopiesAreIgnored();
     void uploadStateMergesPerNode();
     void copiedDatabaseIsRejected();
+    void renameKeepsOwnLogSyncing();
+    void restartedJournalIsReadAgain();
+    void otherEpochRecordsWait();
 
 private:
     void switchTo(const QString &node);
@@ -337,6 +340,80 @@ void ContactSyncTest::copiedDatabaseIsRejected()
     QVERIFY(!ContactSync::isValidNodeId(QStringLiteral("../evil")));
     QVERIFY(!ContactSync::isValidNodeId(QStringLiteral(".hidden")));
     QVERIFY(ContactSync::isValidNodeId(QStringLiteral("Shack-PC_2.local")));
+}
+
+void ContactSyncTest::renameKeepsOwnLogSyncing()
+{
+    switchTo(nodeA);
+    exec(INSERT_QSO);
+    QCOMPARE(flush(), 1);                       // sent under the old name
+
+    // Changes made before the rename that were never sent, then the rename.
+    exec("INSERT INTO contacts (callsign, mode, band, start_time, end_time) "
+         "VALUES ('OK2TEST', 'SSB', '40m', '2026-11-02T10:00:00.000Z', '2026-11-02T10:01:00.000Z')");
+    exec("DELETE FROM contacts WHERE callsign='OK1TEST'");
+    const QString renamed = idA + QStringLiteral("-new");
+    QString err;
+    QVERIFY2(ContactSync::instance()->setSelfNodeId(renamed, &err), qPrintable(err));
+    QCOMPARE(value("SELECT COUNT(*) FROM contacts WHERE origin_node <> '" + renamed + "'").toInt(), 0);
+    QCOMPARE(value("SELECT origin_node FROM contacts_tombstones").toString(), renamed);
+    QCOMPARE(flush(), 2);                       // the new QSO and the delete
+
+    switchTo(nodeB);
+    QCOMPARE(pull(), 3);
+    QCOMPARE(value("SELECT callsign FROM contacts").toString(), QStringLiteral("OK2TEST"));
+    QCOMPARE(value("SELECT COUNT(*) FROM contacts").toInt(), 1);
+}
+
+void ContactSyncTest::restartedJournalIsReadAgain()
+{
+    switchTo(nodeA);
+    exec(INSERT_QSO);
+    exec("INSERT INTO contacts (callsign, mode, band, start_time, end_time) "
+         "VALUES ('OK2TEST', 'SSB', '40m', '2026-11-02T10:00:00.000Z', '2026-11-02T10:01:00.000Z')");
+    QCOMPARE(flush(), 2);
+    switchTo(nodeB);
+    QCOMPARE(pull(), 2);
+
+    // The node folder is deleted (or recreated elsewhere); A starts a new,
+    // shorter journal. B must read it from the start, not stop at its old offset.
+    QVERIFY(QDir(QDir(syncFolder).filePath(QStringLiteral("qlog-sync/nodes/") + idA)).removeRecursively());
+    switchTo(nodeA);
+    exec("INSERT INTO contacts (callsign, mode, band, start_time, end_time) "
+         "VALUES ('OK3TEST', 'CW', '30m', '2026-11-03T10:00:00.000Z', '2026-11-03T10:01:00.000Z')");
+    QCOMPARE(flush(), 1);
+
+    switchTo(nodeB);
+    QCOMPARE(pull(), 1);
+    QCOMPARE(value("SELECT COUNT(*) FROM contacts").toInt(), 3);
+}
+
+void ContactSyncTest::otherEpochRecordsWait()
+{
+    // HEAD and journal sync separately: a journal from another epoch than
+    // HEAD must not be read past until they agree.
+    switchTo(nodeA);
+    exec(INSERT_QSO);
+    QCOMPARE(flush(), 1);
+    const QString dir = QDir(syncFolder).filePath(QStringLiteral("qlog-sync/nodes/") + idA);
+    QFile journal(QDir(dir).filePath(QStringLiteral("journal-0001.jsonl")));
+    QVERIFY(journal.open(QIODevice::ReadOnly));
+    const QByteArray original = journal.readAll();
+    journal.close();
+    QByteArray stale = original;
+    stale.replace("\"epoch\":\"", "\"epoch\":\"stale-");
+    QVERIFY(journal.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    journal.write(stale);
+    journal.close();
+
+    switchTo(nodeB);
+    QCOMPARE(pull(), 0);
+    QCOMPARE(value("SELECT last_offset FROM sync_peers").toLongLong(), qint64(0));
+
+    QVERIFY(journal.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    journal.write(original);
+    journal.close();
+    QCOMPARE(pull(), 1);
 }
 
 QTEST_MAIN(ContactSyncTest)

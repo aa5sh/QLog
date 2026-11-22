@@ -134,12 +134,57 @@ bool ContactSync::setSelfNodeId(const QString &nodeId, QString *errorOut)
         return false;
     }
 
-    QSqlQuery q;
-    if ( !q.prepare("INSERT OR REPLACE INTO sync_runtime (key, value) VALUES (:k, :v)") )
+    QSqlDatabase db = QSqlDatabase::database();
+    const QString previous = selfNodeId();
+
+    if ( !db.transaction() )
     {
-        if ( errorOut ) *errorOut = q.lastError().text();
+        if ( errorOut ) *errorOut = db.lastError().text();
         return false;
     }
+
+    // Any failure below rolls back the whole rename.
+    const auto fail = [&db, errorOut](const QSqlQuery &query)
+    {
+        if ( errorOut ) *errorOut = query.lastError().text();
+        db.rollback();
+        return false;
+    };
+
+    // Only this install's own rows are journaled ("origin_node = self"), so
+    // its QSOs and deletions move to the new name. Otherwise renaming would
+    // silently stop the existing log from ever being sent. The sync triggers
+    // are paused so the move does not re-stamp updated_at.
+    if ( !previous.isEmpty() && previous != trimmed )
+    {
+        if ( !setApplyingOnDb(db, true) )
+        {
+            if ( errorOut ) *errorOut = tr("cannot set sync apply flag");
+            db.rollback();
+            return false;
+        }
+        for ( const QString &table : { QStringLiteral("contacts"), QStringLiteral("contacts_tombstones") } )
+        {
+            QSqlQuery move(db);
+            if ( !move.prepare(QStringLiteral("UPDATE %1 SET origin_node = :new WHERE origin_node = :old").arg(table)) )
+                return fail(move);
+            move.bindValue(QStringLiteral(":new"), trimmed);
+            move.bindValue(QStringLiteral(":old"), previous);
+            if ( !move.exec() )
+                return fail(move);
+            qCDebug(runtime) << "Moved" << move.numRowsAffected() << table << "rows from node" << previous << "to" << trimmed;
+        }
+        if ( !setApplyingOnDb(db, false) )
+        {
+            if ( errorOut ) *errorOut = tr("cannot clear sync apply flag");
+            db.rollback();
+            return false;
+        }
+    }
+
+    QSqlQuery q(db);
+    if ( !q.prepare("INSERT OR REPLACE INTO sync_runtime (key, value) VALUES (:k, :v)") )
+        return fail(q);
 
     // Saving a Node ID is the user's explicit statement that this install
     // owns the identity, so it also (re)claims ownership.
@@ -152,10 +197,14 @@ bool ContactSync::setSelfNodeId(const QString &nodeId, QString *errorOut)
         q.bindValue(":k", row.first);
         q.bindValue(":v", row.second);
         if ( !q.exec() )
-        {
-            if ( errorOut ) *errorOut = q.lastError().text();
-            return false;
-        }
+            return fail(q);
+    }
+
+    if ( !db.commit() )
+    {
+        if ( errorOut ) *errorOut = db.lastError().text();
+        db.rollback();
+        return false;
     }
     return true;
 }
@@ -507,6 +556,7 @@ bool ContactSync::loadHead(QString *errorOut)
             maxSeq = qMax(maxSeq, journalSeq(name));
         currentSeq = qMax(1, maxSeq);
         currentBytes = QFileInfo(currentJournalPath()).size();
+        journalEpoch = QUuid::createUuid().toString(QUuid::WithoutBraces);
         QFile create(currentJournalPath());
         if ( !create.open(QIODevice::WriteOnly | QIODevice::Append) )
         {
@@ -545,6 +595,19 @@ bool ContactSync::loadHead(QString *errorOut)
     const int parsed = journalSeq(obj.value("file").toString());
     currentSeq = (parsed >= 1) ? parsed : 1;
     currentBytes = QFileInfo(currentJournalPath()).size();
+
+    journalEpoch = obj.value("epoch").toString();
+    if ( journalEpoch.isEmpty() )
+    {
+        // HEAD from before epochs existed. Records already written carry no
+        // epoch and stay readable; new ones get this one.
+        journalEpoch = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        if ( !writeHead() )
+        {
+            if ( errorOut ) *errorOut = tr("Cannot update HEAD");
+            return false;
+        }
+    }
     return true;
 }
 
@@ -560,6 +623,7 @@ bool ContactSync::writeHead()
     obj["file"] = journalFileName(currentSeq);
     obj["bytes"] = static_cast<qint64>(currentBytes);
     obj["writer"] = writerId();
+    obj["epoch"] = journalEpoch;
     obj["updated_at"] = currentTimestamp();
 
     QSaveFile f(path);
@@ -712,6 +776,7 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
             QJsonObject record;
             record["v"]          = JOURNAL_FORMAT_VERSION;
             record["op"]         = QStringLiteral("upsert");
+            record["epoch"]      = journalEpoch;
             record["qso_uuid"]   = rec.value("qso_uuid").toString();
             record["updated_at"] = rec.value("updated_at").toString();
             record["node"]       = self;
@@ -759,6 +824,7 @@ bool ContactSync::flushOnDb(QSqlDatabase &db, int *upsertsOut, int *deletesOut,
             QJsonObject record;
             record["v"]          = JOURNAL_FORMAT_VERSION;
             record["op"]         = QStringLiteral("delete");
+            record["epoch"]      = journalEpoch;
             record["qso_uuid"]   = q.value("qso_uuid").toString();
             record["updated_at"] = q.value("deleted_at").toString();
             record["node"]       = self;
@@ -1143,6 +1209,7 @@ bool ContactSync::applyDeleteOnDb(QSqlDatabase &db, const QString &qsoUuid,
 
 ContactSync::ApplyResult ContactSync::applyJournalLineOnDb(QSqlDatabase &db,
                                                            const QByteArray &line,
+                                                           const QString &expectedEpoch,
                                                            QString *errorOut)
 {
     FCT_IDENTIFICATION;
@@ -1163,6 +1230,14 @@ ContactSync::ApplyResult ContactSync::applyJournalLineOnDb(QSqlDatabase &db,
         if ( errorOut ) *errorOut = tr("unsupported journal record version %1")
                                         .arg(rec.value("v").toInt());
         return ApplyResult::Retry;
+    }
+
+    // Records written before epochs existed have none and are always valid.
+    const QString epoch = rec.value("epoch").toString();
+    if ( !epoch.isEmpty() && !expectedEpoch.isEmpty() && epoch != expectedEpoch )
+    {
+        if ( errorOut ) *errorOut = tr("record from journal epoch %1, expected %2").arg(epoch, expectedEpoch);
+        return ApplyResult::OtherEpoch;
     }
 
     const QString op        = rec.value("op").toString();
@@ -1198,6 +1273,16 @@ ContactSync::ApplyResult ContactSync::applyJournalLineOnDb(QSqlDatabase &db,
     return ok ? ApplyResult::Applied : ApplyResult::Retry;
 }
 
+QString ContactSync::readPeerEpoch(const QString &peerDir)
+{
+    FCT_IDENTIFICATION;
+
+    QFile head(QDir(peerDir).filePath(QStringLiteral("HEAD")));
+    if ( !head.open(QIODevice::ReadOnly) )
+        return QString();
+    return QJsonDocument::fromJson(head.readAll()).object().value(QStringLiteral("epoch")).toString();
+}
+
 bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
                                const QString &peerDir, int *appliedOut,
                                QString *errorOut)
@@ -1209,17 +1294,32 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
 
     QString lastFile;
     qint64  lastOffset = 0;
+    QString storedEpoch;
     {
         QSqlQuery q(db);
-        if ( q.prepare("SELECT last_file, last_offset FROM sync_peers WHERE node = :n") )
+        if ( q.prepare("SELECT last_file, last_offset, epoch FROM sync_peers WHERE node = :n") )
         {
             q.bindValue(":n", peerNode);
             if ( q.exec() && q.next() )
             {
-                lastFile   = q.value(0).toString();
-                lastOffset = q.value(1).toLongLong();
+                lastFile    = q.value(0).toString();
+                lastOffset  = q.value(1).toLongLong();
+                storedEpoch = q.value(2).toString();
             }
         }
+    }
+
+    // A changed epoch means the peer's journal was restarted: its files and
+    // offsets no longer match what was read before, so read it all again
+    // (re-applied records are no-ops). Without HEAD (not synced yet), keep
+    // the stored epoch.
+    const QString headEpoch = readPeerEpoch(peerDir);
+    const QString epoch = headEpoch.isEmpty() ? storedEpoch : headEpoch;
+    if ( epoch != storedEpoch && ( !lastFile.isEmpty() || lastOffset > 0 ) )
+    {
+        qCInfo(runtime) << "Journal of" << peerNode << "was restarted; reading it again from the start";
+        lastFile.clear();
+        lastOffset = 0;
     }
     const int lastSeq = journalSeq(lastFile);
 
@@ -1294,7 +1394,15 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
             if ( !line.trimmed().isEmpty() )
             {
                 QString err;
-                const ApplyResult res = applyJournalLineOnDb(db, line, &err);
+                const ApplyResult res = applyJournalLineOnDb(db, line, epoch, &err);
+                if ( res == ApplyResult::OtherEpoch )
+                {
+                    // HEAD and journal files sync separately; wait for the
+                    // other half to arrive before moving past this point.
+                    qCDebug(runtime) << "Waiting for" << peerNode << name << ":" << err;
+                    fileComplete = false;
+                    break;
+                }
                 if ( res == ApplyResult::Retry )
                 {
                     stopReason = tr("%1 @%2: %3").arg(name).arg(f.pos() - line.size()).arg(err);
@@ -1323,14 +1431,15 @@ bool ContactSync::pullPeerOnDb(QSqlDatabase &db, const QString &peerNode,
 
     QSqlQuery upd(db);
     ok = ok && upd.prepare("INSERT OR REPLACE INTO sync_peers "
-                           "(node, last_file, last_offset, last_seen_at) "
-                           "VALUES (:n, :f, :o, :t)");
+                           "(node, last_file, last_offset, last_seen_at, epoch) "
+                           "VALUES (:n, :f, :o, :t, :e)");
     if ( ok )
     {
         upd.bindValue(":n", peerNode);
         upd.bindValue(":f", finalFile);
         upd.bindValue(":o", static_cast<qlonglong>(finalOffset));
         upd.bindValue(":t", QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs));
+        upd.bindValue(":e", epoch);
         ok = upd.exec();
     }
 

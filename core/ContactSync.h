@@ -92,7 +92,8 @@ private:
     enum class ApplyResult {
         Applied,        // applied (or a no-op that LWW says is correct)
         SkipPermanent,  // malformed record; skip it forever
-        Retry           // transient failure; stop and retry next cycle
+        Retry,          // transient failure; stop and retry next cycle
+        OtherEpoch      // from a different journal epoch; wait for the files to catch up
     };
 
     static QString currentTimestamp();
@@ -147,7 +148,8 @@ private:
                       const QString &peerDir, int *appliedOut,
                       QString *errorOut);
     ApplyResult applyJournalLineOnDb(QSqlDatabase &db, const QByteArray &line,
-                                     QString *errorOut);
+                                     const QString &expectedEpoch, QString *errorOut);
+    static QString readPeerEpoch(const QString &peerDir);
     bool applyUpsertOnDb(QSqlDatabase &db, const QJsonObject &record,
                          QString *errorOut);
     bool updateFromPayloadOnDb(QSqlDatabase &db, const QString &qsoUuid,
@@ -178,6 +180,10 @@ private:
     QTimer        *timer;
     int            currentSeq;
     qint64         currentBytes;
+    // Identifies this node's current journal set. Changes when the journal
+    // restarts (node folder deleted or recreated), so readers know to read
+    // it again from the beginning instead of resuming at a stale offset.
+    QString        journalEpoch;
     QDateTime      lastFlush;
     QAtomicInt     busyFlag;        // 0 = idle, 1 = cycle running
     QString        cycleFolder;     // snapshot of folder() for this cycle

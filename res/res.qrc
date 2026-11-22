@@ -56,6 +56,7 @@
         <file>sql/migration_039.sql</file>
         <file>sql/myfeatures_migration_001.sql</file>
         <file>sql/myfeatures_migration_002.sql</file>
+        <file>sql/myfeatures_migration_004.sql</file>
         <file>sql/migration_040.sql</file>
         <file>sql/migration_041.sql</file>
         <file>sql/migration_042.sql</file>
