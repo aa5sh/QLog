@@ -237,6 +237,27 @@ void TCIRigDrv::setPTT(bool newPTTState)
     sendCmd("trx", true, args);
 }
 
+void TCIRigDrv::setPower(double watts)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << watts;
+
+    if ( watts <= 0.0 )
+        return;
+
+    if ( receivedOnly )
+    {
+        qCDebug(runtime) << "Only receiver - no action";
+        return;
+    }
+
+    // TCI drive is a percentage; rspDRIVE uses the same Default PWR scale to report watts.
+    const double maxPower = (rigProfile.defaultPWR > 0.0) ? rigProfile.defaultPWR : 100.0;
+    const int drive = qBound(0, qRound(watts * 100.0 / maxPower), 100);
+    sendCmd("drive", true, {QString::number(drive)});
+}
+
 void TCIRigDrv::setKeySpeed(qint16 wpm)
 {
     FCT_IDENTIFICATION;

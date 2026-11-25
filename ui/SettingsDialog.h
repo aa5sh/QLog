@@ -172,6 +172,7 @@ private:
     // stages edits here and stores them only when the user presses OK.
     QStringList steppirDraftNames() const;
     QStringList amplifierDraftNames() const;
+    QList<QSpinBox *> amplifierDriveSpins(bool fullMode) const;
     WaveshareSettingsWidget *waveshareSettings;
     QList<SteppirProfile> steppirProfilesDraft;
     QString steppirCurrentProfileDraft;

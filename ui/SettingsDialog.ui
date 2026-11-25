@@ -912,6 +912,469 @@
                   </property>
                  </widget>
                 </item>
+                <item row="7" column="0" colspan="2">
+                 <widget class="QGroupBox" name="amplifierDrivePowerGroup">
+                  <property name="toolTip">
+                   <string>When the amplifier switches to Operate, save the rig power and set it for the band and Half/Full mode. The saved power is restored on Standby.</string>
+                  </property>
+                  <property name="title">
+                   <string>Set Rig Power in Operate</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_AmplifierDrivePower">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="amplifierDriveBandHeader0">
+                     <property name="text">
+                      <string>Band</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="amplifierDriveHalfHeader0">
+                     <property name="text">
+                      <string>Half</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="amplifierDriveFullHeader0">
+                     <property name="text">
+                      <string>Full</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="4">
+                    <widget class="QLabel" name="amplifierDriveBandHeader1">
+                     <property name="text">
+                      <string>Band</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="5">
+                    <widget class="QLabel" name="amplifierDriveHalfHeader1">
+                     <property name="text">
+                      <string>Half</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="6">
+                    <widget class="QLabel" name="amplifierDriveFullHeader1">
+                     <property name="text">
+                      <string>Full</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="amplifierDriveBandLabel0">
+                     <property name="text">
+                      <string notr="true">160m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin0">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin0">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="amplifierDriveBandLabel1">
+                     <property name="text">
+                      <string notr="true">80m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin1">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin1">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="amplifierDriveBandLabel2">
+                     <property name="text">
+                      <string notr="true">40m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin2">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin2">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="amplifierDriveBandLabel3">
+                     <property name="text">
+                      <string notr="true">30m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin3">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin3">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="amplifierDriveBandLabel4">
+                     <property name="text">
+                      <string notr="true">20m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin4">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="2">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin4">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="4">
+                    <widget class="QLabel" name="amplifierDriveBandLabel5">
+                     <property name="text">
+                      <string notr="true">17m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="5">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin5">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="6">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin5">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="4">
+                    <widget class="QLabel" name="amplifierDriveBandLabel6">
+                     <property name="text">
+                      <string notr="true">15m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="5">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin6">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="6">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin6">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="4">
+                    <widget class="QLabel" name="amplifierDriveBandLabel7">
+                     <property name="text">
+                      <string notr="true">12m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="5">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin7">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="6">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin7">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="4">
+                    <widget class="QLabel" name="amplifierDriveBandLabel8">
+                     <property name="text">
+                      <string notr="true">10m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="5">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin8">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="6">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin8">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="4">
+                    <widget class="QLabel" name="amplifierDriveBandLabel9">
+                     <property name="text">
+                      <string notr="true">6m</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="5">
+                    <widget class="QSpinBox" name="amplifierHalfDriveSpin9">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Half mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="6">
+                    <widget class="QSpinBox" name="amplifierFullDriveSpin9">
+                     <property name="toolTip">
+                      <string>Rig power in Operate with the amplifier in Full mode</string>
+                     </property>
+                     <property name="specialValueText">
+                      <string>Unchanged</string>
+                     </property>
+                     <property name="suffix">
+                      <string> W</string>
+                     </property>
+                     <property name="maximum">
+                      <number>200</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3" rowspan="6">
+                    <spacer name="amplifierDriveSpacer">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>

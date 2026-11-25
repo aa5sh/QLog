@@ -559,6 +559,44 @@ void HamlibRigDrv::setPTT(bool newPTTState)
     commandSleep();
 }
 
+void HamlibRigDrv::setPower(double watts)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << watts;
+
+    if ( watts <= 0.0 )
+        return;
+
+    MUTEXLOCKER;
+
+    if ( !rig )
+    {
+        qCWarning(runtime) << "Rig is not active";
+        return;
+    }
+
+    if ( !rig_has_set_level(rig, RIG_LEVEL_RFPOWER) || !rig->caps->mW2power )
+    {
+        qCWarning(runtime) << "Rig cannot set RF power";
+        return;
+    }
+
+    // Hamlib sets RF power as a 0..1 level; mW2power maps watts for the current band and mode.
+    float level = 0.0f;
+    int status = rig_mW2power(rig, &level, static_cast<unsigned int>(qRound(watts * 1000.0)),
+                              currFreq, currModeId);
+    if ( !isRigRespOK(status, tr("Set PWR (mW2power) Error"), false) )
+        return;
+
+    value_t hamlibLevel;
+    hamlibLevel.f = level;
+    status = rig_set_level(rig, RIG_VFO_CURR, RIG_LEVEL_RFPOWER, hamlibLevel);
+    isRigRespOK(status, tr("Set PWR Error"), false);
+
+    commandSleep();
+}
+
 void HamlibRigDrv::setKeySpeed(qint16 wpm)
 {
     FCT_IDENTIFICATION;

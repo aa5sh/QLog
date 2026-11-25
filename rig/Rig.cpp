@@ -702,6 +702,28 @@ void Rig::setPTTImpl(bool active)
     rigDriver->setPTT(active);
 }
 
+void Rig::setPower(double watts)
+{
+    FCT_IDENTIFICATION;
+
+    QMetaObject::invokeMethod(this, "setPowerImpl", Qt::QueuedConnection,
+                              Q_ARG(double, watts));
+}
+
+void Rig::setPowerImpl(double watts)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << watts;
+
+    MUTEXLOCKER;
+
+    if ( ! rigDriver )
+        return;
+
+    rigDriver->setPower(watts);
+}
+
 void Rig::setKeySpeed(qint16 wpm)
 {
     FCT_IDENTIFICATION;

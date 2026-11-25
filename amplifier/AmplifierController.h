@@ -5,12 +5,18 @@
 #include <QTimer>
 #include <QTcpSocket>
 #include <QSerialPort>
+#include <QVector>
 
 class QJsonObject;
+class QJsonValue;
 class QSerialPortInfo;
 
 struct AmplifierProfile
 {
+    // Band slots in SPE Expert status-packet order (160m ... 6m).
+    static const int BAND_COUNT = 10;
+    static const int MAX_DRIVE_POWER_W = 200;
+
     enum AmplifierModel
     {
         SPE_EXPERT_1K = 0
@@ -29,6 +35,18 @@ struct AmplifierProfile
     int baudRate = 9600;
     QString host;
     int port = 5000;
+    // Rig drive power applied while the amplifier is in Operate, per band;
+    // 0 leaves the rig power unchanged for that band.
+    bool drivePowerControl = false;
+    QVector<int> halfDrivePowerW = QVector<int>(BAND_COUNT, 0);
+    QVector<int> fullDrivePowerW = QVector<int>(BAND_COUNT, 0);
+
+    int drivePowerW(int band, bool fullMode) const
+    {
+        if ( band < 0 || band >= BAND_COUNT )
+            return 0;
+        return fullMode ? fullDrivePowerW.at(band) : halfDrivePowerW.at(band);
+    }
 
     bool operator==(const AmplifierProfile &other) const
     {
@@ -38,7 +56,10 @@ struct AmplifierProfile
                && serialPort == other.serialPort
                && baudRate == other.baudRate
                && host == other.host
-               && port == other.port;
+               && port == other.port
+               && drivePowerControl == other.drivePowerControl
+               && halfDrivePowerW == other.halfDrivePowerW
+               && fullDrivePowerW == other.fullDrivePowerW;
     }
 
     bool operator!=(const AmplifierProfile &other) const { return !operator==(other); }
@@ -84,6 +105,7 @@ public:
 private:
     static QJsonObject toJson(const AmplifierProfile &profile);
     static AmplifierProfile fromJson(const QJsonObject &obj);
+    static QVector<int> drivePowerFromJson(const QJsonValue &value);
 };
 
 class AmplifierController : public QObject
@@ -186,11 +208,16 @@ private:
     void setConnected(bool connected);
     void resetStatus();
     bool frequencyReportingAllowed() const;
+    void updateRigDrivePower(const AmplifierStatus &previous);
 
     AmplifierProfile activeProfile;
     AmplifierStatus currentStatus;
     int pendingFrequencyKHz = 0;
     int lastReportedFrequencyKHz = 0;
+    // Last rig power reading in W (0 when unknown) and the value saved on
+    // entering Operate, restored on Standby.
+    double rigPowerW = 0.0;
+    double savedRigPowerW = 0.0;
     bool connectedState = false;
     bool enabledState = false;
     bool openingSerialPort = false;

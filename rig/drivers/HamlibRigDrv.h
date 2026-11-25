@@ -34,6 +34,7 @@ public:
     virtual void setRawMode(const QString &) override;
     virtual void setMode(const QString &, const QString &, bool) override;
     virtual void setPTT(bool) override;
+    virtual void setPower(double watts) override;
     virtual void setKeySpeed(qint16 wpm) override;
     virtual void syncKeySpeed(qint16 wpm) override;
     virtual void sendMorse(const QString &) override;

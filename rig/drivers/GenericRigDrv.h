@@ -34,6 +34,7 @@ public:
     virtual void setRawMode(const QString &) = 0;
     virtual void setMode(const QString &, const QString &, bool) = 0;
     virtual void setPTT(bool) = 0;
+    virtual void setPower(double watts);
     virtual void setKeySpeed(qint16 wpm) = 0;
     virtual void syncKeySpeed(qint16 wpm) = 0;
     virtual void sendMorse(const QString &) = 0;

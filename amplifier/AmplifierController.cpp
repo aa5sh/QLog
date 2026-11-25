@@ -160,6 +160,17 @@ QJsonObject AmplifierProfiles::toJson(const AmplifierProfile &profile)
     obj["baudRate"] = profile.baudRate;
     obj["host"] = profile.host;
     obj["port"] = profile.port;
+    obj["drivePowerControl"] = profile.drivePowerControl;
+
+    QJsonArray half;
+    QJsonArray full;
+    for ( int i = 0; i < AmplifierProfile::BAND_COUNT; ++i )
+    {
+        half.append(profile.halfDrivePowerW.at(i));
+        full.append(profile.fullDrivePowerW.at(i));
+    }
+    obj["halfDrivePowerW"] = half;
+    obj["fullDrivePowerW"] = full;
     return obj;
 }
 
@@ -175,7 +186,23 @@ AmplifierProfile AmplifierProfiles::fromJson(const QJsonObject &obj)
     profile.baudRate = obj["baudRate"].toInt(9600);
     profile.host = obj["host"].toString();
     profile.port = obj["port"].toInt(5000);
+    profile.drivePowerControl = obj["drivePowerControl"].toBool(false);
+    profile.halfDrivePowerW = drivePowerFromJson(obj["halfDrivePowerW"]);
+    profile.fullDrivePowerW = drivePowerFromJson(obj["fullDrivePowerW"]);
     return profile;
+}
+
+QVector<int> AmplifierProfiles::drivePowerFromJson(const QJsonValue &value)
+{
+    FCT_IDENTIFICATION;
+
+    // Profiles saved before drive power control have no array; keep every band unchanged.
+    const QJsonArray array = value.toArray();
+    QVector<int> ret;
+    ret.reserve(AmplifierProfile::BAND_COUNT);
+    for ( int i = 0; i < AmplifierProfile::BAND_COUNT; ++i )
+        ret << qBound(0, array.at(i).toInt(0), int(AmplifierProfile::MAX_DRIVE_POWER_W));
+    return ret;
 }
 
 quint8 AmplifierController::keyCodeForCommand(AmplifierController::Command command)
@@ -330,6 +357,7 @@ AmplifierController::AmplifierController(QObject *parent) :
         }
     });
     const auto reportRigFrequency = [this, frequencyTimer](const Rig::Status &status) {
+        rigPowerW = ( status.isConnected && status.powerKnown ) ? status.power : 0.0;
         const double frequency = status.isConnected ? status.freq : 0.0;
         const double frequencyKHz = frequency * 1000.0;
         if ( !std::isfinite(frequencyKHz) || frequencyKHz < 1.0 || frequencyKHz > 65535 )
@@ -347,6 +375,7 @@ AmplifierController::AmplifierController(QObject *parent) :
     connect(Rig::instance(), &Rig::rigStatusChanged, this, reportRigFrequency);
     connect(Rig::instance(), &Rig::rigStatusHeartBeat, this, reportRigFrequency);
     connect(Rig::instance(), &Rig::rigDisconnected, this, [this, frequencyTimer]() {
+        rigPowerW = 0.0;
         frequencyTimer->stop();
         pendingFrequencyKHz = 0;
         lastReportedFrequencyKHz = 0;
@@ -635,8 +664,21 @@ void AmplifierController::reloadSettings()
 {
     FCT_IDENTIFICATION;
 
-    if ( connectedState && currentProfile() != AmplifierProfiles::currentProfileName() )
+    if ( !connectedState )
+        return;
+
+    if ( currentProfile() != AmplifierProfiles::currentProfileName() )
+    {
         open();
+        return;
+    }
+
+    // Drive power settings take effect without reconnecting; connection
+    // settings still apply on the next connect.
+    const AmplifierProfile profile = AmplifierProfiles::profile(activeProfile.profileName);
+    activeProfile.drivePowerControl = profile.drivePowerControl;
+    activeProfile.halfDrivePowerW = profile.halfDrivePowerW;
+    activeProfile.fullDrivePowerW = profile.fullDrivePowerW;
 }
 
 void AmplifierController::sendCommand(AmplifierController::Command command)
@@ -858,6 +900,7 @@ void AmplifierController::dispatchPacket(const QByteArray &packet)
 {
     FCT_IDENTIFICATION;
 
+    const AmplifierStatus previousStatus = currentStatus;
     if ( expectedCount == STATUS_COUNT && packet.size() == 35 && parseSpeStatus(packet) )
     {
         qCDebug(runtime) << "Amplifier status packet parsed"
@@ -871,6 +914,7 @@ void AmplifierController::dispatchPacket(const QByteArray &packet)
                          << "freqKHz" << currentStatus.freqKHz
                          << "paOutW" << currentStatus.paOutW;
         rcuRetryTimer->stop();
+        updateRigDrivePower(previousStatus);
         emit statusChanged(currentStatus);
     }
     else
@@ -942,6 +986,51 @@ bool AmplifierController::parseSpeStatus(const QByteArray &packet)
     currentStatus.currentA = amps / 10.0;
 
     return true;
+}
+
+void AmplifierController::updateRigDrivePower(const AmplifierStatus &previous)
+{
+    FCT_IDENTIFICATION;
+
+    if ( !currentStatus.operate )
+    {
+        // Restore even if the option was turned off while in Operate. This
+        // also covers a reconnect that finds the amplifier already in Standby.
+        if ( savedRigPowerW > 0.0 )
+        {
+            qCDebug(runtime) << "Amplifier in Standby; restoring rig power" << savedRigPowerW;
+            Rig::instance()->setPower(savedRigPowerW);
+            savedRigPowerW = 0.0;
+        }
+        return;
+    }
+
+    if ( !activeProfile.drivePowerControl )
+        return;
+
+    if ( previous.operate
+         && previous.band == currentStatus.band
+         && previous.fullMode == currentStatus.fullMode )
+        return;
+
+    // A disconnect resets the status without restoring power, because the
+    // amplifier may still be in Operate. Keep the value saved before it so a
+    // reconnect does not replace the original power with the reduced drive.
+    if ( !previous.operate && savedRigPowerW <= 0.0 )
+    {
+        savedRigPowerW = rigPowerW;
+        if ( savedRigPowerW <= 0.0 )
+            qCWarning(runtime) << "Rig power is unknown; it will not be restored on Standby";
+    }
+
+    const int drivePowerW = activeProfile.drivePowerW(currentStatus.band, currentStatus.fullMode);
+    qCDebug(runtime) << "Amplifier drive power"
+                     << "band" << currentStatus.band
+                     << "fullMode" << currentStatus.fullMode
+                     << "driveW" << drivePowerW
+                     << "savedW" << savedRigPowerW;
+    if ( drivePowerW > 0 )
+        Rig::instance()->setPower(drivePowerW);
 }
 
 void AmplifierController::setConnected(bool state)

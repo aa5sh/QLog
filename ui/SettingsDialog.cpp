@@ -1911,6 +1911,14 @@ void SettingsDialog::addAmplifierProfile()
     profile.baudRate = ui->amplifierBaudRateSpin->value();
     profile.host = ui->amplifierHostEdit->text();
     profile.port = ui->amplifierPortSpin->value();
+    profile.drivePowerControl = ui->amplifierDrivePowerGroup->isChecked();
+    const QList<QSpinBox *> halfSpins = amplifierDriveSpins(false);
+    const QList<QSpinBox *> fullSpins = amplifierDriveSpins(true);
+    for ( int band = 0; band < AmplifierProfile::BAND_COUNT; ++band )
+    {
+        profile.halfDrivePowerW[band] = halfSpins.at(band)->value();
+        profile.fullDrivePowerW[band] = fullSpins.at(band)->value();
+    }
 
     bool replaced = false;
     for ( AmplifierProfile &existing : amplifierProfilesDraft )
@@ -1964,6 +1972,14 @@ void SettingsDialog::doubleClickAmplifierProfile(QModelIndex i)
     ui->amplifierBaudRateSpin->setValue(profile.baudRate);
     ui->amplifierHostEdit->setText(profile.host);
     ui->amplifierPortSpin->setValue(profile.port);
+    ui->amplifierDrivePowerGroup->setChecked(profile.drivePowerControl);
+    const QList<QSpinBox *> halfSpins = amplifierDriveSpins(false);
+    const QList<QSpinBox *> fullSpins = amplifierDriveSpins(true);
+    for ( int band = 0; band < AmplifierProfile::BAND_COUNT; ++band )
+    {
+        halfSpins.at(band)->setValue(profile.halfDrivePowerW.at(band));
+        fullSpins.at(band)->setValue(profile.fullDrivePowerW.at(band));
+    }
     amplifierConnectionTypeChanged(ui->amplifierConnectionTypeCombo->currentIndex());
 
     ui->amplifierAddProfileButton->setText(tr("Modify"));
@@ -1981,8 +1997,28 @@ void SettingsDialog::clearAmplifierProfileForm()
     ui->amplifierBaudRateSpin->setValue(9600);
     ui->amplifierHostEdit->clear();
     ui->amplifierPortSpin->setValue(5000);
+    ui->amplifierDrivePowerGroup->setChecked(false);
+    for ( QSpinBox *spin : amplifierDriveSpins(false) + amplifierDriveSpins(true) )
+        spin->setValue(0);
     ui->amplifierAddProfileButton->setText(tr("Add"));
     amplifierConnectionTypeChanged(ui->amplifierConnectionTypeCombo->currentIndex());
+}
+
+QList<QSpinBox *> SettingsDialog::amplifierDriveSpins(bool fullMode) const
+{
+    FCT_IDENTIFICATION;
+
+    // Ordered as AmplifierProfile band slots (160m ... 6m).
+    if ( fullMode )
+        return { ui->amplifierFullDriveSpin0, ui->amplifierFullDriveSpin1, ui->amplifierFullDriveSpin2,
+                 ui->amplifierFullDriveSpin3, ui->amplifierFullDriveSpin4, ui->amplifierFullDriveSpin5,
+                 ui->amplifierFullDriveSpin6, ui->amplifierFullDriveSpin7, ui->amplifierFullDriveSpin8,
+                 ui->amplifierFullDriveSpin9 };
+
+    return { ui->amplifierHalfDriveSpin0, ui->amplifierHalfDriveSpin1, ui->amplifierHalfDriveSpin2,
+             ui->amplifierHalfDriveSpin3, ui->amplifierHalfDriveSpin4, ui->amplifierHalfDriveSpin5,
+             ui->amplifierHalfDriveSpin6, ui->amplifierHalfDriveSpin7, ui->amplifierHalfDriveSpin8,
+             ui->amplifierHalfDriveSpin9 };
 }
 
 void SettingsDialog::amplifierConnectionTypeChanged(int)

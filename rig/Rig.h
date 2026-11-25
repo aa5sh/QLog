@@ -109,6 +109,7 @@ public slots:
     void setRawMode(const QString &rawMode);
     void setMode(const QString &, const QString &, bool = false);
     void setPTT(bool);
+    void setPower(double watts);
     void setKeySpeed(qint16 wpm);
     void syncKeySpeed(qint16 wpm);
     void sendMorse(const QString &text);
@@ -145,6 +146,7 @@ private slots:
     void setRawModeImpl(const QString&);
     void setModeImpl(const QString &, const QString &, bool);
     void setPTTImpl(bool);
+    void setPowerImpl(double watts);
     void setKeySpeedImpl(qint16 wpm);
     void syncKeySpeedImpl(qint16 wpm);
     void sendMorseImpl(const QString &text);

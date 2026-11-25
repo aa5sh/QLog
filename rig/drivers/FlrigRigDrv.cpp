@@ -162,6 +162,17 @@ void FlrigRigDrv::setPTT(bool ptt)
     sendXmlRpcCommand("rig.set_ptt", { ptt ? 1 : 0 });
 }
 
+void FlrigRigDrv::setPower(double watts)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << watts;
+
+    if ( watts <= 0.0 || !rigReady ) return;
+
+    sendXmlRpcCommand("rig.set_power", { qRound(watts) });
+}
+
 void FlrigRigDrv::setKeySpeed(qint16 wpm)
 {
     FCT_IDENTIFICATION;

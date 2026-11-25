@@ -44,3 +44,13 @@ void GenericRigDrv::setSplit(bool)
 
     // Default: do nothing — driver does not support split
 }
+
+void GenericRigDrv::setPower(double watts)
+{
+    FCT_IDENTIFICATION;
+
+    qCDebug(function_parameters) << watts;
+
+    // Default: the driver cannot set RF power
+    qCWarning(runtime) << "Rig driver does not support setting RF power";
+}
