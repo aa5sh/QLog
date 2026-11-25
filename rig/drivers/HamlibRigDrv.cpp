@@ -576,13 +576,15 @@ void HamlibRigDrv::setPower(double watts)
         return;
     }
 
-    if ( !rig_has_set_level(rig, RIG_LEVEL_RFPOWER) || !rig->caps->mW2power )
+    if ( !rig_has_set_level(rig, RIG_LEVEL_RFPOWER) )
     {
         qCWarning(runtime) << "Rig cannot set RF power";
         return;
     }
 
-    // Hamlib sets RF power as a 0..1 level; mW2power maps watts for the current band and mode.
+    // Hamlib sets RF power as a 0..1 level. rig_mW2power maps watts for the
+    // current band and mode; backends without their own mW2power fall back
+    // to the rig's TX range, so caps->mW2power must not be required.
     float level = 0.0f;
     int status = rig_mW2power(rig, &level, static_cast<unsigned int>(qRound(watts * 1000.0)),
                               currFreq, currModeId);
